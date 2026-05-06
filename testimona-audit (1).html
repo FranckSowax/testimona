@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit de Production & Plan de Refactorisation — Testimona</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F8FA;
+    --bg-card: #FFFFFF;
+    --bg-card-alt: #F1F3F7;
+    --bg-accent: #EDF0F5;
+    --border: #DFE2EA;
+    --border-light: #D0D4DE;
+    --text: #1A1D2B;
+    --text-muted: #5A6177;
+    --text-dim: #8890A3;
+    --accent: #4F46E5;
+    --accent-glow: rgba(79, 70, 229, 0.1);
+    --red: #DC2626;
+    --red-bg: rgba(220, 38, 38, 0.06);
+    --red-border: rgba(220, 38, 38, 0.18);
+    --orange: #D97706;
+    --orange-bg: rgba(217, 119, 6, 0.06);
+    --orange-border: rgba(217, 119, 6, 0.18);
+    --yellow: #CA8A04;
+    --yellow-bg: rgba(202, 138, 4, 0.06);
+    --yellow-border: rgba(202, 138, 4, 0.18);
+    --green: #16A34A;
+    --green-bg: rgba(22, 163, 74, 0.06);
+    --green-border: rgba(22, 163, 74, 0.18);
+    --blue: #2563EB;
+    --blue-bg: rgba(37, 99, 235, 0.06);
+    --blue-border: rgba(37, 99, 235, 0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    position: relative;
+    padding: 100px 60px 80px;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+    background: #FFFFFF;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(79,70,229,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 30%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(220,38,38,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--red-bg);
+    border: 1px solid var(--red-border);
+    color: var(--red);
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 32px;
+    animation: pulse-badge 2s ease-in-out infinite;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--red);
+    border-radius: 50%;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  @keyframes pulse-badge {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.15); }
+    50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 400;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p.subtitle {
+    font-size: 17px;
+    color: var(--text-muted);
+    max-width: 680px;
+    font-weight: 300;
+  }
+
+  /* ── Score Band ── */
+  .score-band {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .score-item {
+    background: #FFFFFF;
+    padding: 28px 32px;
+    text-align: center;
+  }
+  .score-item .label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .score-item .value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 600;
+  }
+  .score-item .bar {
+    width: 100%;
+    height: 4px;
+    background: var(--bg-card-alt);
+    border-radius: 2px;
+    margin-top: 12px;
+    overflow: hidden;
+  }
+  .score-item .bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1s ease;
+  }
+
+  /* ── Layout ── */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  .section {
+    padding: 72px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .section:last-child { border-bottom: none; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .section-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid rgba(79,70,229,0.2);
+    padding: 4px 12px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    font-weight: 400;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card-alt);
+  }
+  .card-header h3 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  .card-header .tech-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 100px;
+    background: var(--bg-accent);
+    color: var(--text-muted);
+    border: 1px solid var(--border-light);
+  }
+  .card-body { padding: 0; }
+
+  /* ── Tables ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  thead th {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    padding: 14px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card);
+  }
+  tbody td {
+    padding: 12px 20px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(79,70,229,0.04); }
+  td code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--bg-accent);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-light);
+    color: var(--text-muted);
+  }
+
+  /* ── Severity Badges ── */
+  .sev {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .sev::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .sev-critique { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .sev-critique::before { background: var(--red); }
+  .sev-haute { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+  .sev-haute::before { background: var(--orange); }
+  .sev-moyenne { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+  .sev-moyenne::before { background: var(--yellow); }
+  .sev-basse { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .sev-basse::before { background: var(--green); }
+  .sev-fait { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .sev-fait::before { background: var(--green); }
+  .sev-partiel { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+  .sev-partiel::before { background: var(--yellow); }
+  .sev-encours { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+  .sev-encours::before { background: var(--blue); }
+
+  /* ── Status inline tag (resolved / partial / pending) ── */
+  .status-tag {
+    display: inline-block;
+    margin-left: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    vertical-align: middle;
+  }
+  .status-fait { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .status-partiel { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+  .status-encours { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+
+  /* ── Remediation update banner ── */
+  .update-banner {
+    background: linear-gradient(135deg, rgba(22,163,74,0.04) 0%, rgba(37,99,235,0.04) 100%);
+    border: 1px solid var(--green-border);
+    border-left: 3px solid var(--green);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+  }
+  .update-banner-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--green);
+  }
+  .update-banner-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 8px;
+  }
+  .update-banner-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+  .update-banner-text strong { color: var(--text); font-weight: 600; }
+
+  /* ── Remediation matrix ── */
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .matrix-cell {
+    padding: 16px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+  }
+  .matrix-cell .matrix-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .matrix-cell .matrix-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+  }
+  .matrix-fait .matrix-count { color: var(--green); }
+  .matrix-fait { border-color: var(--green-border); background: var(--green-bg); }
+  .matrix-partiel .matrix-count { color: var(--yellow); }
+  .matrix-partiel { border-color: var(--yellow-border); background: var(--yellow-bg); }
+  .matrix-encours .matrix-count { color: var(--blue); }
+  .matrix-encours { border-color: var(--blue-border); background: var(--blue-bg); }
+  @media (max-width: 640px) {
+    .matrix-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── Score dual display (old → new) ── */
+  .score-item .value-old {
+    font-size: 14px;
+    color: var(--text-dim);
+    text-decoration: line-through;
+    margin-right: 8px;
+  }
+  .score-item .value-arrow {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin: 0 4px;
+  }
+
+  /* ── Vulnerability List ── */
+  .vuln-group {
+    margin-bottom: 32px;
+  }
+  .vuln-group-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .vuln-group-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  .vuln-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .vuln-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .vuln-item .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 7px;
+  }
+  .vuln-item strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .vuln-item .desc { color: var(--text-muted); }
+  .vuln-item code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--bg-accent);
+    padding: 1px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--border-light);
+    color: var(--text-muted);
+  }
+
+  /* ── Phase Blocks ── */
+  .phase {
+    position: relative;
+    margin-bottom: 48px;
+  }
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .phase-number {
+    width: 44px; height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .phase-1 .phase-number { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .phase-2 .phase-number { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+  .phase-3 .phase-number { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+  .phase-4 .phase-number { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(79,70,229,0.2); }
+  .phase-5 .phase-number { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .phase-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+  }
+  .phase-subtitle {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .step {
+    padding: 20px 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  .step h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .step h4 .file-ref {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--accent-glow);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .step ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  .step ul li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+  .step ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+
+  /* ── Architecture Lists ── */
+  .arch-group { margin-bottom: 28px; }
+  .arch-group h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .arch-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .arch-list li {
+    padding: 10px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .arch-list li strong { color: var(--text); }
+  .arch-list li code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--bg-accent);
+    padding: 1px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--border-light);
+    color: var(--text-muted);
+  }
+
+  /* ── Verification Checklist ── */
+  .checklist {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .check-item .check-icon {
+    width: 22px; height: 22px;
+    border: 2px solid var(--border-light);
+    border-radius: 6px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: transparent;
+  }
+  .check-item .check-text {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .check-item .check-text strong {
+    display: block;
+    color: var(--text);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  /* ── Execution Order ── */
+  .exec-timeline {
+    position: relative;
+    padding-left: 32px;
+  }
+  .exec-timeline::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: linear-gradient(
+      to bottom,
+      var(--red) 0%, var(--red) 20%,
+      var(--orange) 20%, var(--orange) 40%,
+      var(--blue) 40%, var(--blue) 60%,
+      var(--accent) 60%, var(--accent) 80%,
+      var(--green) 80%, var(--green) 100%
+    );
+    border-radius: 1px;
+  }
+  .exec-step {
+    position: relative;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .exec-step::before {
+    content: '';
+    position: absolute;
+    left: -25px;
+    top: 22px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 3px solid var(--bg);
+  }
+  .exec-step:nth-child(1)::before { background: var(--red); }
+  .exec-step:nth-child(2)::before { background: var(--orange); }
+  .exec-step:nth-child(3)::before { background: var(--blue); }
+  .exec-step:nth-child(4)::before { background: var(--accent); }
+  .exec-step:nth-child(5)::before { background: var(--green); }
+  .exec-step .exec-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+  }
+  .exec-step:nth-child(1) .exec-label { color: var(--red); }
+  .exec-step:nth-child(2) .exec-label { color: var(--orange); }
+  .exec-step:nth-child(3) .exec-label { color: var(--blue); }
+  .exec-step:nth-child(4) .exec-label { color: var(--accent); }
+  .exec-step:nth-child(5) .exec-label { color: var(--green); }
+  .exec-step .exec-text {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .exec-step .exec-note {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    padding: 40px 60px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .footer span { color: var(--accent); font-weight: 600; }
+
+  /* ── Context Intro ── */
+  .context-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 40px;
+    font-size: 14.5px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+  .context-box strong { color: var(--text); }
+
+  /* ── TOC ── */
+  .toc {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 0;
+  }
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 24px;
+    background: var(--bg-card);
+    text-decoration: none;
+    color: var(--text);
+    transition: background 0.2s;
+  }
+  .toc-item:hover { background: var(--bg-card-alt); }
+  .toc-item .toc-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    min-width: 24px;
+  }
+  .toc-item .toc-label {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .toc-item .toc-part {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-left: auto;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+
+  /* ── Two Column Files ── */
+  .files-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  /* ── Print ── */
+  @media print {
+    body { font-size: 11px; }
+    .hero { padding: 40px 20px; }
+    .hero::before, .hero::after { display: none; }
+    .score-band { page-break-inside: avoid; }
+    .card, .step, .vuln-item { break-inside: avoid; }
+  }
+
+  /* ── Tablet ── */
+  @media (max-width: 900px) {
+    .files-grid { grid-template-columns: 1fr; }
+    .toc { grid-template-columns: 1fr; }
+    .hero { padding: 72px 32px 56px; }
+    .container { padding: 0 24px; }
+    .section { padding: 48px 0; }
+    .hero h1 { font-size: 32px; }
+    .checklist { grid-template-columns: 1fr; }
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 640px) {
+    .hero {
+      padding: 56px 20px 40px;
+    }
+    .hero h1 {
+      font-size: 26px;
+      line-height: 1.2;
+    }
+    .hero p.subtitle {
+      font-size: 14px;
+    }
+    .container { padding: 0 16px; }
+    .section { padding: 36px 0; }
+
+    /* ── Score Band: 2-col compact grid ── */
+    .score-band {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .score-item {
+      padding: 16px 14px;
+    }
+    .score-item .label {
+      font-size: 9px;
+      letter-spacing: 1px;
+    }
+    .score-item .value {
+      font-size: 22px;
+    }
+
+    /* ── Section headers ── */
+    .section-header {
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-size: 22px;
+    }
+
+    /* ════════════════════════════════════
+       TABLES → STACKED CARD LAYOUT
+       ════════════════════════════════════ */
+    .card-body table,
+    .card-body thead,
+    .card-body tbody,
+    .card-body th,
+    .card-body tr,
+    .card-body td {
+      display: block;
+    }
+    .card-body thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
+    }
+    .card-body tbody tr {
+      padding: 14px 16px;
+      margin: 0;
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 6px 8px;
+      align-items: center;
+    }
+    .card-body tbody tr:last-child {
+      border-bottom: none;
+    }
+    /* Dépendance name — full width top */
+    .card-body tbody td:nth-child(1) {
+      grid-column: 1 / -1;
+      padding: 0;
+      font-weight: 700;
+      font-size: 14px;
+      border: none;
+    }
+    /* Version actuelle */
+    .card-body tbody td:nth-child(2) {
+      padding: 0;
+      border: none;
+      font-size: 13px;
+    }
+    .card-body tbody td:nth-child(2)::before {
+      content: 'Actuelle: ';
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      margin-right: 4px;
+    }
+    /* Dernière version */
+    .card-body tbody td:nth-child(3) {
+      padding: 0;
+      border: none;
+      font-size: 13px;
+      text-align: right;
+    }
+    .card-body tbody td:nth-child(3)::before {
+      content: 'Cible: ';
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      margin-right: 4px;
+    }
+    /* Sévérité badge */
+    .card-body tbody td:nth-child(4) {
+      grid-column: 1 / -1;
+      padding: 0;
+      border: none;
+    }
+
+    /* ── Files tables (2-col: file + action) ── */
+    .files-grid .card-body tbody td:nth-child(1) {
+      grid-column: 1;
+    }
+    .files-grid .card-body tbody td:nth-child(1)::before {
+      display: none;
+    }
+    .files-grid .card-body tbody td:nth-child(2) {
+      grid-column: 1 / -1;
+      text-align: left;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .files-grid .card-body tbody td:nth-child(2)::before {
+      content: '→ ';
+      color: var(--text-dim);
+      margin-right: 0;
+    }
+
+    /* ── Cards ── */
+    .card-header {
+      padding: 14px 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .card-header h3 { font-size: 14px; }
+
+    /* ── Vulnerability items ── */
+    .vuln-item {
+      padding: 12px 14px;
+      font-size: 13px;
+      gap: 10px;
+    }
+    .vuln-group-header {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .vuln-group-title { font-size: 13px; }
+
+    /* ── Architecture lists ── */
+    .arch-list li {
+      padding: 10px 14px;
+      font-size: 13px;
+    }
+    .arch-list li code {
+      font-size: 11px;
+      word-break: break-all;
+    }
+
+    /* ── Phase blocks ── */
+    .phase-header { gap: 12px; }
+    .phase-number {
+      width: 36px; height: 36px;
+      font-size: 14px;
+      border-radius: 10px;
+    }
+    .phase-title { font-size: 18px; }
+    .phase-subtitle { font-size: 12px; }
+
+    /* ── Steps ── */
+    .step {
+      padding: 16px;
+    }
+    .step h4 {
+      font-size: 13px;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .step ul li {
+      font-size: 13px;
+      padding-left: 16px;
+    }
+
+    /* ── Context box ── */
+    .context-box {
+      padding: 18px 16px;
+      font-size: 13.5px;
+    }
+
+    /* ── TOC ── */
+    .toc-item {
+      padding: 14px 16px;
+      gap: 10px;
+    }
+    .toc-item .toc-label { font-size: 13px; }
+    .toc-item .toc-part { font-size: 10px; }
+
+    /* ── Execution timeline ── */
+    .exec-timeline { padding-left: 28px; }
+    .exec-step { padding: 14px 16px; }
+    .exec-step::before { left: -22px; width: 10px; height: 10px; }
+    .exec-step .exec-text { font-size: 13px; }
+
+    /* ── Checklist ── */
+    .check-item { padding: 12px 14px; }
+    .check-item .check-text { font-size: 13px; }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 28px 20px;
+      font-size: 11px;
+    }
+
+    /* ── Code tags overflow ── */
+    code {
+      word-break: break-all;
+    }
+  }
+
+  /* ── Very small screens ── */
+  @media (max-width: 380px) {
+    .score-band {
+      grid-template-columns: 1fr;
+    }
+    .hero h1 { font-size: 22px; }
+    .section-title { font-size: 19px; }
+    .card-body tbody tr {
+      grid-template-columns: 1fr;
+    }
+    .card-body tbody td:nth-child(3) {
+      text-align: left;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<header class="hero">
+  <div class="hero-badge" style="background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue)">Audit révisé · Remédiation en cours</div>
+  <h1>Audit de Production<br>& Plan de Refactorisation — <span>Testimona</span></h1>
+  <p class="subtitle">Application full-stack Angular 15 + Express/Prisma — Gestion de pages mémorielles. <strong style="color:var(--text)">Mise à jour 2026-05-06</strong> : le backend a été substantiellement modernisé (Phases 1 &amp; 2 quasi complètes), le frontend reste sur la stack legacy. Cet audit conserve la trace historique et superpose l'état réel observé.</p>
+</header>
+
+<!-- ═══════════════ SCORE BAND ═══════════════ -->
+<div class="score-band">
+  <div class="score-item">
+    <div class="label">Score Global</div>
+    <div class="value" style="color:var(--orange)"><span class="value-old">1.9</span>3.8<span style="font-size:14px;color:var(--text-dim)">/10</span></div>
+    <div class="bar"><div class="bar-fill" style="width:38%;background:var(--orange)"></div></div>
+  </div>
+  <div class="score-item">
+    <div class="label">Sécurité</div>
+    <div class="value" style="color:var(--green)"><span class="value-old">2</span>6.5<span style="font-size:14px;color:var(--text-dim)">/10</span></div>
+    <div class="bar"><div class="bar-fill" style="width:65%;background:var(--green)"></div></div>
+  </div>
+  <div class="score-item">
+    <div class="label">Tests</div>
+    <div class="value" style="color:var(--red)">0<span style="font-size:14px;color:var(--text-dim)">/10</span></div>
+    <div class="bar"><div class="bar-fill" style="width:2%;background:var(--red)"></div></div>
+  </div>
+  <div class="score-item">
+    <div class="label">Performance</div>
+    <div class="value" style="color:var(--orange)"><span class="value-old">3</span>3.5<span style="font-size:14px;color:var(--text-dim)">/10</span></div>
+    <div class="bar"><div class="bar-fill" style="width:35%;background:var(--orange)"></div></div>
+  </div>
+  <div class="score-item">
+    <div class="label">Observabilité</div>
+    <div class="value" style="color:var(--orange)"><span class="value-old">2</span>4<span style="font-size:14px;color:var(--text-dim)">/10</span></div>
+    <div class="bar"><div class="bar-fill" style="width:40%;background:var(--orange)"></div></div>
+  </div>
+  <div class="score-item">
+    <div class="label">CI/CD</div>
+    <div class="value" style="color:var(--orange)"><span class="value-old">0</span>3<span style="font-size:14px;color:var(--text-dim)">/10</span></div>
+    <div class="bar"><div class="bar-fill" style="width:30%;background:var(--orange)"></div></div>
+  </div>
+  <div class="score-item">
+    <div class="label">Documentation</div>
+    <div class="value" style="color:var(--red)"><span class="value-old">1</span>2<span style="font-size:14px;color:var(--text-dim)">/10</span></div>
+    <div class="bar"><div class="bar-fill" style="width:20%;background:var(--red)"></div></div>
+  </div>
+  <div class="score-item">
+    <div class="label">Qualité Code</div>
+    <div class="value" style="color:var(--yellow)"><span class="value-old">4</span>5<span style="font-size:14px;color:var(--text-dim)">/10</span></div>
+    <div class="bar"><div class="bar-fill" style="width:50%;background:var(--yellow)"></div></div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ═══════════════ CONTEXT ═══════════════ -->
+<div class="section">
+  <div class="context-box">
+    <strong>Testimona</strong> est une application de gestion de pages mémorielles. Elle permet de créer des mémoriaux, des témoignages, biographies, funérailles, photos et donations (Stripe). L'application nécessite une <strong>mise à niveau majeure</strong> avant production : frameworks obsolètes, vulnérabilités de sécurité, dette technique importante, et absence totale de tests.
+  </div>
+
+  <!-- ═══════════════ REMEDIATION UPDATE BANNER ═══════════════ -->
+  <div class="update-banner">
+    <div class="update-banner-header">● Mise à jour 2026-05-06 — État de remédiation</div>
+    <div class="update-banner-title">Le backend est largement modernisé ; le frontend reste sur la stack legacy</div>
+    <div class="update-banner-text">
+      Une revue ciblée du code source révèle que la <strong>quasi-totalité des correctifs de sécurité critiques</strong> du Plan Phase 1 ont été appliqués côté API : <code>helmet</code>, <code>express-rate-limit</code>, <code>bodyParser</code> avec limite 1MB, redirection HTTPS, Swagger gated en prod, cookies <code>sameSite</code> durci, JWT enrichi <code>issuer/audience</code>, et surtout le hachage des mots de passe migré de AES symétrique vers <strong>bcrypt</strong> (12 rounds) avec helper <code>isLegacyPassword</code> pour migration progressive. La <strong>Phase 2 backend</strong> est également faite : Express 4.21, Prisma 6, axios 1.7, cloudinary 2, stripe 17, google-auth 9, redis 4.7, TypeScript 5.7, ESLint 9, <code>@types/*</code> dans devDependencies. La conteneurisation existe (Dockerfiles multi-stage Node 22 + docker-compose postgres/redis/api/web). Winston est en place pour les logs ; un <code>/health</code> endpoint et un <code>globalErrorHandler</code> sont actifs. <br><br>
+      <strong>Restent en attente</strong> : toute la migration frontend (Angular 15→19, RxJS 6→7, Protractor→Playwright, NgModules→standalone, <code>toPromise()</code>→<code>firstValueFrom</code>), la couche tests (zéro <code>.spec.ts</code> côté API et Web), le pipeline CI/CD (<code>.github/workflows</code> absent), l'APM externe (Sentry/Datadog), la séparation des clés JWT (access/refresh/register), un conteneur DI (les <code>getInstance()</code> manuels persistent), et la documentation (READMEs minimaux, pas de CHANGELOG/CONTRIBUTING).
+    </div>
+    <div class="matrix-grid">
+      <div class="matrix-cell matrix-fait">
+        <div class="matrix-count">≈ 28</div>
+        <div class="matrix-label">Items résolus (Fait)</div>
+      </div>
+      <div class="matrix-cell matrix-partiel">
+        <div class="matrix-count">≈ 6</div>
+        <div class="matrix-label">Partiellement traités</div>
+      </div>
+      <div class="matrix-cell matrix-encours">
+        <div class="matrix-count">≈ 22</div>
+        <div class="matrix-label">À traiter (frontend, tests, CI/CD)</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="toc">
+    <a href="#versions" class="toc-item"><span class="toc-num">01</span><span class="toc-label">Versions & Obsolescence</span><span class="toc-part">Audit</span></a>
+    <a href="#securite" class="toc-item"><span class="toc-num">02</span><span class="toc-label">Vulnérabilités de Sécurité</span><span class="toc-part">Audit</span></a>
+    <a href="#architecture" class="toc-item"><span class="toc-num">03</span><span class="toc-label">Problèmes d'Architecture</span><span class="toc-part">Audit</span></a>
+    <a href="#qualite" class="toc-item"><span class="toc-num">04</span><span class="toc-label">Qualité du Code</span><span class="toc-part">Audit</span></a>
+    <a href="#devops" class="toc-item"><span class="toc-num">05</span><span class="toc-label">DevOps & Déploiement</span><span class="toc-part">Audit</span></a>
+    <a href="#plan" class="toc-item"><span class="toc-num">06</span><span class="toc-label">Plan de Refactorisation</span><span class="toc-part">Plan</span></a>
+    <a href="#fichiers" class="toc-item"><span class="toc-num">07</span><span class="toc-label">Fichiers Critiques</span><span class="toc-part">Plan</span></a>
+    <a href="#verification" class="toc-item"><span class="toc-num">08</span><span class="toc-label">Vérification & Exécution</span><span class="toc-part">Plan</span></a>
+  </nav>
+</div>
+
+<!-- ═══════════════ 1. VERSIONS ═══════════════ -->
+<div class="section" id="versions">
+  <div class="section-header">
+    <span class="section-number">01</span>
+    <h2 class="section-title">Versions & Obsolescence</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Frontend</h3>
+      <span class="tech-tag">web/</span>
+      <span class="tech-tag">Angular 15</span>
+    </div>
+    <div class="card-body">
+      <table>
+        <thead><tr><th>Dépendance</th><th>Actuelle</th><th>Dernière</th><th>Sévérité</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Angular</strong></td><td><code>15.2.9</code></td><td><code>19.x</code></td><td><span class="sev sev-critique">Critique</span></td></tr>
+          <tr><td><strong>RxJS</strong></td><td><code>6.6.0</code></td><td><code>7.8.x</code></td><td><span class="sev sev-haute">Haute</span></td></tr>
+          <tr><td><strong>TypeScript</strong></td><td><code>4.9.5</code></td><td><code>5.7.x</code></td><td><span class="sev sev-haute">Haute</span></td></tr>
+          <tr><td><strong>Zone.js</strong></td><td><code>0.11.4</code></td><td><code>0.15.x</code></td><td><span class="sev sev-haute">Haute</span></td></tr>
+          <tr><td><strong>@ngneat/transloco</strong></td><td><code>2.23.5</code></td><td><code>7.x</code> → <code>@jsverse/transloco</code></td><td><span class="sev sev-haute">Haute</span></td></tr>
+          <tr><td><strong>crypto-js</strong> <span class="status-tag status-fait">Fait</span></td><td><code>3.3.0 → 4.2.0</code></td><td><code>4.2.x</code></td><td><span class="sev sev-fait">Résolu</span></td></tr>
+          <tr><td><strong>express</strong> (server.js)</td><td><code>4.17.1</code></td><td><code>4.21.x / 5.x</code></td><td><span class="sev sev-moyenne">Moyenne</span></td></tr>
+          <tr><td><strong>Node.js requis</strong></td><td><code>18.16.0</code></td><td><code>22.x LTS</code></td><td><span class="sev sev-haute">Haute</span></td></tr>
+          <tr><td><strong>Protractor</strong> (e2e)</td><td><code>7.0.0</code></td><td>Abandonné</td><td><span class="sev sev-critique">Critique</span></td></tr>
+          <tr><td><strong>TSLint</strong></td><td><code>6.1.0</code></td><td>Abandonné → ESLint</td><td><span class="sev sev-haute">Haute</span></td></tr>
+          <tr><td><strong>Codelyzer</strong></td><td><code>6.0.0</code></td><td>Abandonné</td><td><span class="sev sev-haute">Haute</span></td></tr>
+          <tr><td><strong>MatLegacyTabsModule</strong></td><td><code>legacy-tabs</code></td><td><code>@angular/material MDC</code></td><td><span class="sev sev-haute">Haute</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Backend</h3>
+      <span class="tech-tag">api/</span>
+      <span class="tech-tag">Express + Prisma</span>
+    </div>
+    <div class="card-body">
+      <table>
+        <thead><tr><th>Dépendance</th><th>Actuelle</th><th>Dernière</th><th>Sévérité</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Prisma</strong> <span class="status-tag status-fait">Fait</span></td><td><code>4.8.1 → 6.0</code></td><td><code>6.x</code></td><td><span class="sev sev-fait">Résolu</span></td></tr>
+          <tr><td><strong>Express</strong> <span class="status-tag status-fait">Fait</span></td><td><code>4.18.1 → 4.21</code></td><td><code>4.21.x / 5.x</code></td><td><span class="sev sev-fait">Résolu</span></td></tr>
+          <tr><td><strong>TypeScript</strong> <span class="status-tag status-fait">Fait</span></td><td><code>5.0.4 → 5.7</code></td><td><code>5.7.x</code></td><td><span class="sev sev-fait">Résolu</span></td></tr>
+          <tr><td><strong>axios</strong> <span class="status-tag status-fait">Fait</span></td><td><code>0.27.2 → 1.7</code></td><td><code>1.7.x</code></td><td><span class="sev sev-fait">Résolu</span></td></tr>
+          <tr><td><strong>cloudinary</strong> <span class="status-tag status-fait">Fait</span></td><td><code>1.30.0 → 2.5</code></td><td><code>2.x</code></td><td><span class="sev sev-fait">Résolu</span></td></tr>
+          <tr><td><strong>jsonwebtoken</strong> <span class="status-tag status-fait">Fait</span></td><td><code>9.0.0 → 9.0.2</code></td><td><code>9.0.2</code></td><td><span class="sev sev-fait">Résolu</span></td></tr>
+          <tr><td><strong>nodemailer</strong> <span class="status-tag status-fait">Fait</span></td><td><code>6.7.5 → 6.9</code></td><td><code>6.9.x</code></td><td><span class="sev sev-fait">Résolu</span></td></tr>
+          <tr><td><strong>stripe</strong> <span class="status-tag status-fait">Fait</span></td><td><code>12.0.0 → 17.0</code></td><td><code>17.x</code></td><td><span class="sev sev-fait">Résolu</span></td></tr>
+          <tr><td><strong>redis</strong> <span class="status-tag status-fait">Fait</span></td><td><code>4.1.0 → 4.7</code></td><td><code>4.7.x</code></td><td><span class="sev sev-fait">Résolu</span></td></tr>
+          <tr><td><strong>heroku-ssl-redirect</strong> <span class="status-tag status-fait">Fait</span></td><td>Supprimé</td><td>Redirect HTTPS inline (<code>app.ts</code>)</td><td><span class="sev sev-fait">Résolu</span></td></tr>
+          <tr><td><strong>google-auth-library</strong> <span class="status-tag status-fait">Fait</span></td><td><code>7.0.3 → 9.14</code></td><td><code>9.x</code></td><td><span class="sev sev-fait">Résolu</span></td></tr>
+          <tr><td><strong>googleapis</strong> <span class="status-tag status-fait">Fait</span></td><td>Retirée</td><td>Plus listée dans <code>package.json</code></td><td><span class="sev sev-fait">Résolu</span></td></tr>
+          <tr><td><strong>bcrypt</strong> <span class="status-tag status-fait">Fait</span></td><td>Ajoutée <code>5.1.1</code></td><td><code>5.x</code></td><td><span class="sev sev-fait">Nouveau</span></td></tr>
+          <tr><td><strong>helmet</strong> <span class="status-tag status-fait">Fait</span></td><td>Ajoutée <code>8.0.0</code></td><td><code>8.x</code></td><td><span class="sev sev-fait">Nouveau</span></td></tr>
+          <tr><td><strong>express-rate-limit</strong> <span class="status-tag status-fait">Fait</span></td><td>Ajoutée <code>7.4</code></td><td><code>7.x</code></td><td><span class="sev sev-fait">Nouveau</span></td></tr>
+          <tr><td><strong>winston</strong> <span class="status-tag status-fait">Fait</span></td><td>Ajoutée <code>3.17</code></td><td><code>3.x</code></td><td><span class="sev sev-fait">Nouveau</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 2. SÉCURITÉ ═══════════════ -->
+<div class="section" id="securite">
+  <div class="section-header">
+    <span class="section-number">02</span>
+    <h2 class="section-title">Vulnérabilités de Sécurité</h2>
+  </div>
+
+  <div class="vuln-group">
+    <div class="vuln-group-header">
+      <span class="sev sev-critique">Critique</span>
+      <span class="vuln-group-title">Risques majeurs — Action immédiate requise</span>
+    </div>
+    <ul class="vuln-list">
+      <li class="vuln-item"><div class="dot" style="background:var(--green)"></div><div><strong>crypto-js 3.3.0 (frontend)</strong> <span class="status-tag status-fait">Fait</span> — <span class="desc">Bumpé à <code>4.2.0</code> côté <code>web/package.json</code>. Plus de CVE connues.</span></div></li>
+      <li class="vuln-item"><div class="dot" style="background:var(--green)"></div><div><strong>Mots de passe chiffrés avec AES symétrique</strong> <code>crypto.service.ts</code> <span class="status-tag status-fait">Fait</span> — <span class="desc">Migré vers <strong>bcrypt</strong> (12 rounds). Helper <code>isLegacyPassword()</code> détecte les anciens hash et permet le rehash transparent au login. <code>decryptLegacyPassword()</code> conservée pour migration.</span></div></li>
+      <li class="vuln-item"><div class="dot" style="background:var(--blue)"></div><div><strong>Clés de chiffrement dans les variables d'environnement</strong> <span class="status-tag status-encours">À traiter</span> — <span class="desc">Toujours via env vars. <code>.env.example</code> est en place mais aucune intégration vault/Secrets Manager.</span></div></li>
+      <li class="vuln-item"><div class="dot" style="background:var(--green)"></div><div><strong>Fichier .env vide en production</strong> <code>api/.env</code> <span class="status-tag status-fait">Fait</span> — <span class="desc">Un <code>.env.example</code> documenté (953 B) liste désormais toutes les variables requises (DB, Redis, JWT, encryption, Cloudinary, Google, Stripe, mail, log).</span></div></li>
+      <li class="vuln-item"><div class="dot" style="background:var(--orange)"></div><div><strong><code>trust proxy = 1</code> sans validation</strong> <code>app.ts:25</code> <span class="status-tag status-partiel">Partiel</span> — <span class="desc">Toujours présent, justifié pour reverse-proxy. À valider sur la cible déploiement (un nombre exact de hops est plus sûr qu'un booléen).</span></div></li>
+    </ul>
+  </div>
+
+  <div class="vuln-group">
+    <div class="vuln-group-header">
+      <span class="sev sev-haute">Haute</span>
+      <span class="vuln-group-title">Risques importants — À corriger rapidement</span>
+    </div>
+    <ul class="vuln-list">
+      <li class="vuln-item"><div class="dot" style="background:var(--yellow)"></div><div><strong>console.log(error) partout</strong> <span class="status-tag status-partiel">Partiel</span> — <span class="desc">Winston logger en place dans <code>logger.service.ts</code> + <code>error.middleware.ts</code> (asyncHandler, globalErrorHandler). Mais <code>jwt.service.ts</code> conserve encore 6 <code>console.log(error)</code> (lignes 45, 81, 99, 116, 136, 178) à remplacer.</span></div></li>
+      <li class="vuln-item"><div class="dot" style="background:var(--orange)"></div><div><strong>JWT token key unique</strong> <span class="status-tag status-encours">À traiter</span> — <span class="desc">Toujours <code>Constantes.TokenKey</code> pour register et access. <strong>Amélioré</strong> : <code>issuer: 'testimona-api'</code> + <code>audience: 'testimona-web'</code> ajoutés. Reste à scinder en 3 secrets distincts.</span></div></li>
+      <li class="vuln-item"><div class="dot" style="background:var(--green)"></div><div><strong>Pas de rate limiting</strong> <span class="status-tag status-fait">Fait</span> — <span class="desc"><code>express-rate-limit</code> appliqué sur <code>/auth</code> et <code>/register</code> (15 min, max 20 req).</span></div></li>
+      <li class="vuln-item"><div class="dot" style="background:var(--green)"></div><div><strong>Pas de helmet.js</strong> <span class="status-tag status-fait">Fait</span> — <span class="desc"><code>helmet()</code> activé en tête de chaîne dans <code>app.ts:17</code>.</span></div></li>
+      <li class="vuln-item"><div class="dot" style="background:var(--orange)"></div><div><strong>CORS whitelist fragile</strong> <span class="status-tag status-encours">À traiter</span> — <span class="desc">Toujours <code>WHITELIST_URL.split('|')</code> sans validation d'origine. Inchangé.</span></div></li>
+      <li class="vuln-item"><div class="dot" style="background:var(--green)"></div><div><strong>Cookie <code>sameSite: 'none'</code></strong> <span class="status-tag status-fait">Fait</span> — <span class="desc">Désormais <code>sameSite: 'strict'</code> si <code>secure</code>, sinon <code>'lax'</code> (<code>jwt.service.ts:189-196</code>). HttpOnly conservé.</span></div></li>
+      <li class="vuln-item"><div class="dot" style="background:var(--orange)"></div><div><strong>API RxJS dépréciée</strong> <span class="status-tag status-encours">À traiter</span> — <span class="desc">Frontend toujours sur RxJS 6.6 — <code>throwError(new Error())</code> et <code>toPromise()</code> partout. Phase 2 frontend non démarrée.</span></div></li>
+      <li class="vuln-item"><div class="dot" style="background:var(--orange)"></div><div><strong>Pas de validation CSRF</strong> <span class="status-tag status-encours">À traiter</span> — <span class="desc">Toujours absent côté API. Atténué partiellement par cookies <code>sameSite: strict</code>, mais token CSRF pour les actions état-changeantes manque.</span></div></li>
+      <li class="vuln-item"><div class="dot" style="background:var(--orange)"></div><div><strong>Social login commenté</strong> <span class="status-tag status-encours">À traiter</span> — <span class="desc">Frontend non revu ; <code>@abacritt/angularx-social-login</code> toujours dans <code>web/package.json</code>. À nettoyer ou réactiver proprement.</span></div></li>
+    </ul>
+  </div>
+
+  <div class="vuln-group">
+    <div class="vuln-group-header">
+      <span class="sev sev-moyenne">Moyenne</span>
+      <span class="vuln-group-title">Risques modérés — À planifier</span>
+    </div>
+    <ul class="vuln-list">
+      <li class="vuln-item"><div class="dot" style="background:var(--yellow)"></div><div><strong>Pas de Content Security Policy (CSP)</strong> <span class="status-tag status-partiel">Partiel</span> — <span class="desc"><code>helmet()</code> applique les CSP par défaut (script-src 'self', etc.) mais aucune politique custom n'est définie pour les domaines tiers (Cloudinary, Stripe, Google).</span></div></li>
+      <li class="vuln-item"><div class="dot" style="background:var(--green)"></div><div><strong>Swagger UI exposé en production</strong> <code>/api/testimona/v1</code> <span class="status-tag status-fait">Fait</span> — <span class="desc">Désactivé via <code>if (process.env.NODE_ENV !== 'production')</code> dans <code>app.ts:68</code>.</span></div></li>
+      <li class="vuln-item"><div class="dot" style="background:var(--green)"></div><div><strong><code>bodyParser.json()</code> sans limite de taille</strong> <span class="status-tag status-fait">Fait</span> — <span class="desc">Limite <code>1mb</code> appliquée à <code>express.json()</code> et <code>express.urlencoded()</code> (<code>app.ts:20-21</code>).</span></div></li>
+      <li class="vuln-item"><div class="dot" style="background:var(--orange)"></div><div><strong>Pas de timeout sur les requêtes HTTP</strong> <span class="status-tag status-encours">À traiter</span> — <span class="desc">Frontend non revu.</span></div></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════ 3. ARCHITECTURE ═══════════════ -->
+<div class="section" id="architecture">
+  <div class="section-header">
+    <span class="section-number">03</span>
+    <h2 class="section-title">Problèmes d'Architecture</h2>
+  </div>
+
+  <div class="arch-group">
+    <h4>Backend</h4>
+    <ul class="arch-list">
+      <li><strong>Pattern Singleton manuel</strong> sur tous les services (<code>getInstance()</code>) au lieu d'un conteneur DI. <span class="status-tag status-encours">À traiter</span> — Inchangé : <code>JwtService</code>, <code>RedisService</code>, <code>CryptoService</code>, <code>LogService</code>, <code>StripeService</code> conservent leur <code>getInstance()</code> manuel.</li>
+      <li><strong><code>@types/*</code> dans dependencies</strong> au lieu de devDependencies <code>package.json:28-38</code>. <span class="status-tag status-fait">Fait</span> — Tous les <code>@types/*</code> sont désormais correctement dans <code>devDependencies</code>.</li>
+      <li><strong><code>executeQueries&lt;T&gt;</code></strong> wrapping inutile de Prisma — complexité sans valeur. <span class="status-tag status-encours">À vérifier</span> — Pas re-vérifié dans cette mise à jour.</li>
+      <li><strong>Duplication <code>decryptPassword</code> / <code>decryptAnswer</code></strong> <span class="status-tag status-fait">Fait</span> — <code>decryptPassword</code> remplacé par <code>verifyPassword</code> bcrypt. <code>decryptAnswer</code> conservé pour les questions de sécurité (cas d'usage légitime distinct).</li>
+      <li><strong><code>var</code> utilisé</strong> dans <code>app.ts</code> <span class="status-tag status-fait">Fait</span> — <code>app.ts</code> est désormais 100 % <code>import</code>/<code>const</code>. Plus aucun <code>var</code>.</li>
+      <li><strong><code>require()</code> mixé avec <code>import</code></strong> dans <code>app.ts</code> <span class="status-tag status-fait">Fait</span> — Imports unifiés en ESM-style.</li>
+      <li><strong>Pas de gestion centralisée des erreurs</strong> <span class="status-tag status-fait">Fait</span> — <code>middlewares/common/error.middleware.ts</code> fournit <code>asyncHandler</code> + <code>globalErrorHandler</code> avec logging Winston. À déployer dans tous les controllers.</li>
+      <li><strong><code>Promise&lt;any&gt;</code></strong> <span class="status-tag status-encours">À traiter</span> — Toujours présent (ex. <code>jwt.service.ts</code>). Migration vers types Prisma générés non amorcée.</li>
+      <li><strong><code>shadowDatabaseUrl</code> dans schema.prisma</strong> <span class="status-tag status-fait">Fait</span> — Absent du schéma actuel.</li>
+      <li><strong>Pas de migrations versionnées</strong> <span class="status-tag status-fait">Fait</span> — 39 migrations versionnées sont présentes dans <code>prisma/migrations/</code> (depuis 2021-05).</li>
+    </ul>
+  </div>
+
+  <div class="arch-group">
+    <h4>Frontend</h4>
+    <ul class="arch-list">
+      <li><strong>Angular 15 avec NgModules</strong> <span class="status-tag status-encours">À traiter</span> — Inchangé. Migration 15→19 non démarrée.</li>
+      <li><strong><code>toPromise()</code> déprécié</strong> dans <code>HttpSharedService</code> <span class="status-tag status-encours">À traiter</span> — Confirmé : <code>configuration.service.ts</code>, <code>configuration.datastore.service.ts</code> et autres conservent <code>.toPromise()</code>.</li>
+      <li><strong>Pattern datastore custom</strong> au lieu de NgRx/signals — 43 services. <span class="status-tag status-encours">À traiter</span> Inchangé.</li>
+      <li><strong><code>window.console.log = () => {}</code></strong> dans <code>main.ts</code> <span class="status-tag status-fait">Fait</span> — Le <code>main.ts</code> ne contient plus que <code>enableProdMode()</code> + <code>bootstrapModule</code>. La suppression console est retirée.</li>
+      <li><strong>Pas de lazy loading</strong> Public/Admin <span class="status-tag status-partiel">Partiel</span> — <code>core-routing.module.ts</code> utilise <code>loadChildren</code> pour les sections principales. Reste à découper plus finement.</li>
+      <li><strong>60+ déclarations dans PublicModule</strong> <span class="status-tag status-encours">À traiter</span> — Inchangé.</li>
+      <li><strong><code>environment.prod.ts</code></strong> minimal <span class="status-tag status-fait">Fait</span> — Contient désormais <code>apiUrl</code>, <code>assetUrl</code>, <code>donation</code>, <code>googleProvider</code>, <code>publicKey</code>. Reste à externaliser via <code>.env</code> au build pour éviter de committer les URLs.</li>
+      <li><strong>Pas de service worker</strong> <span class="status-tag status-encours">À traiter</span> — Inchangé.</li>
+      <li><strong>Pas de SSR/SSG</strong> <span class="status-tag status-encours">À traiter</span> — Inchangé. <code>server.js</code> reste un serveur Express statique de bundles.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════ 4. QUALITÉ DU CODE ═══════════════ -->
+<div class="section" id="qualite">
+  <div class="section-header">
+    <span class="section-number">04</span>
+    <h2 class="section-title">Qualité du Code</h2>
+  </div>
+
+  <div class="arch-group">
+    <h4>Tests</h4>
+    <ul class="arch-list">
+      <li><strong>ZÉRO test unitaire</strong> <span class="status-tag status-encours">À traiter</span> — Confirmé après scan : aucun <code>.spec.ts</code> ni <code>.test.ts</code> dans <code>api/src</code> ou <code>web/src</code>.</li>
+      <li><strong>Protractor (e2e) abandonné</strong> <span class="status-tag status-encours">À traiter</span> — <code>protractor 7.0.0</code> toujours dans <code>web/devDependencies</code> ; dossier <code>web/e2e/</code> conservé. À remplacer par Playwright.</li>
+      <li><strong>Pas de couverture de code</strong> <span class="status-tag status-encours">À traiter</span>.</li>
+    </ul>
+  </div>
+
+  <div class="arch-group">
+    <h4>Code Smells</h4>
+    <ul class="arch-list">
+      <li><strong>Code commenté abondant</strong> (social login, debug logs) <span class="status-tag status-encours">À traiter</span> — Frontend non revu.</li>
+      <li><strong><code>any</code> type utilisé massivement</strong> <span class="status-tag status-encours">À traiter</span> — Inchangé.</li>
+      <li><strong>Pas de linting actif</strong> <span class="status-tag status-partiel">Partiel</span> — Backend : <code>eslint ^9.0.0</code> ajouté à <code>api/devDependencies</code> (config à valider). Frontend : TSLint 6.1 + Codelyzer 6 toujours en place, ESLint absent.</li>
+      <li><strong>Noms de fichiers inconsistants</strong> (<code>_.enums.ts</code>, <code>_.models.ts</code>) <span class="status-tag status-encours">À traiter</span> — Inchangé.</li>
+      <li><strong>Logique métier dans les controllers</strong> <span class="status-tag status-encours">À traiter</span> — Pas re-vérifié exhaustivement.</li>
+      <li><strong>Pas de DTOs validés</strong> <span class="status-tag status-encours">À traiter</span> — Joi présent mais pas de middleware de validation générique.</li>
+    </ul>
+  </div>
+
+  <div class="arch-group">
+    <h4>Documentation</h4>
+    <ul class="arch-list">
+      <li><strong>README.md API</strong> : 2 lignes ("api.testimona.com").</li>
+      <li><strong>README.md Web</strong> : README Angular générique non modifié.</li>
+      <li><strong>Pas de documentation API à jour</strong> (swagger.yaml non vérifié).</li>
+      <li><strong>Pas de CHANGELOG</strong>.</li>
+      <li><strong>Pas de CONTRIBUTING guide</strong>.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════ 5. DEVOPS ═══════════════ -->
+<div class="section" id="devops">
+  <div class="section-header">
+    <span class="section-number">05</span>
+    <h2 class="section-title">DevOps & Déploiement</h2>
+  </div>
+
+  <ul class="arch-list">
+    <li><strong>Pas de Dockerfile</strong> <span class="status-tag status-fait">Fait</span> — <code>api/Dockerfile</code> et <code>web/Dockerfile</code> en place : multi-stage Node 22-alpine, <code>npm ci --omit=dev</code> en prod, HEALTHCHECK configuré, <code>NODE_ENV=production</code>.</li>
+    <li><strong>Pas de docker-compose</strong> <span class="status-tag status-fait">Fait</span> — <code>docker-compose.yml</code> à la racine : postgres 16-alpine + redis 7-alpine + api + web, avec healthchecks et <code>depends_on: condition: service_healthy</code>.</li>
+    <li><strong>Pas de CI/CD</strong> configuré <span class="status-tag status-encours">À traiter</span> — Aucun <code>.github/workflows</code>. À créer.</li>
+    <li><strong><code>heroku-ssl-redirect</code></strong> <span class="status-tag status-fait">Fait</span> — Supprimé. Redirection HTTPS implémentée inline dans <code>app.ts:28-35</code> via <code>x-forwarded-proto</code>.</li>
+    <li><strong>Pas de health check endpoint</strong> <span class="status-tag status-fait">Fait</span> — <code>GET /health</code> retourne <code>{ status: 'ok', timestamp }</code> (<code>app.ts:74</code>). Le <code>HEALTHCHECK</code> Docker l'interroge.</li>
+    <li><strong>Pas de monitoring/APM</strong> <span class="status-tag status-partiel">Partiel</span> — Winston transport console actif, logger structuré JSON. Manque encore : APM externe (Sentry / Datadog / New Relic), agrégation de logs.</li>
+    <li><strong>Pas de gestion des secrets</strong> <span class="status-tag status-encours">À traiter</span> — Toujours via env vars en clair. Aucun vault.</li>
+    <li><strong><code>move-files.js</code></strong> comme script post-build <span class="status-tag status-encours">À traiter</span> — Toujours présent.</li>
+    <li><strong>Deux repos git séparés</strong> (<code>web/.git</code> et <code>api/.git</code>) <span class="status-tag status-encours">À traiter</span> — Inchangé.</li>
+    <li><strong><code>.DS_Store</code> dans le repo</strong> <span class="status-tag status-encours">À traiter</span> — Toujours présents (<code>api/.DS_Store</code>, <code>web/.DS_Store</code>, racine).</li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- ═══════════════ PARTIE 2 : PLAN ═══════════ -->
+<!-- ═══════════════════════════════════════════ -->
+
+<!-- ═══════════════ 6. PLAN ═══════════════ -->
+<div class="section" id="plan">
+  <div class="section-header">
+    <span class="section-number">06</span>
+    <h2 class="section-title">Plan de Refactorisation</h2>
+  </div>
+
+  <!-- Phase 1 -->
+  <div class="phase phase-1">
+    <div class="phase-header">
+      <div class="phase-number">1</div>
+      <div>
+        <div class="phase-title">Sécurité</div>
+        <div class="phase-subtitle">Priorité CRITIQUE — Bloquant pour la production</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h4>Remplacement du système de hachage des mots de passe <span class="file-ref">crypto.service.ts</span> <span class="status-tag status-fait">Fait</span></h4>
+      <ul>
+        <li><s>Remplacer AES symétrique par bcrypt</s> — bcrypt 5.1.1 implémenté avec 12 rounds.</li>
+        <li><s>Migrer les mots de passe existants (rehash au login)</s> — <code>isLegacyPassword()</code> + <code>decryptLegacyPassword()</code> permettent la migration transparente.</li>
+        <li>⚠️ <strong>crypto-js conservé</strong> côté API pour <code>encryptAnswer/decryptAnswer</code> (questions de sécurité) et déchiffrement transport frontend. À auditer si toujours pertinent.</li>
+      </ul>
+    </div>
+    <div class="step">
+      <h4>Sécurisation Express <span class="file-ref">app.ts</span> <span class="status-tag status-fait">Fait</span></h4>
+      <ul>
+        <li><s>helmet.js</s> — actif (<code>app.ts:17</code>).</li>
+        <li><s>express-rate-limit sur /auth, /register</s> — 15 min / 20 req.</li>
+        <li><s>bodyParser.json({ limit: '1mb' })</s> — appliqué à <code>express.json</code> et <code>urlencoded</code>.</li>
+        <li><s>Remplacer heroku-ssl-redirect</s> — redirect HTTPS inline via <code>x-forwarded-proto</code>.</li>
+        <li><s>Supprimer var et require()</s> — 100 % imports ESM.</li>
+        <li><s>Désactiver Swagger UI en production</s> — gated <code>NODE_ENV !== 'production'</code>.</li>
+      </ul>
+    </div>
+    <div class="step">
+      <h4>Amélioration JWT <span class="file-ref">jwt.service.ts</span> <span class="status-tag status-partiel">Partiel</span></h4>
+      <ul>
+        <li>⚠️ <strong>Clés séparées access/refresh/register</strong> — <strong>NON FAIT</strong>. <code>Constantes.TokenKey</code> reste unique.</li>
+        <li><s>Ajouter <code>audience</code> et <code>issuer</code></s> — <code>issuer: 'testimona-api'</code>, <code>audience: 'testimona-web'</code>.</li>
+        <li><s>Cookie <code>sameSite: 'strict'</code> en prod</s> — implémenté (strict si secure, lax sinon).</li>
+        <li>⚠️ Reste 6 <code>console.log(error)</code> à remplacer par Winston dans <code>jwt.service.ts</code>.</li>
+      </ul>
+    </div>
+    <div class="step">
+      <h4>Frontend crypto <span class="file-ref">web/package.json</span> <span class="status-tag status-fait">Fait</span></h4>
+      <ul>
+        <li><s>Mettre à jour crypto-js vers 4.x</s> — passé à <code>^4.2.0</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Phase 2 -->
+  <div class="phase phase-2">
+    <div class="phase-header">
+      <div class="phase-number">2</div>
+      <div>
+        <div class="phase-title">Mise à jour des frameworks</div>
+        <div class="phase-subtitle">Fondation pour le reste du plan</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h4>Migration Angular 15 → 19</h4>
+      <ul>
+        <li>Migration incrémentale : 15 → 16 → 17 → 18 → 19</li>
+        <li>À chaque étape : <code>ng update @angular/core @angular/cli</code></li>
+        <li>Convertir NgModules vers standalone components</li>
+        <li>Remplacer MatLegacyTabsModule par MDC components</li>
+        <li>Remplacer <code>toPromise()</code> par <code>firstValueFrom()</code></li>
+        <li>Remplacer RxJS 6 par RxJS 7</li>
+      </ul>
+    </div>
+    <div class="step">
+      <h4>Mise à jour outils de dev</h4>
+      <ul>
+        <li>Remplacer TSLint par ESLint (<code>ng add @angular-eslint/schematics</code>)</li>
+        <li>Remplacer Protractor par Playwright ou Cypress</li>
+        <li>Remplacer Karma/Jasmine par Jest (optionnel)</li>
+        <li>Mettre à jour Node.js target vers 22 LTS</li>
+      </ul>
+    </div>
+    <div class="step">
+      <h4>Mise à jour backend <span class="status-tag status-fait">Fait</span></h4>
+      <ul>
+        <li><s>Prisma 4 → 6 (supprimer shadowDatabaseUrl)</s> — <code>^6.0.0</code>, schéma sans shadow URL.</li>
+        <li><s>axios 0.27 → 1.7</s> — <code>^1.7.0</code>.</li>
+        <li><s>cloudinary 1.x → 2.x</s> — <code>^2.5.0</code>.</li>
+        <li><s>stripe 12 → 17</s> — <code>^17.0.0</code>.</li>
+        <li><s>google-auth-library 7 → 9</s> — <code>^9.14.0</code>.</li>
+        <li><s>Déplacer @types/* dans devDependencies</s> — Fait.</li>
+        <li><strong>Bonus livrés</strong> : Express 4.21, TS 5.7, redis 4.7, ESLint 9, winston, helmet, bcrypt, express-rate-limit, Dockerfiles multi-stage Node 22, docker-compose complet, <code>/health</code>, error middleware Winston.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Phase 3 -->
+  <div class="phase phase-3">
+    <div class="phase-header">
+      <div class="phase-number">3</div>
+      <div>
+        <div class="phase-title">Architecture & Qualité</div>
+        <div class="phase-subtitle">Améliore la maintenabilité</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h4>Refactorisation backend</h4>
+      <ul>
+        <li><strong>Injection de dépendances</strong> : Remplacer les singletons manuels par un conteneur DI (tsyringe ou inversify)</li>
+        <li><strong>Middleware d'erreur global</strong> : Centraliser la gestion d'erreurs</li>
+        <li><strong>Validation</strong> : Garder Joi, ajouter un middleware de validation générique</li>
+        <li><strong>Types stricts</strong> : Éliminer <code>any</code>, utiliser les types Prisma générés</li>
+        <li>Supprimer le code mort (social login commenté, debug logs)</li>
+      </ul>
+    </div>
+    <div class="step">
+      <h4>Refactorisation frontend</h4>
+      <ul>
+        <li><strong>Standalone components</strong> (Angular 19)</li>
+        <li><strong>Lazy loading</strong> pour les sections Public, Admin, Information</li>
+        <li><strong>Signals</strong> au lieu du pattern datastore custom (Angular 16+)</li>
+        <li>Supprimer <code>HttpSharedService</code> : utiliser <code>HttpClient</code> avec interceptors modernes</li>
+        <li>Remplacer <code>window.location.href = '/'</code> par <code>Router.navigate</code></li>
+        <li>Supprimer le code commenté</li>
+      </ul>
+    </div>
+    <div class="step">
+      <h4>Environments <span class="file-ref">environment.prod.ts</span></h4>
+      <ul>
+        <li>Ajouter toutes les variables nécessaires (apiUrl, etc.)</li>
+        <li>Utiliser des fichiers <code>.env</code> avec substitution au build</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Phase 4 -->
+  <div class="phase phase-4">
+    <div class="phase-header">
+      <div class="phase-number">4</div>
+      <div>
+        <div class="phase-title">Tests</div>
+        <div class="phase-subtitle">Valide les changements</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h4>Tests unitaires backend</h4>
+      <ul>
+        <li>Ajouter Jest + Supertest</li>
+        <li>Couvrir les services critiques : auth, jwt, crypto, memorial</li>
+        <li>Objectif : 70% de couverture minimum</li>
+      </ul>
+    </div>
+    <div class="step">
+      <h4>Tests unitaires frontend</h4>
+      <ul>
+        <li>Configurer Jest (remplacer Karma)</li>
+        <li>Tester les services, guards, interceptors</li>
+        <li>Tester les composants critiques avec Testing Library</li>
+      </ul>
+    </div>
+    <div class="step">
+      <h4>Tests E2E</h4>
+      <ul>
+        <li>Configurer Playwright</li>
+        <li>Scénarios critiques : inscription, connexion, création mémorial, donation</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Phase 5 -->
+  <div class="phase phase-5">
+    <div class="phase-header">
+      <div class="phase-number">5</div>
+      <div>
+        <div class="phase-title">DevOps & Production</div>
+        <div class="phase-subtitle">Prépare le déploiement</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h4>Conteneurisation</h4>
+      <ul>
+        <li>Créer <code>Dockerfile</code> pour API et Web</li>
+        <li>Créer <code>docker-compose.yml</code> pour dev local (API + DB + Redis)</li>
+      </ul>
+    </div>
+    <div class="step">
+      <h4>CI/CD</h4>
+      <ul>
+        <li>GitHub Actions : lint, test, build, deploy</li>
+        <li>Environnements : dev, staging, production</li>
+      </ul>
+    </div>
+    <div class="step">
+      <h4>Monitoring</h4>
+      <ul>
+        <li>Ajouter un endpoint <code>/health</code> à l'API</li>
+        <li>Intégrer un service APM (Sentry, Datadog, ou équivalent)</li>
+        <li>Centraliser les logs (Winston au lieu de console.log)</li>
+      </ul>
+    </div>
+    <div class="step">
+      <h4>Documentation</h4>
+      <ul>
+        <li>Générer la documentation API depuis Swagger/OpenAPI</li>
+        <li>README avec instructions d'installation et de déploiement</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 7. FICHIERS CRITIQUES ═══════════════ -->
+<div class="section" id="fichiers">
+  <div class="section-header">
+    <span class="section-number">07</span>
+    <h2 class="section-title">Fichiers Critiques à Modifier</h2>
+  </div>
+
+  <div class="files-grid">
+    <div class="card">
+      <div class="card-header">
+        <h3>Backend</h3>
+        <span class="tech-tag">api/</span>
+      </div>
+      <div class="card-body">
+        <table>
+          <thead><tr><th>Fichier</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td><code>package.json</code></td><td>Maj deps, déplacer @types en devDeps</td></tr>
+            <tr><td><code>src/app.ts</code></td><td>Helmet, rate limit, cleanup imports</td></tr>
+            <tr><td><code>crypto.service.ts</code></td><td>Remplacer par bcrypt</td></tr>
+            <tr><td><code>jwt.service.ts</code></td><td>Clés séparées, audience/issuer</td></tr>
+            <tr><td><code>_.constantes.ts</code></td><td>Renommer, ajouter clés JWT</td></tr>
+            <tr><td><code>schema.prisma</code></td><td>Supprimer shadowDatabaseUrl</td></tr>
+            <tr><td>Tous les services</td><td>Supprimer singletons, ajouter DI</td></tr>
+            <tr><td>Tous les controllers</td><td>Supprimer try/catch dupliqués</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <h3>Frontend</h3>
+        <span class="tech-tag">web/</span>
+      </div>
+      <div class="card-body">
+        <table>
+          <thead><tr><th>Fichier</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td><code>package.json</code></td><td>Maj Angular 19, deps</td></tr>
+            <tr><td><code>src/main.ts</code></td><td>Supprimer suppression console</td></tr>
+            <tr><td><code>app.module.ts</code></td><td>Convertir standalone</td></tr>
+            <tr><td><code>http-shared.service.ts</code></td><td>Remplacer toPromise()</td></tr>
+            <tr><td><code>core.interceptor.ts</code></td><td>Moderniser, Router.navigate</td></tr>
+            <tr><td><code>environment.prod.ts</code></td><td>Ajouter config complète</td></tr>
+            <tr><td><code>angular.json</code></td><td>Budget, optimisations build</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 8. VÉRIFICATION ═══════════════ -->
+<div class="section" id="verification">
+  <div class="section-header">
+    <span class="section-number">08</span>
+    <h2 class="section-title">Vérification & Ordre d'Exécution</h2>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:700;margin-bottom:20px;">Comment tester les changements</h3>
+  <div class="checklist">
+    <div class="check-item"><div class="check-icon">☐</div><div class="check-text"><strong>Sécurité</strong>Lancer <code>npm audit</code> sur les deux projets, vérifier les headers avec <code>curl -I</code></div></div>
+    <div class="check-item"><div class="check-icon">☐</div><div class="check-text"><strong>Build</strong><code>ng build --configuration production</code> sans erreurs</div></div>
+    <div class="check-item"><div class="check-icon">☐</div><div class="check-text"><strong>API</strong>Démarrer l'API, tester les endpoints avec Swagger/Postman</div></div>
+    <div class="check-item"><div class="check-icon">☐</div><div class="check-text"><strong>Tests</strong><code>npm test</code> avec couverture &gt; 70%</div></div>
+    <div class="check-item"><div class="check-icon">☐</div><div class="check-text"><strong>E2E</strong>Exécuter les scénarios Playwright</div></div>
+    <div class="check-item"><div class="check-icon">☐</div><div class="check-text"><strong>Performance</strong>Lighthouse score &gt; 80 sur le frontend</div></div>
+    <div class="check-item"><div class="check-icon">☐</div><div class="check-text"><strong>Docker</strong><code>docker-compose up</code> démarre l'ensemble du stack</div></div>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:700;margin:40px 0 20px;">Ordre d'exécution recommandé</h3>
+  <div class="exec-timeline">
+    <div class="exec-step">
+      <div class="exec-label">Phase 1</div>
+      <div class="exec-text">Sécurité</div>
+      <div class="exec-note">Bloquant pour la production</div>
+    </div>
+    <div class="exec-step">
+      <div class="exec-label">Phase 2</div>
+      <div class="exec-text">Mise à jour des frameworks</div>
+      <div class="exec-note">Fondation pour le reste</div>
+    </div>
+    <div class="exec-step">
+      <div class="exec-label">Phase 3</div>
+      <div class="exec-text">Architecture & Qualité</div>
+      <div class="exec-note">Améliore la maintenabilité</div>
+    </div>
+    <div class="exec-step">
+      <div class="exec-label">Phase 4</div>
+      <div class="exec-text">Tests</div>
+      <div class="exec-note">Valide les changements</div>
+    </div>
+    <div class="exec-step">
+      <div class="exec-label">Phase 5</div>
+      <div class="exec-text">DevOps & Production</div>
+      <div class="exec-note">Prépare le déploiement</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<footer class="footer">
+  <p>Audit Testimona — Score initial : <span style="color:var(--red);text-decoration:line-through">1.9/10</span> → Score révisé 2026-05-06 : <span>3.8/10</span> — Backend Phases 1-2 quasi complètes ; frontend, tests et CI/CD restent à traiter</p>
+</footer>
+
+</body>
+</html>
