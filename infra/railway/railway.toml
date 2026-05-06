@@ -1,0 +1,22 @@
+# Railway configuration template
+# https://docs.railway.app/reference/config-as-code
+#
+# This file documents the intended Railway service topology.
+# Per-service railway.toml files live inside apps/web/ and apps/api/ once Phase 1 is executed.
+
+# Project: testimona
+# Environments: dev, staging, prod
+#
+# Services per environment:
+#  - testimona-api  (Node 22, Express BFF, Dockerfile)
+#  - testimona-web  (Node 22, Next.js standalone)
+#  - redis          (Railway plugin, persistent volume in prod)
+#
+# Postgres lives on Supabase, NOT Railway.
+
+[build]
+builder = "DOCKERFILE"
+
+[deploy]
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
