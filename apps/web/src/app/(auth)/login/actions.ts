@@ -1,0 +1,85 @@
+'use server';
+
+import { LoginEmailSchema } from '@testimona/shared';
+import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
+import { getSupabaseServer } from '@/lib/supabase/server';
+
+export interface LoginActionState {
+  error?: string;
+  fieldErrors?: Record<string, string>;
+}
+
+export async function loginAction(
+  _prev: LoginActionState | null,
+  formData: FormData,
+): Promise<LoginActionState> {
+  const raw = {
+    loginType: 'Site' as const,
+    email: String(formData.get('email') ?? ''),
+    password: String(formData.get('password') ?? ''),
+  };
+
+  const parsed = LoginEmailSchema.safeParse(raw);
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) {
+      const key = issue.path.join('.');
+      if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+    }
+    return { error: 'Validation', fieldErrors };
+  }
+
+  const supabase = await getSupabaseServer();
+  const { error } = await supabase.auth.signInWithPassword({
+    email: parsed.data.email,
+    password: parsed.data.password,
+  });
+
+  if (error) {
+    // Try BFF lazy-migration fallback if Supabase rejects (user not yet migrated)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (apiUrl) {
+      try {
+        const res = await fetch(`${apiUrl}/api/v1/auth/login`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            loginType: 'Site',
+            email: parsed.data.email,
+            password: parsed.data.password,
+          }),
+          cache: 'no-store',
+        });
+        if (res.ok) {
+          await supabase.auth.signInWithPassword({
+            email: parsed.data.email,
+            password: parsed.data.password,
+          });
+          revalidatePath('/', 'layout');
+          redirect('/dashboard');
+        }
+      } catch {
+        // network / BFF down — fall through to generic error
+      }
+    }
+    return { error: error.message };
+  }
+
+  revalidatePath('/', 'layout');
+  redirect('/dashboard');
+}
+
+export async function loginWithGoogleAction() {
+  const supabase = await getSupabaseServer();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+    },
+  });
+  if (error || !data.url) {
+    return { error: error?.message ?? 'oauth init failed' };
+  }
+  redirect(data.url);
+}
