@@ -1,0 +1,26 @@
+# Railway service config for testimona-web (Next.js)
+# https://docs.railway.app/reference/config-as-code
+
+[build]
+builder = "NIXPACKS"
+buildCommand = "pnpm install --frozen-lockfile && pnpm --filter @testimona/web build"
+# Trigger deploys only when files relevant to this service change.
+# apps/web-angular-legacy/** has been removed and must NOT be listed here,
+# otherwise Railway skips every commit since the legacy dir was deleted.
+watchPatterns = [
+  "apps/web/**",
+  "packages/shared/**",
+  "packages/database/**",
+  "package.json",
+  "pnpm-lock.yaml",
+  "pnpm-workspace.yaml",
+  "turbo.json",
+  "tsconfig.base.json",
+]
+
+[deploy]
+startCommand = "pnpm --filter @testimona/web start"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+healthcheckPath = "/api/health"
+healthcheckTimeout = 30
