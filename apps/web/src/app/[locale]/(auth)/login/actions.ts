@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 
 export interface LoginActionState {
+  ok?: boolean;
   error?: string;
   fieldErrors?: Record<string, string>;
 }
@@ -41,7 +42,11 @@ export async function loginAction(
   }
 
   revalidatePath('/', 'layout');
-  redirect('/dashboard');
+  // Do NOT redirect from the server action — Next.js 15 keeps the
+  // intercepting-route @modal slot mounted across server-side redirects,
+  // which leaves the login modal visible with a stuck spinner. Signal
+  // success to the client and let it perform router.replace + refresh.
+  return { ok: true };
 }
 
 export async function loginWithGoogleAction(_formData: FormData): Promise<void> {

@@ -1,6 +1,5 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { getSupabaseServer } from '@/lib/supabase/server';
 
@@ -47,5 +46,7 @@ export async function signupAction(
 
   if (error) return { error: error.message };
 
-  redirect('/login?signup=ok');
+  // Don't redirect from the server action — the intercepting-route @modal
+  // slot stays mounted across server-side redirects on Next.js 15.
+  return { success: true };
 }

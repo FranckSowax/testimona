@@ -1,15 +1,22 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { getCurrentUser } from '@/lib/supabase/server';
 import { LoginForm } from './LoginForm';
 
 export const metadata = {
   title: 'Connexion',
 };
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
   searchParams: Promise<{ next?: string; error?: string }>;
 }) {
+  const user = await getCurrentUser();
+  if (user) {
+    const sp = await searchParams;
+    redirect(sp.next && sp.next.startsWith('/') ? sp.next : '/dashboard');
+  }
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-12">
       <h1 className="text-3xl font-semibold tracking-tight">Connexion</h1>

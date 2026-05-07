@@ -1,13 +1,22 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
+import { useRouter } from '@/i18n/navigation';
 import { signupAction, type SignupActionState } from './actions';
 
 export function SignupForm() {
+  const router = useRouter();
   const [state, formAction, isPending] = useActionState<SignupActionState | null, FormData>(
     signupAction,
     null,
   );
+
+  useEffect(() => {
+    if (state?.success) {
+      router.replace('/login?signup=ok');
+      router.refresh();
+    }
+  }, [state, router]);
 
   return (
     <form action={formAction} className="mt-8 space-y-4">

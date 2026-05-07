@@ -1,12 +1,19 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Modal } from '@/components/Modal';
+import { getCurrentUser } from '@/lib/supabase/server';
 import { LoginForm } from '@/app/[locale]/(auth)/login/LoginForm';
 
-export default function LoginModalPage({
+export default async function LoginModalPage({
   searchParams,
 }: {
   searchParams: Promise<{ next?: string; error?: string }>;
 }) {
+  const user = await getCurrentUser();
+  if (user) {
+    const sp = await searchParams;
+    redirect(sp.next && sp.next.startsWith('/') ? sp.next : '/dashboard');
+  }
   return (
     <Modal ariaLabel="Connexion">
       <h2 className="font-display text-2xl font-semibold text-foreground">Connexion</h2>
