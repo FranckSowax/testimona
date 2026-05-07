@@ -1,0 +1,29 @@
+{
+  "header": {
+    "search": "Search",
+    "myMemorials": "My memorials",
+    "signOut": "Sign out",
+    "signIn": "Sign in",
+    "signUp": "Create account"
+  },
+  "footer": {
+    "copyright": "Testimona, Inc.",
+    "legal": "Legal",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "language": "Language"
+  },
+  "home": {
+    "title": "Honor the memory of those who matter",
+    "lead": "Testimona helps you create a lasting memorial page: testimonials, biography, photos and tribute donations, in a thoughtful space shared with your loved ones.",
+    "ctaCreate": "Create a memorial",
+    "ctaSearch": "Search a memorial",
+    "featuresTitle": "A space dedicated to memory",
+    "featureTestimonialsTitle": "Testimonials",
+    "featureTestimonialsDesc": "Collect memories from loved ones, in French or English.",
+    "featureBiographyTitle": "Biography",
+    "featureBiographyDesc": "Tell the person's story, chapter by chapter.",
+    "featureDonationsTitle": "Donations",
+    "featureDonationsDesc": "Let visitors make a tribute donation via Stripe."
+  }
+}

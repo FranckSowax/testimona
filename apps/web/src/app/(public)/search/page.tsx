@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { MemorialCard } from '@/components/MemorialCard';
 
 export const metadata: Metadata = {
   title: 'Rechercher un mémorial',
@@ -42,6 +43,22 @@ async function searchMemorials(
   return { rows: data ?? [], total: count ?? 0 };
 }
 
+async function getCoverUrls(memorialIds: string[]): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  if (memorialIds.length === 0) return map;
+  const supabase = await getSupabaseServer();
+  const { data } = await supabase
+    .from('Photo')
+    .select('memorialId, url, position')
+    .in('memorialId', memorialIds)
+    .order('position', { ascending: true })
+    .returns<{ memorialId: string; url: string; position: number }[]>();
+  for (const p of data ?? []) {
+    if (!map.has(p.memorialId)) map.set(p.memorialId, p.url);
+  }
+  return map;
+}
+
 export default async function SearchPage({
   searchParams,
 }: {
@@ -62,6 +79,7 @@ export default async function SearchPage({
     error = 'Recherche indisponible pour le moment.';
   }
 
+  const covers = await getCoverUrls(rows.map((r) => r.id));
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
@@ -104,23 +122,19 @@ export default async function SearchPage({
         </p>
       )}
 
-      <ul className="mt-4 divide-y divide-border">
+      <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((m) => {
           const fullName = [m.firstname, m.lastname].filter(Boolean).join(' ');
           return (
-            <li key={m.id} className="py-4">
-              <Link
-                href={`/memorial/${m.slug}`}
-                className="block rounded-md px-2 py-1 hover:bg-muted/50"
-              >
-                <p className="font-medium">{fullName}</p>
-                {m.nickname && (
-                  <p className="text-sm text-muted-foreground">« {m.nickname} »</p>
-                )}
-                <p className="text-sm text-muted-foreground">
-                  {formatDateRange(m.birthDate, m.deathDate)}
-                </p>
-              </Link>
+            <li key={m.id}>
+              <MemorialCard
+                slug={m.slug}
+                fullName={fullName}
+                nickname={m.nickname}
+                birthDate={m.birthDate}
+                deathDate={m.deathDate}
+                coverUrl={covers.get(m.id) ?? null}
+              />
             </li>
           );
         })}

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getSupabaseServer } from '@/lib/supabase/server';
@@ -5,6 +6,7 @@ import { TestimonialsSection } from './_components/TestimonialsSection';
 import { PhotosSection } from './_components/PhotosSection';
 import { BiographySection } from './_components/BiographySection';
 import { DonateSection } from './_components/DonateSection';
+import { MemorialTabs } from './_components/MemorialTabs';
 
 export const revalidate = 60; // ISR — 60s
 
@@ -31,6 +33,18 @@ async function getMemorial(slug: string): Promise<MemorialRow | null> {
   return data ?? null;
 }
 
+async function getCoverPhotoUrl(memorialId: string): Promise<string | null> {
+  const supabase = await getSupabaseServer();
+  const { data } = await supabase
+    .from('Photo')
+    .select('url')
+    .eq('memorialId', memorialId)
+    .order('position', { ascending: true })
+    .limit(1)
+    .maybeSingle<{ url: string }>();
+  return data?.url ?? null;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -40,12 +54,16 @@ export async function generateMetadata({
   const memorial = await getMemorial(slug);
   if (!memorial) return { title: 'Mémorial introuvable' };
 
-  const fullName = [memorial.firstname, memorial.nickname && `« ${memorial.nickname} »`, memorial.lastname]
+  const fullName = [
+    memorial.firstname,
+    memorial.nickname && `« ${memorial.nickname} »`,
+    memorial.lastname,
+  ]
     .filter(Boolean)
     .join(' ');
 
   return {
-    title: `${fullName}`,
+    title: fullName,
     description: memorial.description?.slice(0, 160) ?? `Mémorial de ${fullName}`,
     openGraph: {
       title: fullName,
@@ -65,27 +83,69 @@ export default async function MemorialPage({
   if (!memorial) notFound();
 
   const fullName = [memorial.firstname, memorial.lastname].filter(Boolean).join(' ');
+  const coverUrl = await getCoverPhotoUrl(memorial.id);
 
   return (
-    <article className="mx-auto max-w-3xl px-6 py-12">
-      <header>
-        <h1 className="text-4xl font-semibold tracking-tight">{fullName}</h1>
-        {memorial.nickname && (
-          <p className="mt-1 text-lg text-muted-foreground">« {memorial.nickname} »</p>
-        )}
-        <p className="mt-2 text-sm text-muted-foreground">
-          {formatDateRange(memorial.birthDate, memorial.deathDate)}
-        </p>
+    <article>
+      <header className="relative h-[40vh] min-h-[280px] w-full overflow-hidden bg-secondary">
+        {coverUrl ? (
+          <Image src={coverUrl} alt="" fill sizes="100vw" priority className="object-cover" />
+        ) : null}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(45,50,80,0.25) 0%, rgba(45,50,80,0.75) 75%, rgba(45,50,80,0.92) 100%)',
+          }}
+        />
+        <div className="absolute inset-x-0 bottom-0 mx-auto max-w-4xl px-6 pb-10 text-white">
+          <h1 className="font-display text-3xl font-bold leading-tight tracking-tight sm:text-5xl">
+            {fullName}
+          </h1>
+          {memorial.nickname && (
+            <p className="mt-1 text-lg italic opacity-90">« {memorial.nickname} »</p>
+          )}
+          <p className="mt-2 text-sm font-medium uppercase tracking-wide opacity-80">
+            {formatDateRange(memorial.birthDate, memorial.deathDate)}
+          </p>
+        </div>
       </header>
-      {memorial.description && (
-        <section className="mt-8 whitespace-pre-line text-base leading-relaxed">
-          {memorial.description}
-        </section>
-      )}
-      <BiographySection memorialId={memorial.id} />
-      <PhotosSection memorialId={memorial.id} />
-      <TestimonialsSection memorialId={memorial.id} slug={memorial.slug} />
-      <DonateSection memorialId={memorial.id} slug={memorial.slug} />
+
+      <div className="mx-auto max-w-4xl px-6 pb-16 pt-8">
+        {memorial.description && (
+          <section
+            aria-label="À propos"
+            className="whitespace-pre-line border-l-4 border-primary bg-surface px-6 py-5 text-base leading-relaxed"
+          >
+            {memorial.description}
+          </section>
+        )}
+
+        <MemorialTabs
+          tabs={[
+            {
+              id: 'testimonials',
+              label: 'Témoignages',
+              panel: <TestimonialsSection memorialId={memorial.id} slug={memorial.slug} />,
+            },
+            {
+              id: 'photos',
+              label: 'Photos',
+              panel: <PhotosSection memorialId={memorial.id} />,
+            },
+            {
+              id: 'biography',
+              label: 'Biographie',
+              panel: <BiographySection memorialId={memorial.id} />,
+            },
+            {
+              id: 'donate',
+              label: 'Faire un don',
+              panel: <DonateSection memorialId={memorial.id} slug={memorial.slug} />,
+            },
+          ]}
+        />
+      </div>
     </article>
   );
 }

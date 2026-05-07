@@ -1,0 +1,29 @@
+{
+  "header": {
+    "search": "Rechercher",
+    "myMemorials": "Mes mémoriels",
+    "signOut": "Se déconnecter",
+    "signIn": "Se connecter",
+    "signUp": "Créer un compte"
+  },
+  "footer": {
+    "copyright": "Testimona, Inc.",
+    "legal": "Mentions légales",
+    "privacy": "Confidentialité",
+    "terms": "CGU",
+    "language": "Langue"
+  },
+  "home": {
+    "title": "Honorez la mémoire de ceux qui comptent",
+    "lead": "Testimona vous aide à créer une page mémorielle pérenne : témoignages, biographie, photos et donations en hommage, dans un espace recueilli partagé avec vos proches.",
+    "ctaCreate": "Créer un mémorial",
+    "ctaSearch": "Rechercher un mémorial",
+    "featuresTitle": "Un espace dédié à la mémoire",
+    "featureTestimonialsTitle": "Témoignages",
+    "featureTestimonialsDesc": "Recueillez les souvenirs des proches, en français ou en anglais.",
+    "featureBiographyTitle": "Biographie",
+    "featureBiographyDesc": "Racontez l'histoire de la personne, chapitre par chapitre.",
+    "featureDonationsTitle": "Donations",
+    "featureDonationsDesc": "Permettez aux visiteurs de faire un don en hommage via Stripe."
+  }
+}

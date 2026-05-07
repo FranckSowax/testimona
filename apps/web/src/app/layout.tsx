@@ -36,8 +36,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  modal,
 }: {
   children: React.ReactNode;
+  modal: React.ReactNode;
 }) {
   return (
     <html lang="fr" className={`${roboto.variable} ${montserrat.variable}`}>
@@ -53,6 +55,7 @@ export default function RootLayout({
           {children}
         </main>
         <SiteFooter />
+        {modal}
       </body>
     </html>
   );

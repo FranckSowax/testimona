@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { TestimonialForm } from './TestimonialForm';
@@ -35,30 +36,53 @@ export async function TestimonialsSection({
   ]);
 
   return (
-    <section aria-labelledby="testimonials-heading" className="mt-12">
-      <h2 id="testimonials-heading" className="text-2xl font-semibold">
+    <section aria-labelledby="testimonials-heading">
+      <h2 id="testimonials-heading" className="sr-only">
         Témoignages
       </h2>
 
       {testimonials.length === 0 ? (
-        <p className="mt-4 text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Aucun témoignage pour le moment. Soyez le premier à partager un souvenir.
         </p>
       ) : (
-        <ul className="mt-4 space-y-4">
+        <ul className="space-y-6">
           {testimonials.map((t) => (
-            <li key={t.id} className="rounded-md border border-border p-4">
-              <p className="text-sm font-medium">{t.authorName}</p>
-              <p className="text-xs text-muted-foreground">
-                {new Date(t.createdAt).toLocaleDateString('fr-FR')}
+            <li
+              key={t.id}
+              className="relative overflow-hidden rounded-lg border-l-4 border-primary bg-surface px-6 py-5 pl-12"
+            >
+              <Image
+                src="/images/quote-open.svg"
+                alt=""
+                width={28}
+                height={28}
+                className="absolute left-3 top-3 h-7 w-7 opacity-70"
+              />
+              <p className="whitespace-pre-line text-base italic leading-relaxed text-foreground">
+                {t.message}
               </p>
-              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed">{t.message}</p>
+              <Image
+                src="/images/quote-close.svg"
+                alt=""
+                width={20}
+                height={20}
+                className="ml-auto mt-2 h-5 w-5 opacity-50"
+              />
+              <footer className="mt-3 flex items-baseline gap-2 not-italic">
+                <span className="font-display text-sm font-semibold text-foreground">
+                  {t.authorName}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {new Date(t.createdAt).toLocaleDateString('fr-FR')}
+                </span>
+              </footer>
             </li>
           ))}
         </ul>
       )}
 
-      <div className="mt-6">
+      <div className="mt-8">
         {user ? (
           <TestimonialForm
             memorialId={memorialId}

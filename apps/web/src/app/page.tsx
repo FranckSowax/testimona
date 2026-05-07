@@ -4,7 +4,15 @@ import Link from 'next/link';
 export default function HomePage() {
   return (
     <>
-      <section className="bg-surface">
+      <section
+        className="relative overflow-hidden bg-surface"
+        style={{
+          backgroundImage:
+            'linear-gradient(to bottom, rgba(240,242,255,0.55), rgba(240,242,255,0.92)), url(/images/home-background.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 md:grid-cols-2">
           <div>
             <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">

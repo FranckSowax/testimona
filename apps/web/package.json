@@ -21,7 +21,7 @@
     "@testimona/shared": "workspace:*",
     "lucide-react": "^0.452.0",
     "next": "^15.0.0",
-    "next-intl": "^3.20.0",
+    "next-intl": "^3.26.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.53.0",
