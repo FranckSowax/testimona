@@ -135,6 +135,44 @@
       "create": "Create a memorial",
       "emptyTitle": "No memorials yet",
       "emptyBody": "Create your first memorial to gather testimonials, photos and tribute donations."
+    },
+    "testimonials": {
+      "title": "My testimonials",
+      "subtitle": "Every testimonial you have shared.",
+      "openMemorial": "Open memorial",
+      "emptyTitle": "No testimonials yet",
+      "emptyBody": "Share a memory on any memorial page.",
+      "search": "Search a memorial",
+      "publishedOn": "Posted on",
+      "stats": "{likes, plural, =0 {0 likes} =1 {1 like} other {{likes} likes}} · {comments, plural, =0 {No comments} =1 {1 comment} other {{comments} comments}}"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Recent activity on your memorials and testimonials.",
+      "emptyTitle": "Nothing yet",
+      "emptyBody": "New testimonials, likes and comments will show up here.",
+      "eventTestimonialReceived": "{author} posted a testimonial on {memorial}",
+      "eventLikeReceived": "{author} liked your testimonial on {memorial}",
+      "eventCommentReceived": "{author} commented on your testimonial on {memorial}",
+      "anonymous": "Someone",
+      "viewMemorial": "Open"
+    },
+    "profile": {
+      "title": "My profile",
+      "subtitle": "Manage your personal information and account security.",
+      "emailLabel": "Email address",
+      "emailHelp": "Email is used to sign in. Contact support to change it.",
+      "fullNameLabel": "Full name",
+      "nicknameLabel": "Display name",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Profile updated.",
+      "passwordTitle": "Security",
+      "passwordDescription": "Receive an email to reset your password.",
+      "passwordReset": "Send reset link",
+      "passwordSent": "Password reset email sent.",
+      "dangerTitle": "Danger zone",
+      "signOut": "Sign out of this device"
     }
   }
 }

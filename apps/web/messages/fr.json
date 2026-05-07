@@ -135,6 +135,44 @@
       "create": "Créer un mémorial",
       "emptyTitle": "Aucun mémorial pour le moment",
       "emptyBody": "Créez votre premier mémorial pour rassembler témoignages, photos et dons en hommage."
+    },
+    "testimonials": {
+      "title": "Mes témoignages",
+      "subtitle": "Tous les témoignages que vous avez publiés.",
+      "openMemorial": "Voir le mémorial",
+      "emptyTitle": "Vous n'avez pas encore de témoignage",
+      "emptyBody": "Partagez un souvenir d'une personne disparue depuis n'importe quelle page mémorielle.",
+      "search": "Rechercher un mémorial",
+      "publishedOn": "Publié sur",
+      "stats": "{likes, plural, =0 {Aucun j'aime} =1 {1 j'aime} other {{likes} j'aime}} · {comments, plural, =0 {Aucun commentaire} =1 {1 commentaire} other {{comments} commentaires}}"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Activité récente liée à vos mémoriels et témoignages.",
+      "emptyTitle": "Aucune notification",
+      "emptyBody": "Les nouveaux témoignages, j'aime et commentaires sur votre activité apparaîtront ici.",
+      "eventTestimonialReceived": "{author} a publié un témoignage sur {memorial}",
+      "eventLikeReceived": "{author} a aimé votre témoignage sur {memorial}",
+      "eventCommentReceived": "{author} a commenté votre témoignage sur {memorial}",
+      "anonymous": "Quelqu'un",
+      "viewMemorial": "Voir"
+    },
+    "profile": {
+      "title": "Mon profil",
+      "subtitle": "Gérez vos informations personnelles et la sécurité de votre compte.",
+      "emailLabel": "Adresse email",
+      "emailHelp": "L'email sert à la connexion. Pour le modifier, contactez le support.",
+      "fullNameLabel": "Nom complet",
+      "nicknameLabel": "Pseudonyme",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "saved": "Profil mis à jour.",
+      "passwordTitle": "Sécurité",
+      "passwordDescription": "Recevez un email pour réinitialiser votre mot de passe.",
+      "passwordReset": "Envoyer le lien de réinitialisation",
+      "passwordSent": "Email de réinitialisation envoyé.",
+      "dangerTitle": "Zone de danger",
+      "signOut": "Se déconnecter de cet appareil"
     }
   }
 }
