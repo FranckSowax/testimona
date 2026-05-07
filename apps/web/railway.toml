@@ -3,10 +3,9 @@
 
 [build]
 builder = "NIXPACKS"
-# NODE_ENV=development on install so pnpm includes devDependencies
-# (@tailwindcss/postcss, typescript, etc.). Nixpacks sets NODE_ENV=production
-# at runtime, which would otherwise skip them and fail `next build`.
-buildCommand = "NODE_ENV=development pnpm install --frozen-lockfile && pnpm --filter @testimona/web build"
+# Install (with devDependencies) is handled by nixpacks.toml so that
+# @tailwindcss/postcss et al. are available when next build runs.
+buildCommand = "pnpm --filter @testimona/web build"
 # Trigger deploys only when files relevant to this service change.
 # apps/web-angular-legacy/** has been removed and must NOT be listed here,
 # otherwise Railway skips every commit since the legacy dir was deleted.
