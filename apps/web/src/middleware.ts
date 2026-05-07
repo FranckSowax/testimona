@@ -2,10 +2,16 @@
  * Next.js middleware: handles i18n locale (next-intl) + Supabase session +
  * auth-required route gates.
  */
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import createIntlMiddleware from 'next-intl/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
 import { routing } from '@/i18n/routing';
+
+interface CookiePayload {
+  name: string;
+  value: string;
+  options?: CookieOptions;
+}
 
 const intlMiddleware = createIntlMiddleware(routing);
 
@@ -50,7 +56,7 @@ export async function middleware(req: NextRequest) {
         getAll() {
           return req.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: CookiePayload[]) {
           cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options),

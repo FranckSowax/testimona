@@ -4,8 +4,14 @@
  * Uses cookie-based session management via @supabase/ssr.
  * RLS-protected: this client is subject to the user's session JWT.
  */
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+
+interface CookiePayload {
+  name: string;
+  value: string;
+  options?: CookieOptions;
+}
 
 export async function getSupabaseServer() {
   const cookieStore = await cookies();
@@ -17,7 +23,7 @@ export async function getSupabaseServer() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: CookiePayload[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options),

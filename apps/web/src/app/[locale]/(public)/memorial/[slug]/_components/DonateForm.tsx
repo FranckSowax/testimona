@@ -4,7 +4,7 @@ import { useActionState, useState } from 'react';
 import {
   createDonationCheckoutAction,
   type DonationActionState,
-} from '@/app/(public)/donate/actions';
+} from '@/app/[locale]/(public)/donate/actions';
 
 const PRESETS = [10, 25, 50, 100];
 

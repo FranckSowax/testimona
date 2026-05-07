@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Modal } from '@/components/Modal';
-import { SignupForm } from '@/app/(auth)/signup/SignupForm';
+import { SignupForm } from '@/app/[locale]/(auth)/signup/SignupForm';
 
 export default function SignupModalPage() {
   return (

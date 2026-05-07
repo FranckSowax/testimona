@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Modal } from '@/components/Modal';
-import { LoginForm } from '@/app/(auth)/login/LoginForm';
+import { LoginForm } from '@/app/[locale]/(auth)/login/LoginForm';
 
 export default function LoginModalPage({
   searchParams,
