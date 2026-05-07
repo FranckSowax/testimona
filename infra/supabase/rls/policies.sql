@@ -86,6 +86,83 @@ create policy "testimonial_delete_author_or_admin" on "Testimonial"
   using (auth.uid()::text = "authorId"::text or public.is_admin());
 
 -- ---------------------------------------------------------------------------
+-- "TestimonialLike" — public read on public memorials, self-managed
+-- ---------------------------------------------------------------------------
+alter table "TestimonialLike" enable row level security;
+
+drop policy if exists "testimonial_like_select_public" on "TestimonialLike";
+create policy "testimonial_like_select_public" on "TestimonialLike"
+  for select
+  using (
+    exists (
+      select 1 from "Testimonial" t
+      join "Memorial" m on m.id = t."memorialId"
+      where t.id = "TestimonialLike"."testimonialId"
+        and (m."isPublic" = true or auth.uid()::text = m."ownerId"::text)
+    )
+    or public.is_admin()
+  );
+
+drop policy if exists "testimonial_like_insert_self" on "TestimonialLike";
+create policy "testimonial_like_insert_self" on "TestimonialLike"
+  for insert
+  with check (auth.uid()::text = "userId"::text);
+
+drop policy if exists "testimonial_like_delete_self" on "TestimonialLike";
+create policy "testimonial_like_delete_self" on "TestimonialLike"
+  for delete
+  using (auth.uid()::text = "userId"::text or public.is_admin());
+
+-- ---------------------------------------------------------------------------
+-- "TestimonialComment" — public read on public memorials, mutate by author
+-- ---------------------------------------------------------------------------
+alter table "TestimonialComment" enable row level security;
+
+drop policy if exists "testimonial_comment_select_public" on "TestimonialComment";
+create policy "testimonial_comment_select_public" on "TestimonialComment"
+  for select
+  using (
+    exists (
+      select 1 from "Testimonial" t
+      join "Memorial" m on m.id = t."memorialId"
+      where t.id = "TestimonialComment"."testimonialId"
+        and (m."isPublic" = true or auth.uid()::text = m."ownerId"::text)
+    )
+    or public.is_admin()
+  );
+
+drop policy if exists "testimonial_comment_insert_authenticated" on "TestimonialComment";
+create policy "testimonial_comment_insert_authenticated" on "TestimonialComment"
+  for insert
+  with check (auth.uid() is not null and auth.uid()::text = "authorId"::text);
+
+drop policy if exists "testimonial_comment_update_author_or_admin" on "TestimonialComment";
+create policy "testimonial_comment_update_author_or_admin" on "TestimonialComment"
+  for update
+  using (auth.uid()::text = "authorId"::text or public.is_admin())
+  with check (auth.uid()::text = "authorId"::text or public.is_admin());
+
+drop policy if exists "testimonial_comment_delete_author_or_admin" on "TestimonialComment";
+create policy "testimonial_comment_delete_author_or_admin" on "TestimonialComment"
+  for delete
+  using (auth.uid()::text = "authorId"::text or public.is_admin());
+
+-- ---------------------------------------------------------------------------
+-- "TestimonialReport" — write-only by reporter, read by admin or self
+-- ---------------------------------------------------------------------------
+alter table "TestimonialReport" enable row level security;
+
+drop policy if exists "testimonial_report_insert_authenticated" on "TestimonialReport";
+create policy "testimonial_report_insert_authenticated" on "TestimonialReport"
+  for insert
+  with check (auth.uid() is not null and auth.uid()::text = "reporterId"::text);
+
+drop policy if exists "testimonial_report_select_admin_or_self" on "TestimonialReport";
+create policy "testimonial_report_select_admin_or_self" on "TestimonialReport"
+  for select
+  using (auth.uid()::text = "reporterId"::text or public.is_admin());
+
+-- ---------------------------------------------------------------------------
 -- "Photo" table
 -- ---------------------------------------------------------------------------
 alter table "Photo" enable row level security;

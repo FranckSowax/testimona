@@ -68,6 +68,37 @@
     "donorEmail": "Email (facultatif)",
     "messageLabel": "Message (facultatif)",
     "submit": "Faire un don",
-    "submitting": "Redirection vers Stripe…"
+    "submitting": "Redirection vers Stripe…",
+    "goalTitle": "Objectif de collecte",
+    "goalRaised": "{raised} collectés sur {goal}",
+    "goalNoTarget": "{raised} collectés",
+    "goalSupporters": "{count, plural, =0 {Aucun donateur pour l'instant} =1 {1 donateur} other {{count} donateurs}}",
+    "donorsTitle": "Dons reçus",
+    "donorsAnonymous": "Anonyme",
+    "donorsEmpty": "Aucun don pour le moment."
+  },
+  "testimonial": {
+    "like": "J'aime",
+    "liked": "Aimé",
+    "likesCount": "{count, plural, =0 {0 j'aime} =1 {1 j'aime} other {{count} j'aime}}",
+    "comments": "Commenter",
+    "commentsCount": "{count, plural, =0 {Aucun commentaire} =1 {1 commentaire} other {{count} commentaires}}",
+    "writeComment": "Écrire un commentaire…",
+    "submitComment": "Publier",
+    "submittingComment": "Envoi…",
+    "report": "Signaler",
+    "reportPrompt": "Pourquoi signalez-vous ce témoignage ?",
+    "reportSubmitted": "Signalement envoyé. Merci.",
+    "share": "Partager",
+    "shareCopied": "Lien copié",
+    "loginToInteract": "Connectez-vous pour interagir."
+  },
+  "share": {
+    "title": "Partager ce mémorial",
+    "facebook": "Facebook",
+    "twitter": "X (Twitter)",
+    "linkedin": "LinkedIn",
+    "whatsapp": "WhatsApp",
+    "copyLink": "Copier le lien"
   }
 }

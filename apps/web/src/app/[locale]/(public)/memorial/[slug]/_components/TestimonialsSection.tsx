@@ -1,7 +1,7 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { TestimonialForm } from './TestimonialForm';
+import { TestimonialItem, type TestimonialComment } from './TestimonialItem';
 
 interface TestimonialRow {
   id: string;
@@ -9,6 +9,15 @@ interface TestimonialRow {
   message: string;
   language: string;
   createdAt: string;
+}
+
+interface LikeRow {
+  testimonialId: string;
+  userId: string;
+}
+
+interface CommentRow extends TestimonialComment {
+  testimonialId: string;
 }
 
 async function getTestimonials(memorialId: string): Promise<TestimonialRow[]> {
@@ -23,6 +32,29 @@ async function getTestimonials(memorialId: string): Promise<TestimonialRow[]> {
   return data ?? [];
 }
 
+async function getLikes(testimonialIds: string[]): Promise<LikeRow[]> {
+  if (testimonialIds.length === 0) return [];
+  const supabase = await getSupabaseServer();
+  const { data } = await supabase
+    .from('TestimonialLike')
+    .select('testimonialId, userId')
+    .in('testimonialId', testimonialIds)
+    .returns<LikeRow[]>();
+  return data ?? [];
+}
+
+async function getComments(testimonialIds: string[]): Promise<CommentRow[]> {
+  if (testimonialIds.length === 0) return [];
+  const supabase = await getSupabaseServer();
+  const { data } = await supabase
+    .from('TestimonialComment')
+    .select('id, testimonialId, authorName, message, createdAt')
+    .in('testimonialId', testimonialIds)
+    .order('createdAt', { ascending: true })
+    .returns<CommentRow[]>();
+  return data ?? [];
+}
+
 export async function TestimonialsSection({
   memorialId,
   slug,
@@ -34,6 +66,33 @@ export async function TestimonialsSection({
     getCurrentUser(),
     getTestimonials(memorialId),
   ]);
+  const ids = testimonials.map((t) => t.id);
+  const [likes, comments] = await Promise.all([getLikes(ids), getComments(ids)]);
+
+  const likesByTestimonial = new Map<string, number>();
+  const userLikeSet = new Set<string>();
+  for (const like of likes) {
+    likesByTestimonial.set(
+      like.testimonialId,
+      (likesByTestimonial.get(like.testimonialId) ?? 0) + 1,
+    );
+    if (user && like.userId === user.id) userLikeSet.add(like.testimonialId);
+  }
+
+  const commentsByTestimonial = new Map<string, TestimonialComment[]>();
+  for (const c of comments) {
+    const list = commentsByTestimonial.get(c.testimonialId) ?? [];
+    list.push({
+      id: c.id,
+      authorName: c.authorName,
+      message: c.message,
+      createdAt: c.createdAt,
+    });
+    commentsByTestimonial.set(c.testimonialId, list);
+  }
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+  const memorialShareUrl = `${siteUrl}/memorial/${slug}`;
 
   return (
     <section aria-labelledby="testimonials-heading">
@@ -48,36 +107,19 @@ export async function TestimonialsSection({
       ) : (
         <ul className="space-y-6">
           {testimonials.map((t) => (
-            <li
+            <TestimonialItem
               key={t.id}
-              className="relative overflow-hidden rounded-lg border-l-4 border-primary bg-surface px-6 py-5 pl-12"
-            >
-              <Image
-                src="/images/quote-open.svg"
-                alt=""
-                width={28}
-                height={28}
-                className="absolute left-3 top-3 h-7 w-7 opacity-70"
-              />
-              <p className="whitespace-pre-line text-base italic leading-relaxed text-foreground">
-                {t.message}
-              </p>
-              <Image
-                src="/images/quote-close.svg"
-                alt=""
-                width={20}
-                height={20}
-                className="ml-auto mt-2 h-5 w-5 opacity-50"
-              />
-              <footer className="mt-3 flex items-baseline gap-2 not-italic">
-                <span className="font-display text-sm font-semibold text-foreground">
-                  {t.authorName}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {new Date(t.createdAt).toLocaleDateString('fr-FR')}
-                </span>
-              </footer>
-            </li>
+              testimonialId={t.id}
+              slug={slug}
+              authorName={t.authorName}
+              message={t.message}
+              createdAt={t.createdAt}
+              likesCount={likesByTestimonial.get(t.id) ?? 0}
+              hasLiked={userLikeSet.has(t.id)}
+              comments={commentsByTestimonial.get(t.id) ?? []}
+              isLogged={!!user}
+              shareUrl={`${memorialShareUrl}#testimonial-${t.id}`}
+            />
           ))}
         </ul>
       )}

@@ -9,6 +9,7 @@ import { BiographySection } from './_components/BiographySection';
 import { DonateSection } from './_components/DonateSection';
 import { FuneralSection } from './_components/FuneralSection';
 import { MemorialTabs } from './_components/MemorialTabs';
+import { ShareButtons } from '@/components/ShareButtons';
 
 export const revalidate = 60; // ISR — 60s
 
@@ -111,6 +112,12 @@ export default async function MemorialPage({
           <p className="mt-2 text-sm font-medium uppercase tracking-wide opacity-80">
             {formatDateRange(memorial.birthDate, memorial.deathDate)}
           </p>
+          <div className="mt-4">
+            <ShareButtons
+              url={`${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/memorial/${memorial.slug}`}
+              title={`Mémorial de ${fullName}`}
+            />
+          </div>
         </div>
       </header>
 
