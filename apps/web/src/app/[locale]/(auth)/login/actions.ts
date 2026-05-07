@@ -44,7 +44,7 @@ export async function loginAction(
   redirect('/dashboard');
 }
 
-export async function loginWithGoogleAction() {
+export async function loginWithGoogleAction(_formData: FormData): Promise<void> {
   const supabase = await getSupabaseServer();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -53,7 +53,8 @@ export async function loginWithGoogleAction() {
     },
   });
   if (error || !data.url) {
-    return { error: error?.message ?? 'oauth init failed' };
+    const message = encodeURIComponent(error?.message ?? 'oauth init failed');
+    redirect(`/login?error=${message}`);
   }
   redirect(data.url);
 }

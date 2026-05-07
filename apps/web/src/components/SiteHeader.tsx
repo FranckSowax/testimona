@@ -1,9 +1,10 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 
 export async function SiteHeader() {
-  const user = await getCurrentUser();
+  const [user, t] = await Promise.all([getCurrentUser(), getTranslations('header')]);
 
   return (
     <header className="border-b border-border bg-white">
@@ -23,7 +24,7 @@ export async function SiteHeader() {
             href="/search"
             className="rounded-md px-3 py-2 text-foreground/80 hover:text-foreground"
           >
-            Rechercher
+            {t('search')}
           </Link>
           {user ? (
             <>
@@ -31,14 +32,14 @@ export async function SiteHeader() {
                 href="/dashboard"
                 className="rounded-md px-3 py-2 text-foreground/80 hover:text-foreground"
               >
-                Mes mémoriels
+                {t('myMemorials')}
               </Link>
               <form action="/auth/signout" method="post">
                 <button
                   type="submit"
                   className="rounded-md border-2 border-foreground/80 px-3 py-1.5 font-medium text-foreground opacity-80 transition-opacity hover:opacity-100"
                 >
-                  Se déconnecter
+                  {t('signOut')}
                 </button>
               </form>
               <Image
@@ -55,13 +56,13 @@ export async function SiteHeader() {
                 href="/login"
                 className="rounded-md border-2 border-foreground/80 px-3 py-1.5 font-medium text-foreground opacity-80 transition-opacity hover:opacity-100"
               >
-                Se connecter
+                {t('signIn')}
               </Link>
               <Link
                 href="/signup"
                 className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground hover:opacity-90"
               >
-                Créer un compte
+                {t('signUp')}
               </Link>
               <Image
                 src="/images/avatar.svg"

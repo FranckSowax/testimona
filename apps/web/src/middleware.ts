@@ -1,26 +1,46 @@
 /**
- * Next.js middleware: refreshes the Supabase session cookie on every request
- * and gates auth-required routes.
- *
- * Reference: https://supabase.com/docs/guides/auth/server-side/nextjs
+ * Next.js middleware: handles i18n locale (next-intl) + Supabase session +
+ * auth-required route gates.
  */
 import { createServerClient } from '@supabase/ssr';
+import createIntlMiddleware from 'next-intl/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
+import { routing } from '@/i18n/routing';
 
-const ADMIN_PATHS = ['/admin'];
-const DASHBOARD_PATHS = ['/dashboard'];
+const intlMiddleware = createIntlMiddleware(routing);
 
-function isAdmin(pathname: string): boolean {
-  return ADMIN_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+const PROTECTED_PREFIXES = ['/dashboard', '/admin'];
+
+function stripLocale(pathname: string): string {
+  for (const locale of routing.locales) {
+    if (pathname === `/${locale}`) return '/';
+    if (pathname.startsWith(`/${locale}/`)) return pathname.slice(`/${locale}`.length);
+  }
+  return pathname;
 }
 
-function isDashboard(pathname: string): boolean {
-  return DASHBOARD_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+function isProtected(pathname: string): boolean {
+  const stripped = stripLocale(pathname);
+  return PROTECTED_PREFIXES.some((p) => stripped === p || stripped.startsWith(`${p}/`));
+}
+
+function isAdmin(pathname: string): boolean {
+  const stripped = stripLocale(pathname);
+  return stripped === '/admin' || stripped.startsWith('/admin/');
 }
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  let response = NextResponse.next({ request: req });
+
+  // Routes outside i18n: API + Supabase auth callback/signout + sitemap/robots/favicon
+  const skipIntl =
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/auth/') ||
+    pathname === '/sitemap.xml' ||
+    pathname === '/robots.txt' ||
+    pathname === '/favicon.ico';
+
+  let response = skipIntl ? NextResponse.next({ request: req }) : intlMiddleware(req);
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,7 +52,6 @@ export async function middleware(req: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
-          response = NextResponse.next({ request: req });
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options),
           );
@@ -45,7 +64,7 @@ export async function middleware(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user && (isAdmin(pathname) || isDashboard(pathname))) {
+  if (!user && isProtected(pathname)) {
     const url = req.nextUrl.clone();
     url.pathname = '/login';
     url.searchParams.set('next', pathname);
@@ -65,5 +84,7 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|images/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
+  ],
 };

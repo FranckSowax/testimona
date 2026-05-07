@@ -1,7 +1,16 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 
-export default function HomePage() {
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations('home');
+
   return (
     <>
       <section
@@ -16,24 +25,23 @@ export default function HomePage() {
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 md:grid-cols-2">
           <div>
             <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
-              Honorez la mémoire de ceux qui comptent
+              {t('title')}
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              Testimona vous aide à créer une page mémorielle pérenne : témoignages, biographie,
-              photos et donations en hommage, dans un espace recueilli partagé avec vos proches.
+              {t('lead')}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/signup"
                 className="rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground shadow-sm transition-opacity hover:opacity-90"
               >
-                Créer un mémorial
+                {t('ctaCreate')}
               </Link>
               <Link
                 href="/search"
                 className="rounded-md border-2 border-foreground/80 px-5 py-3 font-medium text-foreground opacity-80 transition-opacity hover:opacity-100"
               >
-                Rechercher un mémorial
+                {t('ctaSearch')}
               </Link>
             </div>
           </div>
@@ -52,26 +60,26 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="font-display text-2xl font-semibold text-foreground">
-          Un espace dédié à la mémoire
+          {t('featuresTitle')}
         </h2>
         <ul className="mt-8 grid gap-6 sm:grid-cols-3">
           <li className="rounded-lg border border-border bg-white p-6 shadow-sm">
-            <h3 className="font-display text-lg font-semibold text-foreground">Témoignages</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Recueillez les souvenirs des proches, en français ou en anglais.
-            </p>
+            <h3 className="font-display text-lg font-semibold text-foreground">
+              {t('featureTestimonialsTitle')}
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">{t('featureTestimonialsDesc')}</p>
           </li>
           <li className="rounded-lg border border-border bg-white p-6 shadow-sm">
-            <h3 className="font-display text-lg font-semibold text-foreground">Biographie</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Racontez l'histoire de la personne, chapitre par chapitre.
-            </p>
+            <h3 className="font-display text-lg font-semibold text-foreground">
+              {t('featureBiographyTitle')}
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">{t('featureBiographyDesc')}</p>
           </li>
           <li className="rounded-lg border border-border bg-white p-6 shadow-sm">
-            <h3 className="font-display text-lg font-semibold text-foreground">Donations</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Permettez aux visiteurs de faire un don en hommage via Stripe.
-            </p>
+            <h3 className="font-display text-lg font-semibold text-foreground">
+              {t('featureDonationsTitle')}
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">{t('featureDonationsDesc')}</p>
           </li>
         </ul>
       </section>

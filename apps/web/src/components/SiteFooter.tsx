@@ -1,20 +1,26 @@
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
+import { LocaleSwitcher } from './LocaleSwitcher';
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const t = await getTranslations('footer');
   return (
     <footer className="mt-16 border-t border-border">
-      <div className="mx-auto flex max-w-6xl flex-col gap-2 px-6 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-        <p>© {new Date().getFullYear()} Testimona</p>
-        <nav aria-label="Liens du pied de page" className="flex gap-4">
+      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <p>
+          © {new Date().getFullYear()} {t('copyright')}
+        </p>
+        <nav aria-label="Liens du pied de page" className="flex flex-wrap items-center gap-4">
           <Link href="/legal/mentions" className="hover:text-foreground">
-            Mentions légales
+            {t('legal')}
           </Link>
           <Link href="/legal/privacy" className="hover:text-foreground">
-            Confidentialité
+            {t('privacy')}
           </Link>
           <Link href="/legal/terms" className="hover:text-foreground">
-            CGU
+            {t('terms')}
           </Link>
+          <LocaleSwitcher />
         </nav>
       </div>
     </footer>
