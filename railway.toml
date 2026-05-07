@@ -4,7 +4,10 @@
 
 [build]
 builder = "NIXPACKS"
-buildCommand = "pnpm install --frozen-lockfile && pnpm --filter @testimona/web build"
+# NODE_ENV=development on install so pnpm includes devDependencies
+# (@tailwindcss/postcss, typescript, etc.). Nixpacks sets NODE_ENV=production
+# at runtime, which would otherwise skip them and fail `next build`.
+buildCommand = "NODE_ENV=development pnpm install --frozen-lockfile && pnpm --filter @testimona/web build"
 # Watch only files that affect the Next.js build.
 # apps/web-angular-legacy/** was removed — listing it would skip every
 # commit (Railway skipped commits since the legacy dir was deleted).
