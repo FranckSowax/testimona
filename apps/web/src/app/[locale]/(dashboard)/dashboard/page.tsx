@@ -1,8 +1,11 @@
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { MemorialCard } from '@/components/MemorialCard';
+import { DashboardShell } from '@/components/dashboard/DashboardShell';
+import { EmptyState } from '@/components/EmptyState';
 
 export const metadata: Metadata = {
   title: 'Tableau de bord',
@@ -51,31 +54,39 @@ export default async function DashboardPage() {
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/dashboard');
 
-  const memorials = await getOwnedMemorials(user.id);
+  const [memorials, t] = await Promise.all([
+    getOwnedMemorials(user.id),
+    getTranslations('dashboard.memorials'),
+  ]);
   const covers = await getCoverUrls(memorials.map((m) => m.id));
 
-  return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-3xl font-semibold tracking-tight">Mes mémoriels</h1>
-        <Link
-          href="/dashboard/new"
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-        >
-          Créer un mémorial
-        </Link>
-      </div>
+  const ctaCreate = (
+    <Link
+      href="/dashboard/new"
+      className="rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+    >
+      {t('create')}
+    </Link>
+  );
 
+  return (
+    <DashboardShell title={t('title')} action={memorials.length > 0 ? ctaCreate : undefined}>
       {memorials.length === 0 ? (
-        <p className="mt-8 rounded-md border border-border bg-muted/30 px-6 py-12 text-center text-sm text-muted-foreground">
-          Vous n'avez pas encore créé de mémorial.
-        </p>
+        <EmptyState
+          title={t('emptyTitle')}
+          description={t('emptyBody')}
+          action={ctaCreate}
+        />
       ) : (
-        <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {memorials.map((m) => {
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {memorials.map((m, i) => {
             const fullName = [m.firstname, m.lastname].filter(Boolean).join(' ');
             return (
-              <li key={m.id}>
+              <li
+                key={m.id}
+                className="animate-fade-in-up"
+                style={{ animationDelay: `${Math.min(i * 40, 200)}ms` }}
+              >
                 <MemorialCard
                   slug={m.slug}
                   fullName={fullName}
@@ -89,6 +100,6 @@ export default async function DashboardPage() {
           })}
         </ul>
       )}
-    </div>
+    </DashboardShell>
   );
 }

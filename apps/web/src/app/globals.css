@@ -13,6 +13,7 @@
  */
 
 @theme {
+  /* Brand colors (legacy palette retained) */
   --color-background: #ffffff;
   --color-foreground: #2d3250;
   --color-primary: #50aac3;
@@ -25,10 +26,66 @@
   --color-muted-foreground: #788199;
   --color-border: #efefef;
   --color-surface: #f0f2ff;
-  --color-destructive: #ff0000;
+  --color-destructive: #b91c1c;
 
-  --font-sans: var(--font-roboto), 'Roboto', 'Helvetica Neue', system-ui, sans-serif;
-  --font-display: var(--font-montserrat), 'Montserrat', 'Roboto', system-ui, sans-serif;
+  /* Typography — editorial pairing for memorial product */
+  --font-sans: var(--font-raleway), 'Raleway', 'Helvetica Neue', system-ui, sans-serif;
+  --font-display: var(--font-lora), 'Lora', 'Georgia', serif;
+
+  /* Spacing scale (4/8 rhythm) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+
+  /* Z-index scale */
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-modal-backdrop: 40;
+  --z-modal: 50;
+  --z-toast: 100;
+
+  /* Elevation shadows tuned to the foreground hue */
+  --shadow-card: 0 1px 2px rgba(45, 50, 80, 0.04), 0 1px 3px rgba(45, 50, 80, 0.06);
+  --shadow-elevated: 0 4px 12px rgba(45, 50, 80, 0.08);
+  --shadow-overlay: 0 12px 32px rgba(45, 50, 80, 0.18);
+
+  /* Motion */
+  --motion-fast: 150ms;
+  --motion-base: 250ms;
+  --motion-slow: 400ms;
+  --motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Tabular numbers for data columns (donations, dates) */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up var(--motion-base) var(--motion-ease-out) both;
 }
 
 @media (prefers-reduced-motion: reduce) {

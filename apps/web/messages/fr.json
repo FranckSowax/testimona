@@ -121,5 +121,20 @@
     "linkedin": "LinkedIn",
     "whatsapp": "WhatsApp",
     "copyLink": "Copier le lien"
+  },
+  "dashboard": {
+    "nav": {
+      "aria": "Navigation du tableau de bord",
+      "memorials": "Mes mémoriels",
+      "testimonials": "Mes témoignages",
+      "notifications": "Notifications",
+      "profile": "Mon profil"
+    },
+    "memorials": {
+      "title": "Mes mémoriels",
+      "create": "Créer un mémorial",
+      "emptyTitle": "Aucun mémorial pour le moment",
+      "emptyBody": "Créez votre premier mémorial pour rassembler témoignages, photos et dons en hommage."
+    }
   }
 }
