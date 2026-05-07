@@ -37,32 +37,6 @@ export async function loginAction(
   });
 
   if (error) {
-    // Try BFF lazy-migration fallback if Supabase rejects (user not yet migrated)
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (apiUrl) {
-      try {
-        const res = await fetch(`${apiUrl}/api/v1/auth/login`, {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({
-            loginType: 'Site',
-            email: parsed.data.email,
-            password: parsed.data.password,
-          }),
-          cache: 'no-store',
-        });
-        if (res.ok) {
-          await supabase.auth.signInWithPassword({
-            email: parsed.data.email,
-            password: parsed.data.password,
-          });
-          revalidatePath('/', 'layout');
-          redirect('/dashboard');
-        }
-      } catch {
-        // network / BFF down — fall through to generic error
-      }
-    }
     return { error: error.message };
   }
 

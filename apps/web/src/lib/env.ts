@@ -8,7 +8,6 @@ const ServerEnvSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(20),
   NEXT_PUBLIC_SITE_URL: z.string().url(),
-  NEXT_PUBLIC_API_URL: z.string().url(),
   SUPABASE_SERVICE_KEY: z.string().min(20).optional(),
   STRIPE_SECRET_KEY: z.string().startsWith('sk_').optional(),
   STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_').optional(),
@@ -38,7 +37,6 @@ export const publicEnv = {
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
   supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL!,
-  apiUrl: process.env.NEXT_PUBLIC_API_URL!,
   cloudinaryCloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? '',
   sentryDsn: process.env.NEXT_PUBLIC_SENTRY_DSN ?? '',
 };

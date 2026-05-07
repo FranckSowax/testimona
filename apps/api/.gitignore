@@ -1,9 +1,0 @@
-# package directories
-node_modules
-
-# other directories
-dist
-
-# file
-*.env
-src/assets/.DS_Store

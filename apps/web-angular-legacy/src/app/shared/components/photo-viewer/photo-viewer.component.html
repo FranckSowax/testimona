@@ -1,8 +1,0 @@
-<div class="container-header">
-    <div class="close-modal">
-      <img (click)="closeViewer()" src="{{assetUrl}}close-modal.svg" alt="close Modal">
-    </div>
-</div>
-<div class="container-body">
-  <div class="photo-container" *ngIf="photoViewer?.photoUrl" [style.background-image]="'url(' + photoViewer.photoUrl + ')'"></div>
-</div>

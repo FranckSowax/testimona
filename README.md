@@ -1,58 +1,66 @@
 # Testimona
 
-Plateforme de gestion de pages mémorielles : mémoriaux, témoignages, biographies, funérailles, photos, donations Stripe.
+Plateforme de pages mémorielles : témoignages, biographies, photos, donations Stripe.
 
-> **État du projet (mai 2026)** — chantier de modernisation en cours.
-> Voir [`testimona-audit (1).html`](./testimona-audit%20%281%29.html) pour l'audit révisé et
-> [`testimona-migration-plan.md`](./testimona-migration-plan.md) pour la feuille de route Next.js + Supabase + Railway.
-
----
-
-## Stack cible
+## Stack
 
 | Couche | Choix |
 |---|---|
-| Frontend | Next.js 15 (App Router), React 19, TypeScript 5, Tailwind, shadcn/ui |
-| Backend (BFF) | Express 4.21, Node 22, Prisma 6 |
-| DB / Auth | Supabase (Postgres + Auth + RLS) |
-| Cache | Redis |
-| Storage media | Cloudinary 2.5 |
-| Hosting | Railway (web + api + redis) |
+| Frontend | Next.js 15 (App Router), React 19, TypeScript 5, Tailwind v4 |
+| Backend | Server Actions Next.js (pas de BFF séparé) |
+| DB / Auth / Storage | Supabase (Postgres + Auth + RLS + Storage) |
+| Paiements | Stripe Checkout + webhooks |
+| Hosting | Railway |
 | CI/CD | GitHub Actions |
-| Observabilité | Sentry + Better Stack (logs Winston) |
 
-## Structure repo cible (mono-repo `pnpm` workspace)
+## Structure
 
 ```
 testimona/
-  apps/
-    web/                  # Next.js
-    api/                  # Express BFF
-    web-angular-legacy/   # ancien frontend Angular 15 (archive post-cutover)
+  apps/web/              # Next.js (frontend + Server Actions)
   packages/
-    shared/               # Zod schemas, types domaine
-    database/             # Prisma client wrapper
+    shared/              # Zod schemas, types domaine
+    database/            # Prisma client wrapper
   infra/
-    supabase/             # migrations + RLS policies
-    railway/              # railway.toml
-  .github/workflows/      # ci, deploy
-  docs/                   # ARCHITECTURE, runbook
+    supabase/            # RLS policies (rls/policies.sql)
+    railway/             # railway.toml
+  .github/workflows/     # ci, deploy-staging
 ```
 
-## Démarrage rapide (à venir)
+## Démarrage local
 
 ```bash
 pnpm install
-docker compose up -d        # postgres + redis local
-pnpm --filter api prisma migrate dev
-pnpm dev                    # api + web en parallèle (turbo)
+cp apps/web/.env.example apps/web/.env.local   # à remplir avec un projet Supabase
+pnpm --filter @testimona/web dev               # http://localhost:3000
 ```
 
-## Documentation
+Variables minimales dans `apps/web/.env.local` :
 
-- [Audit de production](./testimona-audit%20%281%29.html)
-- [Plan de migration](./testimona-migration-plan.md)
-- `MIGRATION.md` (à venir) — état d'avancement et étapes manuelles restantes
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SITE_URL` (`http://localhost:3000` en dev)
+- `STRIPE_SECRET_KEY` (optionnel, sinon le flow donations renvoie « indisponible »)
+
+## Provisioning Supabase
+
+```bash
+# Créer un projet sur https://supabase.com/dashboard
+psql $SUPABASE_DB_URL -f infra/supabase/rls/policies.sql
+# Configurer Auth (Email/Password, Google OAuth optionnel, redirect URLs)
+```
+
+## Routes principales
+
+| Route | Description |
+|---|---|
+| `/` | Accueil |
+| `/search?q=...` | Recherche par nom/prénom/surnom |
+| `/memorial/[slug]` | Page mémorielle (RSC + ISR) avec biographie, photos, témoignages, donations |
+| `/login`, `/signup`, `/auth/callback` | Auth Supabase (email/password + Google OAuth) |
+| `/dashboard`, `/dashboard/new` | Espace propriétaire — liste et création de mémoriels |
+| `/donate/{success,cancel}` | Retour Stripe Checkout |
+| `/api/health` | Healthcheck (process + Supabase) |
 
 ## Licence
 
