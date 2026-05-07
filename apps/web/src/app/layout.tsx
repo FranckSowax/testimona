@@ -1,7 +1,22 @@
 import type { Metadata } from 'next';
+import { Roboto, Montserrat } from 'next/font/google';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import './globals.css';
+
+const roboto = Roboto({
+  weight: ['300', '400', '500', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-roboto',
+});
+
+const montserrat = Montserrat({
+  weight: ['400', '500', '600', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-montserrat',
+});
 
 export const metadata: Metadata = {
   title: {
@@ -10,6 +25,7 @@ export const metadata: Metadata = {
   },
   description: 'Plateforme de pages mémorielles : témoignages, biographies, photos et donations.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
+  icons: { icon: '/favicon.ico' },
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
@@ -24,8 +40,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
-      <body className="min-h-screen bg-background text-foreground antialiased">
+    <html lang="fr" className={`${roboto.variable} ${montserrat.variable}`}>
+      <body className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2"
@@ -33,7 +49,9 @@ export default function RootLayout({
           Aller au contenu
         </a>
         <SiteHeader />
-        <main id="main">{children}</main>
+        <main id="main" className="flex-1">
+          {children}
+        </main>
         <SiteFooter />
       </body>
     </html>

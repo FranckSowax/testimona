@@ -1,13 +1,34 @@
 @import 'tailwindcss';
 
+/* Palette héritée de l'ancien design (variables.scss) :
+ *   $martinique:    #2d3250  (brand sombre — titres, bordures)
+ *   $fountain-blue: #50aac3  (brand turquoise — accents, primary)
+ *   $half-baked:    #7dbed2  (turquoise clair)
+ *   $wewak:         #f4a7ab  (rose pâle)
+ *   $new-york-pink: #db8186  (rose accent)
+ *   $titan-white:   #f0f2ff  (très light bleu)
+ *   $alabaster:     #fafafa  (background)
+ *   $gallery:       #efefef  (border/séparateur)
+ *   $waterloo:      #788199  (texte secondaire)
+ */
+
 @theme {
-  --color-background: oklch(1 0 0);
-  --color-foreground: oklch(0.15 0 0);
-  --color-primary: oklch(0.55 0.18 260);
-  --color-primary-foreground: oklch(1 0 0);
-  --color-muted: oklch(0.96 0 0);
-  --color-muted-foreground: oklch(0.45 0 0);
-  --color-border: oklch(0.9 0 0);
+  --color-background: #ffffff;
+  --color-foreground: #2d3250;
+  --color-primary: #50aac3;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #2d3250;
+  --color-secondary-foreground: #ffffff;
+  --color-accent: #db8186;
+  --color-accent-soft: #f4a7ab;
+  --color-muted: #fafafa;
+  --color-muted-foreground: #788199;
+  --color-border: #efefef;
+  --color-surface: #f0f2ff;
+  --color-destructive: #ff0000;
+
+  --font-sans: var(--font-roboto), 'Roboto', 'Helvetica Neue', system-ui, sans-serif;
+  --font-display: var(--font-montserrat), 'Montserrat', 'Roboto', system-ui, sans-serif;
 }
 
 @media (prefers-reduced-motion: reduce) {
