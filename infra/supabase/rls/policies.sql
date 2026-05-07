@@ -23,24 +23,6 @@ as $$
 $$;
 
 -- ---------------------------------------------------------------------------
--- "User" table
--- ---------------------------------------------------------------------------
-alter table "User" enable row level security;
-
-drop policy if exists "user_select_self" on "User";
-create policy "user_select_self" on "User"
-  for select
-  using (auth.uid()::text = id::text or public.is_admin());
-
-drop policy if exists "user_update_self" on "User";
-create policy "user_update_self" on "User"
-  for update
-  using (auth.uid()::text = id::text)
-  with check (auth.uid()::text = id::text);
-
--- INSERT/DELETE reserved to service_role.
-
--- ---------------------------------------------------------------------------
 -- "Memorial" table
 -- ---------------------------------------------------------------------------
 alter table "Memorial" enable row level security;

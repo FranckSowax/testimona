@@ -8,7 +8,7 @@ export async function GET() {
 
   try {
     const supabase = await getSupabaseServer();
-    const { error } = await supabase.auth.getUser();
+    const { error } = await supabase.from('Memorial').select('id').limit(1);
     checks.supabase = error ? 'down' : 'ok';
   } catch {
     checks.supabase = 'down';
