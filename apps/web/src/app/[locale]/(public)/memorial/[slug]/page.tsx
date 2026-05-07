@@ -1,11 +1,13 @@
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { TestimonialsSection } from './_components/TestimonialsSection';
 import { PhotosSection } from './_components/PhotosSection';
 import { BiographySection } from './_components/BiographySection';
 import { DonateSection } from './_components/DonateSection';
+import { FuneralSection } from './_components/FuneralSection';
 import { MemorialTabs } from './_components/MemorialTabs';
 
 export const revalidate = 60; // ISR — 60s
@@ -84,6 +86,7 @@ export default async function MemorialPage({
 
   const fullName = [memorial.firstname, memorial.lastname].filter(Boolean).join(' ');
   const coverUrl = await getCoverPhotoUrl(memorial.id);
+  const tTabs = await getTranslations('tabs');
 
   return (
     <article>
@@ -125,23 +128,28 @@ export default async function MemorialPage({
           tabs={[
             {
               id: 'testimonials',
-              label: 'Témoignages',
+              label: tTabs('testimonials'),
               panel: <TestimonialsSection memorialId={memorial.id} slug={memorial.slug} />,
             },
             {
               id: 'photos',
-              label: 'Photos',
+              label: tTabs('photos'),
               panel: <PhotosSection memorialId={memorial.id} />,
             },
             {
-              id: 'biography',
-              label: 'Biographie',
+              id: 'donate',
+              label: tTabs('donation'),
+              panel: <DonateSection memorialId={memorial.id} slug={memorial.slug} />,
+            },
+            {
+              id: 'life-details',
+              label: tTabs('lifeDetails'),
               panel: <BiographySection memorialId={memorial.id} />,
             },
             {
-              id: 'donate',
-              label: 'Faire un don',
-              panel: <DonateSection memorialId={memorial.id} slug={memorial.slug} />,
+              id: 'funeral',
+              label: tTabs('funeral'),
+              panel: <FuneralSection memorialId={memorial.id} />,
             },
           ]}
         />

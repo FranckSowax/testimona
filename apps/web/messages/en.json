@@ -1,29 +1,73 @@
 {
   "header": {
+    "home": "Home",
+    "about": "About",
     "search": "Search",
-    "myMemorials": "My memorials",
+    "writeTestimonial": "Write a testimonial",
+    "myMemorials": "My pages",
     "signOut": "Sign out",
     "signIn": "Sign in",
     "signUp": "Create account"
   },
   "footer": {
     "copyright": "Testimona, Inc.",
+    "tagline": "Shared memory for those who matter.",
     "legal": "Legal",
     "privacy": "Privacy",
     "terms": "Terms",
-    "language": "Language"
+    "language": "Language",
+    "followUs": "Follow us",
+    "socialFacebook": "Facebook",
+    "socialInstagram": "Instagram",
+    "socialTwitter": "X (Twitter)",
+    "socialLinkedin": "LinkedIn",
+    "socialWhatsapp": "WhatsApp"
   },
   "home": {
     "title": "Honor the memory of those who matter",
-    "lead": "Testimona helps you create a lasting memorial page: testimonials, biography, photos and tribute donations, in a thoughtful space shared with your loved ones.",
-    "ctaCreate": "Create a memorial",
-    "ctaSearch": "Search a memorial",
-    "featuresTitle": "A space dedicated to memory",
+    "lead": "Testimona is the space where memories of the departed live on. Share testimonials, photos and videos, and support grieving families.",
+    "ctaTestimonial": "Write a testimonial",
+    "ctaSearch": "Search a page",
+    "featuresTitle": "How Testimona supports you",
     "featureTestimonialsTitle": "Testimonials",
-    "featureTestimonialsDesc": "Collect memories from loved ones, in French or English.",
-    "featureBiographyTitle": "Biography",
-    "featureBiographyDesc": "Tell the person's story, chapter by chapter.",
-    "featureDonationsTitle": "Donations",
-    "featureDonationsDesc": "Let visitors make a tribute donation via Stripe."
+    "featureTestimonialsDesc": "Gather memories from loved ones, in French or English.",
+    "featureBiographyTitle": "Life details",
+    "featureBiographyDesc": "Compose the biography chapter by chapter, together with relatives.",
+    "featureDonationsTitle": "Tribute donations",
+    "featureDonationsDesc": "Support grieving families with a secure donation via Stripe."
+  },
+  "about": {
+    "title": "About Testimona",
+    "lead": "A platform dedicated to commemorating the departed — preserving memories and supporting families.",
+    "visionTitle": "Our vision",
+    "visionBody": "Celebrate the lives of the departed by creating a space to share joyful memories that endure for relatives and future generations.",
+    "missionTitle": "Our mission",
+    "missionBody": "Become the reference social platform for commemorating lives, where loved ones publish testimonials and anecdotes, shared and preserved for future generations.",
+    "howTitle": "How it works",
+    "howStep1Title": "1. Write a testimonial",
+    "howStep1Body": "Provide the person's name, add your memory, photos or videos.",
+    "howStep2Title": "2. A dedicated page is created",
+    "howStep2Body": "If no page exists yet, Testimona creates one automatically from the information you provided.",
+    "howStep3Title": "3. Close relatives stay in control",
+    "howStep3Body": "Close relatives can expand the biography, moderate content, and organize a fundraiser.",
+    "contactTitle": "Get in touch",
+    "contactBody": "Questions? Email us at hello@testimona.com."
+  },
+  "tabs": {
+    "testimonials": "Testimonials",
+    "photos": "Photos",
+    "donation": "Make a donation",
+    "lifeDetails": "Life details",
+    "funeral": "Funeral arrangements"
+  },
+  "donate": {
+    "amountLegend": "Amount",
+    "presetsLabel": "Pick an amount",
+    "customAmount": "Custom amount",
+    "donorName": "Your name (optional)",
+    "donorEmail": "Email (optional)",
+    "messageLabel": "Message (optional)",
+    "submit": "Make a donation",
+    "submitting": "Redirecting to Stripe…"
   }
 }

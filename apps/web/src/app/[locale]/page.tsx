@@ -32,10 +32,10 @@ export default async function HomePage({
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/signup"
+                href="/signup?next=/dashboard/new"
                 className="rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground shadow-sm transition-opacity hover:opacity-90"
               >
-                {t('ctaCreate')}
+                {t('ctaTestimonial')}
               </Link>
               <Link
                 href="/search"

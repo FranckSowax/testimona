@@ -6,7 +6,7 @@ import {
   type DonationActionState,
 } from '@/app/[locale]/(public)/donate/actions';
 
-const PRESETS = [10, 25, 50, 100];
+const PRESETS = [5, 20, 50, 100];
 
 export function DonateForm({
   memorialId,

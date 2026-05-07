@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
+import { LocaleSwitcher } from './LocaleSwitcher';
 
 export async function SiteHeader() {
   const [user, t] = await Promise.all([getCurrentUser(), getTranslations('header')]);
@@ -20,6 +21,12 @@ export async function SiteHeader() {
           />
         </Link>
         <nav aria-label="Navigation principale" className="flex items-center gap-3 text-sm">
+          <Link
+            href="/about"
+            className="hidden rounded-md px-3 py-2 text-foreground/80 hover:text-foreground sm:inline-block"
+          >
+            {t('about')}
+          </Link>
           <Link
             href="/search"
             className="rounded-md px-3 py-2 text-foreground/80 hover:text-foreground"
@@ -73,6 +80,9 @@ export async function SiteHeader() {
               />
             </>
           )}
+          <span className="ml-2 hidden border-l border-border pl-3 sm:inline-flex">
+            <LocaleSwitcher />
+          </span>
         </nav>
       </div>
     </header>
