@@ -5,17 +5,19 @@ export function DashboardShell({
   title,
   action,
   children,
+  notificationsBadge = 0,
 }: {
   title: string;
   action?: ReactNode;
   children: ReactNode;
+  notificationsBadge?: number;
 }) {
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-8 lg:py-12">
       <div className="grid gap-8 lg:grid-cols-[220px_1fr]">
         <aside className="hidden lg:block">
           <div className="sticky top-24">
-            <SidebarNav />
+            <SidebarNav notificationsBadge={notificationsBadge} />
           </div>
         </aside>
 

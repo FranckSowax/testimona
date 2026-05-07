@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation';
 import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { EmptyState } from '@/components/EmptyState';
+import { getUnseenNotificationsCount } from '@/lib/notifications/count';
 
 export const metadata: Metadata = {
   title: 'Notifications',
@@ -71,7 +72,10 @@ export default async function NotificationsPage() {
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/dashboard/notifications');
 
-  const t = await getTranslations('dashboard.notifications');
+  const [t, notificationsBadge] = await Promise.all([
+    getTranslations('dashboard.notifications'),
+    getUnseenNotificationsCount(),
+  ]);
   const supabase = await getSupabaseServer();
 
   const { data: ownedMemorials } = await supabase
@@ -182,7 +186,7 @@ export default async function NotificationsPage() {
   const top = events.slice(0, 50);
 
   return (
-    <DashboardShell title={t('title')}>
+    <DashboardShell title={t('title')} notificationsBadge={notificationsBadge}>
       <p className="-mt-4 mb-6 text-sm text-muted-foreground">{t('subtitle')}</p>
 
       {top.length === 0 ? (

@@ -114,6 +114,17 @@
     "submitting": "Sending…",
     "close": "Close"
   },
+  "memorial": {
+    "photoUploader": {
+      "title": "Add a photo",
+      "hint": "Drag and drop an image or pick a file (JPEG / PNG / WebP, max 10 MB).",
+      "upload": "Choose a file",
+      "uploading": "Uploading…",
+      "uploaded": "Photo added to the gallery.",
+      "errorMime": "Unsupported file type.",
+      "errorSize": "File too large (max 10 MB)."
+    }
+  },
   "share": {
     "title": "Share this memorial",
     "facebook": "Facebook",
@@ -160,6 +171,17 @@
     "profile": {
       "title": "My profile",
       "subtitle": "Manage your personal information and account security.",
+      "avatar": {
+        "title": "Profile picture",
+        "hint": "JPEG, PNG or WebP, max 5 MB.",
+        "upload": "Upload",
+        "uploading": "Uploading…",
+        "uploaded": "Picture updated.",
+        "remove": "Remove",
+        "removed": "Picture removed.",
+        "errorMime": "Unsupported file type.",
+        "errorSize": "File too large (max 5 MB)."
+      },
       "emailLabel": "Email address",
       "emailHelp": "Email is used to sign in. Contact support to change it.",
       "fullNameLabel": "Full name",

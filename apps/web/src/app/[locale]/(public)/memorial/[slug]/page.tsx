@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { getSupabaseServer } from '@/lib/supabase/server';
+import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { TestimonialsSection } from './_components/TestimonialsSection';
 import { PhotosSection } from './_components/PhotosSection';
 import { BiographySection } from './_components/BiographySection';
@@ -16,6 +16,7 @@ export const revalidate = 60; // ISR — 60s
 interface MemorialRow {
   id: string;
   slug: string;
+  ownerId: string;
   firstname: string;
   lastname: string;
   nickname: string | null;
@@ -29,7 +30,9 @@ async function getMemorial(slug: string): Promise<MemorialRow | null> {
   const supabase = await getSupabaseServer();
   const { data } = await supabase
     .from('Memorial')
-    .select('id, slug, firstname, lastname, nickname, birthDate, deathDate, description, isPublic')
+    .select(
+      'id, slug, ownerId, firstname, lastname, nickname, birthDate, deathDate, description, isPublic',
+    )
     .eq('slug', slug)
     .eq('isPublic', true)
     .maybeSingle<MemorialRow>();
@@ -86,8 +89,12 @@ export default async function MemorialPage({
   if (!memorial) notFound();
 
   const fullName = [memorial.firstname, memorial.lastname].filter(Boolean).join(' ');
-  const coverUrl = await getCoverPhotoUrl(memorial.id);
-  const tTabs = await getTranslations('tabs');
+  const [coverUrl, tTabs, currentUser] = await Promise.all([
+    getCoverPhotoUrl(memorial.id),
+    getTranslations('tabs'),
+    getCurrentUser(),
+  ]);
+  const isOwner = currentUser?.id === memorial.ownerId;
 
   return (
     <article>
@@ -141,7 +148,13 @@ export default async function MemorialPage({
             {
               id: 'photos',
               label: tTabs('photos'),
-              panel: <PhotosSection memorialId={memorial.id} />,
+              panel: (
+                <PhotosSection
+                  memorialId={memorial.id}
+                  slug={memorial.slug}
+                  isOwner={isOwner}
+                />
+              ),
             },
             {
               id: 'donate',

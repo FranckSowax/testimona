@@ -6,6 +6,8 @@ import { LocaleSwitcher } from './LocaleSwitcher';
 
 export async function SiteHeader() {
   const [user, t] = await Promise.all([getCurrentUser(), getTranslations('header')]);
+  const avatarUrl =
+    (user?.user_metadata as { avatar_url?: string | null } | null)?.avatar_url ?? null;
 
   return (
     <header className="border-b border-border bg-white">
@@ -49,13 +51,23 @@ export async function SiteHeader() {
                   {t('signOut')}
                 </button>
               </form>
-              <Image
-                src="/images/avatar-connected.svg"
-                alt=""
-                width={36}
-                height={36}
-                className="ml-1 h-9 w-9"
-              />
+              {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt=""
+                  width={36}
+                  height={36}
+                  className="ml-1 h-9 w-9 rounded-full border border-border object-cover"
+                />
+              ) : (
+                <Image
+                  src="/images/avatar-connected.svg"
+                  alt=""
+                  width={36}
+                  height={36}
+                  className="ml-1 h-9 w-9"
+                />
+              )}
             </>
           ) : (
             <>

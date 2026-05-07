@@ -33,7 +33,7 @@ const ITEMS: NavItem[] = [
   },
 ];
 
-export function SidebarNav() {
+export function SidebarNav({ notificationsBadge = 0 }: { notificationsBadge?: number }) {
   const t = useTranslations('dashboard.nav');
   const pathname = usePathname();
 
@@ -44,6 +44,7 @@ export function SidebarNav() {
           item.href === '/dashboard'
             ? pathname === '/dashboard'
             : pathname?.startsWith(item.href) ?? false;
+        const badge = item.labelKey === 'notifications' ? notificationsBadge : 0;
         return (
           <Link
             key={item.href}
@@ -70,7 +71,15 @@ export function SidebarNav() {
             >
               <path d={item.iconPath} />
             </svg>
-            <span>{t(item.labelKey)}</span>
+            <span className="flex-1">{t(item.labelKey)}</span>
+            {badge > 0 && (
+              <span
+                aria-label={`${badge}`}
+                className="tabular ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-semibold text-white"
+              >
+                {badge > 99 ? '99+' : badge}
+              </span>
+            )}
           </Link>
         );
       })}

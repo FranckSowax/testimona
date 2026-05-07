@@ -6,6 +6,7 @@ import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { MemorialCard } from '@/components/MemorialCard';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { EmptyState } from '@/components/EmptyState';
+import { getUnseenNotificationsCount } from '@/lib/notifications/count';
 
 export const metadata: Metadata = {
   title: 'Tableau de bord',
@@ -54,9 +55,10 @@ export default async function DashboardPage() {
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/dashboard');
 
-  const [memorials, t] = await Promise.all([
+  const [memorials, t, notificationsBadge] = await Promise.all([
     getOwnedMemorials(user.id),
     getTranslations('dashboard.memorials'),
+    getUnseenNotificationsCount(),
   ]);
   const covers = await getCoverUrls(memorials.map((m) => m.id));
 
@@ -70,7 +72,11 @@ export default async function DashboardPage() {
   );
 
   return (
-    <DashboardShell title={t('title')} action={memorials.length > 0 ? ctaCreate : undefined}>
+    <DashboardShell
+      title={t('title')}
+      action={memorials.length > 0 ? ctaCreate : undefined}
+      notificationsBadge={notificationsBadge}
+    >
       {memorials.length === 0 ? (
         <EmptyState
           title={t('emptyTitle')}

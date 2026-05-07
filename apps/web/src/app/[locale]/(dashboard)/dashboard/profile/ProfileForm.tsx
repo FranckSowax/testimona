@@ -8,11 +8,17 @@ import {
   sendPasswordResetAction,
   type ProfileActionState,
 } from './actions';
+import { AvatarUploader } from './AvatarUploader';
 
 export function ProfileForm({
   defaultValues,
 }: {
-  defaultValues: { fullName: string; nickname: string; email: string };
+  defaultValues: {
+    fullName: string;
+    nickname: string;
+    email: string;
+    avatarUrl: string | null;
+  };
 }) {
   const t = useTranslations('dashboard.profile');
   const toast = useToast();
@@ -37,6 +43,10 @@ export function ProfileForm({
 
   return (
     <div className="space-y-8">
+      <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
+        <AvatarUploader defaultUrl={defaultValues.avatarUrl} />
+      </div>
+
       <form
         action={formAction}
         className="space-y-5 rounded-lg border border-border bg-white p-6 shadow-sm"

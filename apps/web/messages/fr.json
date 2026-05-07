@@ -114,6 +114,17 @@
     "submitting": "Envoi…",
     "close": "Fermer"
   },
+  "memorial": {
+    "photoUploader": {
+      "title": "Ajouter une photo",
+      "hint": "Glissez-déposez une image ou choisissez un fichier (JPEG / PNG / WebP, 10 Mo maximum).",
+      "upload": "Choisir un fichier",
+      "uploading": "Téléversement…",
+      "uploaded": "Photo ajoutée à la galerie.",
+      "errorMime": "Format non pris en charge.",
+      "errorSize": "Fichier trop volumineux (10 Mo max)."
+    }
+  },
   "share": {
     "title": "Partager ce mémorial",
     "facebook": "Facebook",
@@ -160,6 +171,17 @@
     "profile": {
       "title": "Mon profil",
       "subtitle": "Gérez vos informations personnelles et la sécurité de votre compte.",
+      "avatar": {
+        "title": "Photo de profil",
+        "hint": "JPEG, PNG ou WebP, 5 Mo maximum.",
+        "upload": "Téléverser",
+        "uploading": "Téléversement…",
+        "uploaded": "Photo mise à jour.",
+        "remove": "Supprimer",
+        "removed": "Photo supprimée.",
+        "errorMime": "Format non pris en charge.",
+        "errorSize": "Fichier trop volumineux (5 Mo max)."
+      },
       "emailLabel": "Adresse email",
       "emailHelp": "L'email sert à la connexion. Pour le modifier, contactez le support.",
       "fullNameLabel": "Nom complet",

@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation';
 import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { EmptyState } from '@/components/EmptyState';
+import { getUnseenNotificationsCount } from '@/lib/notifications/count';
 
 export const metadata: Metadata = {
   title: 'Mes témoignages',
@@ -82,9 +83,10 @@ export default async function MyTestimonialsPage() {
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/dashboard/testimonials');
 
-  const [t, items] = await Promise.all([
+  const [t, items, notificationsBadge] = await Promise.all([
     getTranslations('dashboard.testimonials'),
     getMyTestimonials(user.id),
+    getUnseenNotificationsCount(),
   ]);
   const ids = items.map((x) => x.id);
   const memorialIds = Array.from(new Set(items.map((x) => x.memorialId)));
@@ -103,7 +105,7 @@ export default async function MyTestimonialsPage() {
   );
 
   return (
-    <DashboardShell title={t('title')}>
+    <DashboardShell title={t('title')} notificationsBadge={notificationsBadge}>
       <p className="-mt-4 mb-6 text-sm text-muted-foreground">{t('subtitle')}</p>
 
       {items.length === 0 ? (
