@@ -1,0 +1,30 @@
+<section>
+  <div *ngIf="!loadingDone" class="loading">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div *ngIf="loadingDone" class="body">
+    <div class="add-photo">
+      <div class="container-header">
+        <div class="close-modal" [class.disabled]="createInProgress">
+          <img (click)="closeModal()" src="{{assetUrl}}close-modal.svg" alt="close Modal">
+        </div>
+      </div>
+      <div class="body">
+        <h1>{{ 'photos.display_photo.add_photo' | transloco }}</h1>
+        <div *ngIf="errorMessage != ''" class="error-message">
+          <span>
+            {{ errorMessage }}
+          </span>
+        </div>
+        <shared-upload-media [acceptedFiles]="acceptedFiles" [maximumFiles]="maximumFiles" (onChange)="uploadOnChange($event)" [disabled]="createInProgress"></shared-upload-media>
+        <div class="buttons">
+          <button *ngIf="!createInProgress" type="button" [disabled]="fileToUpload.length == 0" (click)="onSubmit()" class="btn-outlined pink">{{ 'photos.display_photo.send' | transloco }}</button>
+          <button *ngIf="createInProgress" type="button" class="btn-outlined pink" disabled><mat-spinner [diameter]="25"></mat-spinner></button>
+
+          <button type="button" class="btn-outlined grey" (click)="closeModal()" [disabled]="createInProgress">{{ 'photos.display_photo.cancel' | transloco }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

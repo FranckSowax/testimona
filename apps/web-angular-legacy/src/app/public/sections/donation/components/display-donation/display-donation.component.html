@@ -1,0 +1,44 @@
+<section>
+  <div class="div-goal">
+    <p class="title">{{ 'donation.add_donation.about_donations' | transloco }}</p>
+    <div *ngIf="loadingDone && currentRelationship && currentRelationship.isAdmin == true">
+      <div class="div-update-goal">
+        <a class="update-goal" (click)="updateGoalDonation()">{{ 'donation.add_donation.update_goal' | transloco }}</a>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="!loadingDone">
+    <mat-spinner [diameter]="50"></mat-spinner>
+  </div>
+  <div *ngIf="loadingDone && listDonations != null">
+    <p class="comment-donation">{{ messageDonation }}</p>
+    <p class="title">$ {{ amountTotal / 100 }} {{ 'donation.add_donation.raised' | transloco }} <span *ngIf="donationGoal != 0" class="goal-donation">{{ 'donation.add_donation.of' | transloco }} $ {{ donationGoal }} {{ 'donation.add_donation.goal' | transloco }}</span></p>
+    <mat-progress-bar mode="determinate" value="{{ amountTotal / donationGoal }}"></mat-progress-bar>
+    <div class="add-donation">
+        <button class="btn-outlined pink" (click)="addDonation()">{{ 'donation.add_donation.title' | transloco }}</button>
+    </div>
+    <p class="title">{{ 'donation.add_donation.all_donations' | transloco }}</p>
+    <div *ngFor="let donation of listDonations" class="display-donation-div">
+      <div class="title-donation-div">
+        <div class="avatar-div">
+            <img src="{{assetUrl}}avatar-testimona.svg" alt="">
+        </div>
+        <div class="div-donation-user">
+          <p class="title-donation" *ngIf="!donation.anonymous">{{ 'donation.add_donation.donation_by' | transloco }} <span *ngIf="donation.donorDetails.nickname != 'NA'"> {{donation.donorDetails.nickname}}</span><span *ngIf="donation.donorDetails.nickname == 'NA'">{{donation.donorDetails.firstname}} {{donation.donorDetails.lastname}}</span></p>
+          <p class="title-donation" *ngIf="donation.anonymous">{{ 'donation.add_donation.anonymous' | transloco }}</p>
+          <p class="comment-donation">{{ 'donation.add_donation.on' | transloco }} {{ donation.date | date:"yyyy/MM/dd" }}</p>
+          <p class="title-donation amount">$ {{ donation.amount / 100}}</p>
+          <p class="comment-donation">{{ donation.comment }}</p>
+        </div>
+      </div>
+    </div>
+    <shared-modal-view [modalData]="addDonationModalViewModel">
+        <app-add-donation *ngIf="displayAddDonation" [memorialId]="memorialId" [memorialUrl]="memorialUrl">
+        </app-add-donation>
+    </shared-modal-view>
+    <shared-modal-view [modalData]="updateGoalDonationModalViewModel">
+      <app-update-goal-donation *ngIf="displayUpdateGoalDonation" [memorialId]="memorialId" [memorialUrl]="memorialUrl">
+      </app-update-goal-donation>
+    </shared-modal-view>
+  </div>
+</section>

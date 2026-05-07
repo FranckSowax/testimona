@@ -1,0 +1,95 @@
+@import '../../../../../../assets/scss/variables.scss';
+@import '../../../../../../assets/scss/fonts.scss';
+
+section {
+  .create-funeral {
+    padding: 25px 10% 50px;
+    .container-header {
+      grid-area: header;
+
+      div.close-modal {
+        text-align: right;
+
+        img {
+          height: 35px;
+          width: 35px;
+          margin: 0 0 0 auto;
+          cursor: pointer;
+        }
+      }
+    }
+
+    h1 {
+      color: $new-york-pink;
+      font-family: Debby;
+      font-size: 3rem;
+      text-align: center;
+      padding: 2% 0;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      font-family: Montserrat-Medium;
+      color: $martinique;
+    }
+
+    .error-message {
+      margin: 0 0 10px;
+      text-align: center;
+      color: $red;
+      font-weight: bold;
+      font-family: Montserrat-Bold;
+    }
+
+    form {
+      display: inline-grid;
+      width: 100%;
+
+      button,
+      textarea {
+        font-family: Montserrat-Regular;
+      }
+
+      .error-message {
+        margin: 0 0 10px;
+        text-align: center;
+        color: $red;
+        font-weight: bold;
+      }
+
+      textarea {
+        display: block;
+        resize: none;
+        margin-top: 2%;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        background-color: $gallery;
+        color: $grey-blue;
+        border-radius: 6px;
+        padding: 1%;
+        &:disabled {
+          background-color: $waterloo;
+        }
+      }
+
+      .buttons {
+        display: flex;
+        flex-direction: row-reverse;
+        width: 100%;
+        justify-content: space-evenly;
+        margin-top: 3%;
+        align-items: center;
+        .btn-outlined.dark-blue {
+          height: 30px;
+          width: 18%;
+          margin-left: 10px;
+        }
+        .btn-outlined.grey {
+          height: 25px;
+          width: 16%;
+          margin-right: 10px;
+        }
+      }
+
+    }
+  }
+}

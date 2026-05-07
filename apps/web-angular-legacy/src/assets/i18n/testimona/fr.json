@@ -1,0 +1,23 @@
+{
+  "create_testimona": {
+    "title": "Mon témoignage",
+    "subtitle": "Creer un témoignage",
+    "select_memorial": "Entrer le prénom et le nom du défunt",
+    "content": "Quel est votre souvenir le plus mémorable ?",
+    "relationship": "Votre relation avec le défunt",
+    "new_memorial": "Créer le memorial",
+    "post": "Publier mon témoignage",
+    "cancel": "Annuler"
+  },
+  "display_testimona": {
+    "comment": "Commenté le",
+    "edit_testimona": "Editer",
+    "delete_testimona": "Supprimer",
+    "copied": "URL copiée !"
+  },
+  "edit_testimona": {
+    "title": "Editer",
+    "cancel": "Annuler",
+    "valid": "Envoyer"
+  }
+}

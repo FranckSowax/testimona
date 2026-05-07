@@ -1,0 +1,93 @@
+@import '../../../../../assets/scss/fonts.scss';
+@import '../../../../../assets/scss/variables.scss';
+
+section {
+    .top {
+        font-family: Montserrat-Bold;
+        font-size: 1em;
+        color: $martinique;
+        margin-top: 25px;
+        margin-bottom: 25px;
+
+        ul {
+            list-style-type: none;
+
+            li {
+              margin: 15px 0;
+              display: flex;
+              flex-wrap: nowrap;
+              gap: 15px;
+              a {
+                color: $martinique;
+              }
+              img {
+                  height: 20px;
+                  width: 20px;
+              }
+            }
+        }
+    }
+
+    .center,
+    .bottom {
+      a,
+      span {
+        font-family: OpenSans-SemiBold;
+        font-size: 0.6875em;
+      }
+    }
+
+    .center {
+      margin-top: 20px;
+      margin-bottom: 20px;
+
+      a {
+        color: $waterloo;
+        border-right: 1px solid grey;
+        padding: 0 10px;
+
+        &:first-child {
+          padding-left: 0;
+        }
+
+        &:last-of-type {
+          padding-right: 0;
+          border-right: unset;
+        }
+      }
+
+      div.social {
+        color: $waterloo;
+        display: flex;
+        margin: 5px 0;
+        flex-wrap: wrap;
+        gap: 5px;
+
+        img {
+          cursor: pointer;
+
+          &.share {
+            width: 15.2px;
+          }
+        }
+      }
+
+      div.language {
+        color: $waterloo;
+        display: flex;
+        margin: 15px 0;
+        flex-wrap: wrap;
+        gap: 5px;
+
+        .current-language {
+          cursor: pointer;
+        }
+      }
+    }
+
+    .bottom {
+      span {
+        color: $martinique;
+      }
+    }
+  }

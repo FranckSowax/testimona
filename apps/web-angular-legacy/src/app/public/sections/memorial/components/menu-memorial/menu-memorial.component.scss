@@ -1,0 +1,35 @@
+@import '../../../../../../assets/scss/fonts.scss';
+@import '../../../../../../assets/scss/variables.scss';
+
+section.sub-menu {
+    background-color: $white;
+    box-shadow: 0 0 10px rgb(0 0 0 / 7%);
+    border-radius: 10px;
+    .menu-memorial {
+        margin: 0 auto;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        width: 96%;
+        min-height: 90vh;
+
+      .mat-tab-label{
+        font-family: Montserrat-Bold;
+        font-size: 1em;
+        color: $martinique;
+        opacity: 1;
+        background-color: white;
+      }
+
+      .mat-tab-label-active {
+        color: $fountain-blue;
+      }
+
+      .mat-tab-group.mat-primary .mat-ink-bar{
+        background: $fountain-blue;
+        height: 2px;
+      }
+
+    }
+}
+
+

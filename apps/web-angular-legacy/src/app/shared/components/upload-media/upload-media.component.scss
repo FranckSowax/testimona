@@ -1,0 +1,61 @@
+@import '../../../../assets/scss/variables.scss';
+
+section {
+    .div-add-button {
+        // display: flex; --> Cote a cote
+        justify-content: center;
+        margin-top: 20px;
+        margin-bottom: 30px;
+
+        .add-media {
+            color: $martinique;
+            border: 2px solid $martinique;
+            padding: 8px 24px;
+            border-radius: 5px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+
+            &:hover {
+                opacity: 1;
+            }
+
+            &:disabled {
+                cursor: default;
+                background-color: $waterloo;
+            }
+        }
+
+        .upload-photo-container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+
+            .filename {
+                font-family: PTSans-Regular;
+                font-size: 0.8rem;
+                color: $waterloo;
+                margin: 10px 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                img {
+                    width: 150px;
+                }
+
+                span.material-icons {
+                    font-size: 18px;
+                    color: red;
+                    margin-left: 10px;
+                    font-weight: bolder;
+                    cursor: pointer;
+                }
+            }
+        }
+
+        input {
+            display: none;
+        }
+    }
+}

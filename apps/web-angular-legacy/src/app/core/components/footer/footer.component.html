@@ -1,0 +1,20 @@
+<section>
+    <div class="left-footer">
+        <span>Testimona, Inc. ©{{ year }}</span>
+        <a >{{'core.contact' | transloco}}</a>
+    </div>
+    <div class="right-footer">
+        <a *ngIf="!isLoggedIn" class="signup" (click)="signup()">{{'core.signup' | transloco}}</a>
+        <a (click)="gotToInformationPage(informationPage.aboutUs)">{{'core.about.bottom' | transloco}}</a>
+        <a (click)="gotToInformationPage(informationPage.faq)">{{'core.help' | transloco}}</a>
+        <a href="">{{'core.terms' | transloco}}</a>
+        <a href="">{{'core.politics' | transloco}}</a>
+        <a (click)="gotToInformationPage(informationPage.cookies)">{{'core.cookies' | transloco}}</a>
+        <hr />
+        <span class="language" mat-button [matMenuTriggerFor]="menu">{{'core.language.text' | transloco}}</span>
+        <mat-menu #menu="matMenu">
+            <button (click)="setLanguage('fr')" mat-menu-item>{{'core.language.items.fr.long' | transloco}}</button>
+            <button (click)="setLanguage('en')" mat-menu-item>{{'core.language.items.en.long' | transloco}}</button>
+        </mat-menu>
+    </div>
+</section>

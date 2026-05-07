@@ -1,0 +1,47 @@
+{
+  "create_edit_funeral": {
+    "edit_title": "Funeral",
+    "create_title": "Funeral",
+    "subtitle_edit": "Edit info",
+    "subtitle_create": "Create a new",
+    "funeral_information": "Funeral Information",
+    "submit": "Submit",
+    "cancel": "Cancel"
+  },
+  "display_funeral": {
+    "title": "Funeral Information",
+    "information_first": "Posted on",
+    "information_second": "by",
+    "edit_funeral": "Edit the Funerals",
+    "create_funeral": "Create the Funerals",
+    "content": "Content"
+
+  },
+  "create_funeral_event": {
+    "create_button": "+ Add an event",
+    "main_title": "Create an Event",
+    "title": "Event Name",
+    "date": "Date",
+    "starts": "Starts",
+    "ends": "Ends",
+    "url": "URL",
+    "note": "Note",
+    "location": "Location",
+    "create": "Create an event",
+    "cancel": "Cancel"
+  },
+  "display_funeral_events": {
+    "title": "Event Name",
+    "date": "Date",
+    "starts": "Starts",
+    "ends": "Ends",
+    "url": "URL",
+    "note": "Note",
+    "address": "Address"
+  },
+  "edit_funeral_events": {
+    "title": "Edit event",
+    "button": "Edit event",
+    "delete": "Delete event"
+  }
+}

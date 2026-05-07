@@ -1,0 +1,20 @@
+<section>
+    <div class="search">
+        <div class="input-div" [class.full-size]="inputFullsize">
+            <input #search_input (input)="search()" placeholder="{{ 'shared.search' | transloco }}" [matAutocomplete]="mat_autocomplete" #trigger="matAutocompleteTrigger">
+            <img src="{{svgSearchIcon}}" alt="search" (click)="openCloseSearchResults($event, trigger)" />
+        </div>
+        <mat-autocomplete #mat_autocomplete class="search-autocomplete">
+            <div *ngIf="searchResult != null && searchResult.length == 0 ">
+                <mat-option class="search-options-autocomplete">
+                    {{ 'shared.no-result' | transloco }}
+                </mat-option>
+            </div>
+            <div *ngIf="searchResult != null && searchResult.length > 0">
+                <mat-option *ngFor="let item of searchResult" value="{{item.firstname}} {{item.lastname}}, {{item.countryOfDeath}} {{item.yearOfDeath}}" class="search-options-autocomplete" (click)="memorialOnClick(item)">
+                    <span>{{item.firstname}} {{item.lastname}}, {{item.countryOfDeath}} {{item.yearOfDeath}}</span>
+                </mat-option>
+            </div>
+        </mat-autocomplete>
+    </div>
+</section>

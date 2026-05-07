@@ -1,0 +1,32 @@
+{
+    "relatives": {
+        "Parent": "Parent", 
+        "Spouse": "Spouse", 
+        "Partner": "Partner", 
+        "Child": "Child", 
+        "Family": "Family",
+        "Friend": "Friend", 
+        "Colleague": "Colleague", 
+        "Other": "Other", 
+        "DoNotWishToDisclose": "Do not wish to disclose"
+    },
+    "securityQuestions": {
+        "Question_1": "What is your mother’s maiden name?",
+        "Question_2": "What is the name of your first pet?",
+        "Question_3": "What is your favorite color?",
+        "Question_4": "What is the name of your first lover?",
+        "Question_5": "What is the city of your high school?",
+        "Question_6": "What subject did you prefer in school?",
+        "Question_7": "How old was your father when you were born?",
+        "Question_8": "How old was your mother when you were born?",
+        "Question_9": "What is the name of your grandfather?",
+        "Question_10": "What is the name of your grandmother?",
+        "Question_11": "Which city was your father born?",
+        "Question_12": "Which city was your mother born?"
+    },
+    "error": {
+        "api": "An error occurs during the process. Please try again.",
+        "required_field": "[required_field]",
+        "error_email": "This email already exist"
+    }
+}

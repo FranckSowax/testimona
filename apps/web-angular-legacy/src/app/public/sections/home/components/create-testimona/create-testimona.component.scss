@@ -1,0 +1,144 @@
+@import '../../../../../../assets/scss/variables.scss';
+@import '../../../../../../assets/scss/fonts.scss';
+
+section {
+  .create-testimona {
+    padding: 25px 10% 25px;
+    height: 70vh;
+    overflow-x: auto;
+
+    .container-header {
+      div.close-modal {
+        text-align: right;
+
+        img {
+          height: 35px;
+          width: 35px;
+          margin: 0 0 0 auto;
+          cursor: pointer;
+        }
+      }
+    }
+
+    h1 {
+      color: $new-york-pink;
+      font-family: Debby;
+      font-size: 3rem;
+      text-align: center;
+      padding: 2% 0;
+    }
+
+    .error-message {
+      margin: 0 0 10px;
+      text-align: center;
+      color: $red;
+      font-weight: bold;
+      font-family: Montserrat-Bold;
+    }
+
+    form {
+      display: inline-grid;
+      width: 100%;
+
+      .div-new-memorial {
+        .search-memorial {
+          width: 100%;
+        }
+      }
+
+      button,
+      select,
+      input,
+      textarea
+      {
+        font-family: Montserrat-Regular;
+      }
+
+      select,
+      input,
+      textarea,
+      .mat-expansion-panel
+      {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        background-color: $gallery;
+        color: $grey-blue;
+        border-radius: 6px;
+        margin-top: 2%;
+        font-family: Montserrat-Regular;
+      }
+
+      .mat-expansion-panel {
+        box-shadow: none;
+
+        .mat-expansion-panel-header {
+          font-family: Montserrat-Regular;
+          padding-left: 10px;
+          font-size: 13px;
+          height: 38px;
+          margin: 2% auto O;
+
+          .mat-expansion-panel-header-title {
+            color: $grey-blue !important;
+          }
+        }
+      }
+    
+    div.content-expand {
+      text-align: left;
+
+      span {
+        font-family: Montserrat-Regular;
+        font-size: 14px;
+        margin: 0 2%;
+        color: $grey-blue;
+        cursor: pointer;
+      }
+    }
+    textarea {
+      display: block;
+      resize: none;
+      padding: 1%;
+    }
+
+      select,
+      input {
+        width: 100%;
+        margin: 2% auto 0;
+        height: 38px;
+        line-height: 38px;
+        padding-left: 5px;
+      }
+
+      .buttons {
+        display: flex;
+        flex-direction: row-reverse;
+        width: 100%;
+        justify-content: space-evenly;
+        margin-top: 3%;
+        align-items: center;
+
+        .button.btn-container.pink {
+          height: 32px;
+          width: 48%;
+          margin-left: 10px;
+        }
+
+        .btn-outlined.grey {
+          height: 25px;
+          width: 16%;
+          margin-right: 10px;
+        }
+      }
+
+      input.is-invalid {
+        border: 1px solid $red;
+      }
+    }
+  }
+}
+
+shared-search-memorial section .search {
+  .input-div {
+    width: 100% !important;
+  }
+}

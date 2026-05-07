@@ -1,0 +1,168 @@
+@import '../../../../../assets/scss/variables.scss';
+@import '../../../../../assets/scss/fonts.scss';
+
+section {
+  height: 100%;
+  background-color: $martinique;
+  display: grid;
+  grid-template-rows: 7% 93%;
+  grid-template-areas: 'header' 'body';
+
+  .container-header {
+    grid-area: header;
+    .close-modal {
+      height: 35px;
+      width: 35px;
+      margin: 0 0 0 auto;
+      cursor: pointer;
+    }
+    div {
+      margin-top: 10px;
+      margin-right: 10px;
+      text-align: right;
+    }
+  }
+
+  .container-signin {
+    grid-area: body;
+    .title_one {
+      width: 18%;
+    }
+    .title_two {
+      margin-top: 20px;
+      width: 18%;
+    }
+    .subtitle-email {
+      margin-top: 1rem;
+    }
+    .btn-social-medias {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 1.5em;
+      margin-bottom: 0;
+      color: $white;
+      font-family: Montserrat-SemiBold;
+    }
+
+    form {
+      display: inline-grid;
+      width: 100%;
+
+      .error-message {
+        margin: 0;
+        text-align: center;
+        color: $red;
+        font-family: Montserrat-Bold;
+      }
+
+      .form-input {
+        width: 38%;
+        margin: 0 auto;
+
+        input {
+          width: 100%;
+          margin-top: 2%;
+          border: 1px solid rgba(0, 0, 0, 0.1);
+          border-radius: 6px;
+          height: 35px;
+          line-height: 28px;
+          padding-left: 5px;
+          font-family: Montserrat-Regular;
+        }
+      }
+
+      .form-input.password {
+        position: relative;
+
+        mat-icon {
+          position: absolute;
+          right: 8px;
+          top: 40%;
+          color: $grey;
+          cursor: pointer;
+        }
+      }
+
+      input.ng-invalid.ng-dirty,
+      label.ng-invalid input {
+        border: 1px solid $red !important;
+      }
+
+      .forget_password {
+        color: $white;
+        font-weight: 600;
+        font-family: Montserrat-Bold;
+        text-align: left;
+        margin-top: 2%;
+        width: 38%;
+        margin: 0 auto;
+        padding-top: 1%;
+        padding-bottom: 1%;
+        cursor: pointer;
+      }
+
+      .buttons {
+        display: flex;
+        flex-direction: row-reverse;
+        width: 38%;
+        margin: 0 auto;
+        justify-content: center;
+        margin-top: 1%;
+        align-items: center;
+
+        .btn-outlined.pink {
+          height: 40px;
+          width: 18%;
+          margin-left: 10px;
+          .mat-spinner {
+            margin: 0 auto;
+          }
+        }
+
+        .btn-outlined.grey {
+          height: 30px;
+          width: 16%;
+          margin-right: 10px;
+        }
+      }
+    }
+
+    .infos-signin {
+      display: flex;
+      justify-content: center;
+      color: $white;
+      font-family: Montserrat-Regular;
+      opacity: 0.8;
+      width: 38%;
+      margin: 3% auto 0 auto;
+
+      hr {
+        display: inline;
+        border-right: 1px solid white;
+        margin: 0 2.5%;
+      }
+      .policy-sigin {
+        width: 50%;
+        p {
+          text-align: right;
+        }
+      }
+      .signup-signin {
+        width: 50%;
+        text-align: left;
+        p {
+          margin: 0;
+        }
+        .link_signup {
+          color: $new-york-pink;
+          cursor:pointer;
+        }
+      }
+    }
+  }
+}

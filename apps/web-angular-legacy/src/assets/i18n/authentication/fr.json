@@ -1,0 +1,57 @@
+{
+    "signin": {
+        "title_png_one": "login1-fr.png",
+        "title_png_two": "login2-fr.png",
+        "title_account": "avec un compte existant",
+        "title_email": "ou avec votre courriel",
+        "continue_facebook": "Continuer avec Facebook",
+        "continue_google": "Continuer avec Google",
+        "email": "Entrer votre courriel",
+        "forget_password": "Avez-vous oublié votre mot de passe",
+        "password": "Entrer votre mot de passe",
+        "policy": "En vous enregistrant, vous adhérez à nos conditions d'utlisation et reconnaissez avoir lu nos politiques de confidentialité",
+        "text_signup": "Besoin d'un compte?",
+        "link_signup": "S'identifier",
+        "send": "Se connecter",
+        "error": {
+            "default": "Email ou mot de passe incorrect. Veuillez réessayer !"
+        }
+    },
+    "signup": {
+        "title": "S'inscrire",
+        "title_account": "avec un compte",
+        "title_email": "ou avec votre courriel électronique",
+        "continue_google": "Continuer avec google",
+        "email": "Entrer votre courriel électronique",
+        "password": "Entrer votre mot de passe",
+        "password_confirmation": "Confirmez votre mot de passe",
+        "send": "S'identifier",
+        "text": "Testimona est une belle communauté animée par le désir de partager de beaux souvenirs de nos êtres chers disparus afin qu'ils puissent vivre à jamais dans nos cœurs. Nous écrivons les récits de leur vie afin de ne pas les oublier, et les partager avec nos enfants et les prochaines générations. Nous sommes impatients de découvrir les belles histoires de votre bien-aimé(e)",
+        "error_email": "Cet email existe déjà",
+        "error_confirm_password": "La confirmation du mot de passe est differente du mot de passe",
+        "question": "Choisir une question de sécurité",
+        "answer": "Entrer votre réponse",
+        "firstname": "Prénom",
+        "lastname": "Nom",
+        "nickname": "Nom d'utilisateur",
+        "username": "Nom d'utilisateur",
+        "cancel": "Annuler",
+        "validation_title": "Merci !",
+        "validation_subtitle": "Vous êtes maintenant un membre de communauté Testimona!",
+        "validation_text": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit deleniti non, esse voluptate reprehenderit doloribus sint nam consequuntur quia explicabo cumque dignissimos quaerat minus ea cum omnis possimus, obcaecati rem?",
+        "explore_testimona": "Explorer Testimona",
+        "back_home_page": "Retour à la page d'accueil",
+        "policy": {
+            "first_part": "En vous enregistrant, vous adhérez à nos ",
+            "terms": "conditions d'utilisation",
+            "second_part": ". Les ",
+            "cookies": "Politiques de Cookies",
+            "third_part": ", et reconnaissez avoir lu nos ",
+            "privacy": "politiques de confidentialité."
+        },
+        "already_login": {
+            "phrase": "Avez vous déjà un compte?",
+            "link": "Se connecter"
+        }
+    }
+}

@@ -1,0 +1,54 @@
+<section>
+  <div *ngIf="!loadingDone">
+    <mat-spinner [diameter]="50"></mat-spinner>
+  </div>
+
+  <div *ngIf="loadingDone">
+    <div class="div-create-chapter">
+      <a class="create-chapter" (click)="createChapter()">{{ 'biography.create_chapter.button' | transloco }}</a>
+    </div>
+    <div *ngIf="listOfChapters != null">
+      <div *ngFor="let chapter of listOfChapters">
+        <div class="div-display-chapter">
+          <div class="sub-div-display-chapter">
+            <h4>{{ chapter.title }}</h4>
+            <span class="user-info">{{ 'biography.display_chapter.information_first' | transloco }} {{
+              getDate(chapter.createDate) }} {{
+                'biography.display_chapter.information_second' | transloco }} {{ chapter.userInfo.identity }}</span>
+            <div class="content-chapter">
+              <p><span class="data">{{ chapter.content }}</span></p>
+              <div *ngIf="chapter.photoArray.length == 1">
+                <img class="uniq-photo" src="{{ chapter.photoArray[0].medium }}" alt="" (click)="openFullsize(chapter.photoArray[0].full)">
+              </div>
+              <div *ngIf="chapter.photoArray.length > 1">
+                <div class="multiple-photo">
+                  <div *ngFor="let photo of chapter.photoArray">
+                    <img src="{{ photo.thumbnail }}" alt="" (click)="openFullsize(photo.full)">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="links">
+              <img mat-button *ngIf="myChapter(chapter.userInfo.userId)" [matMenuTriggerFor]="menu" src="{{assetUrl}}three-dots.svg" alt="">
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="editChapter(chapter.id, chapter.userInfo.userId)">{{
+                  'biography.display_chapter.edit_chapter' | transloco }}</button>
+                <button mat-menu-item (click)="deleteChapter(chapter.id, chapter.userInfo.userId)">{{
+                  'biography.display_chapter.delete_chapter' | transloco }}</button>
+              </mat-menu>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <shared-modal-view [modalData]="editChapterModalViewModel">
+      <app-edit-chapter *ngIf="displayEditChapter" [chapterId]="chapterId"></app-edit-chapter>
+    </shared-modal-view>
+  </div>
+
+  <shared-modal-view [modalData]="createChapterModalViewModel">
+    <app-create-chapter *ngIf="displayCreateChapter" [memorialId]="memorialId"></app-create-chapter>
+  </shared-modal-view>
+</section>

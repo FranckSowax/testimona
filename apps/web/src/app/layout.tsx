@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { SiteHeader } from '@/components/SiteHeader';
+import { SiteFooter } from '@/components/SiteFooter';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -30,7 +32,9 @@ export default function RootLayout({
         >
           Aller au contenu
         </a>
+        <SiteHeader />
         <main id="main">{children}</main>
+        <SiteFooter />
       </body>
     </html>
   );

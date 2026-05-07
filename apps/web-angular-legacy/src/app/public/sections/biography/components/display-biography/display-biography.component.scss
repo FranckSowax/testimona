@@ -1,0 +1,30 @@
+@import '../../../../../../assets/scss/variables.scss';
+@import '../../../../../../assets/scss/fonts.scss';
+
+p {
+  margin: 1% 0;
+  .subtitle {
+    font-family: Montserrat-Bold;
+    font-size: 14px;
+    color: $martinique;
+  }
+
+  .data {
+    font-family: Montserrat-Regular;
+    font-size: 13px;
+    color: $martinique;
+  }
+
+}
+
+.div-display-biography {
+  display: flex;
+  justify-content: space-between;
+  .links {
+    margin-right: 50px;
+    cursor: pointer;
+    img {
+      padding: 10px;
+    }
+  }
+}

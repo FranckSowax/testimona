@@ -1,0 +1,78 @@
+@import '../../../../../../assets/scss/variables.scss';
+@import '../../../../../../assets/scss/fonts.scss';
+
+.main-home {
+  height: 100%;
+  display: grid;
+  grid-template-rows: 3fr 1fr;
+  grid-template-columns: 15vw 70vw 15vw;
+  grid-template-areas: "image image image" ". testimonials .";
+
+  .first-section {
+    grid-area: image;
+    background-image: url('/assets/images/home-background.png');
+    background-repeat: no-repeat;
+    background-position: center;
+
+    .div-logo-home {
+      display: flex;
+      justify-content: center;
+      height: 60%;
+    }
+    .div-home-btns {
+      display: inline-grid;
+      width: 100%;
+
+      .btn-container.pink {
+        padding: 15px;
+        margin: 2% auto;
+        font-size: 1.5em;
+      }
+
+      .btn-outlined.dark-blue {
+        padding: 10px;
+        margin: 0 auto;
+        font-size: 1.2em;
+      }
+    }
+  }
+
+  .quote-home {
+    grid-area: testimonials;
+    color: $martinique;
+    display: grid;
+    grid-template-columns: 30% 70%;
+    grid-template-areas: 'quote-home-left quote-home-right';
+    height: 35%;
+    padding: 2% 8%;
+
+    .quote-home-left {
+      grid-area: quote-home-left;
+    }
+
+    .quote-home-right {
+      grid-area: quote-home-right;
+      display: flex;
+      justify-content: center;
+
+      .quote-start,
+      .quote-end {
+        background-repeat: no-repeat;
+        width: 20%;
+      }
+
+      .quote-start {
+        background-image: url('/assets/images/quote-open.svg');
+      }
+
+      .quote-end {
+        background-image: url('/assets/images/quote-close.svg');
+      }
+
+      .blockquote {
+        font-family: Montserrat-Regular;
+        font-size: 0.9375em;
+      }
+    }
+  }
+}

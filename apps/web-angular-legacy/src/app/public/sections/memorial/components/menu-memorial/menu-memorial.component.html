@@ -1,0 +1,24 @@
+<section class="sub-menu">
+    <div class="menu-memorial">
+      <mat-tab-group #matTabControl mat-align-tabs="center" (selectedTabChange)="selectedTabChanged($event)">
+        <mat-tab label="{{'memorial.menu_memorial.testimonials' | transloco }}">
+          <div class="testimonas">
+            <app-list-testimona *ngIf="memorialId != null" [memorialId]="memorialId" [memorialUrl]="memorialUrl" [memorialUserRelathionship]="memorialUserRelathionship"></app-list-testimona>
+          </div>
+        </mat-tab>
+        <mat-tab label="{{'memorial.menu_memorial.photos' | transloco }}">
+          <app-display-photo *ngIf="displayPhoto" [memorialId]="memorialId"></app-display-photo>
+        </mat-tab>
+        <mat-tab label="{{'memorial.menu_memorial.donations' | transloco }}">
+          <app-display-donation *ngIf="displayDonation" [memorialUrl]="memorialUrl" [memorialId]="memorialId"></app-display-donation>
+        </mat-tab>
+        <mat-tab label="{{'memorial.menu_memorial.biography' | transloco }}">
+          <app-display-biography *ngIf="displayBiography" [memorialId]="memorialId"></app-display-biography>
+          <app-display-chapter *ngIf="displayBiography" [memorialId]="memorialId"></app-display-chapter>
+        </mat-tab>
+          <mat-tab label="{{'memorial.menu_memorial.funerals' | transloco }}" >
+            <app-display-funeral-event *ngIf="displayFuneral" [memorialId]="memorialId"></app-display-funeral-event>
+          </mat-tab>
+      </mat-tab-group>
+    </div>
+</section>

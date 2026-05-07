@@ -1,0 +1,53 @@
+@import '../../../../assets/scss/fonts.scss';
+@import '../../../../assets/scss/variables.scss';
+
+section {
+  .search {
+    display: flex;
+
+    .input-div {
+      position: relative;
+      min-width: 300px;
+      margin-top: 5px;
+
+      input {
+        width: 100%;
+        height: 35px;
+        padding-left: 15px;
+        border-radius: 10px;
+        background-color: $gallery;
+        font-family: Montserrat-Medium;
+        font-size: 1em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding-right: 30px;
+      }
+
+      img {
+        position: absolute;
+        right: 10px;
+        top: 6px;
+        color: $grey;
+        cursor: pointer;
+      }
+    }
+
+    .input-div.full-size {
+      min-width: none;
+      width: 100%;
+    }
+  }
+}
+
+::ng-deep mat-option {
+  .mat-option-text {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.search-options-autocomplete {
+  font-family: OpenSans-Regular !important;
+  color: $grey-blue !important;
+}

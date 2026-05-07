@@ -1,0 +1,14 @@
+{
+  "memorials": {
+    "title": "All Memorials",
+    "memorial": "Memorial",
+    "created-at": "Created at",
+    "updated-at": "Updated at"
+  },
+  "donations": {
+    "title": "All donations",
+    "amount": "Amount: ",
+    "anonymous": "Anonymous User",
+    "public": "Public User"
+  }
+}

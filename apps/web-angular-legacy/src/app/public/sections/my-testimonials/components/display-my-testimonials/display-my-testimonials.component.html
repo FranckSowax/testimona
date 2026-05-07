@@ -1,0 +1,38 @@
+<section>
+  <div class="div-title-my-testimonials">
+    <h2>{{ 'mytestimonials.display.title' | transloco }}</h2>
+  </div>
+  <h4>{{ 'mytestimonials.display.subtitle' | transloco }} ({{listOfMyTestimonialsLength}})</h4>
+  <div *ngIf="!loadingDone">
+    <mat-spinner [diameter]="50"></mat-spinner>
+  </div>
+  <div *ngIf="loadingDone && listOfMyTestimonials != null">
+    <div *ngFor="let myTestimonial of listOfMyTestimonials">
+      <div class="div-display-my-testimonials">
+          <a [routerLink]="['/memorial', myTestimonial.memorialInfo.url]">
+            <div class="display-testimona-div">
+              <div class="title-testimona-div">
+                <div class="avatar-div">
+                  <img src="{{assetUrl}}avatar-testimona.svg" alt="">
+                </div>
+                <div class="div-testimona-user">
+                  <p class="title-testimona">{{myTestimonial.memorialInfo.firstname}} {{myTestimonial.memorialInfo.lastname}}, <span></span></p>
+                  <p class="comment-testimona">{{'mytestimonials.display.comment' | transloco }} {{ myTestimonial.createDate | date:"yyyy/MM/dd" }}</p>
+                  <div class="content-photo-testimona">
+                    <p class="content-testimona">{{ myTestimonial.content }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="buttons-display-testimona">
+              <img src="{{ assetUrl }}share.svg" alt="share" class="img-share" (click)="shareTestimona()">
+              <div>
+                <img src="{{ assetUrl }}like-empty.svg" #likeItem alt="like" class="img-like">
+                <p #nbLike class="nb-like">{{myTestimonial.numberOfLike}}</p>
+              </div>
+            </div>
+          </a>
+        </div>
+    </div>
+  </div>
+</section>

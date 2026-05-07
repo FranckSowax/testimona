@@ -1,0 +1,33 @@
+<section>
+  <div class="update-donation-goal">
+    <div class="container-header">
+      <div class="close-modal">
+        <img (click)="closeModal()" src="{{assetUrl}}close-modal.svg" alt="close Modal">
+      </div>
+    </div>
+    <h1>{{ 'donation.update_goal_donation.title' | transloco }}</h1>
+    <div *ngIf="!loadingDone" class="loading">
+      <mat-spinner [diameter]="50"></mat-spinner>
+    </div>
+    <div *ngIf="loadingDone && memorialItem!= null && donationGoal != null">
+      <h2 class="title">{{memorialItem.firstname}} {{memorialItem.lastname}}</h2>
+      <form [formGroup]="updateDonationGoalForm" (ngSubmit)="onSubmitForm()">
+        <input type="text" id="amount" class="amount" formControlName='amount' placeholder="{{ 'donation.update_goal_donation.amount' | transloco }}" [ngClass]="{
+          'is-invalid':
+          !formControls.amount.valid && formControls.amount.touched
+          }" />
+          <textarea rows="6" type="text" id="message" class="message" formControlName='message' placeholder="{{ 'donation.update_goal_donation.message' | transloco }}" [ngClass]="{
+            'is-invalid':
+            !formControls.message.valid && formControls.message.touched
+            }"></textarea>
+        <div class="buttons">
+          <button *ngIf="!submitInProgress" type="submit" class="btn-outlined dark-blue" [disabled]="updateDonationGoalForm.invalid">{{ 'donation.update_goal_donation.save' |
+            transloco }}</button>
+            <button *ngIf="submitInProgress" type="button" class="btn-outlined dark-blue" disabled><mat-spinner [diameter]="25"></mat-spinner></button>
+            <button *ngIf="!submitInProgress" class="btn-outlined grey" (click)="closeModal()">{{ 'donation.update_goal_donation.cancel' | transloco }}</button>
+            <button *ngIf="submitInProgress" class="btn-outlined grey" disabled>{{ 'donation.update_goal_donation.cancel' | transloco }}</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</section>

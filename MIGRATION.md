@@ -1,6 +1,6 @@
 # Testimona — État de la migration
 
-**Dernière mise à jour** : 2026-05-06
+**Dernière mise à jour** : 2026-05-07
 **Branche cible** : `main` sur https://github.com/FranckSowax/testimona
 
 Ce document est le journal de bord de la migration Angular 15 + Express monolithe → Next.js 15 + Express BFF + Supabase + Railway. Il décrit ce qui est **déjà fait**, ce qui est **partiellement fait**, et **les étapes manuelles restantes**.
@@ -58,8 +58,14 @@ Référence complète : voir [`testimona-audit (1).html`](./testimona-audit%20%2
 - `src/app/page.tsx`
 - `src/app/(auth)/login/{page,actions,LoginForm}.tsx` (Server Action + fallback BFF lazy migration + Google OAuth)
 - `src/app/(auth)/signup/{page,actions,SignupForm}.tsx`
-- `src/app/auth/callback/route.ts`
+- `src/app/auth/callback/route.ts` + `auth/signout/route.ts`
 - `src/app/(public)/memorial/[slug]/page.tsx` (RSC + ISR 60s + Open Graph)
+- `src/app/(public)/memorial/[slug]/_components/{Testimonials,Photos,Biography,Donate}Section.tsx` + `TestimonialForm` + `DonateForm`
+- `src/app/(public)/memorial/[slug]/actions.ts` (submit témoignage)
+- `src/app/(public)/search/page.tsx` (S2 — RSC + ILIKE multi-champs + pagination)
+- `src/app/(public)/donate/{actions,success/page,cancel/page}.tsx` (Stripe Checkout)
+- `src/app/(dashboard)/dashboard/page.tsx` (liste mémoriels owner) + `dashboard/new/{page,actions,NewMemorialForm}.tsx`
+- `src/components/{SiteHeader,SiteFooter}.tsx`
 - `src/app/api/health/route.ts`
 - `src/app/sitemap.ts` + `robots.ts`
 
@@ -71,19 +77,14 @@ Référence complète : voir [`testimona-audit (1).html`](./testimona-audit%20%2
 
 ## ⚠️ Bloqueurs / actions manuelles requises
 
-### 1. Repos git imbriqués `api/.git` et `web/.git`
+### 1. ~~Repos git imbriqués~~ — Résolu (2026-05-07)
 
-Les modifications backend listées plus haut sont dans le working tree mais **ne peuvent pas être committées sur `FranckSowax/testimona`** car git voit `api/` et `web/` comme des sous-dépôts opaques.
+`api/.git` et `web/.git` ont été déplacés hors de l'arbre de travail vers `/tmp/testimona-legacy-git-archive/{api-dotgit,web-dotgit}` (préservés pour archive ; volatil — copier ailleurs si l'historique doit être gardé). `api/` est devenu `apps/api/` et `web/` est devenu `apps/web-angular-legacy/`. Git voit désormais leur contenu comme des fichiers normaux du mono-repo.
 
-**Recommandation** : absorber dans le mono-repo (perd l'historique git interne, OK car le projet repart sur un nouveau remote) :
+À committer (580 fichiers, `node_modules` exclus) :
 ```bash
-cd "/Users/user/Downloads/testimona copy"
-rm -rf api/.git web/.git
-git mv api apps/api
-git mv web apps/web-angular-legacy
-git add apps/
-git commit -m "chore: absorb api and web into monorepo"
-git push
+git add apps/ MIGRATION.md
+git commit -m "chore: absorb api and web into monorepo + frontend S2-S6"
 ```
 
 ### 2. Variables d'environnement Railway (3 envs)
@@ -142,6 +143,6 @@ Après cutover canary, archiver puis supprimer `apps/web-angular-legacy/`.
 | 3. Migration auth | 🟡 Code prêt | Manque : tester lazy migration e2e |
 | 4. BFF refacto | 🟡 Partiel | Code en place, à wirer dans routes existantes après §⚠️1 |
 | 5. Bootstrap Next.js | ✅ Done | Configs + middleware + helpers Supabase |
-| 6. Réécriture frontend | 🟡 S1 amorcé | Login + Signup + Callback + Memorial RSC ; reste S2-S8 (search, donations, biography, funerals, dashboard, admin) |
+| 6. Réécriture frontend | 🟡 S1-S6 amorcés | Auth + Memorial (RSC, témoignages/photos/biographie/donations) + Search + Dashboard owner ; reste : funerals, admin, gestion détaillée mémorial |
 | 7. Tests/CI/CD | 🟡 CI en place | Tests à écrire (cible 70 %) ; Sentry à activer (DSN) ; Better Stack à connecter |
 | 8. Cutover | ⬜ À venir | Après validation staging |

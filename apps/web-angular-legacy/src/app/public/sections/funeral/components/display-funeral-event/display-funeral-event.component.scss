@@ -1,0 +1,79 @@
+@import '../../../../../../assets/scss/variables.scss';
+@import '../../../../../../assets/scss/fonts.scss';
+
+
+.div-create-event {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  .create-event {
+    color: $martinique;
+    border: 2px solid $martinique;
+    padding: 8px 24px;
+    border-radius: 5px;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+h4 {
+  margin-bottom: 1%;
+  font-family: Montserrat-Bold;
+  font-size: 16px;
+  color: $martinique;
+}
+
+.user-info {
+  font-family: PTSans-Regular;
+  font-size: 12px;
+  font-style: italic;
+  color: $waterloo;
+  margin-bottom: 0;
+  margin-bottom: 5px;
+  margin-top: -9px;
+  display: flex;
+}
+
+.div-display-event {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px;
+  background-color: $white;
+  box-shadow: 0 0 10px rgb(0 0 0 / 7%);
+  padding: 20px;
+  border-radius: 10px;
+  .links {
+    cursor: pointer;
+    img {
+      padding: 10px;
+    }
+  }
+}
+
+p {
+  margin: 1% 0;
+  .subtitle {
+    font-family: Montserrat-Bold;
+    font-size: 14px;
+    color: $martinique;
+  }
+
+  .data {
+    font-family: Montserrat-Regular;
+    font-size: 13px;
+    color: $martinique;
+
+    &.note {
+      white-space: pre-line;
+    }
+  }
+
+  a {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+}

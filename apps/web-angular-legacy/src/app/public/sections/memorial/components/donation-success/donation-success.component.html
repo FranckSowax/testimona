@@ -1,0 +1,16 @@
+<section>
+  <div class="donation-success">
+    <div class="container-header">
+      <div class="close-modal">
+        <img (click)="closeModal()" src="{{assetUrl}}close-modal.svg" alt="close Modal">
+      </div>
+    </div>
+    <div class="body">
+      <h1>{{ 'donation.success.title' | transloco }}</h1>
+      <p class="subtitle">{{ 'donation.success.subtitle' | transloco }}</p>
+      <div class="buttons">
+        <button type="button" class="btn-outlined grey" (click)="closeModal()">{{ 'donation.success.close' | transloco }}</button>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,32 @@
+{
+    "relatives": {
+        "Parent": "Parent", 
+        "Spouse": "Conjoint.e", 
+        "Partner": "Partenaire", 
+        "Child": "Enfant", 
+        "Family": "Famille",
+        "Friend": "Ami.e", 
+        "Colleague": "Collègue", 
+        "Other": "Autre", 
+        "DoNotWishToDisclose": "Ne souhaite pas divulguer"
+    },
+    "securityQuestions": {
+        "Question_1": "Question_1",
+        "Question_2": "Question_2",
+        "Question_3": "Question_3",
+        "Question_4": "Question_4",
+        "Question_5": "Question_5",
+        "Question_6": "Question_6",
+        "Question_7": "Question_7",
+        "Question_8": "Question_8",
+        "Question_9": "Question_9",
+        "Question_10": "Question_10",
+        "Question_11": "Question_11",
+        "Question_12": "Question_12"
+    },
+    "error": {
+        "api": "Une erreur est survenu durant le processus. Merci de réessayer.",
+        "required_field": "[required_field]",
+        "error_email": "Cet email existe déjà"
+    }
+}

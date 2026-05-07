@@ -1,0 +1,245 @@
+@import '../../../../../../assets/scss/variables.scss';
+@import '../../../../../../assets/scss/fonts.scss';
+
+section {
+    h3 {
+        font-weight: 700;
+        font-family: Montserrat-Bold;
+        font-size: 20px;
+        margin-bottom: 0;
+        a {
+            text-decoration: none !important;
+            color: $martinique;
+            &:hover {
+                text-decoration: underline !important;
+            }
+        }
+        span {
+            color: $waterloo;
+            font-size: 16px;
+            font-family: Montserrat-Regular;
+        }
+    }
+
+    .header-display-memorial {
+        margin-top: 10px;
+        background-color: $white;
+        box-shadow: 0 0 10px rgb(0 0 0 / 7%);
+        padding: 10px;
+        border-radius: 10px;
+        .add-profile-picture-input {
+          display: none;
+        }
+        .main {
+            margin: 0;
+        }
+
+        .spinner-admin {
+            .mat-spinner {
+                margin: 0 auto;
+            }
+        }
+
+        .background-img {
+            background-color: $gallery;
+            border-radius: 6px;
+            display: flex;
+            height: 12rem;
+            margin-top: 2%;
+            .display-background-img {
+                width: 95%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: cover;
+                .btn-outlined {
+                    padding: 1%;
+                    &:hover {
+                        background-color: $gallery;
+                        box-shadow: none;
+                    }
+                }
+            }
+            .display-background-img.with-image {
+              display: block;
+              position: relative;
+              .camera-icon {
+                background-color: $light-grey;
+                border-radius: 50%;
+                padding: 5px 5px 0px 5px;;
+                position: absolute;
+                bottom: 3%;
+                right: 1%;
+                cursor: pointer;
+                &:hover {
+                  opacity: 0.7;
+                }
+              }
+            }
+            .btn-icones {
+                width: 5%;
+                background-color: $new-york-pink;
+                border-top-right-radius: 6px;
+                border-bottom-right-radius: 6px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+                .icones-memorial {
+                    margin: 0 auto;
+                    width: fit-content;
+                    display: block;
+                    cursor: pointer;
+                    width: 25px;
+                }
+                .icones-memorial.unavailable {
+                  opacity: 0.6;
+                  cursor: not-allowed;
+                }
+            }
+        }
+
+        .admin_div {
+            display: flex;
+            justify-content: space-between;
+            .admin_page {
+                font-family: PTSans-Regular;
+                font-size: 12px;
+                font-style: italic;
+                color: $waterloo;
+                margin-bottom: 0;
+            }
+            .be_admin {
+                font-family: Montserrat-Bold;
+                font-size: 12px;
+                color: $waterloo;
+                text-transform: uppercase;
+                cursor: pointer;
+                margin-bottom: 0;
+            }
+        }
+
+        .avatar,.avatar-not-available {
+          position: relative;
+          img {
+              position: absolute;
+              top: -5.5rem;
+              left: 2rem;
+          }
+        }
+
+        .profile-picture,.profile-picture-not-available {
+          position: relative;
+          img {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            top: -6rem;
+            left: 2rem;
+            position: absolute;
+          }
+
+        }
+
+        .avatar,.profile-picture {
+          cursor: pointer;
+          .camera-icon {
+            background-color: $light-grey;
+            border-radius: 50%;
+            padding: 5px 5px 0px 5px;;
+            position: absolute;
+            left: 130px;
+
+            .mat-icon {
+              font-size: 18px;
+              width: 18px;
+              height: 18px;
+            }
+          }
+        }
+
+        .title-memorial {
+            font-family: Montserrat-Bold;
+            font-size: 22px;
+            text-align: center;
+            color: $martinique;
+            margin-top: 1%;
+            margin-bottom: 1px;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid $martinique;
+            color: $martinique;
+            overflow: visible;
+            height: 5px;
+        }
+
+        .subtitle-memorial {
+            p {
+                font-family: PTSans-Regular;
+                color: $martinique;
+                font-size: 1em;
+                margin-top: 1%;
+                margin-bottom: 0;
+                span {
+                    font-family: OpenSans-SemiBold;
+                }
+            }
+
+            p.short-biography {
+                white-space: pre-line;
+            }
+        }
+    }
+    .new-testimona {
+        padding: 2%;
+        display: flex;
+        justify-content: center;
+        position: relative;
+        padding-bottom: 1%;
+        .avatar-testimona {
+            width: 5%;
+        }
+        .leaf-div {
+            background-color: $new-york-pink;
+            position: absolute;
+            right: 45px;
+            width: 31%;
+            border-radius: 10px;
+            height: 63%;
+            z-index: 1;
+            display: flex;
+            justify-content: flex-end;
+            img {
+                width: 32px;
+                margin-right: 7px;
+            }
+        }
+        .input-testimonal{
+            z-index:2;
+            cursor: pointer;
+            margin-left: 10px;
+            background-color: $gallery;
+            font-family: Montserrat-Regular;
+            font-size: 1em;
+            border-radius: 10px;
+            padding: 1%;
+            color: $waterloo;
+            min-width: 75%;
+            display: flex;
+            justify-content: space-between;
+            p {
+                margin: auto 0;
+            }
+
+        }
+    }
+    .testimonas {
+        background-color: $white;
+        padding: 10px;
+        box-shadow: 0 0 10px rgb(0 0 0 / 7%);
+        border-radius: 10px;
+    }
+}

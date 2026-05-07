@@ -1,0 +1,26 @@
+<section [class.displayMenu]="displayMenu">
+    <div class="left">
+        <div class="logo">
+            <a href=""><img src="{{ assetUrl }}logo-testimona.svg" alt="logo testimona" /></a>
+        </div>
+    </div>
+
+    <div class="right">
+        <div *ngIf="isAdmin" class="admin-url">
+            <a *ngIf="displayAdminLink" [routerLink]="['/admin']">Admin Site</a>
+            <a *ngIf="!displayAdminLink" [routerLink]="['/']">Public Site</a>
+        </div>
+        <shared-search-memorial *ngIf="displayAdminLink" [source]="searchParentSourceEnum.Header" (resultOnClick)="displayMemorial($event)"></shared-search-memorial>
+        <img *ngIf="!isLoggedIn" src="{{ assetUrl }}avatar.svg" alt="avatar" class="avatar-header" mat-button [matMenuTriggerFor]="menu">
+        <img *ngIf="isLoggedIn" src="{{ assetUrl }}avatar-connected.svg" alt="avatar" class="avatar-header" [class.logged]="isLoggedIn" mat-button [matMenuTriggerFor]="menu">
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item *ngIf="isLoggedIn" (click)="signout()">{{ 'core.signout' | transloco }}</button>
+            <button mat-menu-item *ngIf="!isLoggedIn" (click)="register()">{{ 'core.signup' | transloco }}</button>
+            <button mat-menu-item *ngIf="!isLoggedIn" (click)="signin()">{{ 'core.signin' | transloco }}</button>
+        </mat-menu>
+    </div>
+</section>
+
+<shared-modal-view [modalData]="signinModalViewModel">
+    <app-signin *ngIf="displaySignin"></app-signin>
+</shared-modal-view>

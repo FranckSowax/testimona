@@ -1,0 +1,43 @@
+@import '../../../../../../assets/scss/variables.scss';
+@import '../../../../../../assets/scss/fonts.scss';
+
+section {
+  padding-top: 1%;
+  .div-title {
+    display: flex;
+    justify-content: space-between;
+    h1 {
+      font-size: 1rem;
+      font-family: Montserrat-Bold;
+      color: $martinique;
+      margin-bottom: 0;
+    }
+    .links {
+      display: flex;
+      justify-content: space-between;
+      img {
+        margin: 5px;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .info-funeral {
+    margin-top: 15px;
+    font-size: 16px;
+  }
+
+  p {
+    font-family: PTSans-Regular;
+    font-size: 0.8rem;
+    color: $waterloo;
+  }
+
+  span {
+    font-family: PTSans-Regular;
+    font-size: 12px;
+    font-style: italic;
+    color: $waterloo;
+    margin-bottom: 0;
+  }
+}

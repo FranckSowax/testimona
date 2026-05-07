@@ -1,0 +1,107 @@
+@import '../../../../../../assets/scss/variables.scss';
+@import '../../../../../../assets/scss/fonts.scss';
+
+section {
+  .edit-biography {
+    padding: 25px 10% 50px;
+    .container-header {
+      grid-area: header;
+
+      div.close-modal {
+        text-align: right;
+
+        img {
+          height: 35px;
+          width: 35px;
+          margin: 0 0 0 auto;
+          cursor: pointer;
+        }
+      }
+    }
+
+    h1 {
+      color: $new-york-pink;
+      font-family: Debby;
+      font-size: 3rem;
+      text-align: center;
+      padding: 2% 0;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      font-family: Montserrat-Medium;
+      color: $martinique;
+    }
+
+    .error-message {
+      margin: 0 0 10px;
+      text-align: center;
+      color: $red;
+      font-weight: bold;
+      font-family: Montserrat-Bold;
+    }
+
+    form {
+      display: inline-grid;
+      width: 100%;
+
+      button,
+      input {
+        font-family: Montserrat-Regular;
+      }
+
+      input.is-invalid {
+        border: 1px solid $red;
+      }
+
+      .label {
+        font-size: 0.8rem;
+        font-family: Montserrat-Regular;
+        color: $waterloo;
+        margin: auto 4px 15px 4px;
+        text-align: left;
+      }
+
+      input {
+        height: 36px;
+        padding: 1%;
+        appearance: none;
+        border: 1px solid $grey;
+        border-radius: 6px;
+        outline: none;
+        background-color: $white;
+        transition-duration: 0.3s;
+        margin: 8px 0;
+        background-color: $gallery;
+        color: #647080;
+      }
+
+      .error-message {
+        margin: 0 0 10px;
+        text-align: center;
+        color: $red;
+        font-weight: bold;
+      }
+
+      .buttons {
+        display: flex;
+        flex-direction: row-reverse;
+        width: 100%;
+        justify-content: space-evenly;
+        margin-top: 3%;
+        align-items: center;
+        .btn-outlined.pink {
+          height: 145%;
+          width: 20%;
+          margin-left: 10px;
+        }
+        .btn-outlined.grey {
+          height: 25px;
+          width: 16%;
+          margin-right: 10px;
+        }
+      }
+
+    }
+  }
+}

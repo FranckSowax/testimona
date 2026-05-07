@@ -1,0 +1,23 @@
+{
+    "create_testimona" : {
+        "title": "My Testimonial",
+        "subtitle": "Create a new",
+        "select_memorial": "Select a memorial page",
+        "content": "What is you most favorite souvenir ?",
+        "relationship": "Your relationship with the deceased",
+        "new_memorial": "Create the memorial",
+        "post": "Post my testimonial",
+        "cancel": "Cancel"
+    },
+    "display_testimona": {
+      "comment": "Commented on",
+      "edit_testimona" : "Edit",
+      "delete_testimona" : "Delete",
+      "copied": "URL Copied !"
+    },
+    "edit_testimona": {
+      "title": "Edit",
+      "cancel": "Cancel",
+      "valid": "Submit"
+    }
+}

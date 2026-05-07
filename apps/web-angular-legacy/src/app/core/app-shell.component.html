@@ -1,0 +1,24 @@
+<section [ngClass]="{'home': homeStyle, 'information': informationStyle, 'menu': displayMenu}">
+  <div class="header">
+    <app-header></app-header>
+  </div>
+
+  <div *ngIf="displayMenu" class="space-left-menu"></div>
+  <div *ngIf="displayMenu" class="menu">
+    <app-admin-menu *ngIf="displayAdminMenu && !displayPublicMenu"></app-admin-menu>
+    <app-public-menu *ngIf="!displayAdminMenu && displayPublicMenu"></app-public-menu>
+  </div>
+
+  <div class="main">
+    <router-outlet></router-outlet>
+  </div>
+  <div *ngIf="displayMenu" class="space-right-menu"></div>
+
+  <div *ngIf="displayFooter" class="footer">
+    <app-footer></app-footer>
+  </div>
+</section>
+
+<shared-modal-view [modalData]="registerModalViewModel">
+  <app-register *ngIf="displayRegister"></app-register>
+</shared-modal-view>

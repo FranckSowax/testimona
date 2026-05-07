@@ -1,0 +1,62 @@
+{
+  "home": {
+    "button": {
+      "testimona": "Écrire un témoignage",
+      "memorial": "Créer un memorial"
+    },
+    "text": {
+      "headerOne": "Célébrons ces",
+      "headerTwo": "beaux souvenirs",
+      "headerThree": "de nos Êtres chers disparus",
+      "recent": "Les derniers",
+      "testimonials": "Témoignages",
+      "quote": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Obcaecati illum culpa neque. Voluptates hic, numquam cupiditate iste molestias at quam blanditiis delectus? Ipsa ea, fugit delectus labore quidem at excepturi. Corrupti temporibus mollitia perferendis provident commodi delectus, suscipit tenetur ipsam recusandae. Hic, voluptatibus quam blanditiis provident ipsum fugit nam quaerat perspiciatis nulla possimus animi. Eos sint totam neque suscipit rem."
+    }
+  },
+  "memorial": {
+    "title": "Créer un memorial",
+    "image": "Télécharger une photo de profil",
+    "firstname": "Entrer le prénom du défunt",
+    "lastname": "Entrer le nom du défunt",
+    "date_of_birth": "Date de Naissance",
+    "date_of_death": "Date de Décès",
+    "year": "Année de décès",
+    "month": "Mois",
+    "day": "Jour",
+    "select_memorial": "Sélectionner un mémorial",
+    "result": "résultat",
+    "country": "Pays de décès du défunt",
+    "city": "Ville de décès du défunt",
+    "biography": "Ajouter une courte biographie du défunt (280 caractères max.)",
+    "relationship": "Votre relation avec le défunt",
+    "question_donation": "Il vous est possible d'inclure dès maintenant un don à la famille ou publier votre témoignage",
+    "donation": "Inclure un don",
+    "send": "Créer",
+    "cancel": "Annuler"
+  },
+  "about_us": {
+    "home": "Home",
+    "main_title": "À propos de Testimona",
+    "title_1": "Testimona en quelques mots",
+    "text_1": "Testimona est une plateforme sociale dédiée à la mémoire de nos proches qui sont maintenant au ciel. Comme ils restent dans notre cœur pour toujours, notre communauté célèbre leur vie et les beaux souvenirs que nous avons partagés avec eux. C'est notre façon de raconter leurs histoires à notre famille et à nos amis, et de transmettre ces beaux témoignages à nos enfants et aux générations futures.",
+    "text_2": "La perte d'un être cher apporte du chagrin, mais nous savons à quel point il est réconfortant d'entendre et de lire des témoignages de personnes bienveillantes qui ont croisé le chemin de ceux que nous aimons. Testimona est donc un lieu où la vie est chérie et les histoires sont racontées avec vos propres mots, et nous nous engageons à offrir à notre communauté un lieu sûr pour le souvenir.",
+    "title_2": "Un lieu de partage",
+    "text_3": "En visitant ce site web conçu pour vous, vous trouverez un endroit où vous, votre famille et vos amis pouvez partager des souvenirs mémorables, raconter des anecdotes amusantes et écrire des récits de vie sur votre proche. Ces témoignages apporteront sûrement du réconfort à vous et à toutes les personnes qui ont un jour rencontré et connu cette personne que vous avez tous en commun.",
+    "title_3": "Dons aux familles",
+    "text_4": "De nos jours, nous savons que les familles et les amis peuvent se trouver à différents endroits, et il peut être difficile pour certains d'assister à des funérailles. Vous pouvez aussi connaître une personne décédée et n'avoir jamais rencontré les proches, mais vous voulez quand même soutenir la famille endeuillée. Testimona vous permet de faire des dons à la famille immédiate du défunt. Même si vous ne les connaissez pas personnellement, nous nous chargerons de remettre les dons aux personnes légitimes. Testimona vérifiera l'identité des membres de la famille, confirmera la relation avec le défunt et informera tous les généreux donateurs des destinataires avant de procéder. C'est la façon la plus sûre de garantir que vos dons servent leur but et d'éviter les fraudes.",
+    "title_4": "Notre Mission",
+    "text_5": "Nous aspirons à être la principale plateforme sociale pour se souvenir de la vie des personnes décédées où la famille et les amis publieront des témoignages, écriront des récits de vie, feront des dons aux familles endeuillées et construiront des souvenirs durables pour les générations futures.",
+    "title_5": "Notre Vision",
+    "text_6": "Notre vision est de célébrer la vie de nos proches au ciel en créant un environnement de partage où les témoignages et leurs récits de vie sont écrits pour les générations futures.",
+    "title_6": "Nos Valeurs",
+    "text_7": "Les valeurs que nous chérissons sont l'intégrité, la transparence, la passion et le dévouement."
+  },
+  "cookies": {
+    "home": "Home",
+    "main_title": "Utilisation des cookies",
+    "text": "Nous utilisons des cookies et autres technologies pour améliorer l'expérience de navigation sur notre site web, pour vous montrer des publicités ciblées et pour analyser le trafic sur notre site. En naviguant sur notre site Web, vous consentez à notre utilisation de cookies et d'autres technologies de suivi."
+  },
+  "activate": {
+    "text": "<p>Vous pouvez maintenant partager vos témoignages avec vos amis et famille proches, et également lire leur histoire dont on se souviendra à jamais. Nous avons tous besoin de réconfort durant ces moments.</p><p>N'oubliez de compléter votre profil</p>"
+  }
+}

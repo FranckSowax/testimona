@@ -1,0 +1,12 @@
+<section>
+    <div *ngIf="!loadingDone" class="loading">
+        <mat-spinner [diameter]="50"></mat-spinner>
+    </div>
+
+    <div *ngIf="loadingDone" class="loading done">
+        <img src="{{assetUrl}}logo-testimona.svg" alt="testimona logo">
+        <ng-container *transloco="let t">
+            <div [innerHTML]="t('site.activate.text')"></div>
+        </ng-container>
+    </div>
+</section>

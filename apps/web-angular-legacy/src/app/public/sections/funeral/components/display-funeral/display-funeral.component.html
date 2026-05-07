@@ -1,0 +1,32 @@
+<section>
+  <div *ngIf="!loadingDone">
+    <mat-spinner></mat-spinner>
+  </div>
+  <div *ngIf="loadingDone">
+    <div class="div-title">
+      <h1>{{ 'funeral.display_funeral.title' | transloco }}</h1>
+      <div class="links">
+        <img mat-button [matMenuTriggerFor]="menu" src="{{assetUrl}}three-dots.svg" alt="">
+        <mat-menu #menu="matMenu">
+          <button *ngIf="funeralObject && myFuneral" mat-menu-item (click)="editFuneral()">{{ 'funeral.display_funeral.edit_funeral' | transloco }}</button>
+          <button *ngIf="!funeralObject" mat-menu-item (click)="createFuneral()">{{ 'funeral.display_funeral.create_funeral' | transloco }}</button>
+        </mat-menu>
+        <img src="{{assetUrl}}share.svg" alt="">
+      </div>
+    </div>
+    <div *ngIf="funeralObject">
+      <span>{{ 'funeral.display_funeral.information_first' | transloco }} {{ createDate }} {{ 'funeral.display_funeral.information_second' | transloco }} {{ funeralObject.userInfo.identity }}</span>
+      <p class="info-funeral">{{funeralObject.content}}</p>
+    </div>
+    <shared-modal-view [modalData]="createFuneralModalViewModel">
+      <app-create-funeral *ngIf="displayCreateFuneral && memorialId != null" [memorialId]="memorialId"></app-create-funeral>
+    </shared-modal-view>
+    <shared-modal-view [modalData]="editFuneralModalViewModel">
+      <app-edit-funeral *ngIf="displayCreateFuneral && memorialId != null" [memorialId]="memorialId"></app-edit-funeral>
+    </shared-modal-view>
+  </div>
+</section>
+
+
+
+

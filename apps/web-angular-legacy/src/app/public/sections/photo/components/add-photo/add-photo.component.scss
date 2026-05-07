@@ -1,0 +1,89 @@
+@import '../../../../../../assets/scss/variables.scss';
+@import '../../../../../../assets/scss/fonts.scss';
+
+section {
+  .add-photo {
+    padding: 25px 10% 50px;
+    .container-header {
+      grid-area: header;
+
+      div.close-modal {
+        text-align: right;
+
+        img {
+          height: 35px;
+          width: 35px;
+          margin: 0 0 0 auto;
+          cursor: pointer;
+        }
+      }
+
+      div.close-modal.disabled {
+        img {
+          cursor: default;
+          pointer-events: none;
+        }
+      }
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: row-reverse;
+      width: 100%;
+      justify-content: space-evenly;
+      margin-top: 3%;
+      align-items: center;
+
+      .btn-outlined.pink {
+        height: 35px;
+        width: 20%;
+        margin-left: 10px;
+
+        &:disabled {
+          border: $waterloo solid 2px;
+          background-color: lightgray;
+        }
+
+        mat-spinner {
+          margin: 0 auto;
+        }
+
+        .mat-spinner::ng-deep circle {
+          stroke: $waterloo !important;
+        }
+      }
+
+      .btn-outlined.grey {
+        height: 35px;
+        width: 16%;
+        margin-right: 10px;
+
+        &:disabled {
+          background-color: lightgray;
+        }
+      }
+    }
+
+    h1 {
+      color: $new-york-pink;
+      font-family: Debby;
+      font-size: 3rem;
+      text-align: center;
+      padding: 2% 0;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      font-family: Montserrat-Medium;
+      color: $martinique;
+    }
+
+    .error-message {
+      margin: 0 0 10px;
+      text-align: center;
+      color: $red;
+      font-weight: bold;
+      font-family: Montserrat-Bold;
+    }
+  }
+}

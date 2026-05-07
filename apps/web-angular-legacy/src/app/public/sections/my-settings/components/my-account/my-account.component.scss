@@ -1,0 +1,125 @@
+@import '../../../../../../assets/scss/variables.scss';
+@import '../../../../../../assets/scss/fonts.scss';
+
+section {
+  padding: 40px 20px;
+  h3 {
+      font-weight: 700;
+      font-family: Montserrat-Bold;
+      font-size: 20px;
+      margin-bottom: 0;
+      color: $martinique;
+      a {
+          text-decoration: none !important;
+          color: $martinique;
+          &:hover {
+              text-decoration: underline !important;
+          }
+      }
+      span {
+          color: $waterloo;
+          font-size: 16px;
+          font-family: Montserrat-Regular;
+      }
+  }
+  .settings {
+    margin: 10px;
+    background-color: $white;
+    box-shadow: 0 0 10px rgb(0 0 0 / 7%);
+    padding: 20px;
+    border-radius: 10px;
+  }
+  form {
+    display: inline-grid;
+    width: 100%;
+
+    .error-message {
+      margin: 0;
+      text-align: center;
+      color: $red;
+      font-family: Montserrat-Bold;
+    }
+
+    .form-input {
+      width: 100%;
+
+      input {
+        width: 100%;
+        margin-top: 2%;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 6px;
+        height: 35px;
+        line-height: 28px;
+        padding-left: 5px;
+        font-family: Montserrat-Regular;
+        background-color: $gallery;
+        color: $grey-blue;
+        &::placeholder {
+          color: $waterloo;
+        }
+      }
+
+    }
+
+    .security-questions-div {
+      text-align: left;
+      padding: 10px 0 0;
+      select {
+        width: 100%;
+        margin-top: 2%;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 6px;
+        height: 35px;
+        line-height: 28px;
+        padding-left: 5px;
+        font-family: Montserrat-Regular;
+        background-color: $gallery;
+        color: $grey-blue;
+        &::placeholder {
+          color: $waterloo;
+        }
+      }
+    }
+
+    .secret-answer-div {
+      display: flex;
+      width: 100%;
+      input {
+        width: 100%;
+        margin-top: 2%;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 6px;
+        height: 35px;
+        line-height: 28px;
+        padding-left: 5px;
+        font-family: Montserrat-Regular;
+        background-color: $gallery;
+        color: $grey-blue;
+        &::placeholder {
+          color: $waterloo;
+        }
+      }
+    }
+
+    input.ng-invalid.ng-dirty,
+    label.ng-invalid input {
+      border: 1px solid $red !important;
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: row-reverse;
+      width: 100%;
+      justify-content: center;
+      margin-top: 1%;
+      align-items: center;
+
+      .btn-outlined.pink {
+        height: 40px;
+        margin-top: 20px;
+        margin-left: 10px;
+        padding: 10px;
+      }
+    }
+  }
+}

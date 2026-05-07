@@ -1,0 +1,34 @@
+{
+  "add_donation": {
+    "title" : "Make a donation",
+    "hide_donateur": "Hide my donation to everyone",
+    "all_donations": "All donations",
+    "about_donations": "About the donations",
+    "donation_by": "Donation by",
+    "anonymous": "Anonymous donator",
+    "on": "on",
+    "save": "Continue",
+    "cancel": "Cancel",
+    "update_goal": "Update donation goal",
+    "of": "of",
+    "goal": "goal",
+    "raised": "raised"
+  },
+  "update_goal_donation": {
+    "title": "Update donation goal",
+    "amount": "Amount",
+    "message": "Message",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "success": {
+    "title": "Donation received",
+    "subtitle": "traduction manquante",
+    "close": "close"
+  },
+  "failed": {
+    "title": "Failed",
+    "subtitle": "traduction manquante",
+    "close": "close"
+  }
+}

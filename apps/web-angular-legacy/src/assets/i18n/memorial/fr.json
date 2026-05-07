@@ -1,0 +1,59 @@
+{
+  "memorial": {
+    "home": "Accueil",
+    "upload_background_img": "Télécharger une photo d'arrière-plan",
+    "date_of_death": "Date de décès",
+    "date_of_birth": "Date de naissance",
+    "in": "à",
+    "admin_user": "Cette page est administrée par ",
+    "admin_user_null": "Personne n'est administrateur de cette page",
+    "be_admin": "Devenir un administrateur",
+    "new_testimonal": "Quel est votre souvenir le plus mémorable?",
+    "tooltip": {
+      "slideshow": "Démarrer le diaporama",
+      "edit": "Éditer la bio",
+      "follow": "Suivre la page",
+      "share": "Partager le mémorial",
+      "write": "Écrire aux admins",
+      "copied": "URL copiée !"
+    }
+  },
+  "edit_memorial": {
+    "title": "Editer une page commémorative",
+    "image": "Télécharger une photo de profil",
+    "firstname": "Entrer le prénom du défunt",
+    "lastname": "Entrer le nom du défunt",
+    "date_of_birth": "Date de naissance",
+    "date_of_death": "Date de décès",
+    "year": "Année",
+    "month": "Mois",
+    "day": "Jour",
+    "country": "Pays de naissance",
+    "city": "Ville de naissance",
+    "death_country": "Pays de décès",
+    "death_city": "Ville de décès",
+    "biography": "Ajouter une courte biographie du défunt (280 caractères max.)",
+    "relationship": "Votre relation avec le défunt",
+    "admin": "Je veux être l'administrateur de cette page.",
+    "question_donation": "Il vous est possible d'inclure dès maintenant un don à la famille ou publier votre témoignage",
+    "donation": "Inclure un don",
+    "send": "Sauvegarder",
+    "cancel": "Annuler"
+  },
+  "admin_memorial": {
+    "title": "La page commémorative",
+    "sub_title": "Demande",
+    "label": "Je souhaite être un administrateur de cette page",
+    "relationship": "Votre relation avec le défunt",
+    "note": "Ajouter une note",
+    "confirm": "Confirmer",
+    "cancel": "Annuler"
+  },
+  "menu_memorial": {
+    "testimonials": "Témoignages",
+    "photos": "Photos",
+    "donations": "Donations",
+    "biography": "Biographie",
+    "funerals": "Funérailles"
+  }
+}

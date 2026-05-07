@@ -1,0 +1,54 @@
+<section>
+  <div *ngIf="!loadingDone">
+    <mat-spinner [diameter]="50"></mat-spinner>
+  </div>
+  <div *ngIf="loadingDone">
+    <p><span class="subtitle">{{ 'biography.display_biography.title' | transloco }}</span> </p>
+    <div class="div-display-biography">
+      <div *ngIf="!biographyObject">
+        <p><span class="subtitle">{{ 'biography.display_biography.nickname' | transloco }}</span> </p>
+        <p><span class="subtitle">{{ 'biography.display_biography.home' | transloco }}</span></p>
+        <p><span class="subtitle">{{ 'biography.display_biography.places' | transloco }}</span></p>
+        <p><span class="subtitle">{{ 'biography.display_biography.religion' | transloco }}</span></p>
+        <p><span class="subtitle">{{ 'biography.display_biography.education' | transloco }}</span></p>
+        <p><span class="subtitle">{{ 'biography.display_biography.work' | transloco }}</span></p>
+        <p><span class="subtitle">{{ 'biography.display_biography.hobbies' | transloco }}</span></p>
+      </div>
+
+      <div *ngIf="biographyObject">
+        <p><span class="subtitle">{{ 'biography.display_biography.nickname' | transloco }} </span> <span class="data">{{ biographyObject.nicknames}}</span></p>
+        <p><span class="subtitle">{{ 'biography.display_biography.home' | transloco }} </span> <span class="data">{{
+            biographyObject.homeCity}}</span></p>
+        <p><span class="subtitle">{{ 'biography.display_biography.places' | transloco }} </span> <span class="data">{{
+            biographyObject.placesLived}}</span></p>
+        <p><span class="subtitle">{{ 'biography.display_biography.religion' | transloco }} </span> <span class="data">{{
+            biographyObject.religion}}</span></p>
+        <p><span class="subtitle">{{ 'biography.display_biography.education' | transloco }} </span> <span class="data">{{
+            biographyObject.education}}</span></p>
+        <p><span class="subtitle">{{ 'biography.display_biography.work' | transloco }} </span> <span class="data">{{
+                biographyObject.work}}</span></p>
+        <p><span class="subtitle">{{ 'biography.display_biography.hobbies' | transloco }} </span> <span class="data">{{
+            biographyObject.hobbies}}</span></p>
+      </div>
+      <div>
+        <div class="links" *ngIf="loadingDone && currentRelationship && currentRelationship.isAdmin == true">
+          <img mat-button [matMenuTriggerFor]="menu" src="{{assetUrl}}three-dots.svg" alt="">
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item *ngIf="!biographyObject" (click)="createBiography()">{{ 'biography.create_biography.title' |
+              transloco }}</button>
+              <button mat-menu-item *ngIf="biographyObject" (click)="editBiography()">{{ 'biography.edit_biography.title' |
+                transloco }}</button>
+          </mat-menu>
+        </div>
+      </div>
+    </div>
+  </div>
+  <shared-modal-view *ngIf="!biographyObject" [modalData]="createBiographyModalViewModel">
+    <app-create-biography *ngIf="displayCreateBiography" [memorialId]="memorialId">
+    </app-create-biography>
+  </shared-modal-view>
+  <shared-modal-view *ngIf="biographyObject" [modalData]="editBiographyModalViewModel">
+    <app-edit-biography *ngIf="displayEditBiography" [memorialId]="memorialId">
+    </app-edit-biography>
+  </shared-modal-view>
+</section>

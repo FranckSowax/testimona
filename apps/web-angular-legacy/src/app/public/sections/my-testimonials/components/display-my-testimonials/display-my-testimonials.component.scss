@@ -1,0 +1,175 @@
+@import '../../../../../../assets/scss/variables.scss';
+@import '../../../../../../assets/scss/fonts.scss';
+
+section {
+  padding-top: 1%;
+
+
+  .div-display-my-testimonials {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px;
+    background-color: $white;
+    box-shadow: 0 0 10px rgb(0 0 0 / 7%);
+    padding: 20px;
+    border-radius: 10px;
+    a {
+      flex: 1
+    }
+    .info-my-testimonials {
+      display: flex;
+      img {
+        margin-right: 10px;
+      }
+    }
+    .links {
+      cursor: pointer;
+      img {
+        padding: 10px;
+      }
+    }
+    .display-testimona-div {
+      display: flex;
+      justify-content: space-between;
+      .links {
+        cursor: pointer;
+        img {
+          padding: 10px;
+        }
+      }
+      .title-testimona-div {
+        display: flex;
+        width: 100%;
+        .avatar-div {
+          display: inline-grid;
+        }
+
+        .div-testimona-user {
+          margin-left: 2%;
+          font-family: PTSans-Regular;
+          width: 100%;
+          .title-testimona {
+            font-weight: bold;
+            color: $martinique;
+            font-size: 1.2em;
+            margin: 0;
+            span {
+              color: $waterloo;
+              font-style: italic;
+              font-size: 1em;
+            }
+          }
+          .comment-testimona {
+            font-style: italic;
+            color: $waterloo;
+            font-size: 1em;
+            margin: 0;
+            width: auto;
+            white-space: nowrap;
+          }
+          .content-photo-testimona {
+            .uniq-photo {
+              width: 250px;
+              margin-right: 10px;
+              margin-bottom: 5px;
+              cursor: pointer;
+            }
+
+            .multiple-photo {
+              display: flex;
+              div {
+                margin: auto 0;
+                img {
+                  margin-right: 10px;
+                  cursor: pointer;
+                }
+              }
+            }
+            .content-testimona {
+              font-family: PTSans-Regular;
+              color: $martinique;
+              font-size: 1em;
+              max-width: 95%;
+              margin-bottom: 0.5rem;
+              margin-top: 1rem;
+              white-space: pre-line;
+            }
+          }
+        }
+      }
+    }
+
+    .buttons-display-testimona {
+      padding: 10px;
+      display: flex;
+      gap: 20px;
+      justify-content: flex-end;
+
+      .img-share {
+        cursor: pointer;
+      }
+
+      div {
+        display: flex;
+        gap: 5px;
+        .img-like {
+          cursor: pointer;
+        }
+        .nb-like {
+          color: $waterloo;
+          font-size: 14px;
+          margin: 0;
+        }
+      }
+    }
+  }
+  .div-title-my-testimonials {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .div-create-memorial {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      .create-memorial {
+        color: $martinique;
+        border: 2px solid $martinique;
+        padding: 8px 24px;
+        border-radius: 5px;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+    h2 {
+      margin-bottom: 1%;
+      font-family: Montserrat-Bold;
+      font-size: 22px;
+      color: $martinique;
+    }
+  }
+
+  h4 {
+    margin-top: 3%;
+    margin-bottom: 1%;
+    font-family: Montserrat-Bold;
+    font-size: 16px;
+    color: $martinique;
+  }
+
+  p {
+    font-family: PTSans-Regular;
+    font-size: 0.8rem;
+    color: $waterloo;
+  }
+
+  span {
+    font-family: PTSans-Regular;
+    font-size: 16px;
+    color: $waterloo;
+    margin-bottom: 0;
+  }
+}

@@ -1,0 +1,56 @@
+<section>
+    <div class="create-testimona">
+        <div class="container-header">
+            <div class="close-modal">
+                <img (click)="closeModal()" src="{{assetUrl}}close-modal.svg" alt="close Modal">
+            </div>
+        </div>
+        <h1>{{'testimona.create_testimona.title' | transloco}}</h1>
+        <div *ngIf="errorCreateTestimona != ''" class="error-message">
+            <span>{{ errorCreateTestimona }}</span>
+        </div>
+        <form [formGroup]="createTestimonaForm">
+          <input type="text" id="firstname" class="firstname" formControlName='firstname'
+            placeholder="{{'site.memorial.firstname' | transloco}}" (input)="searchByCriteria()" />
+          <input type="text" id="lastname" class="lastname" formControlName='lastname'
+            placeholder="{{ 'site.memorial.lastname' | transloco }}" (input)="searchByCriteria()"  />
+          <select matNativeControl formControlName="yearOfDeath" id="yearOfDeath" class="yearOfDeath" (change)="searchByCriteria()" >
+            <option value="" disabled>{{ 'site.memorial.year' | transloco }}</option>
+            <option *ngFor="let item of yearList" value="{{ item.key }}">{{ item.value }}</option>
+          </select>
+          <select matNativeControl #countryOfDeathSelect formControlName="countryOfDeath" class="countryOfDeath" (change)="searchByCriteria()" >
+            <option value="" disabled>{{ 'site.memorial.country' | transloco }}</option>
+            <option *ngFor="let country of countries" id="{{country.id}}" value="{{country.id}}">{{country.code}}</option>
+          </select>
+          <mat-expansion-panel #panelResult [disabled]="searchResult == null || searchResult.length == 0">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{ headerPanelTitle }}
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <ng-container *ngIf="searchResult != null && searchResult.length > 0 ">
+                <div *ngFor="let item of searchResult" class="content-expand" (click)="memorialOnClick(item)">
+                  <span>{{item.firstname}} {{item.lastname}}, {{item.countryOfDeath}} {{item.yearOfDeath}}</span>
+                </div>
+            </ng-container>
+          </mat-expansion-panel>
+          <textarea rows="6" type="text" id="content" formControlName="content" placeholder="{{ 'testimona.create_testimona.content' | transloco }}" [ngClass]="{
+              'is-invalid':
+              !formControls.content.valid && formControls.content.touched
+          }"
+          ></textarea>
+          <select matNativeControl formControlName="relatives" id="relatives">
+              <option value="" disabled>{{ 'testimona.create_testimona.relationship' | transloco }}</option>
+              <option *ngFor="let relative of relatives; let i = index" value="{{i}}">{{relative.value}}</option>
+          </select>
+          <shared-upload-media [acceptedFiles]="acceptedFiles" [maximumFiles]="maximumFiles" (onChange)="uploadOnChange($event)"
+                      [disabled]="createInProgress"></shared-upload-media>
+          <div class="buttons">
+              <button *ngIf="!createInProgress" type="button" (click)="onSubmitForm()" class="button btn-container pink" [disabled]="createTestimonaForm.invalid">{{ 'testimona.create_testimona.post' | transloco }}</button>
+              <button *ngIf="createInProgress" type="button" class="btn-outlined pink" disabled><mat-spinner [diameter]="25"></mat-spinner></button>
+              
+              <button type="button" class="btn-outlined grey" (click)="closeModal()">{{ 'testimona.create_testimona.cancel' | transloco }}</button>
+          </div>
+        </form>
+    </div>
+</section>

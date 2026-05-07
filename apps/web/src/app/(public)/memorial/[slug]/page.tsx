@@ -1,6 +1,10 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { TestimonialsSection } from './_components/TestimonialsSection';
+import { PhotosSection } from './_components/PhotosSection';
+import { BiographySection } from './_components/BiographySection';
+import { DonateSection } from './_components/DonateSection';
 
 export const revalidate = 60; // ISR — 60s
 
@@ -78,7 +82,10 @@ export default async function MemorialPage({
           {memorial.description}
         </section>
       )}
-      {/* Photos, Testimonials, Biography sections to be added in Phase 6 sprints S3-S5 */}
+      <BiographySection memorialId={memorial.id} />
+      <PhotosSection memorialId={memorial.id} />
+      <TestimonialsSection memorialId={memorial.id} slug={memorial.slug} />
+      <DonateSection memorialId={memorial.id} slug={memorial.slug} />
     </article>
   );
 }

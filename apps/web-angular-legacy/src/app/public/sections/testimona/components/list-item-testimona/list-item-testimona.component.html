@@ -1,0 +1,49 @@
+<section id="#{{ testimonaItem.id }}">
+  <div class="display-testimona-div">
+    <div class="title-testimona-div">
+      <div class="avatar-div">
+          <img src="{{assetUrl}}avatar-testimona.svg" alt="">
+      </div>
+      <div class="div-testimona-user">
+        <p class="title-testimona">{{ testimonaItem.userInfo.identity }}<span>, {{ relativeString }}</span></p>
+        <p class="comment-testimona">{{'testimona.display_testimona.comment' | transloco }} {{ testimonaItem.createDate | date:"yyyy/MM/dd" }}</p>
+        <div class="content-photo-testimona">
+          <p class="content-testimona">{{ testimonaItem.content }}</p>
+          <div *ngIf="testimonaItem.photoArray.length == 1">
+            <img class="uniq-photo" src="{{ testimonaItem.photoArray[0].medium }}" alt="" (click)="openFullsize(testimonaItem.photoArray[0].full)">
+          </div>
+          <div *ngIf="testimonaItem.photoArray.length > 1">
+            <div class="multiple-photo">
+              <div *ngFor="let photo of testimonaItem.photoArray">
+                <img src="{{ photo.thumbnail }}" alt="" (click)="openFullsize(photo.full)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="links">
+      <img mat-button *ngIf="myTestimona(testimonaItem.userInfo.userId)" [matMenuTriggerFor]="menu" src="{{assetUrl}}three-dots.svg"
+      alt="">
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="editTestimona(testimonaItem.id, testimonaItem.userInfo.userId)">{{
+          'testimona.display_testimona.edit_testimona' | transloco }}</button>
+        <button mat-menu-item (click)="deleteTestimona(testimonaItem.id, testimonaItem.userInfo.userId)">{{
+            'testimona.display_testimona.delete_testimona' | transloco }}</button>
+      </mat-menu>
+    </div>
+  </div>
+  <div class="buttons-display-testimona">
+    <img src="{{ assetUrl }}share.svg" alt="share" class="img-share" (click)="shareTestimona()">
+    <div>
+      <img src="{{ assetUrl }}like-empty.svg" #likeItem alt="like" class="img-like" (click)="likeTestimona(testimonaItem.id, likeItem)" *ngIf="!testimonaItem.userLiked">
+      <img src="{{ assetUrl }}like-filled.svg" #likeItem alt="unlike" class="img-like" (click)="likeTestimona(testimonaItem.id, likeItem)" *ngIf="testimonaItem.userLiked">
+      <p #nbLike class="nb-like">{{testimonaItem.numberOfLike}}</p>
+    </div>
+  </div>
+  <!-- TO KEEP FOR THE Testimona's COMMENTS -->
+  <!-- <div class="content-testimona-div">
+      <span class="vertical-line"></span>
+      <p class="content-testimona">{{ testimonaItem.content }}</p>
+  </div> -->
+</section>

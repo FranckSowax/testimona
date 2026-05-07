@@ -1,0 +1,58 @@
+<section>
+  <div *ngIf="!loadingDone" class="loading">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div *ngIf="loadingDone && funeralEvent" class="body">
+    <div class="edit-event-funeral">
+      <div class="container-header">
+        <div class="close-modal">
+          <img (click)="closeModal()" src="{{assetUrl}}close-modal.svg" alt="close Modal">
+        </div>
+      </div>
+      <div class="body">
+        <h1>{{ 'funeral.edit_funeral_events.title' | transloco }}</h1>
+        <form [formGroup]="editFuneralEventForm" (ngSubmit)="onSubmitForm()">
+          <input type="text" id="title" formControlName="title"
+            placeholder="{{ 'funeral.create_funeral_event.title' | transloco }}" />
+          <div style="display: flex;">
+            <p class='label'>Date</p>
+            <input type="date" id="date" formControlName="date"
+              placeholder="{{ 'funeral.create_funeral_event.date' | transloco }}" />
+            <p class='label'>{{ 'funeral.create_funeral_event.starts' | transloco }}</p>
+            <select matNativeControl formControlName="startHour" id="startHour" class="dayOfDeath">
+              <option value="" disabled>XX</option>
+              <option *ngFor="let item of hourList" value="{{ item.key }}">{{ item.value }}</option>
+            </select>
+            <select matNativeControl formControlName="startMinute" id="startMinute" class="dayOfDeath">
+              <option value="" disabled>XX</option>
+              <option *ngFor="let item of minuteList" value="{{ item.key }}">{{ item.value }}</option>
+            </select>
+            <p class="label">{{ 'funeral.create_funeral_event.ends' | transloco }}</p>
+            <select matNativeControl formControlName="endHour" id="endHour" class="dayOfDeath">
+              <option value="" disabled>XX</option>
+              <option *ngFor="let item of hourList" value="{{ item.key }}">{{ item.value }}</option>
+            </select>
+            <select matNativeControl formControlName="endMinute" id="endMinute" class="dayOfDeath">
+              <option value="" disabled>XX</option>
+              <option *ngFor="let item of minuteList" value="{{ item.key }}">{{ item.value }}</option>
+            </select>
+          </div>
+          <input type="text" id="url" formControlName="url"
+            placeholder="{{ 'funeral.create_funeral_event.url' | transloco }}" />
+          <textarea rows="6" type="text" id="note" formControlName="note"
+            placeholder="{{ 'funeral.create_funeral_event.note' | transloco }}"></textarea>
+          <input type="text" id="location" formControlName="location"
+            placeholder="{{ 'funeral.create_funeral_event.location' | transloco }}" />
+          <div class="buttons">
+            <button type="submit" class="btn-outlined pink" [disabled]="editFuneralEventForm.invalid">{{
+              'funeral.edit_funeral_events.button' | transloco }}</button>
+            <button type="button" class="btn-outlined grey" (click)="closeModal()">{{
+              'funeral.create_funeral_event.cancel' |
+              transloco }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

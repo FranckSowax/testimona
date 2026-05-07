@@ -1,0 +1,40 @@
+@import '../../../../../../assets/scss/variables.scss';
+
+section {
+    h3 {
+        font-weight: 700;
+        font-family: Montserrat-Bold;
+        font-size: 20px;
+        a {
+            text-decoration: none !important;
+            color: $martinique;
+        }
+        span {
+            color: $waterloo;
+            font-size: 16px;
+            font-family: Montserrat-Regular;
+        }
+    }
+
+    .main-about-us {
+        background-color: $alabaster;
+        padding: 3% 7%;
+        h2 {
+            color: $martinique;
+            font-family: Montserrat-Bold;
+            font-size: 1.7rem;
+        }
+        .subtitle {
+            color: $grey-blue;
+            font-size: 1.2rem;
+            margin-top: 3%;
+        }
+        .main-text-about-us {
+            color: $waterloo;
+            font-size: 0.9rem;
+            font-family: PTSans-Regular;
+            line-height: 1.6;
+
+        }
+    }
+}

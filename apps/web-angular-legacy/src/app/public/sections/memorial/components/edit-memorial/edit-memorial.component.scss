@@ -1,0 +1,201 @@
+@import '../../../../../../assets/scss/variables.scss';
+@import '../../../../../../assets/scss/fonts.scss';
+
+section {
+  .edit-memorial {
+    padding: 25px 10% 50px;
+    overflow: scroll;
+    max-height: 600px;
+    .container-header {
+      grid-area: header;
+
+      div.close-modal {
+        text-align: right;
+
+        img {
+          height: 35px;
+          width: 35px;
+          margin: 0 0 0 auto;
+          cursor: pointer;
+        }
+      }
+    }
+
+    h1 {
+      color: $new-york-pink;
+      font-family: Debby;
+      font-size: 3rem;
+      text-align: center;
+      padding: 2% 0;
+    }
+
+    .error-message {
+      margin: 0 0 10px;
+      text-align: center;
+      color: $red;
+      font-weight: bold;
+      font-family: Montserrat-Bold;
+    }
+
+    form {
+      display: inline-grid;
+      width: 100%;
+      input {
+        display: block;
+        width: 100%;
+        margin: 0 auto;
+        border: 1px solid $grey;
+        line-height: 38px;
+        padding-left: 5px;
+        margin-top: 1.5%;
+        border-radius: 6px;
+        height: 35px;
+        color: $grey-blue;
+        font-family: Montserrat-Regular;
+        background-color: $gallery;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font-family: Montserrat-Regular;
+      }
+
+      textarea {
+        display: block;
+        resize: none;
+        margin-top: 2%;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        background-color: $gallery;
+        color: $grey-blue;
+        border-radius: 6px;
+        padding: 1%;
+        &:disabled {
+          background-color: $waterloo;
+        }
+      }
+
+      input.is-invalid {
+        border: 1px solid $red;
+      }
+
+      .error-message {
+        margin: 0 0 10px;
+        text-align: center;
+        color: $red;
+        font-weight: bold;
+      }
+
+      select {
+        width: 100%;
+        margin: 0 auto;
+        margin-top: 2%;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 6px;
+        height: 38px;
+        line-height: 38px;
+        padding-left: 5px;
+        font-family: Montserrat-Regular;
+        background-color: $gallery;
+        color: $grey-blue;
+      }
+      .container-checkbox {
+        display: none;
+        width: 100%;
+        justify-content: flex-end;
+        p {
+          font-size: 0.8rem;
+          font-family: Montserrat-Regular;
+          color: $grey-blue;
+          margin: auto 0 7px 0;
+          text-align: left;
+        }
+
+        input {
+          height: 32px;
+          width: 32px;
+          margin-right: 3px;
+          appearance: none;
+          border: 1px solid $grey;
+          border-radius: 6px;
+          outline: none;
+          background-color: $white;
+          transition-duration: 0.3s;
+        }
+
+        input:checked {
+          border: 1px solid $martinique;
+          background-image: url('/assets/images/check.svg');
+          background-repeat: no-repeat;
+          background-position: center;
+        }
+      }
+
+      .container-checkbox.display {
+        display: flex;
+      }
+
+      .input-question {
+        width: 105%;
+      }
+
+      .buttons {
+        display: flex;
+        flex-direction: row-reverse;
+        width: 100%;
+        justify-content: space-evenly;
+        margin-top: 3%;
+        align-items: center;
+        .btn-outlined.dark-blue {
+          height: 145%;
+          width: 20%;
+          margin-left: 10px;
+        }
+        .btn-outlined.grey {
+          height: 25px;
+          width: 16%;
+          margin-right: 10px;
+        }
+      }
+
+      .death-date-form,.birth-date-form {
+        margin-top: 1%;
+        display: grid;
+        grid-template-columns: 16% 28% 28% 28%;
+        grid-template-areas: 'labelDate yearOfDeath monthOfDeath dayOfDeath';
+
+        .labelDate {
+          grid-area: labelDate;
+          font-size: 0.8rem;
+          font-family: Montserrat-Regular;
+          color: $waterloo;
+          margin: auto 0 7px 0;
+          text-align: left;
+        }
+
+        // .yearOfDeath {
+        //   grid-area: yearOfDeath;
+        // }
+
+        // .monthOfDeath {
+        //   grid-area: yearOfDeath;
+        // }
+
+        // .dayOfDeath {
+        //   grid-area: yearOfDeath;
+        // }
+
+        .yearOfDeath, .monthOfDeath, .dayOfDeath {
+          width: 98%;
+        }
+      }
+
+      .input-question {
+        display: flex;
+        .tooltip {
+          margin: auto auto auto 1%;
+        }
+      }
+    }
+  }
+}
