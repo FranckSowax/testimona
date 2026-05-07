@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
-import { toggleLikeAction, reportTestimonialAction } from '../actions';
+import { toggleLikeAction } from '../actions';
+import { ReportDialog } from './ReportDialog';
 
 export function TestimonialActions({
   testimonialId,
@@ -30,6 +31,7 @@ export function TestimonialActions({
   const [liked, setLiked] = useState(initiallyLiked);
   const [pending, startTransition] = useTransition();
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
 
   function handleLike() {
     if (!isLogged) {
@@ -67,12 +69,7 @@ export function TestimonialActions({
       setFeedback(t('loginToInteract'));
       return;
     }
-    const reason = window.prompt(t('reportPrompt'));
-    if (!reason) return;
-    startTransition(async () => {
-      const res = await reportTestimonialAction(testimonialId, reason);
-      setFeedback(res.error ?? t('reportSubmitted'));
-    });
+    setReportOpen(true);
   }
 
   return (
@@ -150,6 +147,16 @@ export function TestimonialActions({
           {feedback}
         </p>
       )}
+
+      <ReportDialog
+        testimonialId={testimonialId}
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        onSubmitted={() => {
+          setReportOpen(false);
+          setFeedback(t('reportSubmitted'));
+        }}
+      />
     </div>
   );
 }

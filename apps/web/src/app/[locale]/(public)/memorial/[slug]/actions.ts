@@ -176,3 +176,68 @@ export async function reportTestimonialAction(
   if (error) return { error: error.message };
   return { ok: true };
 }
+
+// ---------------------------------------------------------------------------
+// Update own testimonial (RLS enforces authorId = auth.uid())
+// ---------------------------------------------------------------------------
+export interface UpdateTestimonialState {
+  ok?: boolean;
+  error?: string;
+  fieldErrors?: Record<string, string>;
+}
+
+export async function updateTestimonialAction(
+  _prev: UpdateTestimonialState | null,
+  formData: FormData,
+): Promise<UpdateTestimonialState> {
+  const testimonialId = String(formData.get('testimonialId') ?? '');
+  const slug = String(formData.get('slug') ?? '');
+  const message = String(formData.get('message') ?? '').trim();
+
+  if (!testimonialId) return { error: 'missing testimonialId' };
+  if (message.length === 0 || message.length > 4000) {
+    return {
+      error: 'Validation',
+      fieldErrors: { message: 'Message requis (≤4000 caractères).' },
+    };
+  }
+
+  const supabase = await getSupabaseServer();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) return { error: 'Vous devez être connecté.' };
+
+  const { error } = await supabase
+    .from('Testimonial')
+    .update({ message })
+    .eq('id', testimonialId);
+  if (error) return { error: error.message };
+
+  if (slug) revalidatePath(`/memorial/${slug}`);
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Delete own testimonial (cascades likes/comments via FK)
+// ---------------------------------------------------------------------------
+export interface DeleteTestimonialState {
+  ok?: boolean;
+  error?: string;
+}
+
+export async function deleteTestimonialAction(
+  testimonialId: string,
+  slug: string,
+): Promise<DeleteTestimonialState> {
+  const supabase = await getSupabaseServer();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) return { error: 'auth required' };
+
+  const { error } = await supabase
+    .from('Testimonial')
+    .delete()
+    .eq('id', testimonialId);
+  if (error) return { error: error.message };
+
+  if (slug) revalidatePath(`/memorial/${slug}`);
+  return { ok: true };
+}

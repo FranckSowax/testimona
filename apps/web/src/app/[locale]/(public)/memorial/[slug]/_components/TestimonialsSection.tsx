@@ -5,6 +5,7 @@ import { TestimonialItem, type TestimonialComment } from './TestimonialItem';
 
 interface TestimonialRow {
   id: string;
+  authorId: string;
   authorName: string;
   message: string;
   language: string;
@@ -24,7 +25,7 @@ async function getTestimonials(memorialId: string): Promise<TestimonialRow[]> {
   const supabase = await getSupabaseServer();
   const { data } = await supabase
     .from('Testimonial')
-    .select('id, authorName, message, language, createdAt')
+    .select('id, authorId, authorName, message, language, createdAt')
     .eq('memorialId', memorialId)
     .order('createdAt', { ascending: false })
     .limit(100)
@@ -118,6 +119,7 @@ export async function TestimonialsSection({
               hasLiked={userLikeSet.has(t.id)}
               comments={commentsByTestimonial.get(t.id) ?? []}
               isLogged={!!user}
+              isOwner={!!user && user.id === t.authorId}
               shareUrl={`${memorialShareUrl}#testimonial-${t.id}`}
             />
           ))}
