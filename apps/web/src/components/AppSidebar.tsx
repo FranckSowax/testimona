@@ -21,10 +21,11 @@ export async function AppSidebar() {
       </Link>
       <AppSidebarNav
         labels={{
+          home: navT('home'),
           memorials: navT('memorials'),
           testimonials: navT('testimonials'),
           notifications: navT('notifications'),
-          profile: navT('profile'),
+          settings: navT('settings'),
           aria: navT('aria'),
         }}
         notificationsBadge={badge}

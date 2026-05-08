@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
@@ -46,48 +45,90 @@ export default async function HomePage({
 
   return (
     <>
-      <section className="relative overflow-hidden bg-mesh">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 md:grid-cols-2 lg:py-24">
-          <div className="animate-fade-in-up">
-            <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
-              {t('title')}
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              {t('lead')}
+      {/* Hero V2 — sky/clouds background, split slogan with script accent */}
+      <section
+        className="relative overflow-hidden"
+        style={{
+          backgroundImage: 'url(/images/home-background.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="mx-auto flex min-h-[70vh] max-w-6xl flex-col items-center justify-center gap-6 px-6 py-20 text-center">
+          <div className="animate-fade-in-up space-y-1">
+            <p className="font-display text-3xl font-normal leading-tight text-white drop-shadow-sm sm:text-4xl">
+              {t('heroSloganStart')}
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/signup?next=/dashboard/new"
-                className={buttonClasses({ variant: 'primary', size: 'lg' })}
-              >
-                {t('ctaTestimonial')}
-              </Link>
-              <Link
-                href="/search"
-                className={buttonClasses({
-                  variant: 'secondary',
-                  styleVariant: 'outline',
-                  size: 'lg',
-                })}
-              >
-                {t('ctaSearch')}
-              </Link>
-            </div>
+            <p
+              className="-rotate-1 text-5xl leading-none text-foreground sm:text-7xl"
+              style={{ fontFamily: 'var(--font-cursive)' }}
+            >
+              {t('heroSloganScript')}
+            </p>
+            <p className="font-display text-2xl font-normal leading-tight text-white drop-shadow-sm sm:text-3xl">
+              {t('heroSloganEnd1')}
+            </p>
+            <p className="font-display text-2xl font-normal leading-tight text-white drop-shadow-sm sm:text-3xl">
+              {t('heroSloganEnd2')}
+            </p>
           </div>
-          <div className="hidden md:flex md:justify-center">
-            <Image
-              src="/images/dove.svg"
-              alt=""
-              width={360}
-              height={360}
-              priority
-              className="scroll-parallax-slow h-72 w-auto opacity-90 animate-pop-in"
-            />
+          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row">
+            <Link
+              href="/signup?next=/dashboard/new"
+              className={buttonClasses({ variant: 'accent', size: 'lg' })}
+            >
+              {t('ctaTestimonial')}
+            </Link>
+            <Link
+              href="/signup?next=/dashboard/new"
+              className={buttonClasses({
+                variant: 'secondary',
+                styleVariant: 'outline',
+                size: 'lg',
+              })}
+            >
+              {t('ctaCreateMemorial')}
+            </Link>
           </div>
         </div>
       </section>
 
+      {/* Recent Testimonials — split title + decorative quotes */}
       <section className="mx-auto max-w-6xl px-6 py-16">
+        <div className="grid gap-10 md:grid-cols-[260px_1fr]">
+          <div className="space-y-1">
+            <p className="font-display text-3xl font-medium text-foreground">
+              {t('recentTitleStart')}
+            </p>
+            <p
+              className="-rotate-2 text-5xl leading-none text-foreground"
+              style={{ fontFamily: 'var(--font-cursive)' }}
+            >
+              {t('recentTitleScript')}
+            </p>
+          </div>
+          <blockquote className="relative px-12 italic leading-relaxed text-muted-foreground">
+            <span
+              aria-hidden="true"
+              className="absolute -left-2 -top-4 text-7xl leading-none text-foreground/20"
+              style={{ fontFamily: 'var(--font-cursive)' }}
+            >
+              &ldquo;
+            </span>
+            {t('recentLead')}
+            <span
+              aria-hidden="true"
+              className="absolute -right-2 -bottom-8 text-7xl leading-none text-foreground/20"
+              style={{ fontFamily: 'var(--font-cursive)' }}
+            >
+              &rdquo;
+            </span>
+          </blockquote>
+        </div>
+      </section>
+
+      {/* Features cards (kept for marketing) */}
+      <section className="mx-auto max-w-6xl px-6 pb-16">
         <h2 className="font-display text-2xl font-semibold text-foreground">
           {t('featuresTitle')}
         </h2>

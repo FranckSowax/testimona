@@ -12,6 +12,11 @@
   "footer": {
     "copyright": "Testimona, Inc.",
     "tagline": "Shared memory for those who matter.",
+    "signIn": "Sign in",
+    "about": "About Testimona",
+    "faq": "FAQ",
+    "cookies": "Cookies",
+    "contactUs": "Contact us",
     "legal": "Legal",
     "privacy": "Privacy",
     "terms": "Terms",
@@ -24,6 +29,14 @@
     "socialWhatsapp": "WhatsApp"
   },
   "home": {
+    "heroSloganStart": "Let's share",
+    "heroSloganScript": "beautiful stories",
+    "heroSloganEnd1": "about our loved ones",
+    "heroSloganEnd2": "in heaven",
+    "ctaCreateMemorial": "Create a memorial page",
+    "recentTitleStart": "Recent",
+    "recentTitleScript": "Testimonials",
+    "recentLead": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     "title": "Honor the memory of those who matter",
     "lead": "Testimona is the space where memories of the departed live on. Share testimonials, photos and videos, and support grieving families.",
     "ctaTestimonial": "Write a testimonial",
@@ -157,10 +170,12 @@
   "dashboard": {
     "nav": {
       "aria": "Dashboard navigation",
+      "home": "Home",
       "memorials": "My memorials",
       "testimonials": "My testimonials",
       "notifications": "Notifications",
-      "profile": "My profile"
+      "profile": "My profile",
+      "settings": "Settings"
     },
     "memorials": {
       "title": "My memorials",

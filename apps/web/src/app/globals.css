@@ -31,6 +31,15 @@
   --color-destructive: #b91c1c;
   --color-destructive-foreground: #ffffff;
 
+  /* ===== V2 strict explicit tokens (Florence Chan, mai 2021) ===== */
+  --color-bg-hover-blue: #f0f2ff;
+  --color-bg-active-blue: #c8cef5;
+  --color-bg-hover-pink: #ffefef;
+  --color-bg-active-pink: #fcdbdb;
+  --color-bg-hover-gray: #fafafa;
+  --color-bg-active-gray: #efefef;
+  --color-icon-active-pink: #db8186;
+
   /* ===== Modernisation — glass & mesh tints ===== */
   --color-glass-tint: rgba(255, 255, 255, 0.72);
   --color-glass-tint-dark: rgba(45, 50, 80, 0.55);

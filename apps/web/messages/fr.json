@@ -12,6 +12,11 @@
   "footer": {
     "copyright": "Testimona, Inc.",
     "tagline": "Une mémoire partagée pour ceux qui comptent.",
+    "signIn": "Se connecter",
+    "about": "À propos de Testimona",
+    "faq": "FAQ",
+    "cookies": "Cookies",
+    "contactUs": "Contactez-nous",
     "legal": "Mentions légales",
     "privacy": "Confidentialité",
     "terms": "CGU",
@@ -24,6 +29,14 @@
     "socialWhatsapp": "WhatsApp"
   },
   "home": {
+    "heroSloganStart": "Célébrons ces",
+    "heroSloganScript": "beaux souvenirs",
+    "heroSloganEnd1": "de nos êtres chers",
+    "heroSloganEnd2": "qui reposent en paix",
+    "ctaCreateMemorial": "Créer une page commémorative",
+    "recentTitleStart": "Derniers",
+    "recentTitleScript": "Témoignages",
+    "recentLead": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     "title": "Honorez la mémoire de ceux qui comptent",
     "lead": "Testimona est l'espace où les souvenirs des proches disparus se transmettent. Témoignez, partagez photos et vidéos, soutenez les familles endeuillées.",
     "ctaTestimonial": "Écrire un témoignage",
@@ -157,10 +170,12 @@
   "dashboard": {
     "nav": {
       "aria": "Navigation du tableau de bord",
+      "home": "Accueil",
       "memorials": "Mes mémoriels",
       "testimonials": "Mes témoignages",
       "notifications": "Notifications",
-      "profile": "Mon profil"
+      "profile": "Mon profil",
+      "settings": "Paramètres"
     },
     "memorials": {
       "title": "Mes mémoriels",
