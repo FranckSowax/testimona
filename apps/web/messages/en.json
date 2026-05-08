@@ -34,7 +34,28 @@
     "featureBiographyTitle": "Life details",
     "featureBiographyDesc": "Compose the biography chapter by chapter, together with relatives.",
     "featureDonationsTitle": "Tribute donations",
-    "featureDonationsDesc": "Support grieving families with a secure donation via Stripe."
+    "featureDonationsDesc": "Support grieving families with a secure donation via Stripe.",
+    "feed": {
+      "title": "Recent testimonials",
+      "subtitle": "Discover memories shared by the community.",
+      "writeOwn": "Share a testimonial",
+      "viewMemorial": "Open memorial",
+      "publishedOn": "On",
+      "emptyTitle": "No testimonials yet",
+      "emptyBody": "Be the first to share a memory."
+    },
+    "suggestions": {
+      "title": "Pages to discover",
+      "subtitle": "Recently added memorials.",
+      "viewAll": "See all"
+    },
+    "sidebar": {
+      "myMemorials": "My memorials",
+      "myTestimonials": "My testimonials",
+      "notifications": "Notifications",
+      "profile": "My profile",
+      "createMemorial": "Create a memorial"
+    }
   },
   "about": {
     "title": "About Testimona",

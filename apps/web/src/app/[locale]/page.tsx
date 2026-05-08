@@ -1,6 +1,11 @@
 import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
+import { getCurrentUser } from '@/lib/supabase/server';
+import { getUnseenNotificationsCount } from '@/lib/notifications/count';
+import { HomeFeed } from '@/components/home/HomeFeed';
+import { HomeLeftBanner } from '@/components/home/HomeLeftBanner';
+import { RipSuggestions } from '@/components/home/RipSuggestions';
 
 export default async function HomePage({
   params,
@@ -9,7 +14,33 @@ export default async function HomePage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations('home');
+
+  const [t, user] = await Promise.all([getTranslations('home'), getCurrentUser()]);
+
+  if (user) {
+    const notificationsBadge = await getUnseenNotificationsCount();
+    return (
+      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:py-10">
+        <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)_280px]">
+          <aside className="hidden lg:block">
+            <div className="sticky top-24">
+              <HomeLeftBanner notificationsBadge={notificationsBadge} />
+            </div>
+          </aside>
+
+          <main className="min-w-0">
+            <HomeFeed />
+          </main>
+
+          <aside className="hidden lg:block">
+            <div className="sticky top-24 space-y-6">
+              <RipSuggestions />
+            </div>
+          </aside>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -39,7 +70,7 @@ export default async function HomePage({
               </Link>
               <Link
                 href="/search"
-                className="rounded-md border-2 border-foreground/80 px-5 py-3 font-medium text-foreground opacity-80 transition-opacity hover:opacity-100"
+                className="rounded-md border-2 border-foreground/80 px-5 py-3 font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
               >
                 {t('ctaSearch')}
               </Link>

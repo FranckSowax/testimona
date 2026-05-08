@@ -34,7 +34,28 @@
     "featureBiographyTitle": "Détails de vie",
     "featureBiographyDesc": "Composez la biographie chapitre par chapitre, avec les proches.",
     "featureDonationsTitle": "Dons aux proches",
-    "featureDonationsDesc": "Soutenez les familles endeuillées par un don sécurisé via Stripe."
+    "featureDonationsDesc": "Soutenez les familles endeuillées par un don sécurisé via Stripe.",
+    "feed": {
+      "title": "Témoignages récents",
+      "subtitle": "Découvrez les souvenirs partagés par la communauté.",
+      "writeOwn": "Partager un témoignage",
+      "viewMemorial": "Voir le mémorial",
+      "publishedOn": "Sur",
+      "emptyTitle": "Aucun témoignage à afficher",
+      "emptyBody": "Soyez le premier à partager un souvenir."
+    },
+    "suggestions": {
+      "title": "Pages à découvrir",
+      "subtitle": "Mémoriels récemment ajoutés.",
+      "viewAll": "Tout voir"
+    },
+    "sidebar": {
+      "myMemorials": "Mes mémoriels",
+      "myTestimonials": "Mes témoignages",
+      "notifications": "Notifications",
+      "profile": "Mon profil",
+      "createMemorial": "Créer un mémorial"
+    }
   },
   "about": {
     "title": "À propos de Testimona",
