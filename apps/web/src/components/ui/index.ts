@@ -1,4 +1,4 @@
-export { Button } from './Button';
+export { Button, buttonClasses } from './Button';
 export { Spinner } from './Spinner';
 export { Card, CardHeader, CardBody, CardFooter } from './Card';
 export { Avatar } from './Avatar';

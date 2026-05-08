@@ -71,6 +71,36 @@ function combine(variant: Variant, styleVariant: Style): string {
   }
 }
 
+interface ButtonClassesOptions {
+  variant?: Variant;
+  styleVariant?: Style;
+  size?: Size;
+  fullWidth?: boolean;
+  className?: string;
+}
+
+export function buttonClasses({
+  variant = 'primary',
+  styleVariant = 'solid',
+  size = 'md',
+  fullWidth = false,
+  className,
+}: ButtonClassesOptions = {}): string {
+  return [
+    'inline-flex items-center justify-center rounded-md font-medium font-display',
+    'transition-[background-color,color,opacity,box-shadow,transform]',
+    'duration-150 ease-[var(--motion-ease-out)]',
+    'focus-visible:outline-none',
+    'press-scale',
+    SIZE_CLASSES[size],
+    combine(variant, styleVariant),
+    fullWidth ? 'w-full' : '',
+    className ?? '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+}
+
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   {
     variant = 'primary',

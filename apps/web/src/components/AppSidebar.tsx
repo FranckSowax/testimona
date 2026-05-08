@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getUnseenNotificationsCount } from '@/lib/notifications/count';
-import { Button } from './ui/Button';
+import { buttonClasses } from './ui/Button';
 import { AppSidebarNav } from './AppSidebarNav';
 
 export async function AppSidebar() {
@@ -13,10 +13,11 @@ export async function AppSidebar() {
 
   return (
     <aside aria-label={navT('aria')} className="space-y-4">
-      <Link href="/dashboard/new">
-        <Button variant="primary" fullWidth>
-          {t('createMemorial')}
-        </Button>
+      <Link
+        href="/dashboard/new"
+        className={buttonClasses({ variant: 'primary', fullWidth: true })}
+      >
+        {t('createMemorial')}
       </Link>
       <AppSidebarNav
         labels={{

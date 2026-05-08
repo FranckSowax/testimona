@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { MemorialCard } from '@/components/MemorialCard';
-import { Button } from '@/components/ui/Button';
+import { Button, buttonClasses } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
 export const metadata: Metadata = {
@@ -167,10 +167,15 @@ export default async function SearchPage({
       {totalPages > 1 && (
         <nav aria-label="Pagination" className="mt-10 flex items-center justify-between gap-3">
           {page > 1 ? (
-            <Link href={`/search?q=${encodeURIComponent(q)}&page=${page - 1}`}>
-              <Button variant="secondary" styleVariant="outline" size="sm">
-                ← Précédent
-              </Button>
+            <Link
+              href={`/search?q=${encodeURIComponent(q)}&page=${page - 1}`}
+              className={buttonClasses({
+                variant: 'secondary',
+                styleVariant: 'outline',
+                size: 'sm',
+              })}
+            >
+              ← Précédent
             </Link>
           ) : (
             <span />
@@ -179,10 +184,15 @@ export default async function SearchPage({
             Page {page} / {totalPages}
           </span>
           {page < totalPages ? (
-            <Link href={`/search?q=${encodeURIComponent(q)}&page=${page + 1}`}>
-              <Button variant="secondary" styleVariant="outline" size="sm">
-                Suivant →
-              </Button>
+            <Link
+              href={`/search?q=${encodeURIComponent(q)}&page=${page + 1}`}
+              className={buttonClasses({
+                variant: 'secondary',
+                styleVariant: 'outline',
+                size: 'sm',
+              })}
+            >
+              Suivant →
             </Link>
           ) : (
             <span />

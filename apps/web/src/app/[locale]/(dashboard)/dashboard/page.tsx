@@ -6,7 +6,7 @@ import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { MemorialCard } from '@/components/MemorialCard';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { EmptyState } from '@/components/EmptyState';
-import { Button } from '@/components/ui/Button';
+import { buttonClasses } from '@/components/ui/Button';
 
 export const metadata: Metadata = {
   title: 'Tableau de bord',
@@ -62,10 +62,11 @@ export default async function DashboardPage() {
   const covers = await getCoverUrls(memorials.map((m) => m.id));
 
   const ctaCreate = (
-    <Link href="/dashboard/new">
-      <Button variant="primary" size="md">
-        {t('create')}
-      </Button>
+    <Link
+      href="/dashboard/new"
+      className={buttonClasses({ variant: 'primary', size: 'md' })}
+    >
+      {t('create')}
     </Link>
   );
 

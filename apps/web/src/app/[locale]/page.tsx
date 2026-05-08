@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
-import { Button } from '@/components/ui/Button';
+import { buttonClasses } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { AppSidebar } from '@/components/AppSidebar';
 import { HomeFeed } from '@/components/home/HomeFeed';
@@ -56,15 +56,21 @@ export default async function HomePage({
               {t('lead')}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/signup?next=/dashboard/new">
-                <Button variant="primary" size="lg">
-                  {t('ctaTestimonial')}
-                </Button>
+              <Link
+                href="/signup?next=/dashboard/new"
+                className={buttonClasses({ variant: 'primary', size: 'lg' })}
+              >
+                {t('ctaTestimonial')}
               </Link>
-              <Link href="/search">
-                <Button variant="secondary" styleVariant="outline" size="lg">
-                  {t('ctaSearch')}
-                </Button>
+              <Link
+                href="/search"
+                className={buttonClasses({
+                  variant: 'secondary',
+                  styleVariant: 'outline',
+                  size: 'lg',
+                })}
+              >
+                {t('ctaSearch')}
               </Link>
             </div>
           </div>

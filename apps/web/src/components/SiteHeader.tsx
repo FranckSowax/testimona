@@ -4,7 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { LocaleSwitcher } from './LocaleSwitcher';
 import { Avatar } from './ui/Avatar';
-import { Button } from './ui/Button';
+import { Button, buttonClasses } from './ui/Button';
 
 export async function SiteHeader() {
   const [user, t] = await Promise.all([getCurrentUser(), getTranslations('header')]);
@@ -64,15 +64,21 @@ export async function SiteHeader() {
             </>
           ) : (
             <>
-              <Link href="/login" className="ml-1">
-                <Button variant="secondary" styleVariant="outline" size="sm">
-                  {t('signIn')}
-                </Button>
+              <Link
+                href="/login"
+                className={`ml-1 ${buttonClasses({
+                  variant: 'secondary',
+                  styleVariant: 'outline',
+                  size: 'sm',
+                })}`}
+              >
+                {t('signIn')}
               </Link>
-              <Link href="/signup" className="ml-1">
-                <Button variant="primary" size="sm">
-                  {t('signUp')}
-                </Button>
+              <Link
+                href="/signup"
+                className={`ml-1 ${buttonClasses({ variant: 'primary', size: 'sm' })}`}
+              >
+                {t('signUp')}
               </Link>
             </>
           )}
