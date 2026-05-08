@@ -7,6 +7,11 @@ import { HomeFeed } from '@/components/home/HomeFeed';
 import { HomeLeftBanner } from '@/components/home/HomeLeftBanner';
 import { RipSuggestions } from '@/components/home/RipSuggestions';
 
+// Home reads cookies (getCurrentUser) and switches its layout based on the
+// session. SSG would prerender the anonymous branch and break hydration when
+// a logged-in user lands on the page. Render per-request instead.
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage({
   params,
 }: {
