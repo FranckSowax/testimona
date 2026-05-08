@@ -8,6 +8,7 @@ interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   name?: string;
   size?: Size;
   status?: 'online' | 'offline';
+  border?: 'none' | 'rose';
 }
 
 const SIZE_PX: Record<Size, number> = {
@@ -37,6 +38,7 @@ export function Avatar({
   name,
   size = 'md',
   status,
+  border = 'none',
   className,
   ...rest
 }: AvatarProps) {
@@ -46,6 +48,7 @@ export function Avatar({
       className={[
         'relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full',
         'bg-surface text-foreground/70 font-display font-semibold',
+        border === 'rose' ? 'border-[3px] border-accent sm:border-4' : '',
         SIZE_TEXT[size],
         className ?? '',
       ]
