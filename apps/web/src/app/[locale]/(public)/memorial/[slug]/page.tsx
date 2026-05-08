@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -10,6 +9,9 @@ import { DonateSection } from './_components/DonateSection';
 import { FuneralSection } from './_components/FuneralSection';
 import { MemorialTabs } from './_components/MemorialTabs';
 import { ShareButtons } from '@/components/ShareButtons';
+import { MemorialHeaderCard } from '@/components/ui/MemorialHeaderCard';
+import { Breadcrumb } from '@/components/ui/Breadcrumb';
+import { ButtonText } from '@/components/ui/ButtonText';
 
 export const revalidate = 60; // ISR — 60s
 
@@ -96,48 +98,58 @@ export default async function MemorialPage({
   ]);
   const isOwner = currentUser?.id === memorial.ownerId;
 
+  const yearLine = formatYearLine(memorial.birthDate, memorial.deathDate);
+  const birthLine = memorial.birthDate
+    ? new Date(memorial.birthDate).toLocaleDateString('fr-FR')
+    : undefined;
+  const deathLine = memorial.deathDate
+    ? new Date(memorial.deathDate).toLocaleDateString('fr-FR')
+    : undefined;
+
   return (
-    <article>
-      <header className="relative h-[40vh] min-h-[280px] w-full overflow-hidden bg-secondary">
-        {coverUrl ? (
-          <Image src={coverUrl} alt="" fill sizes="100vw" priority className="object-cover" />
-        ) : null}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(180deg, rgba(45,50,80,0.25) 0%, rgba(45,50,80,0.75) 75%, rgba(45,50,80,0.92) 100%)',
-          }}
-        />
-        <div className="absolute inset-x-0 bottom-0 mx-auto max-w-4xl px-6 pb-10 text-white">
-          <h1 className="font-display text-3xl font-bold leading-tight tracking-tight sm:text-5xl">
-            {fullName}
-          </h1>
-          {memorial.nickname && (
-            <p className="mt-1 text-lg italic opacity-90">« {memorial.nickname} »</p>
-          )}
-          <p className="mt-2 text-sm font-medium uppercase tracking-wide opacity-80">
-            {formatDateRange(memorial.birthDate, memorial.deathDate)}
-          </p>
-          <div className="mt-4">
-            <ShareButtons
-              url={`${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/memorial/${memorial.slug}`}
-              title={`Mémorial de ${fullName}`}
-            />
-          </div>
-        </div>
-      </header>
+    <article className="mx-auto max-w-5xl px-4 pb-16 pt-6 sm:px-6">
+      <Breadcrumb
+        items={[
+          { label: 'Home', href: '/' },
+          { label: `${fullName} Memorial` },
+        ]}
+        className="mb-4"
+      />
 
-      <div className="mx-auto max-w-4xl px-6 pb-16 pt-8">
-        {memorial.description && (
-          <section
-            aria-label="À propos"
-            className="whitespace-pre-line border-l-4 border-primary bg-surface px-6 py-5 text-base leading-relaxed"
-          >
-            {memorial.description}
-          </section>
-        )}
+      <MemorialHeaderCard
+        fullName={fullName}
+        yearLine={yearLine}
+        nickname={memorial.nickname}
+        bio={memorial.description}
+        birthLine={birthLine}
+        deathLine={deathLine}
+        coverUrl={coverUrl}
+        avatarUrl={coverUrl}
+        adminBadge={
+          isOwner ? (
+            <span>This page is administered by you</span>
+          ) : (
+            <span>
+              This page is administered by the family ·{' '}
+              <ButtonText
+                variant="action"
+                type="button"
+                className="!inline-flex"
+              >
+                Be an admin
+              </ButtonText>
+            </span>
+          )
+        }
+        bioActions={
+          <ShareButtons
+            url={`${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/memorial/${memorial.slug}`}
+            title={`Mémorial de ${fullName}`}
+          />
+        }
+      />
 
+      <div className="mt-8">
         <MemorialTabs
           tabs={[
             {
@@ -178,8 +190,8 @@ export default async function MemorialPage({
   );
 }
 
-function formatDateRange(birth: string | null, death: string | null): string {
-  const fmt = (d: string | null) => (d ? new Date(d).toLocaleDateString('fr-FR') : '?');
+function formatYearLine(birth: string | null, death: string | null): string {
+  const year = (d: string | null) => (d ? new Date(d).getFullYear().toString() : '?');
   if (!birth && !death) return '';
-  return `${fmt(birth)} — ${fmt(death)}`;
+  return `${year(birth)} – ${year(death)}`;
 }
