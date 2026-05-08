@@ -2,6 +2,9 @@
 
 import { useActionState, useEffect } from 'react';
 import { useRouter } from '@/i18n/navigation';
+import { Button } from '@/components/ui/Button';
+import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
 import { signupAction, type SignupActionState } from './actions';
 
 export function SignupForm() {
@@ -20,68 +23,36 @@ export function SignupForm() {
 
   return (
     <form action={formAction} className="mt-8 space-y-4">
-      <div>
-        <label htmlFor="nickname" className="block text-sm font-medium">
-          Pseudonyme
-        </label>
-        <input
-          id="nickname"
-          name="nickname"
-          type="text"
-          required
-          autoComplete="nickname"
-          maxLength={50}
-          className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-        />
-        {state?.fieldErrors?.nickname && (
-          <p className="mt-1 text-xs text-red-600">{state.fieldErrors.nickname}</p>
-        )}
-      </div>
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium">
-          Email
-        </label>
-        <input
-          id="email"
+      <FormField label="Pseudonyme" required error={state?.fieldErrors?.nickname}>
+        <Input name="nickname" type="text" autoComplete="nickname" maxLength={50} />
+      </FormField>
+      <FormField label="Email" required error={state?.fieldErrors?.email}>
+        <Input
           name="email"
           type="email"
-          required
           autoComplete="email"
-          className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          placeholder="vous@exemple.com"
         />
-        {state?.fieldErrors?.email && (
-          <p className="mt-1 text-xs text-red-600">{state.fieldErrors.email}</p>
-        )}
-      </div>
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium">
-          Mot de passe (8 caractères minimum)
-        </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          required
-          minLength={8}
-          autoComplete="new-password"
-          className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-        />
-        {state?.fieldErrors?.password && (
-          <p className="mt-1 text-xs text-red-600">{state.fieldErrors.password}</p>
-        )}
-      </div>
+      </FormField>
+      <FormField
+        label="Mot de passe"
+        required
+        hint="8 caractères minimum"
+        error={state?.fieldErrors?.password}
+      >
+        <Input name="password" type="password" autoComplete="new-password" minLength={8} />
+      </FormField>
       {state?.error && state.error !== 'Validation' && (
-        <p role="alert" className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p
+          role="alert"
+          className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+        >
           {state.error}
         </p>
       )}
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full rounded-md bg-primary px-4 py-2 text-primary-foreground hover:opacity-90 disabled:opacity-50"
-      >
-        {isPending ? 'Création...' : 'Créer mon compte'}
-      </button>
+      <Button type="submit" variant="primary" size="lg" loading={isPending} fullWidth>
+        {isPending ? 'Création…' : 'Créer mon compte'}
+      </Button>
     </form>
   );
 }

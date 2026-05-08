@@ -2,6 +2,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { MemorialCard } from '@/components/MemorialCard';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 export const metadata: Metadata = {
   title: 'Rechercher un mémorial',
@@ -83,50 +85,72 @@ export default async function SearchPage({
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
-      <h1 className="text-3xl font-semibold tracking-tight">Rechercher un mémorial</h1>
-      <form method="get" action="/search" className="mt-6 flex gap-2">
+    <div className="mx-auto max-w-5xl px-6 py-12">
+      <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">
+        Rechercher un mémorial
+      </h1>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Trouvez un mémorial par nom, prénom ou surnom.
+      </p>
+
+      <form method="get" action="/search" className="mt-6 flex flex-wrap gap-3 sm:flex-nowrap">
         <label htmlFor="q" className="sr-only">
           Nom, prénom ou surnom
         </label>
-        <input
+        <Input
           id="q"
           name="q"
           type="search"
           defaultValue={q}
           maxLength={100}
           placeholder="Nom, prénom ou surnom"
-          className="flex-1 rounded-md border border-border bg-background px-3 py-2"
           autoComplete="off"
+          className="flex-1"
+          iconLeft={
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.3-4.3" />
+            </svg>
+          }
         />
-        <button
-          type="submit"
-          className="rounded-md bg-primary px-4 py-2 text-primary-foreground hover:opacity-90"
-        >
+        <Button type="submit" variant="primary" size="md">
           Rechercher
-        </button>
+        </Button>
       </form>
 
       {error && (
         <p
           role="alert"
-          className="mt-6 rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm"
+          className="mt-6 rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
         >
           {error}
         </p>
       )}
 
       {q && !error && (
-        <p className="mt-6 text-sm text-muted-foreground">
+        <p className="mt-6 text-sm text-muted-foreground tabular">
           {total} résultat{total > 1 ? 's' : ''} pour « {q} »
         </p>
       )}
 
       <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {rows.map((m) => {
+        {rows.map((m, i) => {
           const fullName = [m.firstname, m.lastname].filter(Boolean).join(' ');
           return (
-            <li key={m.id}>
+            <li
+              key={m.id}
+              className="animate-fade-in-up"
+              style={{ animationDelay: `${Math.min(i * 30, 200)}ms` }}
+            >
               <MemorialCard
                 slug={m.slug}
                 fullName={fullName}
@@ -141,26 +165,24 @@ export default async function SearchPage({
       </ul>
 
       {totalPages > 1 && (
-        <nav aria-label="Pagination" className="mt-8 flex justify-between text-sm">
+        <nav aria-label="Pagination" className="mt-10 flex items-center justify-between gap-3">
           {page > 1 ? (
-            <Link
-              href={`/search?q=${encodeURIComponent(q)}&page=${page - 1}`}
-              className="rounded-md border border-border px-3 py-1.5 hover:bg-muted"
-            >
-              ← Précédent
+            <Link href={`/search?q=${encodeURIComponent(q)}&page=${page - 1}`}>
+              <Button variant="secondary" styleVariant="outline" size="sm">
+                ← Précédent
+              </Button>
             </Link>
           ) : (
             <span />
           )}
-          <span className="text-muted-foreground">
+          <span className="tabular text-sm text-muted-foreground">
             Page {page} / {totalPages}
           </span>
           {page < totalPages ? (
-            <Link
-              href={`/search?q=${encodeURIComponent(q)}&page=${page + 1}`}
-              className="rounded-md border border-border px-3 py-1.5 hover:bg-muted"
-            >
-              Suivant →
+            <Link href={`/search?q=${encodeURIComponent(q)}&page=${page + 1}`}>
+              <Button variant="secondary" styleVariant="outline" size="sm">
+                Suivant →
+              </Button>
             </Link>
           ) : (
             <span />
@@ -169,10 +191,4 @@ export default async function SearchPage({
       )}
     </div>
   );
-}
-
-function formatDateRange(birth: string | null, death: string | null): string {
-  const fmt = (d: string | null) => (d ? new Date(d).toLocaleDateString('fr-FR') : '?');
-  if (!birth && !death) return '';
-  return `${fmt(birth)} — ${fmt(death)}`;
 }

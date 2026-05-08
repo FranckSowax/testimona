@@ -3,95 +3,80 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { LocaleSwitcher } from './LocaleSwitcher';
+import { Avatar } from './ui/Avatar';
+import { Button } from './ui/Button';
 
 export async function SiteHeader() {
   const [user, t] = await Promise.all([getCurrentUser(), getTranslations('header')]);
-  const avatarUrl =
-    (user?.user_metadata as { avatar_url?: string | null } | null)?.avatar_url ?? null;
+  const meta = (user?.user_metadata ?? null) as
+    | { avatar_url?: string | null; full_name?: string | null; nickname?: string | null }
+    | null;
+  const avatarUrl = meta?.avatar_url ?? null;
+  const displayName = meta?.nickname || meta?.full_name || user?.email || '';
 
   return (
-    <header className="border-b border-border bg-white">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-        <Link href="/" aria-label="Accueil Testimona" className="flex items-center">
+    <header className="sticky top-0 z-[var(--z-sticky)] border-b border-border bg-white/80 backdrop-blur-md">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
+        <Link href="/" aria-label="Accueil Testimona" className="flex shrink-0 items-center">
           <Image
             src="/images/logo-testimona.svg"
             alt="Testimona"
-            width={180}
-            height={64}
+            width={160}
+            height={56}
             priority
-            className="h-14 w-auto"
+            className="h-12 w-auto"
           />
         </Link>
-        <nav aria-label="Navigation principale" className="flex items-center gap-3 text-sm">
+
+        <nav
+          aria-label="Navigation principale"
+          className="flex items-center gap-1 text-sm sm:gap-2"
+        >
           <Link
             href="/about"
-            className="hidden rounded-md px-3 py-2 text-foreground/80 hover:text-foreground sm:inline-block"
+            className="hidden rounded-md px-3 py-2 text-foreground/80 transition-colors hover:text-primary sm:inline-block"
           >
             {t('about')}
           </Link>
           <Link
             href="/search"
-            className="rounded-md px-3 py-2 text-foreground/80 hover:text-foreground"
+            className="rounded-md px-3 py-2 text-foreground/80 transition-colors hover:text-primary"
           >
             {t('search')}
           </Link>
+
           {user ? (
             <>
               <Link
                 href="/dashboard"
-                className="rounded-md px-3 py-2 text-foreground/80 hover:text-foreground"
+                className="hidden rounded-md px-3 py-2 text-foreground/80 transition-colors hover:text-primary sm:inline-block"
               >
                 {t('myMemorials')}
               </Link>
-              <form action="/auth/signout" method="post">
-                <button
-                  type="submit"
-                  className="rounded-md border-2 border-foreground/80 px-3 py-1.5 font-medium text-foreground opacity-80 transition-opacity hover:opacity-100"
-                >
+              <form action="/auth/signout" method="post" className="ml-1">
+                <Button type="submit" variant="primary" styleVariant="outline" size="sm">
                   {t('signOut')}
-                </button>
+                </Button>
               </form>
-              {avatarUrl ? (
-                <Image
-                  src={avatarUrl}
-                  alt=""
-                  width={36}
-                  height={36}
-                  className="ml-1 h-9 w-9 rounded-full border border-border object-cover"
-                />
-              ) : (
-                <Image
-                  src="/images/avatar-connected.svg"
-                  alt=""
-                  width={36}
-                  height={36}
-                  className="ml-1 h-9 w-9"
-                />
-              )}
+              <Link href="/dashboard/profile" aria-label={displayName} className="ml-1 shrink-0">
+                <Avatar src={avatarUrl} name={displayName} size="sm" />
+              </Link>
             </>
           ) : (
             <>
-              <Link
-                href="/login"
-                className="rounded-md border-2 border-foreground/80 px-3 py-1.5 font-medium text-foreground opacity-80 transition-opacity hover:opacity-100"
-              >
-                {t('signIn')}
+              <Link href="/login" className="ml-1">
+                <Button variant="secondary" styleVariant="outline" size="sm">
+                  {t('signIn')}
+                </Button>
               </Link>
-              <Link
-                href="/signup"
-                className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground hover:opacity-90"
-              >
-                {t('signUp')}
+              <Link href="/signup" className="ml-1">
+                <Button variant="primary" size="sm">
+                  {t('signUp')}
+                </Button>
               </Link>
-              <Image
-                src="/images/avatar.svg"
-                alt=""
-                width={36}
-                height={36}
-                className="ml-1 h-9 w-9"
-              />
             </>
           )}
+
           <span className="ml-2 hidden border-l border-border pl-3 sm:inline-flex">
             <LocaleSwitcher />
           </span>

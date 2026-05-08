@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Lora, Raleway } from 'next/font/google';
+import { Montserrat, PT_Sans, Caveat_Brush } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
@@ -15,19 +15,26 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-const raleway = Raleway({
-  weight: ['300', '400', '500', '600', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-raleway',
-});
-
-const lora = Lora({
-  weight: ['400', '500', '600', '700'],
+const ptSans = PT_Sans({
+  weight: ['400', '700'],
   style: ['normal', 'italic'],
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-lora',
+  variable: '--font-pt-sans',
+});
+
+const montserrat = Montserrat({
+  weight: ['300', '400', '500', '600', '700', '800'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-montserrat',
+});
+
+const caveatBrush = Caveat_Brush({
+  weight: ['400'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-caveat',
 });
 
 export const metadata: Metadata = {
@@ -61,7 +68,10 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className={`${raleway.variable} ${lora.variable}`}>
+    <html
+      lang={locale}
+      className={`${ptSans.variable} ${montserrat.variable} ${caveatBrush.variable}`}
+    >
       <body className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
         <NextIntlClientProvider messages={messages} locale={locale}>
           <ToastProvider>

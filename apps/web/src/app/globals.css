@@ -1,38 +1,50 @@
 @import 'tailwindcss';
 
-/* Palette héritée de l'ancien design (variables.scss) :
+/* Palette V3 (héritée — validée par TdR) :
  *   $martinique:    #2d3250  (brand sombre — titres, bordures)
  *   $fountain-blue: #50aac3  (brand turquoise — accents, primary)
- *   $half-baked:    #7dbed2  (turquoise clair)
- *   $wewak:         #f4a7ab  (rose pâle)
- *   $new-york-pink: #db8186  (rose accent)
- *   $titan-white:   #f0f2ff  (très light bleu)
- *   $alabaster:     #fafafa  (background)
+ *   $half-baked:    #7dbed2  (turquoise clair — primary-soft)
+ *   $wewak:         #f4a7ab  (rose pâle — accent-soft)
+ *   $new-york-pink: #db8186  (rose accent — donations)
+ *   $titan-white:   #f0f2ff  (très light bleu — surface)
+ *   $alabaster:     #fafafa  (background muted)
  *   $gallery:       #efefef  (border/séparateur)
  *   $waterloo:      #788199  (texte secondaire)
  */
 
 @theme {
-  /* Brand colors (legacy palette retained) */
+  /* ===== Brand colors (V3) ===== */
   --color-background: #ffffff;
   --color-foreground: #2d3250;
   --color-primary: #50aac3;
   --color-primary-foreground: #ffffff;
+  --color-primary-soft: #7dbed2;
   --color-secondary: #2d3250;
   --color-secondary-foreground: #ffffff;
   --color-accent: #db8186;
+  --color-accent-foreground: #ffffff;
   --color-accent-soft: #f4a7ab;
   --color-muted: #fafafa;
   --color-muted-foreground: #788199;
   --color-border: #efefef;
   --color-surface: #f0f2ff;
   --color-destructive: #b91c1c;
+  --color-destructive-foreground: #ffffff;
 
-  /* Typography — editorial pairing for memorial product */
-  --font-sans: var(--font-raleway), 'Raleway', 'Helvetica Neue', system-ui, sans-serif;
-  --font-display: var(--font-lora), 'Lora', 'Georgia', serif;
+  /* ===== Modernisation — glass & mesh tints ===== */
+  --color-glass-tint: rgba(255, 255, 255, 0.72);
+  --color-glass-tint-dark: rgba(45, 50, 80, 0.55);
+  --color-mesh-1: #50aac3;
+  --color-mesh-2: #f4a7ab;
+  --color-mesh-3: #f0f2ff;
+  --color-mesh-4: #ffffff;
 
-  /* Spacing scale (4/8 rhythm) */
+  /* ===== Typography (V3 — Montserrat + PT Sans + Caveat Brush) ===== */
+  --font-sans: var(--font-pt-sans), 'PT Sans', 'Helvetica Neue', system-ui, sans-serif;
+  --font-display: var(--font-montserrat), 'Montserrat', 'Georgia', sans-serif;
+  --font-cursive: var(--font-caveat), 'Caveat Brush', 'Brush Script MT', cursive;
+
+  /* ===== Spacing scale (4/8 rhythm) ===== */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -40,24 +52,41 @@
   --space-6: 1.5rem;
   --space-8: 2rem;
   --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
 
-  /* Z-index scale */
+  /* ===== Radius scale ===== */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* ===== Z-index scale ===== */
   --z-dropdown: 10;
   --z-sticky: 20;
   --z-modal-backdrop: 40;
   --z-modal: 50;
   --z-toast: 100;
 
-  /* Elevation shadows tuned to the foreground hue */
+  /* ===== Shadows (4-level elevation + modern variants) ===== */
   --shadow-card: 0 1px 2px rgba(45, 50, 80, 0.04), 0 1px 3px rgba(45, 50, 80, 0.06);
-  --shadow-elevated: 0 4px 12px rgba(45, 50, 80, 0.08);
+  --shadow-raised: 0 2px 6px rgba(45, 50, 80, 0.06), 0 4px 12px rgba(45, 50, 80, 0.08);
+  --shadow-elevated: 0 4px 12px rgba(45, 50, 80, 0.08), 0 8px 24px rgba(45, 50, 80, 0.10);
   --shadow-overlay: 0 12px 32px rgba(45, 50, 80, 0.18);
+  --shadow-glass: 0 8px 32px rgba(45, 50, 80, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --shadow-glow-primary: 0 0 0 3px rgba(80, 170, 195, 0.15), 0 8px 24px rgba(80, 170, 195, 0.25);
+  --shadow-glow-accent: 0 0 0 3px rgba(219, 129, 134, 0.15), 0 8px 24px rgba(219, 129, 134, 0.25);
 
-  /* Motion */
+  /* ===== Motion tokens ===== */
   --motion-fast: 150ms;
   --motion-base: 250ms;
   --motion-slow: 400ms;
   --motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --motion-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --motion-spring-gentle: cubic-bezier(0.5, 1.25, 0.75, 1.05);
 }
 
 @layer base {
@@ -67,27 +96,134 @@
     border-radius: 4px;
   }
 
-  /* Tabular numbers for data columns (donations, dates) */
   .tabular {
     font-variant-numeric: tabular-nums;
   }
+
+  /* View Transitions API — fade léger par défaut sur navigations Next */
+  @view-transition {
+    navigation: auto;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--motion-base);
+    animation-timing-function: var(--motion-ease-out);
+  }
+  ::view-transition-old(root) {
+    animation-name: fade-out;
+  }
+  ::view-transition-new(root) {
+    animation-name: fade-in;
+  }
 }
 
+/* ===== Keyframes ===== */
 @keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes scale-press {
+  from { transform: scale(1); }
+  to   { transform: scale(0.97); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes pop-in {
+  0%   { opacity: 0; transform: scale(0.92); }
+  60%  { opacity: 1; transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+@keyframes parallax-slow {
+  to { transform: translateY(-12%); }
+}
+
+@keyframes hero-fade {
+  to { opacity: 0.4; transform: translateY(8%); }
+}
+
+/* ===== Animation utilities ===== */
 .animate-fade-in-up {
   animation: fade-in-up var(--motion-base) var(--motion-ease-out) both;
 }
+.animate-fade-in {
+  animation: fade-in var(--motion-base) var(--motion-ease-out) both;
+}
+.animate-pop-in {
+  animation: pop-in var(--motion-slow) var(--motion-spring) both;
+}
+.animate-spin-slow {
+  animation: spin 1s linear infinite;
+}
 
+/* Scroll-driven utilities (Chrome 115+, FF nightly) — graceful no-op elsewhere */
+@supports (animation-timeline: scroll()) {
+  .scroll-parallax-slow {
+    animation: parallax-slow linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 80vh;
+  }
+  .scroll-hero-fade {
+    animation: hero-fade linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 60vh;
+  }
+}
+
+/* ===== Surface utilities ===== */
+.surface-glass {
+  background: var(--color-glass-tint);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: var(--shadow-glass);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.surface-glass-dark {
+  background: var(--color-glass-tint-dark);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  color: #ffffff;
+}
+
+/* Mesh gradient (hero anonymous, empty states) */
+.bg-mesh {
+  background-color: var(--color-mesh-4);
+  background-image:
+    radial-gradient(at 18% 22%, color-mix(in srgb, var(--color-mesh-1) 35%, transparent) 0px, transparent 55%),
+    radial-gradient(at 82% 28%, color-mix(in srgb, var(--color-mesh-2) 30%, transparent) 0px, transparent 55%),
+    radial-gradient(at 50% 88%, color-mix(in srgb, var(--color-mesh-3) 70%, transparent) 0px, transparent 60%);
+}
+
+/* Press feedback (cards, buttons) */
+.press-scale {
+  transition: transform var(--motion-fast) var(--motion-ease-out);
+}
+.press-scale:active {
+  transform: scale(0.97);
+}
+
+/* Reduced motion — couvre toutes les animations + view transitions */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -96,5 +232,9 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
   }
 }

@@ -27,16 +27,16 @@ export function MemorialCard({
   return (
     <Link
       href={target}
-      className="group flex flex-col overflow-hidden rounded-lg border border-border bg-white shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      className="press-scale group flex flex-col overflow-hidden rounded-lg border border-border bg-white shadow-[var(--shadow-card)] transition-[box-shadow,transform] duration-200 ease-[var(--motion-ease-out)] hover:shadow-[var(--shadow-elevated)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     >
-      <div className="relative aspect-[4/3] w-full bg-surface">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface">
         {coverUrl ? (
           <Image
             src={coverUrl}
             alt=""
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            className="object-cover transition-transform duration-500 ease-[var(--motion-ease-out)] group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full items-center justify-center">

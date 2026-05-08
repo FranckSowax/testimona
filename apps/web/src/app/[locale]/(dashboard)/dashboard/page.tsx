@@ -6,7 +6,7 @@ import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { MemorialCard } from '@/components/MemorialCard';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { EmptyState } from '@/components/EmptyState';
-import { getUnseenNotificationsCount } from '@/lib/notifications/count';
+import { Button } from '@/components/ui/Button';
 
 export const metadata: Metadata = {
   title: 'Tableau de bord',
@@ -55,19 +55,17 @@ export default async function DashboardPage() {
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/dashboard');
 
-  const [memorials, t, notificationsBadge] = await Promise.all([
+  const [memorials, t] = await Promise.all([
     getOwnedMemorials(user.id),
     getTranslations('dashboard.memorials'),
-    getUnseenNotificationsCount(),
   ]);
   const covers = await getCoverUrls(memorials.map((m) => m.id));
 
   const ctaCreate = (
-    <Link
-      href="/dashboard/new"
-      className="rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-    >
-      {t('create')}
+    <Link href="/dashboard/new">
+      <Button variant="primary" size="md">
+        {t('create')}
+      </Button>
     </Link>
   );
 
@@ -75,7 +73,6 @@ export default async function DashboardPage() {
     <DashboardShell
       title={t('title')}
       action={memorials.length > 0 ? ctaCreate : undefined}
-      notificationsBadge={notificationsBadge}
     >
       {memorials.length === 0 ? (
         <EmptyState

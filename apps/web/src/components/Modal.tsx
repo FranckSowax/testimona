@@ -37,9 +37,9 @@ export function Modal({
       aria-label={ariaLabel}
       onClose={dismiss}
       onClick={onBackdropClick}
-      className="m-0 w-full max-w-md rounded-lg border border-border bg-white p-0 shadow-xl backdrop:bg-black/40 sm:m-auto"
+      className="m-0 w-full max-w-md rounded-2xl border border-border bg-white p-0 shadow-[var(--shadow-overlay)] backdrop:bg-foreground/40 backdrop:backdrop-blur-sm sm:m-auto"
     >
-      <div className="relative p-6">
+      <div className="animate-pop-in relative p-6">
         <button
           type="button"
           aria-label="Fermer"

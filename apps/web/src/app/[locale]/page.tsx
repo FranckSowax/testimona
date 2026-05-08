@@ -2,14 +2,12 @@ import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
-import { getUnseenNotificationsCount } from '@/lib/notifications/count';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { AppSidebar } from '@/components/AppSidebar';
 import { HomeFeed } from '@/components/home/HomeFeed';
-import { HomeLeftBanner } from '@/components/home/HomeLeftBanner';
 import { RipSuggestions } from '@/components/home/RipSuggestions';
 
-// Home reads cookies (getCurrentUser) and switches its layout based on the
-// session. SSG would prerender the anonymous branch and break hydration when
-// a logged-in user lands on the page. Render per-request instead.
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage({
@@ -23,13 +21,12 @@ export default async function HomePage({
   const [t, user] = await Promise.all([getTranslations('home'), getCurrentUser()]);
 
   if (user) {
-    const notificationsBadge = await getUnseenNotificationsCount();
     return (
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:py-10">
         <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)_280px]">
           <aside className="hidden lg:block">
             <div className="sticky top-24">
-              <HomeLeftBanner notificationsBadge={notificationsBadge} />
+              <AppSidebar />
             </div>
           </aside>
 
@@ -49,17 +46,9 @@ export default async function HomePage({
 
   return (
     <>
-      <section
-        className="relative overflow-hidden bg-surface"
-        style={{
-          backgroundImage:
-            'linear-gradient(to bottom, rgba(240,242,255,0.55), rgba(240,242,255,0.92)), url(/images/home-background.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 md:grid-cols-2">
-          <div>
+      <section className="relative overflow-hidden bg-mesh">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 md:grid-cols-2 lg:py-24">
+          <div className="animate-fade-in-up">
             <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
               {t('title')}
             </h1>
@@ -67,17 +56,15 @@ export default async function HomePage({
               {t('lead')}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/signup?next=/dashboard/new"
-                className="rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground shadow-sm transition-opacity hover:opacity-90"
-              >
-                {t('ctaTestimonial')}
+              <Link href="/signup?next=/dashboard/new">
+                <Button variant="primary" size="lg">
+                  {t('ctaTestimonial')}
+                </Button>
               </Link>
-              <Link
-                href="/search"
-                className="rounded-md border-2 border-foreground/80 px-5 py-3 font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
-              >
-                {t('ctaSearch')}
+              <Link href="/search">
+                <Button variant="secondary" styleVariant="outline" size="lg">
+                  {t('ctaSearch')}
+                </Button>
               </Link>
             </div>
           </div>
@@ -88,7 +75,7 @@ export default async function HomePage({
               width={360}
               height={360}
               priority
-              className="h-72 w-auto opacity-90"
+              className="scroll-parallax-slow h-72 w-auto opacity-90 animate-pop-in"
             />
           </div>
         </div>
@@ -99,24 +86,30 @@ export default async function HomePage({
           {t('featuresTitle')}
         </h2>
         <ul className="mt-8 grid gap-6 sm:grid-cols-3">
-          <li className="rounded-lg border border-border bg-white p-6 shadow-sm">
+          <Card as="li" elevation="raised" className="p-6">
             <h3 className="font-display text-lg font-semibold text-foreground">
               {t('featureTestimonialsTitle')}
             </h3>
-            <p className="mt-2 text-sm text-muted-foreground">{t('featureTestimonialsDesc')}</p>
-          </li>
-          <li className="rounded-lg border border-border bg-white p-6 shadow-sm">
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t('featureTestimonialsDesc')}
+            </p>
+          </Card>
+          <Card as="li" elevation="raised" className="p-6">
             <h3 className="font-display text-lg font-semibold text-foreground">
               {t('featureBiographyTitle')}
             </h3>
-            <p className="mt-2 text-sm text-muted-foreground">{t('featureBiographyDesc')}</p>
-          </li>
-          <li className="rounded-lg border border-border bg-white p-6 shadow-sm">
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t('featureBiographyDesc')}
+            </p>
+          </Card>
+          <Card as="li" elevation="raised" className="p-6">
             <h3 className="font-display text-lg font-semibold text-foreground">
               {t('featureDonationsTitle')}
             </h3>
-            <p className="mt-2 text-sm text-muted-foreground">{t('featureDonationsDesc')}</p>
-          </li>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t('featureDonationsDesc')}
+            </p>
+          </Card>
         </ul>
       </section>
     </>
