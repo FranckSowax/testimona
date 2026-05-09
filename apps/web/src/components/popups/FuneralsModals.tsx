@@ -64,7 +64,7 @@ export function FuneralsEditPopup({
               value={info}
               onChange={(e) => setInfo(e.target.value)}
               rows={5}
-              className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
             />
           </label>
 
@@ -161,7 +161,7 @@ export function FuneralEventCreatePopup({
               value={v.note ?? ''}
               onChange={(e) => set('note', e.target.value)}
               rows={3}
-              className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
             />
           </label>
 
@@ -207,7 +207,7 @@ function Field({ label, value, onChange, required, type = 'text' }: FieldProps) 
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
-        className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+        className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
       />
     </label>
   );
@@ -226,7 +226,7 @@ function Select({ label, value, onChange, options }: SelectProps) {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+        className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
       >
         {options.map((opt) => (
           <option key={opt} value={opt}>

@@ -69,7 +69,7 @@ export function DonationsEditModal({
               onChange={(e) => set('about', e.target.value)}
               required
               rows={6}
-              className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
             />
           </label>
 
@@ -85,7 +85,7 @@ export function DonationsEditModal({
                 value={v.goalAmount}
                 onChange={(e) => set('goalAmount', e.target.value)}
                 required
-                className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+                className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
               />
             </label>
             <label className="block">
@@ -95,7 +95,7 @@ export function DonationsEditModal({
               <select
                 value={v.currency}
                 onChange={(e) => set('currency', e.target.value)}
-                className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+                className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
               >
                 {CURRENCIES.map((c) => (
                   <option key={c} value={c}>

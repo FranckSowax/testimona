@@ -135,7 +135,7 @@ export function BiographyChapterCreatePopup({
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={6}
-              className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
             />
           </label>
 
@@ -187,7 +187,7 @@ function Field({ label, value, onChange, required }: FieldProps) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
-        className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+        className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
       />
     </label>
   );

@@ -89,7 +89,7 @@ export function MyDonationCreateModal({
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
-              className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
             />
           </label>
 
@@ -100,7 +100,7 @@ export function MyDonationCreateModal({
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
             >
               {CURRENCIES.map((c) => (
                 <option key={c} value={c}>
@@ -157,7 +157,7 @@ export function MyDonationCreateModal({
                 onChange={(e) => setOtherAmount(e.target.value)}
                 placeholder="Enter the amount"
                 required
-                className="mt-2 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+                className="mt-2 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
               />
             )}
           </fieldset>

@@ -4,7 +4,7 @@ export { Card, CardHeader, CardBody, CardFooter } from './Card';
 export { Avatar } from './Avatar';
 export { Badge } from './Badge';
 export { Tag } from './Tag';
-export { Input } from './Input';
+export { Input, fieldClasses } from './Input';
 export { Textarea } from './Textarea';
 export { FormField } from './FormField';
 export { Checkbox } from './Checkbox';
