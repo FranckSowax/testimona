@@ -12,6 +12,8 @@ import { ShareButtons } from '@/components/ShareButtons';
 import { MemorialHeaderCard } from '@/components/ui/MemorialHeaderCard';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { ButtonText } from '@/components/ui/ButtonText';
+import { ButtonIcon } from '@/components/ui/ButtonIcon';
+import { AppSidebar } from '@/components/AppSidebar';
 
 export const revalidate = 60; // ISR — 60s
 
@@ -106,8 +108,8 @@ export default async function MemorialPage({
     ? new Date(memorial.deathDate).toLocaleDateString('fr-FR')
     : undefined;
 
-  return (
-    <article className="mx-auto max-w-5xl px-4 pb-16 pt-6 sm:px-6">
+  const memorialContent = (
+    <>
       <Breadcrumb
         items={[
           { label: 'Home', href: '/' },
@@ -126,26 +128,65 @@ export default async function MemorialPage({
         coverUrl={coverUrl}
         avatarUrl={coverUrl}
         adminBadge={
-          isOwner ? (
-            <span>This page is administered by you</span>
-          ) : (
-            <span>
-              This page is administered by the family ·{' '}
-              <ButtonText
-                variant="action"
-                type="button"
-                className="!inline-flex"
-              >
-                Be an admin
-              </ButtonText>
+          <span>
+            This page is administered by{' '}
+            <span className="font-display font-bold not-italic text-foreground">
+              {isOwner ? 'you' : 'User 1'}
             </span>
+          </span>
+        }
+        adminAction={
+          !isOwner && (
+            <ButtonText variant="action" type="button">
+              Be an admin
+            </ButtonText>
           )
         }
+        sideActions={
+          <>
+            <ButtonIcon label="Play diaporama" tone="default" size="sm" className="!bg-white/20 !text-white">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </ButtonIcon>
+            <ButtonIcon label="Edit" tone="default" size="sm" className="!bg-white/20 !text-white">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
+              </svg>
+            </ButtonIcon>
+            <ButtonIcon label="Like" tone="default" size="sm" className="!bg-white/20 !text-white">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </ButtonIcon>
+            <ButtonIcon label="Share" tone="default" size="sm" className="!bg-white/20 !text-white">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+            </ButtonIcon>
+            <ButtonIcon label="Contact" tone="default" size="sm" className="!bg-white/20 !text-white">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M4 4h16v16H4z" />
+                <path d="M22 6l-10 7L2 6" />
+              </svg>
+            </ButtonIcon>
+          </>
+        }
         bioActions={
-          <ShareButtons
-            url={`${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/memorial/${memorial.slug}`}
-            title={`Mémorial de ${fullName}`}
-          />
+          <>
+            <ShareButtons
+              url={`${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/memorial/${memorial.slug}`}
+              title={`Mémorial de ${fullName}`}
+            />
+            <ButtonText variant="action" type="button">
+              Report
+            </ButtonText>
+          </>
         }
       />
 
@@ -186,6 +227,28 @@ export default async function MemorialPage({
           ]}
         />
       </div>
+    </>
+  );
+
+  // Layout : 2-col with AppSidebar left when logged in, single col anonymous.
+  if (currentUser) {
+    return (
+      <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+        <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
+          <aside className="hidden lg:block">
+            <div className="sticky top-24">
+              <AppSidebar />
+            </div>
+          </aside>
+          <main className="min-w-0">{memorialContent}</main>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <article className="mx-auto max-w-5xl px-4 pb-16 pt-6 sm:px-6">
+      {memorialContent}
     </article>
   );
 }

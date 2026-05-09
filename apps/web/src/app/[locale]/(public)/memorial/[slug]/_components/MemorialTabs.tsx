@@ -30,7 +30,7 @@ export function MemorialTabs({ tabs }: { tabs: TabItem[] }) {
       <div
         role="tablist"
         aria-label="Sections du mémorial"
-        className="flex flex-wrap gap-1 border-b border-border"
+        className="flex flex-wrap items-center justify-center gap-2 border-b border-border sm:gap-6"
       >
         {tabs.map((t, i) => {
           const selected = t.id === activeId;
@@ -46,10 +46,10 @@ export function MemorialTabs({ tabs }: { tabs: TabItem[] }) {
               onClick={() => setActiveId(t.id)}
               onKeyDown={(e) => onKeyDown(e, i)}
               className={[
-                'px-4 py-3 -mb-px border-b-2 font-display text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                'px-3 py-3 -mb-px border-b-2 font-display text-base font-bold transition-colors focus:outline-none focus-visible:underline',
                 selected
-                  ? 'border-primary text-foreground'
-                  : 'border-transparent text-muted-foreground hover:text-foreground',
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-foreground hover:text-primary',
               ].join(' ')}
             >
               {t.label}

@@ -9,9 +9,14 @@ interface MemorialHeaderCardProps {
   bio?: string | null;
   birthLine?: string;
   deathLine?: string;
+  birthCity?: string;
+  birthCountry?: string;
+  deathCity?: string;
+  deathCountry?: string;
   coverUrl?: string | null;
   avatarUrl?: string | null;
   adminBadge?: ReactNode;
+  adminAction?: ReactNode;
   sideActions?: ReactNode;
   bioActions?: ReactNode;
   className?: string;
@@ -28,9 +33,14 @@ export function MemorialHeaderCard({
   bio,
   birthLine,
   deathLine,
+  birthCity,
+  birthCountry,
+  deathCity,
+  deathCountry,
   coverUrl,
   avatarUrl,
   adminBadge,
+  adminAction,
   sideActions,
   bioActions,
   className,
@@ -75,34 +85,57 @@ export function MemorialHeaderCard({
         </div>
       </header>
 
-      <div className="flex flex-col gap-4 px-6 pb-6 pt-16 sm:px-10">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className="font-display text-2xl font-bold leading-tight text-foreground sm:text-3xl">
-              {fullName}
-              {yearLine && <span className="font-normal text-muted-foreground">, {yearLine}</span>}
-            </h1>
-            {nickname && (
-              <p className="text-base italic text-muted-foreground">« {nickname} »</p>
-            )}
+      <div className="px-6 pb-6 pt-16 sm:px-10">
+        <h1 className="font-display text-2xl font-bold leading-tight text-foreground sm:text-3xl">
+          {fullName}
+          {yearLine && <span className="font-normal text-muted-foreground">, {yearLine}</span>}
+        </h1>
+        {nickname && (
+          <p className="mt-1 text-base italic text-muted-foreground">« {nickname} »</p>
+        )}
+
+        {(adminBadge || adminAction) && (
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 text-xs">
+            {adminBadge && <span className="italic text-muted-foreground">{adminBadge}</span>}
+            {adminAction && <span className="ml-auto">{adminAction}</span>}
           </div>
-          {adminBadge && <div className="text-xs italic text-muted-foreground">{adminBadge}</div>}
-        </div>
+        )}
 
         {(birthLine || deathLine || bio) && (
-          <div className="rounded-md border-l-4 border-primary bg-surface p-4 text-sm leading-relaxed text-foreground">
+          <div className="mt-4 space-y-2 text-sm leading-relaxed text-foreground">
             {birthLine && (
               <p>
-                <strong className="font-display">Date of birth:</strong> {birthLine}
+                <strong className="font-display font-bold">Date of birth</strong> {birthLine}
+                {birthCity || birthCountry ? (
+                  <>
+                    {' '}
+                    <strong className="font-display font-bold">in</strong>{' '}
+                    {[birthCity, birthCountry].filter(Boolean).join(', ')}
+                  </>
+                ) : null}
               </p>
             )}
             {deathLine && (
               <p>
-                <strong className="font-display">Date of death:</strong> {deathLine}
+                <strong className="font-display font-bold">Date of death</strong> {deathLine}
+                {deathCity || deathCountry ? (
+                  <>
+                    {' '}
+                    <strong className="font-display font-bold">in</strong>{' '}
+                    {[deathCity, deathCountry].filter(Boolean).join(', ')}
+                  </>
+                ) : null}
               </p>
             )}
-            {bio && <p className="mt-2 whitespace-pre-line">{bio}</p>}
-            {bioActions && <div className="mt-3 flex justify-end">{bioActions}</div>}
+            {bio && (
+              <p className="mt-3 whitespace-pre-line text-foreground/80">{bio}</p>
+            )}
+          </div>
+        )}
+
+        {bioActions && (
+          <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
+            {bioActions}
           </div>
         )}
       </div>
