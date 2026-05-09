@@ -3,7 +3,6 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { Avatar } from './ui/Avatar';
-import { buttonClasses } from './ui/Button';
 
 export async function SiteHeader() {
   const [user, t] = await Promise.all([getCurrentUser(), getTranslations('header')]);
@@ -14,53 +13,49 @@ export async function SiteHeader() {
   const displayName = meta?.nickname || meta?.full_name || user?.email || '';
 
   return (
-    <header className="sticky top-0 z-[var(--z-sticky)] border-b border-border bg-white/90 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
+    <header className="sticky top-0 z-[var(--z-sticky)] bg-white">
+      <div className="mx-auto flex h-20 max-w-6xl items-center gap-6 px-4 sm:px-8">
         {/* Logo */}
-        <Link
-          href="/"
-          aria-label="Accueil Testimona"
-          className="flex shrink-0 items-center"
-        >
+        <Link href="/" aria-label="Accueil Testimona" className="flex shrink-0 items-center">
           <Image
             src="/images/logo-testimona.svg"
             alt="Testimona"
-            width={150}
-            height={48}
+            width={180}
+            height={64}
             priority
-            className="h-10 w-auto"
+            className="h-14 w-auto"
           />
         </Link>
 
-        {/* Search input — V2 inline */}
+        {/* Search input — V2 minimal nav */}
         <form
           method="get"
           action="/search"
-          className="hidden flex-1 sm:flex sm:max-w-md"
+          className="ml-auto flex max-w-md flex-1 sm:max-w-sm md:max-w-md"
           role="search"
         >
           <label htmlFor="header-search" className="sr-only">
             {t('search')}
           </label>
-          <span className="flex w-full items-center gap-2 rounded-md border border-border bg-muted px-3 transition-[border-color,box-shadow] duration-150 focus-within:border-primary focus-within:bg-white focus-within:shadow-[var(--shadow-glow-primary)]">
+          <span className="flex w-full items-center gap-3 rounded-full border border-transparent bg-[var(--color-bg-active-gray)] px-5 transition-[background-color,border-color,box-shadow] duration-150 focus-within:border-primary focus-within:bg-white focus-within:shadow-[var(--shadow-glow-primary)]">
             <input
               id="header-search"
               type="search"
               name="q"
               placeholder={t('search')}
-              className="h-9 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              className="h-10 min-w-0 flex-1 bg-transparent font-display text-sm font-medium text-foreground outline-none placeholder:font-medium placeholder:text-muted-foreground"
               autoComplete="off"
             />
             <svg
-              width="16"
-              height="16"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.75"
               strokeLinecap="round"
               aria-hidden="true"
-              className="text-muted-foreground"
+              className="shrink-0 text-muted-foreground"
             >
               <circle cx="11" cy="11" r="7" />
               <path d="M21 21l-4.3-4.3" />
@@ -68,55 +63,14 @@ export async function SiteHeader() {
           </span>
         </form>
 
-        <div className="ml-auto flex items-center gap-2 sm:gap-3">
-          {user ? (
-            <>
-              <Link
-                href="/dashboard/profile"
-                aria-label={displayName}
-                className="shrink-0"
-              >
-                <Avatar src={avatarUrl} name={displayName} size="sm" />
-              </Link>
-
-              {/* "Write a testimonial" — V2 rose pleine CTA */}
-              <Link
-                href="/dashboard/new"
-                className={buttonClasses({ variant: 'accent', size: 'md' })}
-              >
-                {t('writeTestimonial')}
-              </Link>
-
-              <form action="/auth/signout" method="post">
-                <button
-                  type="submit"
-                  className="hidden rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-block"
-                >
-                  {t('signOut')}
-                </button>
-              </form>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className={buttonClasses({
-                  variant: 'secondary',
-                  styleVariant: 'outline',
-                  size: 'sm',
-                })}
-              >
-                {t('signIn')}
-              </Link>
-              <Link
-                href="/signup"
-                className={buttonClasses({ variant: 'accent', size: 'sm' })}
-              >
-                {t('signUp')}
-              </Link>
-            </>
-          )}
-        </div>
+        {/* Avatar — anonymous → login, logged-in → profile */}
+        <Link
+          href={user ? '/dashboard/profile' : '/login'}
+          aria-label={user ? displayName || 'Mon compte' : 'Se connecter'}
+          className="shrink-0"
+        >
+          <Avatar src={avatarUrl} name={displayName || undefined} size="md" />
+        </Link>
       </div>
     </header>
   );
