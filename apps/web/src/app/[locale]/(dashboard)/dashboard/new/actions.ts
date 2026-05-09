@@ -1,11 +1,12 @@
 'use server';
 
 import { MemorialCreateSchema } from '@testimona/shared';
-import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 
 export interface NewMemorialActionState {
+  ok?: true;
+  slug?: string;
   error?: string;
   fieldErrors?: Record<string, string>;
 }
@@ -73,5 +74,5 @@ export async function createMemorialAction(
   if (error) return { error: error.message };
 
   revalidatePath('/dashboard');
-  redirect(`/memorial/${slug}`);
+  return { ok: true, slug };
 }
