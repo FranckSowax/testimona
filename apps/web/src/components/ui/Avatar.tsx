@@ -33,6 +33,9 @@ function initials(name?: string): string {
   return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || '?';
 }
 
+// V2 blob shape — organic asymmetric outline for memorial main avatars (replaces circle).
+const BLOB_RADIUS = '63% 37% 54% 46% / 55% 48% 52% 45%';
+
 export function Avatar({
   src,
   name,
@@ -43,18 +46,23 @@ export function Avatar({
   ...rest
 }: AvatarProps) {
   const px = SIZE_PX[size];
+  const isBlob = border === 'rose';
   return (
     <div
       className={[
-        'relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full',
+        'relative inline-flex shrink-0 items-center justify-center overflow-hidden',
+        isBlob ? 'border-[3px] border-accent sm:border-4' : 'rounded-full',
         'bg-surface text-foreground/70 font-display font-semibold',
-        border === 'rose' ? 'border-[3px] border-accent sm:border-4' : '',
         SIZE_TEXT[size],
         className ?? '',
       ]
         .filter(Boolean)
         .join(' ')}
-      style={{ width: px, height: px }}
+      style={{
+        width: px,
+        height: px,
+        ...(isBlob ? { borderRadius: BLOB_RADIUS } : null),
+      }}
       aria-label={name}
       {...rest}
     >
