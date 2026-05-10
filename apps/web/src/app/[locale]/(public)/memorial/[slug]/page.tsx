@@ -15,6 +15,7 @@ import { ButtonText } from '@/components/ui/ButtonText';
 import { ButtonIcon } from '@/components/ui/ButtonIcon';
 import { AppSidebar } from '@/components/AppSidebar';
 import { MemorialEditModalShell } from './_components/MemorialEditModalShell';
+import { AdminRequestModalShell } from './_components/AdminModalShells';
 
 export const revalidate = 60; // ISR — 60s
 
@@ -155,6 +156,8 @@ export default async function MemorialPage({
                 bio: memorial.description ?? '',
               }}
             />
+          ) : currentUser ? (
+            <AdminRequestModalShell memorialId={memorial.id} slug={memorial.slug} />
           ) : (
             <ButtonText variant="action" type="button">
               Be an admin
