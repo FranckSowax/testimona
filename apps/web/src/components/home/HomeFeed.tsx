@@ -2,6 +2,8 @@ import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { unsplashAvatarFor } from '@/lib/avatars';
+import { Avatar } from '@/components/ui/Avatar';
 
 interface MemorialLite {
   id: string;
@@ -76,16 +78,28 @@ export async function HomeFeed() {
                 className="animate-fade-in-up rounded-lg border border-border bg-white p-5 shadow-sm"
                 style={{ animationDelay: `${Math.min(i * 25, 200)}ms` }}
               >
-                <header className="flex items-baseline justify-between gap-3">
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                    {t('publishedOn')}{' '}
-                    <Link
-                      href={`/memorial/${memorial.slug}`}
-                      className="font-display font-semibold text-foreground hover:text-primary hover:underline"
-                    >
-                      {fullName}
-                    </Link>
-                  </p>
+                <header className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      src={unsplashAvatarFor(item.authorName)}
+                      name={item.authorName}
+                      size="sm"
+                    />
+                    <div>
+                      <p className="font-display text-sm font-semibold text-foreground">
+                        {item.authorName}
+                      </p>
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                        {t('publishedOn')}{' '}
+                        <Link
+                          href={`/memorial/${memorial.slug}`}
+                          className="font-display font-semibold text-foreground hover:text-primary hover:underline"
+                        >
+                          {fullName}
+                        </Link>
+                      </p>
+                    </div>
+                  </div>
                   <time
                     dateTime={item.createdAt}
                     className="tabular shrink-0 text-xs text-muted-foreground"
@@ -105,10 +119,7 @@ export async function HomeFeed() {
                     {item.message}
                   </p>
                 </div>
-                <footer className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs">
-                  <span className="font-display font-medium text-foreground">
-                    {item.authorName}
-                  </span>
+                <footer className="mt-4 flex items-center justify-end border-t border-border pt-3 text-xs">
                   <Link
                     href={`/memorial/${memorial.slug}#testimonial-${item.id}`}
                     className="font-medium text-primary hover:underline"
