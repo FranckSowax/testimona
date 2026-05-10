@@ -288,6 +288,8 @@
       "addEvent": "+ Ajouter un événement",
       "editMemorial": "Modifier le mémorial",
       "editBiography": "Modifier la biographie",
+      "deleteBiography": "Supprimer la biographie",
+      "deleteBiographyConfirm": "Supprimer la biographie ? Les informations seront effacées définitivement.",
       "editFuneral": "Modifier les funérailles",
       "editDonations": "Modifier les dons",
       "beAnAdmin": "Devenir admin",

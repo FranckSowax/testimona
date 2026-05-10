@@ -297,6 +297,8 @@
       "addEvent": "+ Add an event",
       "editMemorial": "Edit memorial",
       "editBiography": "Edit biography",
+      "deleteBiography": "Delete the biography",
+      "deleteBiographyConfirm": "Delete the biography? Information will be permanently erased.",
       "editFuneral": "Edit funeral info",
       "editDonations": "Edit donations",
       "beAnAdmin": "Be an admin",

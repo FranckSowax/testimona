@@ -77,6 +77,49 @@ export async function updateBiographyInfoAction(
 }
 
 /**
+ * V2 — Delete biography info (the structured fields). Keeps chapters intact —
+ * relatives can still rebuild the bio later by editing.
+ */
+export async function deleteBiographyInfoAction(
+  _prev: AdminActionState | null,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const memorialId = String(formData.get('memorialId') ?? '').trim();
+  const slug = String(formData.get('slug') ?? '').trim();
+  if (!memorialId) return { error: 'memorialId requis.' };
+
+  const owner = await ensureOwner(memorialId);
+  if (typeof owner === 'string') return { error: owner };
+  const { supabase } = owner;
+
+  const { data: bio } = await supabase
+    .from('Biography')
+    .select('id')
+    .eq('memorialId', memorialId)
+    .maybeSingle<{ id: string }>();
+
+  if (bio) {
+    const { error } = await supabase
+      .from('Biography')
+      .update({
+        username: null,
+        homeCity: null,
+        placesLived: null,
+        relatives: null,
+        religion: null,
+        education: null,
+        work: null,
+        hobby: null,
+      })
+      .eq('id', bio.id);
+    if (error) return { error: error.message };
+  }
+
+  if (slug) revalidatePath(`/memorial/${slug}`);
+  return { ok: true };
+}
+
+/**
  * V2 — Update Funeral description (PDF p42).
  */
 export async function updateFuneralInfoAction(
