@@ -72,7 +72,7 @@ export default async function RootLayout({
       lang={locale}
       className={`${ptSans.variable} ${montserrat.variable} ${caveatBrush.variable}`}
     >
-      <body className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
+      <body className="flex min-h-[100dvh] flex-col bg-background font-sans text-foreground antialiased">
         <NextIntlClientProvider messages={messages} locale={locale}>
           <ToastProvider>
             <a
