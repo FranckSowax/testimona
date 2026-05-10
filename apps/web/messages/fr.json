@@ -22,11 +22,13 @@
     "terms": "CGU",
     "language": "Langue",
     "followUs": "Suivez-nous",
+    "shareToAFriend": "Partager à un ami",
     "socialFacebook": "Facebook",
     "socialInstagram": "Instagram",
     "socialTwitter": "X (Twitter)",
     "socialLinkedin": "LinkedIn",
-    "socialWhatsapp": "WhatsApp"
+    "socialWhatsapp": "WhatsApp",
+    "socialEmail": "Email"
   },
   "home": {
     "heroSloganStart": "Célébrons ces",

@@ -22,11 +22,13 @@
     "terms": "Terms",
     "language": "Language",
     "followUs": "Follow us",
+    "shareToAFriend": "Share to a friend",
     "socialFacebook": "Facebook",
     "socialInstagram": "Instagram",
     "socialTwitter": "X (Twitter)",
     "socialLinkedin": "LinkedIn",
-    "socialWhatsapp": "WhatsApp"
+    "socialWhatsapp": "WhatsApp",
+    "socialEmail": "Email"
   },
   "home": {
     "heroSloganStart": "Let's share",
