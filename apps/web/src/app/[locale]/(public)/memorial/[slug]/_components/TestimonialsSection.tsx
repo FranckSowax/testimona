@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
-import { TestimonialForm } from './TestimonialForm';
+import { unsplashAvatarFor } from '@/lib/avatars';
+import { TestimonialModalShell } from './TestimonialModalShell';
 import { TestimonialItem, type TestimonialComment } from './TestimonialItem';
 
 interface TestimonialRow {
@@ -63,9 +64,10 @@ export async function TestimonialsSection({
   memorialId: string;
   slug: string;
 }) {
-  const [user, testimonials] = await Promise.all([
+  const [user, testimonials, memorialMeta] = await Promise.all([
     getCurrentUser(),
     getTestimonials(memorialId),
+    getMemorialMeta(memorialId),
   ]);
   const ids = testimonials.map((t) => t.id);
   const [likes, comments] = await Promise.all([getLikes(ids), getComments(ids)]);
@@ -126,13 +128,22 @@ export async function TestimonialsSection({
         </ul>
       )}
 
-      <div className="mt-8">
+      <div className="mt-8 flex justify-center">
         {user ? (
-          <TestimonialForm
+          <TestimonialModalShell
             memorialId={memorialId}
             slug={slug}
-            defaultAuthorName={
-              (user.user_metadata as { full_name?: string } | null)?.full_name ?? user.email ?? ''
+            memorialName={memorialMeta.name}
+            memorialCoverUrl={memorialMeta.coverUrl}
+            authorName={
+              (user.user_metadata as { full_name?: string; nickname?: string } | null)?.nickname ||
+              (user.user_metadata as { full_name?: string } | null)?.full_name ||
+              user.email?.split('@')[0] ||
+              'Anonyme'
+            }
+            authorAvatarUrl={
+              (user.user_metadata as { avatar_url?: string | null } | null)?.avatar_url ||
+              unsplashAvatarFor(user.email ?? user.id)
             }
           />
         ) : (
@@ -146,4 +157,31 @@ export async function TestimonialsSection({
       </div>
     </section>
   );
+}
+
+interface MemorialMetaLite {
+  firstname: string;
+  lastname: string;
+}
+
+async function getMemorialMeta(
+  memorialId: string,
+): Promise<{ name: string; coverUrl: string | null }> {
+  const supabase = await getSupabaseServer();
+  const [{ data: m }, { data: p }] = await Promise.all([
+    supabase
+      .from('Memorial')
+      .select('firstname, lastname')
+      .eq('id', memorialId)
+      .maybeSingle<MemorialMetaLite>(),
+    supabase
+      .from('Photo')
+      .select('url')
+      .eq('memorialId', memorialId)
+      .order('position', { ascending: true })
+      .limit(1)
+      .maybeSingle<{ url: string }>(),
+  ]);
+  const name = m ? `${m.firstname} ${m.lastname}`.trim() : 'Memorial';
+  return { name, coverUrl: p?.url ?? null };
 }
