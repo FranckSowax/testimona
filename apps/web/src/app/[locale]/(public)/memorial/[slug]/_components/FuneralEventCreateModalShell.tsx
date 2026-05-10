@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { ButtonOutlined } from '@/components/ui/ButtonOutlined';
 import {
   FuneralEventCreatePopup,
@@ -18,8 +19,10 @@ interface FuneralEventCreateModalShellProps {
 export function FuneralEventCreateModalShell({
   memorialId,
   slug,
-  ctaLabel = '+ Add an event',
+  ctaLabel,
 }: FuneralEventCreateModalShellProps) {
+  const tActions = useTranslations('memorial.actions');
+  const label = ctaLabel ?? tActions('addEvent');
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -63,7 +66,7 @@ export function FuneralEventCreateModalShell({
         onClick={() => setOpen(true)}
         type="button"
       >
-        {ctaLabel}
+        {label}
       </ButtonOutlined>
       <FuneralEventCreatePopup
         open={open}

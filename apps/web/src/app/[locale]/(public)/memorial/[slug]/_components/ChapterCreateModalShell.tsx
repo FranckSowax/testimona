@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { ButtonOutlined } from '@/components/ui/ButtonOutlined';
 import {
   BiographyChapterCreatePopup,
@@ -18,8 +19,10 @@ interface ChapterCreateModalShellProps {
 export function ChapterCreateModalShell({
   memorialId,
   slug,
-  ctaLabel = '+ Add a life chapter',
+  ctaLabel,
 }: ChapterCreateModalShellProps) {
+  const tActions = useTranslations('memorial.actions');
+  const label = ctaLabel ?? tActions('addLifeChapter');
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -60,7 +63,7 @@ export function ChapterCreateModalShell({
         onClick={() => setOpen(true)}
         type="button"
       >
-        {ctaLabel}
+        {label}
       </ButtonOutlined>
       <BiographyChapterCreatePopup
         open={open}

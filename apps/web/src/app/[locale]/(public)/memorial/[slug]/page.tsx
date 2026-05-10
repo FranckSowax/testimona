@@ -95,9 +95,10 @@ export default async function MemorialPage({
   if (!memorial) notFound();
 
   const fullName = [memorial.firstname, memorial.lastname].filter(Boolean).join(' ');
-  const [coverUrl, tTabs, currentUser] = await Promise.all([
+  const [coverUrl, tTabs, tBadge, currentUser] = await Promise.all([
     getCoverPhotoUrl(memorial.id),
     getTranslations('tabs'),
+    getTranslations('memorial.adminBadge'),
     getCurrentUser(),
   ]);
   const isOwner = currentUser?.id === memorial.ownerId;
@@ -131,9 +132,9 @@ export default async function MemorialPage({
         avatarUrl={coverUrl}
         adminBadge={
           <span>
-            This page is administered by{' '}
+            {tBadge('administeredBy')}{' '}
             <span className="font-display font-bold not-italic text-foreground">
-              {isOwner ? 'you' : 'User 1'}
+              {isOwner ? tBadge('you') : tBadge('family')}
             </span>
           </span>
         }

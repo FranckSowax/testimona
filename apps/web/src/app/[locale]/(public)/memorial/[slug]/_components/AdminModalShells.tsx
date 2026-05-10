@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { ButtonText } from '@/components/ui/ButtonText';
 import {
   BiographyEditPopup,
@@ -32,6 +33,7 @@ export function BiographyEditModalShell({
   slug: string;
   initial: Partial<BiographyInfoValues>;
 }) {
+  const tActions = useTranslations('memorial.actions');
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -58,7 +60,7 @@ export function BiographyEditModalShell({
   return (
     <>
       <ButtonText variant="action" type="button" onClick={() => setOpen(true)}>
-        Edit biography
+        {tActions('editBiography')}
       </ButtonText>
       <BiographyEditPopup
         open={open}
@@ -83,6 +85,7 @@ export function FuneralsEditModalShell({
   slug: string;
   initial?: string;
 }) {
+  const tActions = useTranslations('memorial.actions');
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -107,7 +110,7 @@ export function FuneralsEditModalShell({
   return (
     <>
       <ButtonText variant="action" type="button" onClick={() => setOpen(true)}>
-        Edit funeral info
+        {tActions('editFuneral')}
       </ButtonText>
       <FuneralsEditPopup
         open={open}
@@ -136,6 +139,7 @@ export function DonationsEditModalShell({
   memorialCoverUrl?: string | null;
   initial?: Partial<DonationsEditValues>;
 }) {
+  const tActions = useTranslations('memorial.actions');
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -162,7 +166,7 @@ export function DonationsEditModalShell({
   return (
     <>
       <ButtonText variant="action" type="button" onClick={() => setOpen(true)}>
-        Edit donations
+        {tActions('editDonations')}
       </ButtonText>
       <DonationsEditModal
         open={open}
@@ -187,6 +191,7 @@ export function AdminRequestModalShell({
   memorialId: string;
   slug: string;
 }) {
+  const tActions = useTranslations('memorial.actions');
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -219,7 +224,7 @@ export function AdminRequestModalShell({
         onClick={() => setOpen(true)}
         disabled={submitted}
       >
-        {submitted ? 'Request sent' : 'Be an admin'}
+        {submitted ? tActions('requestSent') : tActions('beAnAdmin')}
       </ButtonText>
       <MemorialAdminRequestPopup
         open={open}

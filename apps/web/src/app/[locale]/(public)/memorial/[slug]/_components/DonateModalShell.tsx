@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { ButtonOutlined } from '@/components/ui/ButtonOutlined';
 import {
   MyDonationCreateModal,
@@ -32,9 +33,11 @@ export function DonateModalShell({
   memorialCoverUrl,
   donorAvatarUrl,
   donorName,
-  ctaLabel = 'Make a donation',
+  ctaLabel,
   useEmbeddedPaypal = false,
 }: DonateModalShellProps) {
+  const tActions = useTranslations('memorial.actions');
+  const label = ctaLabel ?? tActions('makeDonation');
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +77,7 @@ export function DonateModalShell({
         onClick={() => setOpen(true)}
         type="button"
       >
-        {ctaLabel}
+        {label}
       </ButtonOutlined>
       <MyDonationCreateModal
         open={open}

@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   MemorialFormPopup,
   type MemorialFormValues,
@@ -20,8 +21,10 @@ export function MemorialEditModalShell({
   memorialId,
   slug,
   initial,
-  ctaLabel = 'Edit memorial',
+  ctaLabel,
 }: MemorialEditModalShellProps) {
+  const tActions = useTranslations('memorial.actions');
+  const label = ctaLabel ?? tActions('editMemorial');
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -66,7 +69,7 @@ export function MemorialEditModalShell({
   return (
     <>
       <ButtonText variant="action" type="button" onClick={() => setOpen(true)}>
-        {ctaLabel}
+        {label}
       </ButtonText>
       <MemorialFormPopup
         open={open}

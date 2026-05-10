@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { ButtonContainer } from '@/components/ui/ButtonContainer';
 import {
   MyTestimonialCreateModal,
@@ -33,8 +34,10 @@ export function TestimonialModalShell({
   memorialCoverUrl,
   authorName,
   authorAvatarUrl,
-  ctaLabel = 'Write a testimonial',
+  ctaLabel,
 }: TestimonialModalShellProps) {
+  const tActions = useTranslations('memorial.actions');
+  const label = ctaLabel ?? tActions('writeTestimonial');
   const router = useRouter();
   const [createOpen, setCreateOpen] = useState(false);
   const [thankYouOpen, setThankYouOpen] = useState(false);
@@ -73,7 +76,7 @@ export function TestimonialModalShell({
   return (
     <>
       <ButtonContainer onClick={() => setCreateOpen(true)} type="button">
-        {ctaLabel}
+        {label}
       </ButtonContainer>
       <MyTestimonialCreateModal
         open={createOpen}

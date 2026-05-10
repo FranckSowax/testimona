@@ -173,7 +173,7 @@ export function TestimonialItem({
                     onClick={() => setShowFullText(true)}
                     className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground transition-colors hover:text-accent"
                   >
-                    Read more
+                    {t('readMore')}
                   </button>
                 </>
               )}
@@ -228,7 +228,7 @@ export function TestimonialItem({
                     type="button"
                     onClick={() => setRepliesShown((n) => n + REPLIES_INCREMENT)}
                   >
-                    View more
+                    {t('viewMore')}
                   </ButtonText>
                 </div>
               )}

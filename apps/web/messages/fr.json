@@ -132,7 +132,128 @@
     "saving": "Enregistrement…",
     "deleting": "Suppression…",
     "confirmDelete": "Supprimer ce témoignage ? Cette action est irréversible.",
-    "ownerMenu": "Plus d'options"
+    "ownerMenu": "Plus d'options",
+    "readMore": "Lire la suite",
+    "viewMore": "Voir plus",
+    "publishedOn": "Publié le {date}"
+  },
+  "popups": {
+    "common": {
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "submit": "Valider",
+      "create": "Créer",
+      "confirm": "Confirmer",
+      "delete": "Supprimer",
+      "saving": "Enregistrement…",
+      "sending": "Envoi…",
+      "creating": "Création…",
+      "posting": "Publication…"
+    },
+    "testimonialCreate": {
+      "scriptTitle": "Mon témoignage",
+      "subtitle": "Créer un nouveau",
+      "memorablePrompt": "Quel est votre souvenir le plus mémorable ?",
+      "relationshipLabel": "Votre relation avec le défunt*",
+      "submit": "Publier mon témoignage",
+      "delete": "Retirer",
+      "relations": {
+        "parent": "Parent",
+        "spouse": "Conjoint(e)",
+        "partner": "Partenaire",
+        "child": "Enfant",
+        "friend": "Ami(e)",
+        "colleague": "Collègue",
+        "other": "Autre",
+        "undisclosed": "Ne souhaite pas le préciser"
+      }
+    },
+    "thankYouTestimonial": {
+      "scriptTitle": "Merci !",
+      "received": "a reçu votre témoignage",
+      "wishMessage": "Vous pouvez inclure un don pour la famille ou continuer à publier votre témoignage.",
+      "viewMemorial": "Voir la page mémoriale",
+      "includeDonation": "Inclure un don",
+      "securePayment": "Paiement sécurisé via"
+    },
+    "donationCreate": {
+      "scriptTitle": "Mon don",
+      "subtitle": "Créer un nouveau",
+      "flowersFade": "Les fleurs fanent avec le temps, mais votre don aidera certainement les proches de",
+      "messageLabel": "Ajoutez un message à délivrer avec votre don",
+      "currencyLabel": "Choisir la devise",
+      "amountLegend": "Montant du don",
+      "otherAmount": "Autre",
+      "enterAmount": "Saisir le montant",
+      "hideOption": "Masquer mon don aux autres",
+      "submit": "Envoyer le don"
+    },
+    "memorialForm": {
+      "scriptTitle": "La page mémoriale",
+      "subtitleCreate": "Créer une nouvelle",
+      "subtitleEdit": "Modifier les infos",
+      "firstname": "Prénom*",
+      "lastname": "Nom*",
+      "birthDateLegend": "Date de naissance (Année requise pour la création)",
+      "deathDateLegend": "Date de décès*",
+      "birthCountry": "Pays de naissance",
+      "birthCountryRequired": "Pays de naissance*",
+      "birthCity": "Ville de naissance",
+      "deathCountry": "Pays de décès*",
+      "deathCity": "Ville de décès",
+      "relationship": "Relation avec le défunt*",
+      "bio": "Bio (280 caractères max.)",
+      "createSubmit": "Créer le mémorial"
+    },
+    "memorialAdminRequest": {
+      "scriptTitle": "La page mémoriale",
+      "subtitle": "Demande",
+      "iWantAdmin": "Je souhaite être administrateur de cette page",
+      "addNote": "Ajouter une note"
+    },
+    "biographyEdit": {
+      "scriptTitle": "Biographie",
+      "subtitle": "Modifier les infos",
+      "username": "Nom d'utilisateur / Surnom",
+      "homeCity": "Ville de résidence",
+      "placesLived": "Lieux de vie",
+      "relatives": "Proches",
+      "religion": "Religion",
+      "education": "Éducation",
+      "work": "Travail",
+      "hobby": "Loisir"
+    },
+    "biographyChapter": {
+      "scriptTitle": "Biographie",
+      "subtitle": "Créer un nouveau",
+      "title": "Titre du chapitre",
+      "story": "Récit",
+      "addPhoto": "+ Ajouter une photo / vidéo (2 max.)",
+      "photosCount": "{count}/2 photos attachées"
+    },
+    "funeralsEdit": {
+      "scriptTitle": "Funérailles",
+      "subtitle": "Modifier les infos",
+      "info": "Information funérailles"
+    },
+    "funeralEvent": {
+      "scriptTitle": "Funérailles",
+      "subtitle": "Créer un nouveau",
+      "title": "Titre de l'événement*",
+      "date": "Date* (AAAA-MM-JJ)",
+      "starts": "Début*",
+      "ends": "Fin",
+      "url": "URL",
+      "note": "Note",
+      "location": "Lieu (adresse)"
+    },
+    "donationsEdit": {
+      "scriptTitle": "Dons",
+      "subtitle": "Modifier les infos",
+      "about": "À propos des dons*",
+      "goalAmount": "Montant objectif*",
+      "currency": "Choisir la devise*"
+    }
   },
   "report": {
     "title": "Signaler ce témoignage",
@@ -149,6 +270,23 @@
     "close": "Fermer"
   },
   "memorial": {
+    "actions": {
+      "writeTestimonial": "Écrire un témoignage",
+      "makeDonation": "Faire un don",
+      "addLifeChapter": "+ Ajouter un chapitre de vie",
+      "addEvent": "+ Ajouter un événement",
+      "editMemorial": "Modifier le mémorial",
+      "editBiography": "Modifier la biographie",
+      "editFuneral": "Modifier les funérailles",
+      "editDonations": "Modifier les dons",
+      "beAnAdmin": "Devenir admin",
+      "requestSent": "Demande envoyée"
+    },
+    "adminBadge": {
+      "administeredBy": "Cette page est administrée par",
+      "you": "vous",
+      "family": "la famille"
+    },
     "photoUploader": {
       "title": "Ajouter une photo",
       "hint": "Glissez-déposez une image ou choisissez un fichier (JPEG / PNG / WebP, 10 Mo maximum).",

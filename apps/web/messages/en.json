@@ -132,7 +132,128 @@
     "saving": "Saving…",
     "deleting": "Deleting…",
     "confirmDelete": "Delete this testimonial? This cannot be undone.",
-    "ownerMenu": "More options"
+    "ownerMenu": "More options",
+    "readMore": "Read more",
+    "viewMore": "View more",
+    "publishedOn": "Commented on {date}"
+  },
+  "popups": {
+    "common": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "submit": "Submit",
+      "create": "Create",
+      "confirm": "Confirm",
+      "delete": "Delete",
+      "saving": "Saving…",
+      "sending": "Sending…",
+      "creating": "Creating…",
+      "posting": "Posting…"
+    },
+    "testimonialCreate": {
+      "scriptTitle": "My Testimonial",
+      "subtitle": "Create a new",
+      "memorablePrompt": "What is your most memorable souvenir?",
+      "relationshipLabel": "Your relationship with the deceased*",
+      "submit": "Post my testimonial",
+      "delete": "Delete",
+      "relations": {
+        "parent": "Parent",
+        "spouse": "Spouse",
+        "partner": "Partner",
+        "child": "Child",
+        "friend": "Friend",
+        "colleague": "Colleague",
+        "other": "Other",
+        "undisclosed": "Do not wish to disclose"
+      }
+    },
+    "thankYouTestimonial": {
+      "scriptTitle": "Thank you!",
+      "received": "received your testimonial",
+      "wishMessage": "You may wish to include a donation to the family or continue posting your testimonial.",
+      "viewMemorial": "View the memorial page",
+      "includeDonation": "Include donation",
+      "securePayment": "Secure payment via"
+    },
+    "donationCreate": {
+      "scriptTitle": "My Donation",
+      "subtitle": "Create a new",
+      "flowersFade": "Flowers fade over time, but your donation will surely help the close relatives of",
+      "messageLabel": "Add a message to be delivered with your donation",
+      "currencyLabel": "Select the currency",
+      "amountLegend": "Amount of the donation",
+      "otherAmount": "Other",
+      "enterAmount": "Enter the amount",
+      "hideOption": "Hide my donation from everyone",
+      "submit": "Send donation"
+    },
+    "memorialForm": {
+      "scriptTitle": "The memorial page",
+      "subtitleCreate": "Create a new",
+      "subtitleEdit": "Edit info",
+      "firstname": "Firstname*",
+      "lastname": "Lastname*",
+      "birthDateLegend": "Date of birth (Year required for memorial creation)",
+      "deathDateLegend": "Date of death*",
+      "birthCountry": "Country of birth",
+      "birthCountryRequired": "Country of birth*",
+      "birthCity": "Birth city",
+      "deathCountry": "Country of death*",
+      "deathCity": "Death city",
+      "relationship": "Relationship with the deceased*",
+      "bio": "Bio (max 280 characters)",
+      "createSubmit": "Create memorial"
+    },
+    "memorialAdminRequest": {
+      "scriptTitle": "The memorial page",
+      "subtitle": "Request",
+      "iWantAdmin": "I want to be an administrator of this page",
+      "addNote": "Add a note"
+    },
+    "biographyEdit": {
+      "scriptTitle": "Biography",
+      "subtitle": "Edit info",
+      "username": "Username / Nickname",
+      "homeCity": "Home city",
+      "placesLived": "Places lived",
+      "relatives": "Relatives",
+      "religion": "Religion",
+      "education": "Education",
+      "work": "Work",
+      "hobby": "Hobby"
+    },
+    "biographyChapter": {
+      "scriptTitle": "Biography",
+      "subtitle": "Create a new",
+      "title": "Chapter title",
+      "story": "Story",
+      "addPhoto": "+ Add a photo / video (2 max.)",
+      "photosCount": "{count}/2 photos attached"
+    },
+    "funeralsEdit": {
+      "scriptTitle": "Funerals",
+      "subtitle": "Edit info",
+      "info": "Funeral information"
+    },
+    "funeralEvent": {
+      "scriptTitle": "Funerals",
+      "subtitle": "Create a new",
+      "title": "Event title*",
+      "date": "Date* (YYYY-MM-DD)",
+      "starts": "Starts*",
+      "ends": "Ends",
+      "url": "URL",
+      "note": "Note",
+      "location": "Location (address)"
+    },
+    "donationsEdit": {
+      "scriptTitle": "Donations",
+      "subtitle": "Edit info",
+      "about": "About the donations*",
+      "goalAmount": "Goal amount*",
+      "currency": "Choose currency*"
+    }
   },
   "report": {
     "title": "Report this testimonial",
@@ -157,6 +278,23 @@
       "uploaded": "Photo added to the gallery.",
       "errorMime": "Unsupported file type.",
       "errorSize": "File too large (max 10 MB)."
+    },
+    "actions": {
+      "writeTestimonial": "Write a testimonial",
+      "makeDonation": "Make a donation",
+      "addLifeChapter": "+ Add a life chapter",
+      "addEvent": "+ Add an event",
+      "editMemorial": "Edit memorial",
+      "editBiography": "Edit biography",
+      "editFuneral": "Edit funeral info",
+      "editDonations": "Edit donations",
+      "beAnAdmin": "Be an admin",
+      "requestSent": "Request sent"
+    },
+    "adminBadge": {
+      "administeredBy": "This page is administered by",
+      "you": "you",
+      "family": "the family"
     }
   },
   "share": {
