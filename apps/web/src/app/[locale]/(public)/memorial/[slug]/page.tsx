@@ -14,6 +14,7 @@ import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { ButtonText } from '@/components/ui/ButtonText';
 import { ButtonIcon } from '@/components/ui/ButtonIcon';
 import { AppSidebar } from '@/components/AppSidebar';
+import { MemorialEditModalShell } from './_components/MemorialEditModalShell';
 
 export const revalidate = 60; // ISR — 60s
 
@@ -136,7 +137,25 @@ export default async function MemorialPage({
           </span>
         }
         adminAction={
-          !isOwner && (
+          isOwner ? (
+            <MemorialEditModalShell
+              memorialId={memorial.id}
+              slug={memorial.slug}
+              initial={{
+                firstname: memorial.firstname,
+                lastname: memorial.lastname,
+                birthYear: memorial.birthDate
+                  ? String(new Date(memorial.birthDate).getFullYear())
+                  : '',
+                deathYear: memorial.deathDate
+                  ? String(new Date(memorial.deathDate).getFullYear())
+                  : '',
+                deathCountry: '',
+                relationship: '',
+                bio: memorial.description ?? '',
+              }}
+            />
+          ) : (
             <ButtonText variant="action" type="button">
               Be an admin
             </ButtonText>
@@ -217,12 +236,24 @@ export default async function MemorialPage({
             {
               id: 'life-details',
               label: tTabs('lifeDetails'),
-              panel: <BiographySection memorialId={memorial.id} />,
+              panel: (
+                <BiographySection
+                  memorialId={memorial.id}
+                  slug={memorial.slug}
+                  isOwner={isOwner}
+                />
+              ),
             },
             {
               id: 'funeral',
               label: tTabs('funeral'),
-              panel: <FuneralSection memorialId={memorial.id} />,
+              panel: (
+                <FuneralSection
+                  memorialId={memorial.id}
+                  slug={memorial.slug}
+                  isOwner={isOwner}
+                />
+              ),
             },
           ]}
         />
