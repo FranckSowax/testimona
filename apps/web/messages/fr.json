@@ -153,9 +153,12 @@
     "testimonialCreate": {
       "scriptTitle": "Mon témoignage",
       "subtitle": "Créer un nouveau",
+      "ariaLabel": "Créer un témoignage",
       "memorablePrompt": "Quel est votre souvenir le plus mémorable ?",
+      "sharePlaceholder": "Partagez votre souvenir…",
       "relationshipLabel": "Votre relation avec le défunt*",
       "submit": "Publier mon témoignage",
+      "posting": "Publication…",
       "delete": "Retirer",
       "relations": {
         "parent": "Parent",

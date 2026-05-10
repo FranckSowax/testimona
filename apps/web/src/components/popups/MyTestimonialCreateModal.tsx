@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Avatar } from '@/components/ui/Avatar';
 import { ButtonContainer } from '@/components/ui/ButtonContainer';
 import { ButtonText } from '@/components/ui/ButtonText';
@@ -23,16 +24,16 @@ type Relation =
   | 'other'
   | 'undisclosed';
 
-const RELATION_LABELS: Record<Relation, string> = {
-  parent: 'Parent',
-  spouse: 'Spouse',
-  partner: 'Partner',
-  child: 'Child',
-  friend: 'Friend',
-  colleague: 'Colleague',
-  other: 'Other',
-  undisclosed: 'Do not wish to disclose',
-};
+const RELATION_KEYS: Relation[] = [
+  'parent',
+  'spouse',
+  'partner',
+  'child',
+  'friend',
+  'colleague',
+  'other',
+  'undisclosed',
+];
 
 interface MyTestimonialCreateModalProps {
   open: boolean;
@@ -56,6 +57,8 @@ export function MyTestimonialCreateModal({
   onSubmit,
   submitting = false,
 }: MyTestimonialCreateModalProps) {
+  const t = useTranslations('popups.testimonialCreate');
+  const tRel = useTranslations('popups.testimonialCreate.relations');
   const [message, setMessage] = useState('');
   const [relationship, setRelationship] = useState<Relation>('friend');
 
@@ -72,9 +75,9 @@ export function MyTestimonialCreateModal({
   }
 
   return (
-    <PopupCard open={open} onClose={onClose} ariaLabel="Create a testimonial" width="lg">
+    <PopupCard open={open} onClose={onClose} ariaLabel={t('ariaLabel')} width="lg">
       <div className="space-y-5">
-        <PopupHeader scriptTitle="My Testimonial" subtitle="Create a new" />
+        <PopupHeader scriptTitle={t('scriptTitle')} subtitle={t('subtitle')} />
 
         <div className="flex justify-center">
           <Avatar src={authorAvatarUrl} name={authorName} size="lg" />
@@ -92,7 +95,7 @@ export function MyTestimonialCreateModal({
               {preselectedMemorial.name}
             </p>
             <ButtonText variant="action" type="button" onClick={onClose}>
-              Delete
+              {t('delete')}
             </ButtonText>
           </div>
         )}
@@ -100,12 +103,12 @@ export function MyTestimonialCreateModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block">
             <span className="block font-display text-sm font-medium text-muted-foreground">
-              What is your most memorable souvenir?
+              {t('memorablePrompt')}
             </span>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Share your memory…"
+              placeholder={t('sharePlaceholder')}
               required
               rows={5}
               className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
@@ -114,16 +117,16 @@ export function MyTestimonialCreateModal({
 
           <label className="block">
             <span className="block font-display text-sm font-medium text-muted-foreground">
-              Your relationship with the deceased*
+              {t('relationshipLabel')}
             </span>
             <select
               value={relationship}
               onChange={(e) => setRelationship(e.target.value as Relation)}
               className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
             >
-              {(Object.keys(RELATION_LABELS) as Relation[]).map((key) => (
+              {RELATION_KEYS.map((key) => (
                 <option key={key} value={key}>
-                  {RELATION_LABELS[key]}
+                  {tRel(key)}
                 </option>
               ))}
             </select>
@@ -135,7 +138,7 @@ export function MyTestimonialCreateModal({
               loading={submitting}
               disabled={!message.trim() || !preselectedMemorial?.id}
             >
-              {submitting ? 'Posting…' : 'Post my testimonial'}
+              {submitting ? t('posting') : t('submit')}
             </ButtonContainer>
           </div>
         </form>

@@ -153,9 +153,12 @@
     "testimonialCreate": {
       "scriptTitle": "My Testimonial",
       "subtitle": "Create a new",
+      "ariaLabel": "Create a testimonial",
       "memorablePrompt": "What is your most memorable souvenir?",
+      "sharePlaceholder": "Share your memory…",
       "relationshipLabel": "Your relationship with the deceased*",
       "submit": "Post my testimonial",
+      "posting": "Posting…",
       "delete": "Delete",
       "relations": {
         "parent": "Parent",
