@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { FuneralEventCreateModalShell } from './FuneralEventCreateModalShell';
 
@@ -36,7 +37,10 @@ export async function FuneralSection({
   slug?: string;
   isOwner?: boolean;
 }) {
-  const events = await getFuneralEvents(memorialId);
+  const [events, t] = await Promise.all([
+    getFuneralEvents(memorialId),
+    getTranslations('memorial.funeralSection'),
+  ]);
 
   return (
     <section aria-labelledby="funeral-heading" className="space-y-4">
@@ -45,7 +49,7 @@ export async function FuneralSection({
           id="funeral-heading"
           className="font-display text-base font-bold text-foreground"
         >
-          Funeral information
+          {t('heading')}
         </h2>
       </header>
 

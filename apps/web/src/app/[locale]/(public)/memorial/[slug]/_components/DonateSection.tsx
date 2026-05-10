@@ -67,7 +67,6 @@ export async function DonateSection({
           memorialCoverUrl={meta.coverUrl}
           donorAvatarUrl={donorAvatarUrl}
           donorName={donorName}
-          ctaLabel="Make a donation"
         />
       </div>
 

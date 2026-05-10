@@ -186,7 +186,11 @@
       "otherAmount": "Other",
       "enterAmount": "Enter the amount",
       "hideOption": "Hide my donation from everyone",
-      "submit": "Send donation"
+      "submit": "Send donation",
+      "sending": "Sending…",
+      "ariaLabel": "Create a donation",
+      "securePayment": "Secure payment via",
+      "paypalPlaceholder": "PAYPAL SCREEN HERE (dev placeholder)"
     },
     "memorialForm": {
       "scriptTitle": "The memorial page",
@@ -295,6 +299,17 @@
       "administeredBy": "This page is administered by",
       "you": "you",
       "family": "the family"
+    },
+    "headerCard": {
+      "dateOfBirth": "Date of birth",
+      "dateOfDeath": "Date of death",
+      "inLocation": "in"
+    },
+    "biographySection": {
+      "heading": "A little more about our loved one"
+    },
+    "funeralSection": {
+      "heading": "Funeral information"
     }
   },
   "share": {

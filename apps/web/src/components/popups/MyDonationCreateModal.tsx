@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Avatar } from '@/components/ui/Avatar';
 import { ButtonOutlined } from '@/components/ui/ButtonOutlined';
 import { PopupCard, PopupHeader } from './PopupCard';
@@ -41,6 +42,7 @@ export function MyDonationCreateModal({
   onSubmit,
   submitting = false,
 }: MyDonationCreateModalProps) {
+  const t = useTranslations('popups.donationCreate');
   const [currency, setCurrency] = useState('EUR');
   const [presetAmount, setPresetAmount] = useState<number | 'other' | null>(20);
   const [otherAmount, setOtherAmount] = useState('');
@@ -62,9 +64,9 @@ export function MyDonationCreateModal({
   }
 
   return (
-    <PopupCard open={open} onClose={onClose} ariaLabel="Create a donation" width="xl">
+    <PopupCard open={open} onClose={onClose} ariaLabel={t('ariaLabel')} width="xl">
       <div className="space-y-5">
-        <PopupHeader scriptTitle="My Donation" subtitle="Create a new" />
+        <PopupHeader scriptTitle={t('scriptTitle')} subtitle={t('subtitle')} />
 
         <div className="flex items-center justify-center gap-3">
           <Avatar src={memorialCoverUrl} name={memorialName} size="md" border="rose" />
@@ -76,14 +78,14 @@ export function MyDonationCreateModal({
         </div>
 
         <p className="text-center text-sm leading-relaxed text-muted-foreground">
-          Flowers fade over time, but your donation will surely help the close relatives of{' '}
+          {t('flowersFade')}{' '}
           <span className="font-display font-bold text-foreground">{memorialName}</span>.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block">
             <span className="block font-display text-sm font-medium text-muted-foreground">
-              Add a message to be delivered with your donation
+              {t('messageLabel')}
             </span>
             <textarea
               value={message}
@@ -95,7 +97,7 @@ export function MyDonationCreateModal({
 
           <label className="block">
             <span className="block font-display text-sm font-medium text-muted-foreground">
-              Select the currency
+              {t('currencyLabel')}
             </span>
             <select
               value={currency}
@@ -112,7 +114,7 @@ export function MyDonationCreateModal({
 
           <fieldset className="space-y-2">
             <legend className="block font-display text-sm font-medium text-muted-foreground">
-              Amount of the donation
+              {t('amountLegend')}
             </legend>
             <div className="flex flex-wrap gap-2">
               {PRESETS.map((amount) => {
@@ -145,7 +147,7 @@ export function MyDonationCreateModal({
                     : 'border-accent/40 text-accent hover:bg-[var(--color-bg-hover-pink)]',
                 ].join(' ')}
               >
-                Other
+                {t('otherAmount')}
               </button>
             </div>
             {presetAmount === 'other' && (
@@ -155,7 +157,7 @@ export function MyDonationCreateModal({
                 step="0.01"
                 value={otherAmount}
                 onChange={(e) => setOtherAmount(e.target.value)}
-                placeholder="Enter the amount"
+                placeholder={t('enterAmount')}
                 required
                 className="mt-2 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
               />
@@ -169,7 +171,7 @@ export function MyDonationCreateModal({
               onChange={(e) => setHide(e.target.checked)}
               className="mt-0.5 h-5 w-5 cursor-pointer rounded border-2 border-border accent-primary"
             />
-            <span className="text-foreground">Hide my donation from everyone</span>
+            <span className="text-foreground">{t('hideOption')}</span>
           </label>
 
           {useEmbeddedPaypal && (
@@ -179,7 +181,7 @@ export function MyDonationCreateModal({
               style={{ height: 340 }}
             >
               <p className="text-sm font-medium text-muted-foreground">
-                ÉCRAN PAYPAL ICI (placeholder dev)
+                {t('paypalPlaceholder')}
               </p>
             </div>
           )}
@@ -192,13 +194,13 @@ export function MyDonationCreateModal({
               loading={submitting}
               disabled={finalAmount <= 0}
             >
-              {submitting ? 'Sending…' : 'Send donation'}
+              {submitting ? t('sending') : t('submit')}
             </ButtonOutlined>
           </div>
         </form>
 
         <footer className="border-t border-border pt-3 text-center text-xs text-muted-foreground">
-          Secure payment via{' '}
+          {t('securePayment')}{' '}
           <span className="font-display font-bold text-foreground">
             PayPal · VISA · Mastercard · Amex · Discover
           </span>

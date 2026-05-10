@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { ChapterCreateModalShell } from './ChapterCreateModalShell';
 
@@ -35,7 +36,10 @@ export async function BiographySection({
   slug?: string;
   isOwner?: boolean;
 }) {
-  const chapters = await getBiographyChapters(memorialId);
+  const [chapters, t] = await Promise.all([
+    getBiographyChapters(memorialId),
+    getTranslations('memorial.biographySection'),
+  ]);
 
   return (
     <section aria-labelledby="biography-heading" className="space-y-6">
@@ -44,7 +48,7 @@ export async function BiographySection({
           id="biography-heading"
           className="font-display text-base font-bold text-foreground"
         >
-          All little more about our loved one
+          {t('heading')}
         </h2>
       </header>
 

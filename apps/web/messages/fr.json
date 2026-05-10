@@ -186,7 +186,11 @@
       "otherAmount": "Autre",
       "enterAmount": "Saisir le montant",
       "hideOption": "Masquer mon don aux autres",
-      "submit": "Envoyer le don"
+      "submit": "Envoyer le don",
+      "sending": "Envoi…",
+      "ariaLabel": "Créer un don",
+      "securePayment": "Paiement sécurisé via",
+      "paypalPlaceholder": "Écran PayPal ici (placeholder dev)"
     },
     "memorialForm": {
       "scriptTitle": "La page mémoriale",
@@ -286,6 +290,17 @@
       "administeredBy": "Cette page est administrée par",
       "you": "vous",
       "family": "la famille"
+    },
+    "headerCard": {
+      "dateOfBirth": "Date de naissance",
+      "dateOfDeath": "Date de décès",
+      "inLocation": "à"
+    },
+    "biographySection": {
+      "heading": "Un peu plus à propos de notre proche"
+    },
+    "funeralSection": {
+      "heading": "Informations sur les funérailles"
     },
     "photoUploader": {
       "title": "Ajouter une photo",

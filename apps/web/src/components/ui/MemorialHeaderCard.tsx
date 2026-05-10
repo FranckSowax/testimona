@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import type { ReactNode } from 'react';
+import { getTranslations } from 'next-intl/server';
 import { Avatar } from './Avatar';
 
 interface MemorialHeaderCardProps {
@@ -26,7 +27,7 @@ interface MemorialHeaderCardProps {
  * V2 MemorialHeaderCard — bandeau photo de fond + avatar bordure rose 4px débordant
  * + nom + dates + relation admin + side action panel (5 icônes verticales rose semi-transparent).
  */
-export function MemorialHeaderCard({
+export async function MemorialHeaderCard({
   fullName,
   yearLine,
   nickname,
@@ -45,6 +46,7 @@ export function MemorialHeaderCard({
   bioActions,
   className,
 }: MemorialHeaderCardProps) {
+  const t = await getTranslations('memorial.headerCard');
   return (
     <article
       className={[
@@ -105,11 +107,11 @@ export function MemorialHeaderCard({
           <div className="mt-4 space-y-2 text-sm leading-relaxed text-foreground">
             {birthLine && (
               <p>
-                <strong className="font-display font-bold">Date of birth</strong> {birthLine}
+                <strong className="font-display font-bold">{t('dateOfBirth')}</strong> {birthLine}
                 {birthCity || birthCountry ? (
                   <>
                     {' '}
-                    <strong className="font-display font-bold">in</strong>{' '}
+                    <strong className="font-display font-bold">{t('inLocation')}</strong>{' '}
                     {[birthCity, birthCountry].filter(Boolean).join(', ')}
                   </>
                 ) : null}
@@ -117,11 +119,11 @@ export function MemorialHeaderCard({
             )}
             {deathLine && (
               <p>
-                <strong className="font-display font-bold">Date of death</strong> {deathLine}
+                <strong className="font-display font-bold">{t('dateOfDeath')}</strong> {deathLine}
                 {deathCity || deathCountry ? (
                   <>
                     {' '}
-                    <strong className="font-display font-bold">in</strong>{' '}
+                    <strong className="font-display font-bold">{t('inLocation')}</strong>{' '}
                     {[deathCity, deathCountry].filter(Boolean).join(', ')}
                   </>
                 ) : null}
