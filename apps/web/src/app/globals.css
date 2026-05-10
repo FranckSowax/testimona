@@ -171,6 +171,11 @@
   to { opacity: 0.4; transform: translateY(8%); }
 }
 
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
 /* ===== Animation utilities ===== */
 .animate-fade-in-up {
   animation: fade-in-up var(--motion-base) var(--motion-ease-out) both;
@@ -180,6 +185,9 @@
 }
 .animate-pop-in {
   animation: pop-in var(--motion-slow) var(--motion-spring) both;
+}
+.animate-slide-in-left {
+  animation: slide-in-left var(--motion-base) var(--motion-ease-out) both;
 }
 .animate-spin-slow {
   animation: spin 1s linear infinite;

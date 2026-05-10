@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Link, usePathname } from '@/i18n/navigation';
 
 interface MobileNavItem {
@@ -58,59 +59,140 @@ interface Props {
 
 export function DashboardMobileNav({ labels, notificationsBadge }: Props) {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [open]);
 
   return (
-    <nav
-      aria-label={labels.aria}
-      className="-mx-4 mb-6 overflow-x-auto border-b border-border lg:hidden"
-    >
-      <ul className="flex min-w-full items-stretch gap-1 px-4">
-        {ITEMS.map((item) => {
-          const active =
-            item.href === '/' || item.href === '/dashboard'
-              ? pathname === item.href
-              : pathname?.startsWith(item.href) ?? false;
-          const showDot = item.labelKey === 'notifications' && notificationsBadge > 0;
-          return (
-            <li key={item.href} className="shrink-0">
-              <Link
-                href={item.href}
-                aria-current={active ? 'page' : undefined}
-                className={[
-                  'flex flex-col items-center justify-center gap-1 px-3 py-2.5 font-display text-xs font-bold whitespace-nowrap',
-                  'transition-colors duration-150 border-b-2 -mb-px',
-                  active
-                    ? 'text-primary border-primary'
-                    : 'text-secondary border-transparent hover:text-primary',
-                ].join(' ')}
+    <div className="lg:hidden">
+      <button
+        type="button"
+        aria-label={labels.aria}
+        aria-expanded={open}
+        aria-controls="dashboard-mobile-drawer"
+        onClick={() => setOpen(true)}
+        className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-md border border-border bg-white text-secondary transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      >
+        <span className="relative inline-flex">
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          {notificationsBadge > 0 && (
+            <span
+              aria-hidden="true"
+              className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-white"
+            />
+          )}
+        </span>
+      </button>
+
+      {open && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={labels.aria}
+          id="dashboard-mobile-drawer"
+          className="fixed inset-0 z-[var(--z-modal)]"
+        >
+          <button
+            type="button"
+            aria-label="Fermer le menu"
+            onClick={() => setOpen(false)}
+            className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
+          />
+          <aside className="animate-slide-in-left relative z-10 flex h-[100dvh] w-[280px] max-w-[85vw] flex-col gap-4 bg-white p-5 shadow-[var(--shadow-overlay)]">
+            <div className="flex items-center justify-between">
+              <p className="font-display text-base font-bold text-secondary">{labels.aria}</p>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Fermer"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground hover:bg-surface hover:text-foreground"
               >
-                <span className="relative inline-flex h-6 w-6 items-center justify-center">
-                  <svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
+                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M6 6l12 12M18 6L6 18"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="1.75"
+                    strokeWidth="2"
                     strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <nav aria-label={labels.aria} className="flex flex-col gap-1.5">
+              {ITEMS.map((item) => {
+                const active =
+                  item.href === '/' || item.href === '/dashboard'
+                    ? pathname === item.href
+                    : pathname?.startsWith(item.href) ?? false;
+                const showDot = item.labelKey === 'notifications' && notificationsBadge > 0;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? 'page' : undefined}
+                    onClick={() => setOpen(false)}
+                    className={[
+                      'group flex items-center gap-3 rounded-md px-2 py-3 font-display text-base font-bold',
+                      'transition-colors duration-150',
+                      active ? 'text-primary' : 'text-secondary hover:text-primary',
+                    ].join(' ')}
                   >
-                    <path d={item.iconPath} />
-                  </svg>
-                  {showDot && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-destructive ring-2 ring-white"
-                    />
-                  )}
-                </span>
-                <span>{labels[item.labelKey]}</span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
+                    <span className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center">
+                      <svg
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d={item.iconPath} />
+                      </svg>
+                      {showDot && (
+                        <span
+                          aria-hidden="true"
+                          className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-white"
+                        />
+                      )}
+                    </span>
+                    <span className="flex-1">{labels[item.labelKey]}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </aside>
+        </div>
+      )}
+    </div>
   );
 }
