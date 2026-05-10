@@ -2,25 +2,53 @@ import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
+import { getUnseenNotificationsCount } from '@/lib/notifications/count';
 import { Avatar } from './ui/Avatar';
 import { LocaleSwitcher } from './LocaleSwitcher';
 import { HeaderCreateMemorialButton } from './HeaderCreateMemorialButton';
+import { MobileHamburgerMenu } from './MobileHamburgerMenu';
 
 export async function SiteHeader() {
-  const [user, t, tHome] = await Promise.all([
+  const [user, t, tHome, tHeader, tNav, tFooter, badge] = await Promise.all([
     getCurrentUser(),
     getTranslations('header'),
     getTranslations('home.sidebar'),
+    getTranslations('header'),
+    getTranslations('dashboard.nav'),
+    getTranslations('footer'),
+    getUnseenNotificationsCount(),
   ]);
   const meta = (user?.user_metadata ?? null) as
     | { avatar_url?: string | null; full_name?: string | null; nickname?: string | null }
     | null;
   const avatarUrl = meta?.avatar_url ?? null;
   const displayName = meta?.nickname || meta?.full_name || user?.email || '';
+  const menuLabels = {
+    menu: tHeader('home'),
+    home: tHeader('home'),
+    memorials: tNav('memorials'),
+    testimonials: tNav('testimonials'),
+    notifications: tNav('notifications'),
+    settings: tNav('settings'),
+    signIn: tHeader('signIn'),
+    signUp: tHeader('signUp'),
+    signOut: tHeader('signOut'),
+    about: tFooter('about'),
+    faq: tFooter('faq'),
+    terms: tFooter('terms'),
+    privacy: tFooter('privacy'),
+  };
 
   return (
     <header className="sticky top-0 z-[var(--z-sticky)] bg-white">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-3 sm:h-20 sm:gap-6 sm:px-8">
+        {/* Hamburger menu — mobile/tablet only */}
+        <MobileHamburgerMenu
+          isLoggedIn={!!user}
+          notificationsBadge={badge}
+          labels={menuLabels}
+        />
+
         {/* Logo */}
         <Link href="/" aria-label="Accueil Testimona" className="flex shrink-0 items-center">
           <Image
