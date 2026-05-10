@@ -20,7 +20,7 @@ export async function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-[var(--z-sticky)] bg-white">
-      <div className="mx-auto flex h-20 max-w-6xl items-center gap-6 px-4 sm:px-8">
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-3 sm:h-20 sm:gap-6 sm:px-8">
         {/* Logo */}
         <Link href="/" aria-label="Accueil Testimona" className="flex shrink-0 items-center">
           <Image
@@ -29,15 +29,15 @@ export async function SiteHeader() {
             width={180}
             height={64}
             priority
-            className="h-14 w-auto"
+            className="h-10 w-auto sm:h-14"
           />
         </Link>
 
-        {/* Search input — V2 minimal nav */}
+        {/* Search input — hidden on small screens to avoid overflow */}
         <form
           method="get"
           action="/search"
-          className="ml-auto flex max-w-md flex-1 sm:max-w-sm md:max-w-md"
+          className="ml-auto hidden max-w-md flex-1 sm:flex sm:max-w-sm md:max-w-md"
           role="search"
         >
           <label htmlFor="header-search" className="sr-only">
@@ -49,7 +49,7 @@ export async function SiteHeader() {
               type="search"
               name="q"
               placeholder={t('search')}
-              className="h-10 min-w-0 flex-1 bg-transparent font-display text-sm font-medium text-foreground outline-none placeholder:font-medium placeholder:text-muted-foreground"
+              className="h-11 min-w-0 flex-1 bg-transparent font-display text-sm font-medium text-foreground outline-none placeholder:font-medium placeholder:text-muted-foreground"
               autoComplete="off"
             />
             <svg
@@ -69,10 +69,17 @@ export async function SiteHeader() {
           </span>
         </form>
 
-        {/* Create memorial CTA — visible on memorials list and memorial pages only */}
-        {user && <HeaderCreateMemorialButton label={tHome('createMemorial')} />}
+        {/* Spacer for mobile when search is hidden */}
+        <div className="ml-auto sm:hidden" aria-hidden="true" />
 
-        {/* Locale switcher */}
+        {/* Create memorial CTA — hidden on mobile */}
+        {user && (
+          <div className="hidden sm:block">
+            <HeaderCreateMemorialButton label={tHome('createMemorial')} />
+          </div>
+        )}
+
+        {/* Locale switcher — compact on mobile */}
         <LocaleSwitcher />
 
         {/* Avatar — anonymous → login, logged-in → profile */}

@@ -57,7 +57,7 @@ export async function MemorialHeaderCard({
         .join(' ')}
     >
       <header className="relative">
-        <div className="relative aspect-[16/6] w-full bg-secondary">
+        <div className="relative aspect-[4/3] w-full bg-secondary sm:aspect-[16/6]">
           {coverUrl ? (
             <Image src={coverUrl} alt="" fill sizes="100vw" priority className="object-cover" />
           ) : null}
@@ -76,19 +76,19 @@ export async function MemorialHeaderCard({
           )}
         </div>
 
-        <div className="absolute -bottom-12 left-6 sm:left-10">
+        <div className="absolute -bottom-10 left-4 sm:-bottom-12 sm:left-10">
           <Avatar
             src={avatarUrl}
             name={fullName}
-            size="xl"
+            size="lg"
             border="rose"
-            className="ring-4 ring-white"
+            className="ring-4 ring-white sm:!h-20 sm:!w-20"
           />
         </div>
       </header>
 
-      <div className="px-6 pb-6 pt-16 sm:px-10">
-        <h1 className="font-display text-2xl font-bold leading-tight text-foreground sm:text-3xl">
+      <div className="px-4 pb-6 pt-14 sm:px-10 sm:pt-16">
+        <h1 className="font-display text-xl font-bold leading-tight text-foreground sm:text-3xl">
           {fullName}
           {yearLine && <span className="font-normal text-muted-foreground">, {yearLine}</span>}
         </h1>

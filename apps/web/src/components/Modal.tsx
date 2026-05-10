@@ -37,14 +37,14 @@ export function Modal({
       aria-label={ariaLabel}
       onClose={dismiss}
       onClick={onBackdropClick}
-      className="m-0 w-full max-w-md rounded-2xl border border-border bg-white p-0 shadow-[var(--shadow-overlay)] backdrop:bg-foreground/40 backdrop:backdrop-blur-sm sm:m-auto"
+      className="mx-auto my-0 w-[calc(100%-1rem)] max-w-md max-h-[calc(100dvh-1rem)] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-white p-0 shadow-[var(--shadow-overlay)] backdrop:bg-foreground/40 backdrop:backdrop-blur-sm sm:my-auto sm:max-h-[calc(100vh-2rem)]"
     >
-      <div className="animate-pop-in relative p-6">
+      <div className="animate-pop-in relative p-4 sm:p-6">
         <button
           type="button"
           aria-label="Fermer"
           onClick={dismiss}
-          className="absolute right-3 top-3 rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="absolute right-2 top-2 inline-flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:right-3 sm:top-3"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
             <path

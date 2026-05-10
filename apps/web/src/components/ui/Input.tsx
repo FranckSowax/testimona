@@ -17,7 +17,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
  */
 export const fieldClasses = [
   'block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)]',
-  'px-4 py-3 text-[15px] font-semibold text-foreground',
+  'px-4 py-3 text-base font-semibold text-foreground sm:text-[15px]',
   'placeholder:font-medium placeholder:text-muted-foreground',
   'transition-[background-color,border-color,box-shadow] duration-150 ease-[var(--motion-ease-out)]',
   'focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]',
@@ -31,7 +31,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   if (iconLeft || iconRight) {
     const wrapperClasses = [
       'flex items-center gap-2 rounded-md border border-transparent bg-[var(--color-bg-active-gray)]',
-      'px-3 py-2.5 text-[15px] text-foreground',
+      'px-3 py-2.5 text-base text-foreground sm:text-[15px]',
       'transition-[background-color,border-color,box-shadow] duration-150',
       'focus-within:bg-white focus-within:border-primary focus-within:shadow-[var(--shadow-glow-primary)]',
       invalid

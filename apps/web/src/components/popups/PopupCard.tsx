@@ -65,24 +65,25 @@ export function PopupCard({
         if (e.target === dialogRef.current) onClose();
       }}
       className={[
-        'm-0 w-full p-0',
+        'mx-auto my-0 w-[calc(100%-1rem)] max-h-[calc(100dvh-1rem)] p-0',
+        'sm:my-auto sm:max-h-[calc(100vh-2rem)]',
         WIDTH[width],
         'rounded-2xl border border-border bg-white shadow-[var(--shadow-overlay)]',
         'backdrop:bg-foreground/40 backdrop:backdrop-blur-sm',
-        'sm:m-auto',
+        'overflow-y-auto overscroll-contain',
         className ?? '',
       ]
         .filter(Boolean)
         .join(' ')}
     >
-      <div className="animate-pop-in relative p-6">
+      <div className="animate-pop-in relative p-4 sm:p-6">
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-[var(--color-bg-hover-gray)] hover:text-foreground"
+          className="absolute right-2 top-2 inline-flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-[var(--color-bg-hover-gray)] hover:text-foreground sm:right-3 sm:top-3"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
             <path
               d="M6 6l12 12M18 6L6 18"
               fill="none"
