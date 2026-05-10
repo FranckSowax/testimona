@@ -23,7 +23,7 @@ export default async function LoginModalPage({
           Créer un compte
         </Link>
       </p>
-      <LoginForm searchParamsPromise={searchParams} />
+      <LoginForm />
     </Modal>
   );
 }

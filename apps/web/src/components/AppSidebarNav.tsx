@@ -1,7 +1,6 @@
 'use client';
 
 import { Link, usePathname } from '@/i18n/navigation';
-import { Badge } from './ui/Badge';
 
 interface NavItem {
   href:
@@ -23,7 +22,7 @@ const ITEMS: NavItem[] = [
   {
     href: '/dashboard/testimonials',
     labelKey: 'testimonials',
-    iconPath: 'M21 15a4 4 0 0 1-4 4H8l-5 3v-6.5A4.5 4.5 0 0 1 7.5 11H17a4 4 0 0 1 4 4Z',
+    iconPath: 'M21 12a8 8 0 0 1-11.4 7.3L3 21l1.7-5.6A8 8 0 1 1 21 12Z',
   },
   {
     href: '/dashboard/notifications',
@@ -34,7 +33,8 @@ const ITEMS: NavItem[] = [
   {
     href: '/dashboard',
     labelKey: 'memorials',
-    iconPath: 'M3 7l9-4 9 4M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5',
+    iconPath:
+      'M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Zm3 4h10M7 13h10M7 17h6',
   },
   {
     href: '/dashboard/profile',
@@ -60,42 +60,46 @@ export function AppSidebarNav({ labels, notificationsBadge }: Props) {
   const pathname = usePathname();
 
   return (
-    <nav aria-label={labels.aria} className="flex flex-col gap-1">
+    <nav aria-label={labels.aria} className="flex flex-col gap-1.5">
       {ITEMS.map((item) => {
         const active =
           item.href === '/' || item.href === '/dashboard'
             ? pathname === item.href
             : pathname?.startsWith(item.href) ?? false;
-        const badge = item.labelKey === 'notifications' ? notificationsBadge : 0;
+        const showDot = item.labelKey === 'notifications' && notificationsBadge > 0;
         return (
           <Link
             key={item.href}
             href={item.href}
             aria-current={active ? 'page' : undefined}
             className={[
-              'group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium',
+              'group flex items-center gap-3 rounded-md px-2 py-2.5 font-display text-base font-bold',
               'transition-colors duration-150 ease-[var(--motion-ease-out)]',
-              active
-                ? 'bg-primary/10 text-primary'
-                : 'text-foreground/70 hover:bg-surface hover:text-foreground',
+              active ? 'text-primary' : 'text-secondary hover:text-primary',
             ].join(' ')}
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-              className="shrink-0"
-            >
-              <path d={item.iconPath} />
-            </svg>
+            <span className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d={item.iconPath} />
+              </svg>
+              {showDot && (
+                <span
+                  aria-hidden="true"
+                  className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-white"
+                />
+              )}
+            </span>
             <span className="flex-1">{labels[item.labelKey]}</span>
-            <Badge tone="accent" count={badge} />
           </Link>
         );
       })}

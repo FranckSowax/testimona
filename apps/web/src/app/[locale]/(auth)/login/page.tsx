@@ -31,7 +31,7 @@ export default async function LoginPage({
               Créer un compte
             </Link>
           </p>
-          <LoginForm searchParamsPromise={searchParams} />
+          <LoginForm />
           <p className="mt-6 text-center text-sm">
             <Link
               href="/forgot-password"

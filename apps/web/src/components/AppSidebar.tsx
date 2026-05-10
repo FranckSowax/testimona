@@ -1,24 +1,15 @@
 import { getTranslations } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
 import { getUnseenNotificationsCount } from '@/lib/notifications/count';
-import { buttonClasses } from './ui/Button';
 import { AppSidebarNav } from './AppSidebarNav';
 
 export async function AppSidebar() {
-  const [t, navT, badge] = await Promise.all([
-    getTranslations('home.sidebar'),
+  const [navT, badge] = await Promise.all([
     getTranslations('dashboard.nav'),
     getUnseenNotificationsCount(),
   ]);
 
   return (
-    <aside aria-label={navT('aria')} className="space-y-4">
-      <Link
-        href="/dashboard/new"
-        className={buttonClasses({ variant: 'primary', fullWidth: true })}
-      >
-        {t('createMemorial')}
-      </Link>
+    <aside aria-label={navT('aria')} className="space-y-6">
       <AppSidebarNav
         labels={{
           home: navT('home'),
@@ -30,6 +21,13 @@ export async function AppSidebar() {
         }}
         notificationsBadge={badge}
       />
+
+      <div
+        aria-label="Advertisement placeholder"
+        className="h-[420px] rounded-md border border-border bg-white p-4"
+      >
+        <p className="text-xs text-muted-foreground">Ads here</p>
+      </div>
     </aside>
   );
 }

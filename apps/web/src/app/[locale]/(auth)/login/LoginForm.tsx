@@ -1,18 +1,15 @@
 'use client';
 
-import { use, useActionState, useEffect } from 'react';
+import { useActionState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { loginAction, loginWithGoogleAction, type LoginActionState } from './actions';
 
-export function LoginForm({
-  searchParamsPromise,
-}: {
-  searchParamsPromise: Promise<{ next?: string; error?: string }>;
-}) {
-  const searchParams = use(searchParamsPromise);
+export function LoginForm() {
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [state, formAction, isPending] = useActionState<LoginActionState | null, FormData>(
     loginAction,
@@ -21,14 +18,12 @@ export function LoginForm({
 
   useEffect(() => {
     if (state?.ok) {
-      const target =
-        searchParams.next && searchParams.next.startsWith('/')
-          ? searchParams.next
-          : '/dashboard';
+      const next = searchParams.get('next');
+      const target = next && next.startsWith('/') ? next : '/dashboard';
       router.replace(target);
       router.refresh();
     }
-  }, [state, router, searchParams.next]);
+  }, [state, router, searchParams]);
 
   return (
     <div className="mt-8 space-y-5">

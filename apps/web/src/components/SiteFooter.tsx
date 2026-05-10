@@ -1,7 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
-import { LocaleSwitcher } from './LocaleSwitcher';
 
 export async function SiteFooter() {
   const [t, user] = await Promise.all([getTranslations('footer'), getCurrentUser()]);
@@ -60,11 +59,6 @@ export async function SiteFooter() {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-2">
-          <span className="border-l border-border pl-4">
-            <LocaleSwitcher />
-          </span>
-        </div>
       </div>
     </footer>
   );

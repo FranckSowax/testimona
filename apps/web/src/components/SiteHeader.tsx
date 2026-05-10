@@ -3,9 +3,15 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { Avatar } from './ui/Avatar';
+import { LocaleSwitcher } from './LocaleSwitcher';
+import { HeaderCreateMemorialButton } from './HeaderCreateMemorialButton';
 
 export async function SiteHeader() {
-  const [user, t] = await Promise.all([getCurrentUser(), getTranslations('header')]);
+  const [user, t, tHome] = await Promise.all([
+    getCurrentUser(),
+    getTranslations('header'),
+    getTranslations('home.sidebar'),
+  ]);
   const meta = (user?.user_metadata ?? null) as
     | { avatar_url?: string | null; full_name?: string | null; nickname?: string | null }
     | null;
@@ -62,6 +68,12 @@ export async function SiteHeader() {
             </svg>
           </span>
         </form>
+
+        {/* Create memorial CTA — visible on memorials list and memorial pages only */}
+        {user && <HeaderCreateMemorialButton label={tHome('createMemorial')} />}
+
+        {/* Locale switcher */}
+        <LocaleSwitcher />
 
         {/* Avatar — anonymous → login, logged-in → profile */}
         <Link
