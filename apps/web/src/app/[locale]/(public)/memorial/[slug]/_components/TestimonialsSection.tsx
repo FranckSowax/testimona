@@ -114,7 +114,9 @@ export async function TestimonialsSection({
               key={t.id}
               testimonialId={t.id}
               slug={slug}
+              memorialName={memorialMeta.name}
               authorName={t.authorName}
+              authorAvatarUrl={unsplashAvatarFor(t.authorName)}
               message={t.message}
               createdAt={t.createdAt}
               likesCount={likesByTestimonial.get(t.id) ?? 0}

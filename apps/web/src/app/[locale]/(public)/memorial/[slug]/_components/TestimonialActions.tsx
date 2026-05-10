@@ -2,30 +2,38 @@
 
 import { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
+import { ButtonIcon } from '@/components/ui/ButtonIcon';
+import { ButtonText } from '@/components/ui/ButtonText';
 import { toggleLikeAction } from '../actions';
 import { ReportDialog } from './ReportDialog';
 
+interface TestimonialActionsProps {
+  testimonialId: string;
+  slug: string;
+  initialLikes: number;
+  initiallyLiked: boolean;
+  isLogged: boolean;
+  shareUrl: string;
+  onToggleComments?: () => void;
+  commentsOpen?: boolean;
+  /** When true, hides the comment-bubble button (used for replies). */
+  hideCommentToggle?: boolean;
+}
+
+/**
+ * V2 icon row — comment bubble | share | heart | REPORT
+ */
 export function TestimonialActions({
   testimonialId,
   slug,
   initialLikes,
   initiallyLiked,
-  commentsCount,
   isLogged,
   shareUrl,
   onToggleComments,
   commentsOpen,
-}: {
-  testimonialId: string;
-  slug: string;
-  initialLikes: number;
-  initiallyLiked: boolean;
-  commentsCount: number;
-  isLogged: boolean;
-  shareUrl: string;
-  onToggleComments: () => void;
-  commentsOpen: boolean;
-}) {
+  hideCommentToggle = false,
+}: TestimonialActionsProps) {
   const t = useTranslations('testimonial');
   const [likes, setLikes] = useState(initialLikes);
   const [liked, setLiked] = useState(initiallyLiked);
@@ -73,77 +81,84 @@ export function TestimonialActions({
   }
 
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-      <button
-        type="button"
+    <div className="flex items-center gap-1">
+      {!hideCommentToggle && onToggleComments && (
+        <ButtonIcon
+          label={t('comments')}
+          size="sm"
+          onClick={onToggleComments}
+          active={commentsOpen}
+          tone={commentsOpen ? 'pink' : 'default'}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 12a8 8 0 0 1-12.4 6.7L3 20l1.5-5A8 8 0 1 1 21 12Z" />
+          </svg>
+        </ButtonIcon>
+      )}
+
+      <ButtonIcon label={t('share')} size="sm" onClick={handleShare}>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="18" cy="5" r="3" />
+          <circle cx="6" cy="12" r="3" />
+          <circle cx="18" cy="19" r="3" />
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+        </svg>
+      </ButtonIcon>
+
+      <ButtonIcon
+        label={liked ? t('liked') : t('like')}
+        size="sm"
+        tone={liked ? 'liked' : 'pink'}
+        active={liked}
         onClick={handleLike}
         disabled={pending}
-        aria-pressed={liked}
-        className={[
-          'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 transition',
-          liked
-            ? 'bg-accent/15 text-accent'
-            : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-        ].join(' ')}
+        className={liked ? 'animate-like-pulse' : ''}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            fill={liked ? 'currentColor' : 'none'}
-            stroke="currentColor"
-            strokeWidth="1.8"
-            d="M12 21s-7.5-4.5-9.5-9C1 8 3.5 5 6.5 5c2 0 3.5 1.5 5.5 3 2-1.5 3.5-3 5.5-3C20.5 5 23 8 21.5 12c-2 4.5-9.5 9-9.5 9Z"
-          />
+        <svg
+          viewBox="0 0 24 24"
+          fill={liked ? 'currentColor' : 'none'}
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
         </svg>
-        <span>{likes}</span>
-      </button>
+      </ButtonIcon>
 
-      <button
-        type="button"
-        onClick={onToggleComments}
-        aria-expanded={commentsOpen}
-        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21 12a8 8 0 0 1-12.4 6.7L3 20l1.5-5A8 8 0 1 1 21 12Z"
-          />
-        </svg>
-        <span>{commentsCount}</span>
-      </button>
-
-      <button
-        type="button"
-        onClick={handleShare}
-        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M4 12v8h16v-8M16 6l-4-4-4 4M12 2v14"
-          />
-        </svg>
-        <span>{t('share')}</span>
-      </button>
-
-      <button
-        type="button"
-        onClick={handleReport}
-        className="ml-auto text-xs text-muted-foreground/80 hover:text-destructive"
-      >
+      <ButtonText variant="action" type="button" onClick={handleReport}>
         {t('report')}
-      </button>
+      </ButtonText>
+
+      {likes > 0 && (
+        <span
+          className="ml-1 tabular text-xs text-muted-foreground"
+          aria-label={t('likesCount', { count: likes })}
+        >
+          {likes}
+        </span>
+      )}
 
       {feedback && (
-        <p role="status" className="basis-full text-xs text-muted-foreground">
+        <p role="status" className="ml-3 basis-full text-xs text-muted-foreground">
           {feedback}
         </p>
       )}
