@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ButtonOutlined } from '@/components/ui/ButtonOutlined';
 import { ButtonText } from '@/components/ui/ButtonText';
 import { PopupCard, PopupHeader } from './PopupCard';
@@ -40,6 +41,8 @@ export function BiographyEditPopup({
   onSubmit,
   submitting = false,
 }: BiographyEditPopupProps) {
+  const t = useTranslations('popups.biographyEdit');
+  const tCommon = useTranslations('popups.common');
   const [v, setV] = useState<BiographyInfoValues>({
     username: initial.username ?? '',
     homeCity: initial.homeCity ?? '',
@@ -60,23 +63,23 @@ export function BiographyEditPopup({
   }
 
   return (
-    <PopupCard open={open} onClose={onClose} ariaLabel="Edit biography info" width="xl">
+    <PopupCard open={open} onClose={onClose} ariaLabel={t('ariaLabel')} width="xl">
       <div className="space-y-5">
-        <PopupHeader scriptTitle="Biography" subtitle="Edit info" />
+        <PopupHeader scriptTitle={t('scriptTitle')} subtitle={t('subtitle')} />
 
         <form onSubmit={handleSubmit} className="space-y-3">
-          <Field label="Username / Nickname" value={v.username ?? ''} onChange={(val) => set('username', val)} />
-          <Field label="Home city" value={v.homeCity ?? ''} onChange={(val) => set('homeCity', val)} />
-          <Field label="Places lived" value={v.placesLived ?? ''} onChange={(val) => set('placesLived', val)} />
-          <Field label="Relatives" value={v.relatives ?? ''} onChange={(val) => set('relatives', val)} />
-          <Field label="Religion" value={v.religion ?? ''} onChange={(val) => set('religion', val)} />
-          <Field label="Education" value={v.education ?? ''} onChange={(val) => set('education', val)} />
-          <Field label="Work" value={v.work ?? ''} onChange={(val) => set('work', val)} />
-          <Field label="Hobby" value={v.hobby ?? ''} onChange={(val) => set('hobby', val)} />
+          <Field label={t('username')} value={v.username ?? ''} onChange={(val) => set('username', val)} />
+          <Field label={t('homeCity')} value={v.homeCity ?? ''} onChange={(val) => set('homeCity', val)} />
+          <Field label={t('placesLived')} value={v.placesLived ?? ''} onChange={(val) => set('placesLived', val)} />
+          <Field label={t('relatives')} value={v.relatives ?? ''} onChange={(val) => set('relatives', val)} />
+          <Field label={t('religion')} value={v.religion ?? ''} onChange={(val) => set('religion', val)} />
+          <Field label={t('education')} value={v.education ?? ''} onChange={(val) => set('education', val)} />
+          <Field label={t('work')} value={v.work ?? ''} onChange={(val) => set('work', val)} />
+          <Field label={t('hobby')} value={v.hobby ?? ''} onChange={(val) => set('hobby', val)} />
 
           <div className="flex justify-center gap-3 pt-2">
             <ButtonOutlined type="button" variant="thankyou-gray" size="md" onClick={onClose}>
-              Cancel
+              {tCommon('cancel')}
             </ButtonOutlined>
             <ButtonOutlined
               type="submit"
@@ -84,7 +87,7 @@ export function BiographyEditPopup({
               size="md"
               loading={submitting}
             >
-              Save
+              {tCommon('save')}
             </ButtonOutlined>
           </div>
         </form>
@@ -109,6 +112,8 @@ export function BiographyChapterCreatePopup({
   onSubmit,
   submitting = false,
 }: BiographyChapterCreateProps) {
+  const t = useTranslations('popups.biographyChapter');
+  const tCommon = useTranslations('popups.common');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [photoCount, setPhotoCount] = useState(0);
@@ -120,16 +125,16 @@ export function BiographyChapterCreatePopup({
   }
 
   return (
-    <PopupCard open={open} onClose={onClose} ariaLabel="Create biography chapter" width="xl">
+    <PopupCard open={open} onClose={onClose} ariaLabel={t('ariaLabel')} width="xl">
       <div className="space-y-5">
-        <PopupHeader scriptTitle="Biography" subtitle="Create a new" />
+        <PopupHeader scriptTitle={t('scriptTitle')} subtitle={t('subtitle')} />
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Field label="Chapter title" value={title} onChange={setTitle} required />
+          <Field label={t('title')} value={title} onChange={setTitle} required />
 
           <label className="block">
             <span className="block font-display text-sm font-medium text-muted-foreground">
-              Story
+              {t('story')}
             </span>
             <textarea
               value={content}
@@ -141,7 +146,7 @@ export function BiographyChapterCreatePopup({
 
           <div className="flex items-center justify-between rounded-md border border-dashed border-border bg-surface p-3">
             <span className="text-xs italic text-muted-foreground">
-              {photoCount}/2 photos attached
+              {t('photosCount', { count: photoCount })}
             </span>
             <ButtonText
               variant="action"
@@ -149,13 +154,13 @@ export function BiographyChapterCreatePopup({
               onClick={() => setPhotoCount((c) => Math.min(2, c + 1))}
               disabled={photoCount >= 2}
             >
-              + Add a photo / video (2 max.)
+              {t('addPhoto')}
             </ButtonText>
           </div>
 
           <div className="flex justify-center gap-3 pt-2">
             <ButtonOutlined type="button" variant="thankyou-gray" size="md" onClick={onClose}>
-              Cancel
+              {tCommon('cancel')}
             </ButtonOutlined>
             <ButtonOutlined
               type="submit"
@@ -164,7 +169,7 @@ export function BiographyChapterCreatePopup({
               loading={submitting}
               disabled={!title.trim()}
             >
-              Submit
+              {tCommon('submit')}
             </ButtonOutlined>
           </div>
         </form>

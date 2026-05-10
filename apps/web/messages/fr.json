@@ -93,7 +93,7 @@
     "testimonials": "Témoignages",
     "photos": "Photos",
     "donation": "Faire un don",
-    "lifeDetails": "Détails de vie",
+    "lifeDetails": "Biographie",
     "funeral": "Funérailles"
   },
   "donate": {
@@ -223,6 +223,7 @@
     "biographyEdit": {
       "scriptTitle": "Biographie",
       "subtitle": "Modifier les infos",
+      "ariaLabel": "Modifier la biographie",
       "username": "Nom d'utilisateur / Surnom",
       "homeCity": "Ville de résidence",
       "placesLived": "Lieux de vie",
@@ -235,6 +236,7 @@
     "biographyChapter": {
       "scriptTitle": "Biographie",
       "subtitle": "Créer un nouveau",
+      "ariaLabel": "Créer un chapitre de biographie",
       "title": "Titre du chapitre",
       "story": "Récit",
       "addPhoto": "+ Ajouter une photo / vidéo (2 max.)",
