@@ -6,6 +6,10 @@ import { Card } from '@/components/ui/Card';
 import { AppSidebar } from '@/components/AppSidebar';
 import { HomeFeed } from '@/components/home/HomeFeed';
 import { RipSuggestions } from '@/components/home/RipSuggestions';
+import { HomeHowItWorks } from '@/components/home/HomeHowItWorks';
+import { HomeTrust } from '@/components/home/HomeTrust';
+import { HomeFaq } from '@/components/home/HomeFaq';
+import { HomeFinalCta } from '@/components/home/HomeFinalCta';
 
 export const dynamic = 'force-dynamic';
 
@@ -93,6 +97,9 @@ export default async function HomePage({
         </div>
       </section>
 
+      {/* How it works — 3 steps explaining the user journey */}
+      <HomeHowItWorks />
+
       {/* Recent Testimonials — split title + decorative quotes */}
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="grid gap-10 md:grid-cols-[260px_1fr]">
@@ -159,6 +166,15 @@ export default async function HomePage({
           </Card>
         </ul>
       </section>
+
+      {/* Trust signals — free / privacy / secure */}
+      <HomeTrust />
+
+      {/* FAQ — common questions for first-time visitors */}
+      <HomeFaq />
+
+      {/* Final CTA — large signup banner */}
+      <HomeFinalCta />
     </>
   );
 }

@@ -70,6 +70,43 @@
       "notifications": "Notifications",
       "profile": "My profile",
       "createMemorial": "Create a memorial"
+    },
+    "howItWorks": {
+      "title": "How it works",
+      "subtitle": "In three simple steps, create a dignified, lasting tribute space for the people who matter.",
+      "step1Title": "Create the page",
+      "step1Body": "Sign up for free and create a memorial page in just a few minutes — photo, dates, opening biography.",
+      "step2Title": "Invite loved ones",
+      "step2Body": "Share the link with family and friends. Each one can publish testimonials, photos, and supportive messages.",
+      "step3Title": "Gather the love",
+      "step3Body": "Memories add up, donations support the close ones, and the page stays online for as long as you want."
+    },
+    "trust": {
+      "title": "A platform built for grief",
+      "subtitle": "Designed with respect — free and secure.",
+      "freeTitle": "Free forever",
+      "freeBody": "Creating and maintaining a memorial page is free and will stay free. No hidden fees.",
+      "privacyTitle": "Privacy respected",
+      "privacyBody": "You control who can view and post. Public or private page — your choice.",
+      "secureTitle": "Secure payments",
+      "secureBody": "Donations go through Stripe with bank-grade encryption."
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "q1": "How much does Testimona cost?",
+      "a1": "Creating and maintaining a memorial page is entirely free. No intrusive ads, no hidden fees. Our model is supported by voluntary community donations.",
+      "q2": "How long does the page stay online?",
+      "a2": "The page stays accessible for as long as you want. You keep full control and can delete it at any time from your dashboard.",
+      "q3": "Who can post on the page?",
+      "a3": "You decide. The page can be public (anyone with the link can testify) or restricted (invitation only). You can also moderate testimonials before they go live if you wish.",
+      "q4": "How do donations work?",
+      "a4": "Loved ones can receive donations via Stripe (credit card) directly to their bank account. No money passes through Testimona, and a fundraising goal can be set."
+    },
+    "finalCta": {
+      "title": "Honor the memory of someone you love",
+      "subtitle": "Create a memorial page for free in less than five minutes.",
+      "button": "Get started now",
+      "secondary": "I already have an account"
     }
   },
   "about": {

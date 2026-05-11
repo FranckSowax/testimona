@@ -70,6 +70,43 @@
       "notifications": "Notifications",
       "profile": "Mon profil",
       "createMemorial": "Créer un mémorial"
+    },
+    "howItWorks": {
+      "title": "Comment ça marche",
+      "subtitle": "En trois étapes simples, créez un espace mémoriel digne et durable pour celles et ceux qui comptent.",
+      "step1Title": "Créez la page",
+      "step1Body": "Inscrivez-vous gratuitement et créez une page mémorielle en quelques minutes : photo, dates, premiers mots de biographie.",
+      "step2Title": "Invitez les proches",
+      "step2Body": "Partagez le lien avec la famille et les amis. Chacun peut publier témoignages, photos et messages de soutien.",
+      "step3Title": "Recueillez l'amour",
+      "step3Body": "Les souvenirs s'accumulent, les dons aident les proches, et la page reste accessible aussi longtemps que vous le souhaitez."
+    },
+    "trust": {
+      "title": "Une plateforme pensée pour le deuil",
+      "subtitle": "Conçue avec respect, gratuite et sécurisée.",
+      "freeTitle": "Gratuit pour toujours",
+      "freeBody": "Créer et maintenir une page mémorielle est et restera gratuit. Aucun frais caché.",
+      "privacyTitle": "Vie privée respectée",
+      "privacyBody": "Vous contrôlez qui peut voir et publier. Page publique ou privée, à vous de choisir.",
+      "secureTitle": "Paiements sécurisés",
+      "secureBody": "Les dons passent par Stripe avec chiffrement bancaire de niveau international."
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "q1": "Combien coûte Testimona ?",
+      "a1": "Créer et maintenir une page mémorielle est entièrement gratuit. Aucune publicité intrusive, aucun frais caché. Notre modèle repose sur des dons volontaires de la communauté.",
+      "q2": "Combien de temps la page reste-t-elle en ligne ?",
+      "a2": "La page reste accessible aussi longtemps que vous le souhaitez. Vous gardez le contrôle total et pouvez la supprimer à tout moment depuis votre espace.",
+      "q3": "Qui peut publier sur la page ?",
+      "a3": "Vous décidez. La page peut être publique (toute personne ayant le lien peut témoigner) ou restreinte (sur invitation uniquement). Vous modérez aussi les témoignages avant publication si nécessaire.",
+      "q4": "Comment fonctionnent les dons ?",
+      "a4": "Les proches peuvent recevoir des dons via Stripe (carte bancaire) directement sur leur compte bancaire. Aucun argent ne transite par Testimona, et un objectif de collecte peut être défini."
+    },
+    "finalCta": {
+      "title": "Honorez la mémoire d'un être cher",
+      "subtitle": "Créez gratuitement une page mémorielle en moins de cinq minutes.",
+      "button": "Commencer maintenant",
+      "secondary": "J'ai déjà un compte"
     }
   },
   "about": {
