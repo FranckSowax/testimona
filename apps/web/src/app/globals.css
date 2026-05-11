@@ -108,21 +108,17 @@
   .tabular {
     font-variant-numeric: tabular-nums;
   }
+}
 
-  /* View Transitions API — fade léger par défaut sur navigations Next */
-  @view-transition {
-    navigation: auto;
-  }
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation-duration: var(--motion-base);
-    animation-timing-function: var(--motion-ease-out);
-  }
-  ::view-transition-old(root) {
-    animation-name: fade-out;
-  }
-  ::view-transition-new(root) {
-    animation-name: fade-in;
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .animate-fade-in,
+  .animate-pop-in,
+  .animate-slide-in-left,
+  .animate-spin-slow,
+  .animate-like-pulse,
+  .animate-bell-shake {
+    animation: none !important;
   }
 }
 
