@@ -46,10 +46,11 @@ test.describe('Protected routes — anonymous', () => {
 test.describe('Signup flow (no mutation)', () => {
   test('signup form rejects mismatched password length', async ({ page }) => {
     await page.goto('/signup');
-    await page.getByLabel(/Pseudonyme|Nickname/i).fill('e2e_runner');
-    await page.getByLabel(/Email/i).fill('e2e@example.com');
+    const form = page.locator('form');
+    await form.getByLabel(/Pseudonyme|Nickname/i).fill('e2e_runner');
+    await form.getByLabel(/Email/i).fill('e2e@example.com');
     // Less than 8 chars triggers minLength validation
-    await page.getByLabel(/Mot de passe|Password/i).fill('short');
+    await form.getByLabel(/Mot de passe|Password/i).fill('short');
     await page
       .getByRole('button', { name: /Créer mon compte|Create.+account/i })
       .click();

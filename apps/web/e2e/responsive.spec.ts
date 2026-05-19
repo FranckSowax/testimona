@@ -1,14 +1,18 @@
-import { test, expect, devices } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 /**
  * Mobile responsiveness — hamburger drawer, sticky header, no horizontal scroll.
  *
- * test.use() must sit at the top of the file (forces a worker reset), so the
- * desktop-only assertion in this suite uses a manual setViewportSize() instead
- * of a second test.use() block.
+ * Uses an explicit mobile viewport rather than devices['iPhone SE'] so the
+ * suite runs on the Chromium binary that's already installed and doesn't
+ * require a separate Playwright webkit download.
  */
 
-test.use({ ...devices['iPhone SE'] });
+test.use({
+  viewport: { width: 375, height: 812 },
+  hasTouch: true,
+  isMobile: true,
+});
 
 test.describe('Mobile (375x812 iPhone SE)', () => {
   test('hamburger button is visible on home (lg:hidden)', async ({ page }) => {

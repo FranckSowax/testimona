@@ -39,9 +39,19 @@ test.describe('Memorial public detail', () => {
   });
 
   test('Make a donation CTA is wired (does not 500)', async ({ page }) => {
-    await page.goto(`/memorial/${MEMORIAL_SLUG}?tab=donate`);
-    const cta = page.getByRole('button', { name: /Faire un don|Make a donation/i }).first();
-    await expect(cta).toBeVisible();
+    await page.goto(`/memorial/${MEMORIAL_SLUG}`);
+    // Activate the donate tab first — ?tab=donate doesn't auto-switch the
+    // active tab (MemorialTabs is driven by client state).
+    await page
+      .getByRole('tab', { name: /Faire un don|Make a donation/i })
+      .first()
+      .click();
+    // CTA is the button inside the donate panel (the tab itself uses role=tab,
+    // the CTA uses role=button).
+    const cta = page
+      .getByRole('button', { name: /Faire un don|Make a donation/i })
+      .last();
+    await expect(cta).toBeVisible({ timeout: 10_000 });
     await cta.click();
     // Donation popup opens (PopupCard renders <dialog>)
     await expect(page.getByRole('dialog')).toBeVisible();

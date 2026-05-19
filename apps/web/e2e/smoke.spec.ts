@@ -72,9 +72,12 @@ test.describe('Layout shell V2', () => {
 test.describe('Auth flow (UI only — no Supabase mutation)', () => {
   test('Signup form does not navigate on invalid email', async ({ page }) => {
     await page.goto('/signup');
-    await page.getByLabel(/Pseudonyme|Nickname|Username/i).fill('test_user');
-    await page.getByLabel(/Email/i).fill('not-an-email');
-    await page.getByLabel(/Mot de passe|Password/i).fill('pass1234');
+    // Scope to the form so the locator doesn't also match the footer's
+    // "Email" share link (which carries aria-label="Email").
+    const form = page.locator('form');
+    await form.getByLabel(/Pseudonyme|Nickname|Username/i).fill('test_user');
+    await form.getByLabel(/Email/i).fill('not-an-email');
+    await form.getByLabel(/Mot de passe|Password/i).fill('pass1234');
     await page.getByRole('button', { name: /Créer mon compte|Create.+account/i }).click();
     // HTML5 native email validation prevents submit; URL stays on /signup
     await expect(page).toHaveURL(/\/signup/);
