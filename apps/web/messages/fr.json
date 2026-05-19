@@ -567,6 +567,25 @@
       "dismissAll": "Tout ignorer",
       "deleteTestimonial": "Supprimer le témoignage",
       "confirmDeleteTestimonial": "Supprimer définitivement ce témoignage et tous ses signalements ?"
+    },
+    "donations": {
+      "totalPaid": "Total encaissé",
+      "totalPending": "En attente",
+      "totalRefunded": "Remboursé",
+      "monthlyTitle": "Encaissements sur 12 mois",
+      "topMemorials": "Top mémoriels",
+      "donationsCount": "{count, plural, =1 {1 don} other {{count} dons}}",
+      "searchLabel": "Rechercher",
+      "searchPlaceholder": "Mémorial, donateur ou message…",
+      "statusLabel": "Statut",
+      "statusAll": "Tous",
+      "statusPaid": "Payé",
+      "statusPending": "En attente",
+      "statusFailed": "Échoué",
+      "statusRefunded": "Remboursé",
+      "resultsSummary": "{count, plural, =0 {Aucun don} =1 {1 don} other {{count} dons}}",
+      "empty": "Aucun don ne correspond à ces filtres.",
+      "anonymous": "Anonyme"
     }
   }
 }

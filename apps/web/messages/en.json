@@ -567,6 +567,25 @@
       "dismissAll": "Dismiss all",
       "deleteTestimonial": "Delete testimonial",
       "confirmDeleteTestimonial": "Permanently delete this testimonial and all its reports?"
+    },
+    "donations": {
+      "totalPaid": "Total received",
+      "totalPending": "Pending",
+      "totalRefunded": "Refunded",
+      "monthlyTitle": "Receipts over 12 months",
+      "topMemorials": "Top memorials",
+      "donationsCount": "{count, plural, =1 {1 donation} other {{count} donations}}",
+      "searchLabel": "Search",
+      "searchPlaceholder": "Memorial, donor or message…",
+      "statusLabel": "Status",
+      "statusAll": "All",
+      "statusPaid": "Paid",
+      "statusPending": "Pending",
+      "statusFailed": "Failed",
+      "statusRefunded": "Refunded",
+      "resultsSummary": "{count, plural, =0 {No donation} =1 {1 donation} other {{count} donations}}",
+      "empty": "No donation matches these filters.",
+      "anonymous": "Anonymous"
     }
   }
 }
