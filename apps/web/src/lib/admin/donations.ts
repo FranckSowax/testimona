@@ -5,7 +5,7 @@ export interface AdminDonationRow {
   id: string;
   memorialId: string;
   userId: string | null;
-  amountCents: number;
+  amount: number;
   currency: string;
   status: string;
   message: string | null;
@@ -18,7 +18,7 @@ export interface AdminDonationRow {
 export interface DonationsListParams {
   page?: number;
   perPage?: number;
-  status?: 'all' | 'paid' | 'pending' | 'failed' | 'refunded';
+  status?: 'all' | 'Succeeded' | 'pending' | 'failed' | 'refunded';
   query?: string;
 }
 
@@ -50,7 +50,7 @@ interface DonationRaw {
   id: string;
   memorialId: string;
   userId: string | null;
-  amountCents: number;
+  amount: number;
   currency: string;
   status: string;
   message: string | null;
@@ -76,7 +76,7 @@ export async function getDonationsList(
   let q = supabase
     .from('Donation')
     .select(
-      'id, memorialId, userId, amountCents, currency, status, message, createdAt',
+      'id, memorialId, userId, amount, currency, status, message, createdAt',
       { count: 'exact' },
     );
   if (status !== 'all') q = q.eq('status', status);
@@ -112,7 +112,7 @@ export async function getDonationsList(
       id: r.id,
       memorialId: r.memorialId,
       userId: r.userId,
-      amountCents: r.amountCents,
+      amount: r.amount,
       currency: r.currency,
       status: r.status,
       message: r.message,
@@ -135,8 +135,8 @@ export async function getDonationsList(
   }
 
   const paidAmountCentsInPage = filtered
-    .filter((d) => d.status === 'paid')
-    .reduce((sum, d) => sum + d.amountCents, 0);
+    .filter((d) => d.status === 'Succeeded')
+    .reduce((sum, d) => sum + d.amount, 0);
 
   return {
     donations: filtered,
@@ -152,11 +152,11 @@ export async function getDonationsStats(): Promise<DonationsStats> {
   const supabase = getSupabaseAdminClient();
   const { data: donations } = await supabase
     .from('Donation')
-    .select('memorialId, amountCents, currency, status, createdAt')
+    .select('memorialId, amount, currency, status, createdAt')
     .returns<
       {
         memorialId: string;
-        amountCents: number;
+        amount: number;
         currency: string;
         status: string;
         createdAt: string;
@@ -164,16 +164,16 @@ export async function getDonationsStats(): Promise<DonationsStats> {
     >();
   const rows = donations ?? [];
 
-  const currency = rows.find((d) => d.status === 'paid')?.currency ?? 'EUR';
+  const currency = rows.find((d) => d.status === 'Succeeded')?.currency ?? 'EUR';
   const totalPaidCents = rows
-    .filter((d) => d.status === 'paid')
-    .reduce((sum, d) => sum + d.amountCents, 0);
+    .filter((d) => d.status === 'Succeeded')
+    .reduce((sum, d) => sum + d.amount, 0);
   const totalPendingCents = rows
     .filter((d) => d.status === 'pending')
-    .reduce((sum, d) => sum + d.amountCents, 0);
+    .reduce((sum, d) => sum + d.amount, 0);
   const totalRefundedCents = rows
     .filter((d) => d.status === 'refunded')
-    .reduce((sum, d) => sum + d.amountCents, 0);
+    .reduce((sum, d) => sum + d.amount, 0);
 
   // Monthly buckets (last 12 months) for paid donations only
   const now = new Date();
@@ -184,12 +184,12 @@ export async function getDonationsStats(): Promise<DonationsStats> {
     buckets.set(key, { paidCents: 0, count: 0 });
   }
   for (const r of rows) {
-    if (r.status !== 'paid') continue;
+    if (r.status !== 'Succeeded') continue;
     const d = new Date(r.createdAt);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     const b = buckets.get(key);
     if (b) {
-      b.paidCents += r.amountCents;
+      b.paidCents += r.amount;
       b.count += 1;
     }
   }
@@ -202,9 +202,9 @@ export async function getDonationsStats(): Promise<DonationsStats> {
   // Top 10 memorials
   const perMemorial = new Map<string, { paidCents: number; count: number }>();
   for (const r of rows) {
-    if (r.status !== 'paid') continue;
+    if (r.status !== 'Succeeded') continue;
     const existing = perMemorial.get(r.memorialId) ?? { paidCents: 0, count: 0 };
-    existing.paidCents += r.amountCents;
+    existing.paidCents += r.amount;
     existing.count += 1;
     perMemorial.set(r.memorialId, existing);
   }

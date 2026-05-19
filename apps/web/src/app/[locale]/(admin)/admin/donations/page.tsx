@@ -28,10 +28,11 @@ function formatDate(iso: string, locale: string): string {
 }
 
 const STATUS_TONES: Record<string, string> = {
-  paid: 'bg-primary/10 text-primary',
+  Succeeded: 'bg-primary/10 text-primary',
+  Completed: 'bg-primary/10 text-primary',
   pending: 'bg-amber-500/10 text-amber-700',
-  failed: 'bg-destructive/10 text-destructive',
-  refunded: 'bg-foreground/10 text-foreground/70',
+  Failed: 'bg-destructive/10 text-destructive',
+  Refunded: 'bg-foreground/10 text-foreground/70',
 };
 
 export default async function AdminDonationsPage({
@@ -170,10 +171,10 @@ export default async function AdminDonationsPage({
             className="h-11 rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none"
           >
             <option value="all">{t('statusAll')}</option>
-            <option value="paid">{t('statusPaid')}</option>
+            <option value="Succeeded">{t('statusPaid')}</option>
             <option value="pending">{t('statusPending')}</option>
-            <option value="failed">{t('statusFailed')}</option>
-            <option value="refunded">{t('statusRefunded')}</option>
+            <option value="Failed">{t('statusFailed')}</option>
+            <option value="Refunded">{t('statusRefunded')}</option>
           </select>
         </label>
         <button
@@ -203,7 +204,7 @@ export default async function AdminDonationsPage({
               >
                 <div className="min-w-0 flex-1">
                   <p className="font-display text-sm font-bold text-foreground">
-                    {formatMoney(d.amountCents, d.currency, locale)}
+                    {formatMoney(d.amount, d.currency, locale)}
                     <span
                       className={[
                         'ml-2 rounded-full px-2 py-0.5 font-display text-[11px] font-bold uppercase tracking-wide',

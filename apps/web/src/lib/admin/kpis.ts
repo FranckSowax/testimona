@@ -68,24 +68,24 @@ export async function getAdminKpis(): Promise<AdminKpis> {
     supabase.from('Photo').select('id', { count: 'exact', head: true }),
     supabase
       .from('Donation')
-      .select('amountCents, status, currency, createdAt')
+      .select('amount, status, currency, createdAt')
       .returns<
-        { amountCents: number; status: string; currency: string; createdAt: string }[]
+        { amount: number; status: string; currency: string; createdAt: string }[]
       >(),
     supabase
       .from('Donation')
-      .select('amountCents, status, createdAt')
+      .select('amount, status, createdAt')
       .gte('createdAt', since)
-      .returns<{ amountCents: number; status: string; createdAt: string }[]>(),
+      .returns<{ amount: number; status: string; createdAt: string }[]>(),
   ]);
 
   const donations = donationsAll.data ?? [];
   const recentDonations = donationsRecent.data ?? [];
-  const paidDonations = donations.filter((d) => d.status === 'paid');
-  const grossAmountCents = paidDonations.reduce((sum, d) => sum + d.amountCents, 0);
+  const paidDonations = donations.filter((d) => d.status === 'Succeeded');
+  const grossAmountCents = paidDonations.reduce((sum, d) => sum + d.amount, 0);
   const recentPaidAmount = recentDonations
-    .filter((d) => d.status === 'paid')
-    .reduce((sum, d) => sum + d.amountCents, 0);
+    .filter((d) => d.status === 'Succeeded')
+    .reduce((sum, d) => sum + d.amount, 0);
   const currency = paidDonations[0]?.currency ?? 'EUR';
 
   // Users — auth.admin.listUsers exposes total via response.users length when total=true.

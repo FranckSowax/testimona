@@ -139,9 +139,9 @@ export async function getMemorialDetail(
       ),
     supabase
       .from('Donation')
-      .select('amountCents, status')
+      .select('amount, status')
       .eq('memorialId', memorialId)
-      .returns<{ amountCents: number; status: string }[]>(),
+      .returns<{ amount: number; status: string }[]>(),
     supabase
       .from('Testimonial')
       .select('id, authorName, message, createdAt')
@@ -158,8 +158,8 @@ export async function getMemorialDetail(
   const ownerName = ownerMeta?.nickname || ownerMeta?.full_name || null;
   const donationsRows = donations.data ?? [];
   const donationsPaidCents = donationsRows
-    .filter((d) => d.status === 'paid')
-    .reduce((sum, d) => sum + d.amountCents, 0);
+    .filter((d) => d.status === 'Succeeded')
+    .reduce((sum, d) => sum + d.amount, 0);
 
   return {
     ...memorial,

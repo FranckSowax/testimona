@@ -400,6 +400,7 @@
       "eventTestimonialReceived": "{author} a publié un témoignage sur {memorial}",
       "eventLikeReceived": "{author} a aimé votre témoignage sur {memorial}",
       "eventCommentReceived": "{author} a commenté votre témoignage sur {memorial}",
+      "eventDonationReceived": "{author} a fait un don de {amount} sur {memorial}",
       "anonymous": "Quelqu'un",
       "viewMemorial": "Voir"
     },

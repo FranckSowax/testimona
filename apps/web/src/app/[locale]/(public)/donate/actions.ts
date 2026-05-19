@@ -4,6 +4,7 @@ import { DonationCheckoutInputSchema } from '@testimona/shared';
 import { redirect } from 'next/navigation';
 import Stripe from 'stripe';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 
 export interface DonationActionState {
   error?: string;
@@ -44,10 +45,35 @@ export async function createDonationCheckoutAction(
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
   let customerEmail = parsed.data.donorEmail;
-  if (!customerEmail) {
-    const supabase = await getSupabaseServer();
-    const { data } = await supabase.auth.getUser();
-    if (data.user?.email) customerEmail = data.user.email;
+  let donorUserId: string | null = null;
+  const supabase = await getSupabaseServer();
+  const { data: userData } = await supabase.auth.getUser();
+  if (userData.user) {
+    donorUserId = userData.user.id;
+    if (!customerEmail && userData.user.email) customerEmail = userData.user.email;
+  }
+
+  // Persist the Donation in `pending` BEFORE redirecting to Stripe so the
+  // webhook can flip it to `Succeeded` by id (passed via client_reference_id).
+  // Use the service-role client so the insert succeeds for anonymous donors
+  // even though RLS would otherwise block them.
+  const adminDb = getSupabaseAdminClient();
+  const insertPayload: Record<string, unknown> = {
+    memorialId: parsed.data.memorialId,
+    amount: parsed.data.amount,
+    currency: parsed.data.currency.toUpperCase(),
+    status: 'pending',
+  };
+  if (donorUserId) insertPayload.donorId = donorUserId;
+  if (parsed.data.donorName) insertPayload.donorName = parsed.data.donorName;
+  if (parsed.data.message) insertPayload.message = parsed.data.message;
+  const { data: donation, error: insertErr } = await adminDb
+    .from('Donation')
+    .insert(insertPayload)
+    .select('id')
+    .single<{ id: string }>();
+  if (insertErr || !donation) {
+    return { error: insertErr?.message ?? "Impossible d'enregistrer le don." };
   }
 
   let session: Stripe.Checkout.Session;
@@ -69,15 +95,20 @@ export async function createDonationCheckoutAction(
         },
       ],
       customer_email: customerEmail,
+      client_reference_id: donation.id,
       metadata: {
+        donationId: donation.id,
         memorialId: parsed.data.memorialId,
+        memorialSlug: slug,
         language: parsed.data.language,
         donorName: parsed.data.donorName ?? '',
+        donorEmail: customerEmail ?? '',
       },
       success_url: `${siteUrl}/donate/success?session_id={CHECKOUT_SESSION_ID}&slug=${encodeURIComponent(slug)}`,
       cancel_url: `${siteUrl}/donate/cancel?slug=${encodeURIComponent(slug)}`,
     });
   } catch (err) {
+    await adminDb.from('Donation').delete().eq('id', donation.id);
     return { error: err instanceof Error ? err.message : 'Erreur Stripe' };
   }
 

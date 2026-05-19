@@ -45,6 +45,15 @@ interface CommentRow {
   createdAt: string;
 }
 
+interface DonationRow {
+  id: string;
+  memorialId: string;
+  donorName: string | null;
+  amount: number;
+  currency: string;
+  createdAt: string;
+}
+
 type Event =
   | {
       kind: 'testimonial';
@@ -65,6 +74,15 @@ type Event =
       memorial: MemorialLite;
       authorName: string;
       testimonialId: string;
+    }
+  | {
+      kind: 'donation';
+      createdAt: string;
+      memorial: MemorialLite;
+      donorName: string | null;
+      amount: number;
+      currency: string;
+      donationId: string;
     };
 
 export default async function NotificationsPage() {
@@ -106,7 +124,7 @@ export default async function NotificationsPage() {
     for (const m of extra ?? []) memorialMap.set(m.id, m);
   }
 
-  const [receivedRes, likesRes, commentsRes] = await Promise.all([
+  const [receivedRes, likesRes, commentsRes, donationsRes] = await Promise.all([
     ownedIds.length > 0
       ? supabase
           .from('Testimonial')
@@ -137,6 +155,16 @@ export default async function NotificationsPage() {
           .limit(20)
           .returns<CommentRow[]>()
       : Promise.resolve({ data: [] as CommentRow[] }),
+    ownedIds.length > 0
+      ? supabase
+          .from('Donation')
+          .select('id, memorialId, donorName, amount, currency, createdAt')
+          .in('memorialId', ownedIds)
+          .eq('status', 'Succeeded')
+          .order('createdAt', { ascending: false })
+          .limit(20)
+          .returns<DonationRow[]>()
+      : Promise.resolve({ data: [] as DonationRow[] }),
   ]);
 
   const events: Event[] = [];
@@ -177,6 +205,19 @@ export default async function NotificationsPage() {
       testimonialId: c.testimonialId,
     });
   }
+  for (const d of donationsRes.data ?? []) {
+    const memorial = memorialMap.get(d.memorialId);
+    if (!memorial) continue;
+    events.push({
+      kind: 'donation',
+      createdAt: d.createdAt,
+      memorial,
+      donorName: d.donorName,
+      amount: d.amount,
+      currency: d.currency,
+      donationId: d.id,
+    });
+  }
 
   events.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
   const top = events.slice(0, 50);
@@ -193,23 +234,52 @@ export default async function NotificationsPage() {
             const memorialName = [event.memorial.firstname, event.memorial.lastname]
               .filter(Boolean)
               .join(' ');
-            const authorName =
-              event.kind === 'like' ? t('anonymous') : event.authorName ?? t('anonymous');
-            const messageKey =
-              event.kind === 'testimonial'
-                ? 'eventTestimonialReceived'
-                : event.kind === 'like'
-                  ? 'eventLikeReceived'
-                  : 'eventCommentReceived';
             const dotColor =
               event.kind === 'testimonial'
                 ? 'bg-primary'
                 : event.kind === 'like'
                   ? 'bg-accent'
-                  : 'bg-secondary';
+                  : event.kind === 'donation'
+                    ? 'bg-accent'
+                    : 'bg-secondary';
+
+            let message: string;
+            let href: string;
+            if (event.kind === 'donation') {
+              const amount = new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: event.currency,
+                maximumFractionDigits: 0,
+              }).format(event.amount / 100);
+              message = t('eventDonationReceived', {
+                author: event.donorName || t('anonymous'),
+                memorial: memorialName,
+                amount,
+              });
+              href = `/memorial/${event.memorial.slug}?tab=donate`;
+            } else {
+              const authorName =
+                event.kind === 'like'
+                  ? t('anonymous')
+                  : event.authorName ?? t('anonymous');
+              const messageKey =
+                event.kind === 'testimonial'
+                  ? 'eventTestimonialReceived'
+                  : event.kind === 'like'
+                    ? 'eventLikeReceived'
+                    : 'eventCommentReceived';
+              message = t(messageKey, { author: authorName, memorial: memorialName });
+              href = `/memorial/${event.memorial.slug}#testimonial-${event.testimonialId}`;
+            }
+
+            const itemKey =
+              event.kind === 'donation'
+                ? `donation-${event.donationId}`
+                : `${event.kind}-${event.testimonialId}-${i}`;
+
             return (
               <li
-                key={`${event.kind}-${event.testimonialId}-${i}`}
+                key={itemKey}
                 className="animate-fade-in-up flex items-start gap-3 rounded-lg border border-border bg-white p-4 shadow-sm"
                 style={{ animationDelay: `${Math.min(i * 25, 200)}ms` }}
               >
@@ -218,15 +288,13 @@ export default async function NotificationsPage() {
                   className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${dotColor}`}
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm leading-relaxed text-foreground">
-                    {t(messageKey, { author: authorName, memorial: memorialName })}
-                  </p>
+                  <p className="text-sm leading-relaxed text-foreground">{message}</p>
                   <p className="mt-1 text-xs text-muted-foreground tabular">
                     {new Date(event.createdAt).toLocaleString('fr-FR')}
                   </p>
                 </div>
                 <Link
-                  href={`/memorial/${event.memorial.slug}#testimonial-${event.testimonialId}`}
+                  href={href}
                   className="shrink-0 text-xs font-medium text-primary hover:underline"
                 >
                   {t('viewMemorial')} →

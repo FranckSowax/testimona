@@ -28,7 +28,7 @@ export async function getUnseenNotificationsCount(): Promise<number> {
     .returns<{ id: string }[]>();
   const myTestimonialIds = (myTestimonials ?? []).map((t) => t.id);
 
-  const [received, likes, comments] = await Promise.all([
+  const [received, likes, comments, donations] = await Promise.all([
     ownedIds.length > 0
       ? supabase
           .from('Testimonial')
@@ -53,7 +53,20 @@ export async function getUnseenNotificationsCount(): Promise<number> {
           .neq('authorId', user.id)
           .gte('createdAt', since)
       : Promise.resolve({ count: 0 }),
+    ownedIds.length > 0
+      ? supabase
+          .from('Donation')
+          .select('id', { count: 'exact', head: true })
+          .in('memorialId', ownedIds)
+          .eq('status', 'Succeeded')
+          .gte('createdAt', since)
+      : Promise.resolve({ count: 0 }),
   ]);
 
-  return (received.count ?? 0) + (likes.count ?? 0) + (comments.count ?? 0);
+  return (
+    (received.count ?? 0) +
+    (likes.count ?? 0) +
+    (comments.count ?? 0) +
+    (donations.count ?? 0)
+  );
 }

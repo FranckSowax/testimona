@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { sendEmail, welcomeEmail } from '@/lib/email/resend';
 
 const SignupFormSchema = z.object({
   email: z.string().email().toLowerCase().max(100),
@@ -45,6 +46,16 @@ export async function signupAction(
   });
 
   if (error) return { error: error.message };
+
+  // Fire-and-forget welcome email. Failures are swallowed by sendEmail so a
+  // flaky provider can never break the signup flow.
+  void sendEmail(
+    welcomeEmail({
+      to: parsed.data.email,
+      displayName: parsed.data.nickname,
+      locale: 'fr',
+    }),
+  );
 
   // Don't redirect from the server action — the intercepting-route @modal
   // slot stays mounted across server-side redirects on Next.js 15.
