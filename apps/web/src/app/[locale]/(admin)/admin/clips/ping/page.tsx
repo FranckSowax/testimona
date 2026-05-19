@@ -90,6 +90,40 @@ export default async function HiggsfieldPingPage() {
               </li>
             </ul>
             <p className="mt-3 text-sm text-foreground/80">{result.verdict}</p>
+
+            {result.attempts && result.attempts.length > 0 && (
+              <details className="mt-4">
+                <summary className="cursor-pointer text-xs font-bold uppercase tracking-wider text-foreground/70">
+                  Détail des {result.attempts.length} tentatives d'auth
+                </summary>
+                <table className="mt-2 w-full overflow-hidden rounded border border-border text-xs">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="px-2 py-1 text-left font-display font-bold">
+                        Scheme
+                      </th>
+                      <th className="px-2 py-1 text-left font-display font-bold">
+                        Status
+                      </th>
+                      <th className="px-2 py-1 text-left font-display font-bold">
+                        Body
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {result.attempts.map((a, i) => (
+                      <tr key={i} className="border-t border-border bg-white">
+                        <td className="px-2 py-1 font-mono">{a.scheme}</td>
+                        <td className="px-2 py-1 font-mono">{a.status}</td>
+                        <td className="px-2 py-1 font-mono text-foreground/70">
+                          {a.body || '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </details>
+            )}
           </div>
         )}
       </div>

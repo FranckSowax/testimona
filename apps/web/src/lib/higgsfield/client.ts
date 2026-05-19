@@ -63,56 +63,82 @@ function authHeader() {
   return `Key ${creds.id}:${creds.secret}`;
 }
 
+interface AttemptResult {
+  scheme: string;
+  status: number;
+  body: string;
+}
+
+async function attempt(headerValue: string): Promise<AttemptResult> {
+  const res = await fetch(`${HIGGSFIELD_BASE}/v1/image2video/dop`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: headerValue,
+      'User-Agent': 'testimona-web/1.0',
+    },
+    body: JSON.stringify({}),
+  });
+  const body = await res.text().catch(() => '');
+  return { scheme: headerValue.split(' ')[0] ?? '?', status: res.status, body: body.slice(0, 200) };
+}
+
 /**
- * Admin-only diagnostic — pings Higgsfield with the current credentials.
- * Strategy: POST an intentionally-empty body to the image2video endpoint.
- *  - 401 → credentials are wrong (auth gate rejected us)
- *  - 400/422 → credentials are GOOD (auth passed, body validation fired)
- *  - 405 → the path or method is wrong
- *  - 2xx → unexpected but credentials work
+ * Admin-only diagnostic — pings Higgsfield with multiple auth-header
+ * variants to find which scheme our credentials are valid against.
+ * A 400/422 means auth passed (validation rejected the empty body, which
+ * is the goal). A 401 means the credentials are wrong for that scheme.
  */
 export async function pingHiggsfield(): Promise<
   | { ok: true; mode: 'demo' | 'real'; verdict?: string }
-  | { ok: false; status: number; body: string; idLen: number; secretLen: number; verdict: string }
+  | {
+      ok: false;
+      status: number;
+      body: string;
+      idLen: number;
+      secretLen: number;
+      verdict: string;
+      attempts: AttemptResult[];
+    }
 > {
   if (isDemoMode()) return { ok: true, mode: 'demo' };
 
   const creds = readCreds()!;
+  const variants = [
+    `Key ${creds.id}:${creds.secret}`,
+    `Key ${creds.secret}:${creds.id}`, // swapped order
+    `Bearer ${creds.id}:${creds.secret}`,
+    `Bearer ${creds.secret}`,
+    `Bearer ${creds.id}`,
+    `Basic ${Buffer.from(`${creds.id}:${creds.secret}`).toString('base64')}`,
+  ];
+
+  const attempts: AttemptResult[] = [];
   try {
-    const res = await fetch(`${HIGGSFIELD_BASE}/v1/image2video/dop`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: authHeader(),
-        'User-Agent': 'testimona-web/1.0',
-      },
-      body: JSON.stringify({}),
-    });
-    const body = await res.text().catch(() => '');
-    const idLen = creds.id.length;
-    const secretLen = creds.secret.length;
-
-    // 400/422 means auth gate passed, validation rejected the body.
-    if (res.status === 400 || res.status === 422) {
-      return {
-        ok: true,
-        mode: 'real',
-        verdict: `auth OK — validation reply ${res.status}: ${body.slice(0, 200)}`,
-      };
+    for (const v of variants) {
+      const r = await attempt(v);
+      attempts.push(r);
+      if (r.status === 400 || r.status === 422 || (r.status >= 200 && r.status < 300)) {
+        return {
+          ok: true,
+          mode: 'real',
+          verdict: `auth OK avec scheme "${r.scheme}" — body validation reply ${r.status}: ${r.body}`,
+        };
+      }
     }
-    // Some Higgsfield validators return 200 even with invalid params.
-    if (res.ok) return { ok: true, mode: 'real', verdict: '2xx response' };
-
+    // None of the variants passed auth.
+    const primary = attempts[0]!;
     return {
       ok: false,
-      status: res.status,
-      body: body.slice(0, 400),
-      idLen,
-      secretLen,
+      status: primary.status,
+      body: primary.body,
+      idLen: creds.id.length,
+      secretLen: creds.secret.length,
       verdict:
-        res.status === 401
-          ? 'Higgsfield rejette les credentials. Vérifie KEY_ID vs KEY_SECRET (peut-être inversés), espaces, et que ton compte a accès à l\'API REST (pas seulement MCP).'
-          : `Status inattendu — endpoint peut-être déplacé. Body: ${body.slice(0, 200)}`,
+        primary.status === 401
+          ? 'Tous les schémas d\'auth ont été rejetés. Cause la plus probable : les credentials ne sont pas activés pour l\'API REST (uniquement MCP), ou ton plan ne donne pas accès à l\'API. Va sur cloud.higgsfield.ai → API Keys et vérifie qu\'ils sont actifs.'
+          : `Status inattendu (${primary.status}). Body: ${primary.body}`,
+      attempts,
     };
   } catch (err) {
     return {
@@ -122,6 +148,7 @@ export async function pingHiggsfield(): Promise<
       idLen: creds.id.length,
       secretLen: creds.secret.length,
       verdict: 'Erreur réseau ou DNS',
+      attempts,
     };
   }
 }
