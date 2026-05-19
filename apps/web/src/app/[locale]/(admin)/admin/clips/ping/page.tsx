@@ -5,12 +5,12 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
-export default async function HiggsfieldPingPage() {
+export default async function ProviderPingPage() {
   await requireAdmin();
   const result = await pingHiggsfield();
 
   return (
-    <AdminShell title="Diagnostic Higgsfield">
+    <AdminShell title="Diagnostic fournisseur compute">
       <div className="space-y-4">
         <Link
           href="/admin/clips"
@@ -25,23 +25,9 @@ export default async function HiggsfieldPingPage() {
               ⚠️ Mode demo actif
             </p>
             <p className="mt-2 text-sm text-foreground/80">
-              Aucune variable Higgsfield trouvée dans l'environnement. Vérifie
-              que les variables Railway sont bien définies :
+              Aucune credential fournisseur trouvée dans l'environnement.
+              Vérifie les variables d'env sur Railway.
             </p>
-            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-foreground/80">
-              <li>
-                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
-                  HIGGSFIELD_API_ID
-                </code>{' '}
-                = ton KEY_ID
-              </li>
-              <li>
-                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
-                  HIGGSFIELD_API_KEY
-                </code>{' '}
-                = ton KEY_SECRET
-              </li>
-            </ul>
           </div>
         )}
 
@@ -51,7 +37,7 @@ export default async function HiggsfieldPingPage() {
               ✓ Credentials valides
             </p>
             <p className="mt-2 text-sm text-emerald-700/90">
-              L'authentification Higgsfield fonctionne correctement.
+              L'authentification fournisseur compute fonctionne correctement.
             </p>
             {result.verdict && (
               <p className="mt-2 font-mono text-[11px] text-emerald-700/70">
@@ -75,14 +61,14 @@ export default async function HiggsfieldPingPage() {
             </p>
             <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-foreground/80">
               <li>
-                Longueur KEY_ID (HIGGSFIELD_API_ID) :{' '}
+                Longueur ID :{' '}
                 <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
                   {result.idLen}
                 </code>{' '}
                 {result.idLen === 36 ? '✓ format UUID' : '⚠️ longueur inattendue'}
               </li>
               <li>
-                Longueur KEY_SECRET (HIGGSFIELD_API_KEY) :{' '}
+                Longueur secret :{' '}
                 <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
                   {result.secretLen}
                 </code>{' '}

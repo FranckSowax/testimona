@@ -105,7 +105,7 @@ export default async function AdminClipsPage() {
                   className="text-[10px] uppercase tracking-wide text-muted-foreground"
                   suppressHydrationWarning
                 >
-                  {c.higgsfieldJobId ?? '—'} ·{' '}
+                  Job {c.higgsfieldJobId ? c.higgsfieldJobId.slice(0, 12) : '—'} ·{' '}
                   {new Date(c.createdAt).toLocaleString('fr-FR', {
                     dateStyle: 'short',
                     timeStyle: 'short',

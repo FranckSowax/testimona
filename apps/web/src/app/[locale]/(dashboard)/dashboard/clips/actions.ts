@@ -4,6 +4,11 @@ import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getBalance, spendCredits } from '@/lib/credits/balance';
+import {
+  STUDIA_COST_PER_VIDEO,
+  getStudiaBalance,
+  spendStudia,
+} from '@/lib/compute/balance';
 import { submitImageToVideo } from '@/lib/higgsfield/client';
 
 export interface ClipActionState {
@@ -158,6 +163,15 @@ export async function regenerateClipAction(
   if (balance < 1)
     return { error: 'Solde insuffisant.', needsCredits: 1 };
 
+  // Same upfront compute check as the main animate flow.
+  const computeBalance = await getStudiaBalance();
+  if (computeBalance < STUDIA_COST_PER_VIDEO) {
+    return {
+      error:
+        'Service indisponible momentanément. Réessaie dans quelques minutes — l\'admin a été notifié.',
+    };
+  }
+
   const supabase = getSupabaseAdminClient();
   const spend = await spendCredits(user.id, 1, {
     note: `Regen clip ${clip.id.slice(0, 8)}`,
@@ -175,6 +189,7 @@ export async function regenerateClipAction(
       status: 'pending',
       createdById: user.id,
       creditCost: 1,
+      providerCreditCost: STUDIA_COST_PER_VIDEO,
     })
     .select('id')
     .single<{ id: string }>();
@@ -220,6 +235,12 @@ export async function regenerateClipAction(
       updatedAt: new Date().toISOString(),
     })
     .eq('id', newClip.id);
+
+  // Debit the compute pool for the regen too.
+  await spendStudia(STUDIA_COST_PER_VIDEO, {
+    memorialClipId: newClip.id,
+    note: 'Regen user',
+  });
 
   revalidatePath('/dashboard/clips');
   revalidatePath('/dashboard/profile/credits');

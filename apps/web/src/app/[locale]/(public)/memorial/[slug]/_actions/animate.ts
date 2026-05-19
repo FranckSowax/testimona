@@ -4,6 +4,11 @@ import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getBalance, spendCredits } from '@/lib/credits/balance';
+import {
+  STUDIA_COST_PER_VIDEO,
+  getStudiaBalance,
+  spendStudia,
+} from '@/lib/compute/balance';
 import { submitImageToVideo } from '@/lib/higgsfield/client';
 
 export interface AnimateSelection {
@@ -88,6 +93,20 @@ export async function submitAnimationAction(
   if (balance < cost)
     return { ok: false, error: 'Solde insuffisant.', needsCredits: cost - balance };
 
+  // Admin-side compute balance check — every user generation also debits
+  // Studia credits from the platform's pool. Refuse upfront if the pool
+  // can't cover the whole batch, otherwise the user would burn their
+  // Testimona credits on a no-op.
+  const computeBalance = await getStudiaBalance();
+  const computeNeeded = cost * STUDIA_COST_PER_VIDEO;
+  if (computeBalance < computeNeeded) {
+    return {
+      ok: false,
+      error:
+        'Service indisponible momentanément. Réessaie dans quelques minutes — l\'admin a été notifié.',
+    };
+  }
+
   const createdClipIds: string[] = [];
 
   // Submit one job per selection. We spend credits one-by-one to keep
@@ -122,6 +141,7 @@ export async function submitAnimationAction(
         status: 'pending',
         createdById: user.id,
         creditCost: 1,
+        providerCreditCost: STUDIA_COST_PER_VIDEO,
       })
       .select('id')
       .single<{ id: string }>();
@@ -168,6 +188,13 @@ export async function submitAnimationAction(
         updatedAt: new Date().toISOString(),
       })
       .eq('id', clip.id);
+
+    // Debit the platform compute pool — each generation costs the
+    // admin STUDIA_COST_PER_VIDEO from their Studia balance.
+    await spendStudia(STUDIA_COST_PER_VIDEO, {
+      memorialClipId: clip.id,
+      note: 'Animation user',
+    });
 
     createdClipIds.push(clip.id);
   }

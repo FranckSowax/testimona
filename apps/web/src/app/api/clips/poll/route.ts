@@ -3,12 +3,14 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getJobStatus } from '@/lib/higgsfield/client';
 import { mirrorClipToStorage } from '@/lib/higgsfield/storage';
 import { refundCredits } from '@/lib/credits/balance';
+import { refundStudia } from '@/lib/compute/balance';
 
 interface ClipRow {
   id: string;
   higgsfieldJobId: string | null;
   status: string;
   creditCost: number;
+  providerCreditCost: number;
   createdById: string;
 }
 
@@ -21,7 +23,7 @@ export async function POST() {
   const supabase = getSupabaseAdminClient();
   const { data: clips } = await supabase
     .from('MemorialClip')
-    .select('id, higgsfieldJobId, status, creditCost, createdById')
+    .select('id, higgsfieldJobId, status, creditCost, providerCreditCost, createdById')
     .in('status', ['pending', 'processing'])
     .order('createdAt', { ascending: true })
     .limit(10)
@@ -87,6 +89,14 @@ export async function POST() {
       memorialClipId: clip.id,
       note: 'Génération échouée — remboursé',
     });
+    // Refund compute too — the upstream job failed so we shouldn't bill
+    // the admin for a video that never reached the user.
+    if (clip.providerCreditCost > 0) {
+      await refundStudia(clip.providerCreditCost, {
+        memorialClipId: clip.id,
+        note: 'Compute refund on failed job',
+      });
+    }
     updated += 1;
   }
 
