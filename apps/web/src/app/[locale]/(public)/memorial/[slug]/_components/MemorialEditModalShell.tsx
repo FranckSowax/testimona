@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   MemorialFormPopup,
@@ -9,6 +9,12 @@ import {
 } from '@/components/popups/MemorialAdminModals';
 import { ButtonText } from '@/components/ui/ButtonText';
 import { updateMemorialAction } from '../_actions/memorial-update';
+
+/**
+ * Custom event the cover sidebar (and any other external trigger) can
+ * dispatch to open this modal without needing a direct ref.
+ */
+const OPEN_EVENT = 'testimona:open-memorial-edit';
 
 interface MemorialEditModalShellProps {
   memorialId: string;
@@ -29,6 +35,12 @@ export function MemorialEditModalShell({
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener(OPEN_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_EVENT, onOpen);
+  }, []);
 
   async function handleSubmit(values: MemorialFormValues) {
     setError(null);

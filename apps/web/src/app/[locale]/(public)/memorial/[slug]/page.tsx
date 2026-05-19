@@ -31,6 +31,7 @@ interface MemorialRow {
   deathDate: string | null;
   description: string | null;
   isPublic: boolean;
+  musicUrl: string | null;
 }
 
 async function getMemorial(slug: string): Promise<MemorialRow | null> {
@@ -38,7 +39,7 @@ async function getMemorial(slug: string): Promise<MemorialRow | null> {
   const { data } = await supabase
     .from('Memorial')
     .select(
-      'id, slug, ownerId, firstname, lastname, nickname, birthDate, deathDate, description, isPublic',
+      'id, slug, ownerId, firstname, lastname, nickname, birthDate, deathDate, description, isPublic, musicUrl',
     )
     .eq('slug', slug)
     .eq('isPublic', true)
@@ -58,16 +59,18 @@ async function getCoverPhotoUrl(memorialId: string): Promise<string | null> {
   return data?.url ?? null;
 }
 
-async function getMemorialPhotos(
-  memorialId: string,
-): Promise<{ id: string; url: string; caption: string | null }[]> {
+async function getMemorialPhotos(memorialId: string): Promise<
+  { id: string; url: string; caption: string | null; durationMs: number | null }[]
+> {
   const supabase = await getSupabaseServer();
   const { data } = await supabase
     .from('Photo')
-    .select('id, url, caption')
+    .select('id, url, caption, durationMs')
     .eq('memorialId', memorialId)
     .order('position', { ascending: true })
-    .returns<{ id: string; url: string; caption: string | null }[]>();
+    .returns<
+      { id: string; url: string; caption: string | null; durationMs: number | null }[]
+    >();
   return data ?? [];
 }
 
@@ -152,9 +155,8 @@ export default async function MemorialPage({
     like: tCover('like'),
     liked: tCover('liked'),
     share: tCover('share'),
-    email: tCover('email'),
     writeTestimonial: tCover('writeTestimonial'),
-    reportThanks: tCover('reportThanks'),
+    signinToWrite: tCover('signinToWrite'),
     story: {
       aria: tCover('story.aria'),
       close: tCover('story.close'),
@@ -166,6 +168,12 @@ export default async function MemorialPage({
       filterBw: tCover('story.filterBw'),
       filterSepia: tCover('story.filterSepia'),
       kenBurns: tCover('story.kenBurns'),
+      vignette: tCover('story.vignette'),
+      bokeh: tCover('story.bokeh'),
+      swipe: tCover('story.swipe'),
+      fade: tCover('story.fade'),
+      musicOn: tCover('story.musicOn'),
+      musicOff: tCover('story.musicOff'),
       empty: tCover('story.empty'),
       speed: tCover('story.speed'),
       speedSlow: tCover('story.speedSlow'),
@@ -256,6 +264,7 @@ export default async function MemorialPage({
             fullName={fullName}
             shareUrl={shareUrl}
             photos={memorialPhotos}
+            musicUrl={memorial.musicUrl}
             isOwner={isOwner}
             isLoggedIn={!!currentUser}
             labels={coverLabels}

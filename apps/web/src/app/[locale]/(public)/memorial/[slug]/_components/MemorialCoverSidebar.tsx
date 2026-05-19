@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useMemorialFavorite } from '@/lib/favorites';
 import { ButtonIcon } from '@/components/ui/ButtonIcon';
@@ -13,9 +12,8 @@ interface Labels {
   like: string;
   liked: string;
   share: string;
-  email: string;
   writeTestimonial: string;
-  reportThanks: string;
+  signinToWrite: string;
   story: {
     aria: string;
     close: string;
@@ -27,6 +25,12 @@ interface Labels {
     filterBw: string;
     filterSepia: string;
     kenBurns: string;
+    vignette: string;
+    bokeh: string;
+    swipe: string;
+    fade: string;
+    musicOn: string;
+    musicOff: string;
     empty: string;
     speed: string;
     speedSlow: string;
@@ -53,40 +57,44 @@ interface Props {
   fullName: string;
   shareUrl: string;
   photos: StoryPhoto[];
+  musicUrl?: string | null;
   isOwner: boolean;
   isLoggedIn: boolean;
   labels: Labels;
 }
 
+/**
+ * Cover icon strip (right side of the memorial banner). Each icon either
+ * dispatches a CustomEvent that an existing modal shell on the page picks
+ * up, or opens its own client-side overlay (story + share).
+ *
+ * Email icon removed per user feedback — email sharing is still available
+ * in the share drawer's grid.
+ */
 export function MemorialCoverSidebar({
   slug,
   fullName,
   shareUrl,
   photos,
+  musicUrl,
   isOwner,
   isLoggedIn,
   labels,
 }: Props) {
-  const router = useRouter();
   const [storyOpen, setStoryOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const { isFavorite, toggle: toggleFav, hydrated } = useMemorialFavorite(slug);
 
-  function handleWriteTestimonial() {
-    // The "Write a testimonial" CTA lives inside the Testimonials tab.
-    // Smooth-scroll there and let the tab open the create popup.
-    router.push(`/memorial/${slug}?tab=testimonials#testimonial-form`);
-    // Best-effort scroll if we're already on the page.
-    setTimeout(() => {
-      const target = document.querySelector('[data-testimonial-cta]');
-      if (target instanceof HTMLElement) target.click();
-    }, 100);
+  function openTestimonial() {
+    if (!isLoggedIn) {
+      window.location.href = `/login?next=/memorial/${slug}`;
+      return;
+    }
+    window.dispatchEvent(new CustomEvent('testimona:open-testimonial'));
   }
 
-  function handleEmail() {
-    const subject = encodeURIComponent(`En mémoire de ${fullName}`);
-    const body = encodeURIComponent(`${shareUrl}`);
-    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  function openEdit() {
+    window.dispatchEvent(new CustomEvent('testimona:open-memorial-edit'));
   }
 
   return (
@@ -97,28 +105,25 @@ export function MemorialCoverSidebar({
         tone="default"
         size="sm"
         onClick={() => setStoryOpen(true)}
-        disabled={photos.length === 0}
-        className="!bg-white/20 !text-white hover:!bg-white/30 disabled:!opacity-50"
+        className="!bg-white/20 !text-white hover:!bg-white/30"
       >
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M8 5v14l11-7z" />
         </svg>
       </ButtonIcon>
 
-      {/* Write a testimonial — always visible to logged-in users */}
-      {isLoggedIn && (
-        <ButtonIcon
-          label={labels.writeTestimonial}
-          tone="default"
-          size="sm"
-          onClick={handleWriteTestimonial}
-          className="!bg-white/20 !text-white hover:!bg-white/30"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M21 15a4 4 0 0 1-4 4H8l-5 3v-6.5A4.5 4.5 0 0 1 7.5 11H17a4 4 0 0 1 4 4Z" />
-          </svg>
-        </ButtonIcon>
-      )}
+      {/* Write a testimonial */}
+      <ButtonIcon
+        label={isLoggedIn ? labels.writeTestimonial : labels.signinToWrite}
+        tone="default"
+        size="sm"
+        onClick={openTestimonial}
+        className="!bg-white/20 !text-white hover:!bg-white/30"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M21 15a4 4 0 0 1-4 4H8l-5 3v-6.5A4.5 4.5 0 0 1 7.5 11H17a4 4 0 0 1 4 4Z" />
+        </svg>
+      </ButtonIcon>
 
       {/* Edit (owner only) */}
       {isOwner && (
@@ -126,14 +131,7 @@ export function MemorialCoverSidebar({
           label={labels.edit}
           tone="default"
           size="sm"
-          onClick={() => {
-            // Defer to the existing edit modal shell — it has a server-rendered
-            // entry in the cover area. We just scroll to it.
-            const trigger = document.querySelector(
-              '[data-memorial-edit-trigger]',
-            );
-            if (trigger instanceof HTMLElement) trigger.click();
-          }}
+          onClick={openEdit}
           className="!bg-white/20 !text-white hover:!bg-white/30"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -143,7 +141,7 @@ export function MemorialCoverSidebar({
         </ButtonIcon>
       )}
 
-      {/* Like / Favorite */}
+      {/* Favorite */}
       <ButtonIcon
         label={isFavorite ? labels.liked : labels.like}
         tone="default"
@@ -184,30 +182,15 @@ export function MemorialCoverSidebar({
         </svg>
       </ButtonIcon>
 
-      {/* Email */}
-      <ButtonIcon
-        label={labels.email}
-        tone="default"
-        size="sm"
-        onClick={handleEmail}
-        className="!bg-white/20 !text-white hover:!bg-white/30"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M4 4h16v16H4z" />
-          <path d="M22 6l-10 7L2 6" />
-        </svg>
-      </ButtonIcon>
-
-      {/* Story viewer (renders portal-style on full screen) */}
+      {/* Story viewer + share drawer — both portal to <body> internally. */}
       <PhotoStoryViewer
         open={storyOpen}
         onClose={() => setStoryOpen(false)}
         photos={photos}
         memorialName={fullName}
+        musicUrl={musicUrl}
         labels={labels.story}
       />
-
-      {/* Share dialog */}
       <MemorialShareDialog
         open={shareOpen}
         onClose={() => setShareOpen(false)}

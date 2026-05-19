@@ -115,6 +115,8 @@
   .animate-fade-in,
   .animate-pop-in,
   .animate-slide-in-left,
+  .animate-slide-in-right,
+  .animate-ken-burns,
   .animate-spin-slow,
   .animate-like-pulse,
   .animate-bell-shake {
@@ -172,6 +174,11 @@
   to   { transform: translateX(0); }
 }
 
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
 @keyframes ken-burns {
   0%   { transform: scale(1.06) translate(-1%, -1%); }
   100% { transform: scale(1.14) translate(1%, 1.5%); }
@@ -189,6 +196,9 @@
 }
 .animate-slide-in-left {
   animation: slide-in-left var(--motion-base) var(--motion-ease-out) both;
+}
+.animate-slide-in-right {
+  animation: slide-in-right var(--motion-base) var(--motion-ease-out) both;
 }
 .animate-ken-burns {
   animation: ken-burns 8s ease-in-out infinite alternate;

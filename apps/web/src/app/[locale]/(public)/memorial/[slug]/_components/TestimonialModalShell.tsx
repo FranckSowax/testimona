@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { ButtonContainer } from '@/components/ui/ButtonContainer';
 import {
@@ -10,6 +10,13 @@ import {
 } from '@/components/popups/MyTestimonialCreateModal';
 import { ThankYouTestimonialModal } from '@/components/popups/ThankYouTestimonialModal';
 import { submitTestimonialAction } from '../actions';
+
+/**
+ * Custom event other components (the cover sidebar) can dispatch to open
+ * the testimonial popup without depending on this shell's button being
+ * mounted in the current tab.
+ */
+const OPEN_EVENT = 'testimona:open-testimonial';
 
 interface TestimonialModalShellProps {
   memorialId: string;
@@ -43,6 +50,12 @@ export function TestimonialModalShell({
   const [thankYouOpen, setThankYouOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const onOpen = () => setCreateOpen(true);
+    window.addEventListener(OPEN_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_EVENT, onOpen);
+  }, []);
 
   async function handleSubmit(values: TestimonialFormValues) {
     setError(null);

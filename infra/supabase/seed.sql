@@ -53,7 +53,12 @@ VALUES
   ('a2222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222', 'https://images.unsplash.com/photo-1545167622-3a6ac756afa4?w=800', 'Marc, atelier photo', 0, v_now - interval '8 days'),
   ('a3333333-3333-3333-3333-333333333333', '33333333-3333-3333-3333-333333333333', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800', 'James, congrès Lyon 2018', 0, v_now - interval '5 days'),
   ('a4444444-4444-4444-4444-444444444444', '44444444-4444-4444-4444-444444444444', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800', 'Sofia, projet Milan', 0, v_now - interval '3 days'),
-  ('a5555555-5555-5555-5555-555555555555', '55555555-5555-5555-5555-555555555555', 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=800', 'Henri devant son école', 0, v_now - interval '1 day')
+  ('a5555555-5555-5555-5555-555555555555', '55555555-5555-5555-5555-555555555555', 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=800', 'Henri devant son école', 0, v_now - interval '1 day'),
+  ('b5555555-5555-5555-5555-555555555555', '55555555-5555-5555-5555-555555555555', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200', 'Promo 1968 — anniversaire', 1, v_now - interval '20 hours'),
+  ('c5555555-5555-5555-5555-555555555555', '55555555-5555-5555-5555-555555555555', 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1200', 'La bibliothèque du village', 2, v_now - interval '14 hours'),
+  ('d5555555-5555-5555-5555-555555555555', '55555555-5555-5555-5555-555555555555', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1200', 'Veillées d''été', 3, v_now - interval '10 hours'),
+  ('e5555555-5555-5555-5555-555555555555', '55555555-5555-5555-5555-555555555555', 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=1200', 'Avec ses petits-enfants', 4, v_now - interval '6 hours'),
+  ('f5555555-5555-5555-5555-555555555555', '55555555-5555-5555-5555-555555555555', 'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=1200', 'Le pré derrière l''école', 5, v_now - interval '2 hours')
 ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================================
