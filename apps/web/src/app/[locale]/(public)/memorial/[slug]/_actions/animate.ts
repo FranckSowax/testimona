@@ -155,7 +155,7 @@ export async function submitAnimationAction(
         amount: 1,
         type: 'refund',
         memorialClipId: clip.id,
-        note: 'Higgsfield submit failed',
+        note: 'Génération échouée — remboursé',
       });
       continue;
     }

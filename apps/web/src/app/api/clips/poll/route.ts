@@ -59,7 +59,7 @@ export async function POST() {
           .eq('id', clip.id);
         await refundCredits(clip.createdById, clip.creditCost, {
           memorialClipId: clip.id,
-          note: 'Storage upload failed',
+          note: 'Stockage du clip échoué — remboursé',
         });
         continue;
       }
@@ -86,7 +86,7 @@ export async function POST() {
       .eq('id', clip.id);
     await refundCredits(clip.createdById, clip.creditCost, {
       memorialClipId: clip.id,
-      note: `Higgsfield: ${job.error ?? 'failed'}`,
+      note: 'Génération échouée — remboursé',
     });
     updated += 1;
   }

@@ -183,7 +183,7 @@ export async function regenerateClipAction(
       userId: user.id,
       amount: 1,
       type: 'refund',
-      note: 'Regen insert failed',
+      note: 'Regénération échouée — remboursé',
     });
     return { error: insertErr?.message ?? 'Insert failed' };
   }
@@ -207,7 +207,7 @@ export async function regenerateClipAction(
       amount: 1,
       type: 'refund',
       memorialClipId: newClip.id,
-      note: 'Regen submit failed',
+      note: 'Regénération échouée — remboursé',
     });
     return { error: job.error };
   }

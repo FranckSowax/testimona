@@ -46,7 +46,7 @@ export default async function AdminClipsPage() {
   };
 
   return (
-    <AdminShell title="Clips Higgsfield">
+    <AdminShell title="Clips animés">
       <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatTile label="Total" value={counts.total} />
         <StatTile label="En cours" value={counts.processing} tone="processing" />

@@ -188,7 +188,7 @@ export function AnimateMemorialModal({
         <header className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
           <div className="min-w-0">
             <p className="font-display text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-              Higgsfield · {memorialName}
+              Animation · {memorialName}
             </p>
             <h2 className="truncate font-display text-lg font-bold text-foreground">
               {titleByStep[step]}
@@ -252,7 +252,7 @@ export function AnimateMemorialModal({
             <div className="flex flex-col items-center gap-3 py-12">
               <span className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
               <p className="text-sm text-muted-foreground">
-                Envoi à Higgsfield…
+                Envoi de la demande…
               </p>
             </div>
           )}
@@ -378,8 +378,7 @@ function Step1Pick({
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground">
-        Sélectionne les photos que Higgsfield va animer. Chaque photo coûte 1
-        crédit.
+        Sélectionne les photos à animer. Chaque photo coûte 1 crédit.
       </p>
       <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
         {photos.map((p) => {

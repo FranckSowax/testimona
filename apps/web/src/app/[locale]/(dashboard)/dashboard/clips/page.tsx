@@ -60,7 +60,7 @@ export default async function ClipsPage() {
     <div className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8 sm:px-6 lg:py-10">
       <header className="space-y-1">
         <p className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          Animations Higgsfield
+          Animations
         </p>
         <h1 className="font-display text-3xl font-bold text-foreground">
           Mes clips
