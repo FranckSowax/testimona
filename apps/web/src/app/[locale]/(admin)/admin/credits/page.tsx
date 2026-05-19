@@ -98,7 +98,7 @@ export default async function AdminCreditsPage() {
               <span className="font-display font-bold text-foreground tabular">
                 ~{videosRemaining}
               </span>{' '}
-              vidéos générables · {STUDIA_COST_PER_VIDEO} crédits/vidéo
+              vidéos générables · {STUDIA_COST_PER_VIDEO} crédit{STUDIA_COST_PER_VIDEO > 1 ? 's' : ''} par vidéo
             </p>
           </div>
           {studiaBalance < STUDIA_COST_PER_VIDEO * 5 && (

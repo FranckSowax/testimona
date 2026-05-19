@@ -17,15 +17,17 @@ export interface CreditTransactionRow {
  *
  *   provider cost  ×2  →  admin (Studia)  ×2  →  end user
  *
- * With STUDIA_COST_PER_VIDEO = 30 and the admin's mid-tier pack costing
- * 0.38€ / Studia credit, 1 video costs the admin ~11.40€. Doubled for
- * the end user → 22.80€ per video. Bigger packs apply a volume rebate
- * but never drop below the admin breakeven.
+ * Real fal.ai cost: ~0.18€/video. Studia → Admin (×2) → 0.36€.
+ * Admin → User (×2) → 0.72€ baseline. Volume tiers apply a rebate.
+ *
+ *   Découverte:  10 vidéos =  9€   (0.90€/vidéo)
+ *   Standard:    30 vidéos = 19€   (0.63€/vidéo, −30%)
+ *   Pro:        100 vidéos = 49€   (0.49€/vidéo, −46%)
  */
 export const CREDIT_PACKS = [
-  { id: 'starter', credits: 10, priceCents: 22900, label: 'Découverte' },
-  { id: 'standard', credits: 30, priceCents: 59900, label: 'Standard' },
-  { id: 'pro', credits: 100, priceCents: 179900, label: 'Pro' },
+  { id: 'starter', credits: 10, priceCents: 900, label: 'Découverte' },
+  { id: 'standard', credits: 30, priceCents: 1900, label: 'Standard' },
+  { id: 'pro', credits: 100, priceCents: 4900, label: 'Pro' },
 ] as const;
 
 export type CreditPackId = (typeof CREDIT_PACKS)[number]['id'];

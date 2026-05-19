@@ -9,20 +9,28 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
  * runs out, generations refuse to submit.
  */
 
-/** Real provider cost per Seedance 5s @ 720p, in raw upstream credits. */
-const REAL_COST_PER_VIDEO = 15;
+/**
+ * Studia compute credit = 1 video. Keeps the admin's balance directly
+ * readable as "how many videos can I still serve". Each generation
+ * deducts exactly 1 credit from this pool.
+ */
+export const STUDIA_COST_PER_VIDEO = 1;
 
-/** Markup applied when reselling to the Testimona admin. */
-const STUDIA_MARKUP = 2;
-
-/** Final Studia-credit cost per generated video. */
-export const STUDIA_COST_PER_VIDEO = REAL_COST_PER_VIDEO * STUDIA_MARKUP;
-
-/** Top-up packs offered by Studia Labs to the Testimona admin. */
+/**
+ * Top-up packs offered by Studia Labs to the Testimona admin.
+ *
+ * Underlying real cost: ~0.18€ per video on fal.ai (Seedance 2.0,
+ * 5s, 720p). Studia markup ×2 → admin pays ~0.36€/video baseline.
+ * Volume packs apply a rebate on top.
+ *
+ *   Starter:     50 vidéos =  19€   (0.38€/vidéo)
+ *   Croissance: 200 vidéos =  69€   (0.345€/vidéo, −9%)
+ *   Échelle:   1000 vidéos = 299€   (0.30€/vidéo,  −21%)
+ */
 export const STUDIA_PACKS = [
-  { id: 'starter', credits: 100, priceCents: 4500, label: 'Starter' },
-  { id: 'growth', credits: 500, priceCents: 19000, label: 'Croissance' },
-  { id: 'scale', credits: 2000, priceCents: 65000, label: 'Échelle' },
+  { id: 'starter', credits: 50, priceCents: 1900, label: 'Starter' },
+  { id: 'growth', credits: 200, priceCents: 6900, label: 'Croissance' },
+  { id: 'scale', credits: 1000, priceCents: 29900, label: 'Échelle' },
 ] as const;
 
 export type StudiaPackId = (typeof STUDIA_PACKS)[number]['id'];
