@@ -188,12 +188,13 @@ export async function submitImageToVideo(
         Authorization: authHeader(),
         'User-Agent': 'testimona-web/1.0',
       },
-      // Higgsfield wraps the model payload in `params` — the 422 response
-      // body confirms it: { detail: [{ loc: ["body","params"], msg:
-      // "Field required" }] }.
+      // Higgsfield wraps the model payload in `params`. We use the `lite`
+      // tier because DOP is a billed-per-credit model and `turbo`/`standard`
+      // cost more — for memorial-grade portrait animation the `lite`
+      // output is plenty.
       body: JSON.stringify({
         params: {
-          model: 'dop-turbo',
+          model: 'dop-lite',
           prompt: TESTIMONA_VIDEO_PROMPT,
           input_images: [{ type: 'image_url', image_url: params.imageUrl }],
         },
@@ -201,6 +202,13 @@ export async function submitImageToVideo(
     });
     if (!res.ok) {
       const text = await res.text().catch(() => '');
+      // Surface common errors with human-friendly text.
+      if (res.status === 403 && text.includes('credits')) {
+        return {
+          error:
+            'Crédits Higgsfield insuffisants sur ton compte (pas les crédits Testimona). Recharge sur cloud.higgsfield.ai.',
+        };
+      }
       return { error: `submit ${res.status}: ${text.slice(0, 200)}` };
     }
     const json = (await res.json()) as {
