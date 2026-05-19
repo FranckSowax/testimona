@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 
 const WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
@@ -6,8 +7,12 @@ const WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
  * Returns the number of recent (≤7 days) activity events on the current user's
  * memorials and testimonials. Used to render a badge in the sidebar/header.
  * Returns 0 when no user is logged in.
+ *
+ * Wrapped in React's cache() so calls from SiteHeader + AppSidebar in the
+ * same render pass don't run the 6 Supabase queries twice. This was
+ * responsible for ~600ms of dashboard latency on mobile.
  */
-export async function getUnseenNotificationsCount(): Promise<number> {
+export const getUnseenNotificationsCount = cache(async (): Promise<number> => {
   const user = await getCurrentUser();
   if (!user) return 0;
 
@@ -69,4 +74,4 @@ export async function getUnseenNotificationsCount(): Promise<number> {
     (comments.count ?? 0) +
     (donations.count ?? 0)
   );
-}
+});

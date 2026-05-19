@@ -4,6 +4,7 @@
  * Uses cookie-based session management via @supabase/ssr.
  * RLS-protected: this client is subject to the user's session JWT.
  */
+import { cache } from 'react';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
@@ -37,9 +38,15 @@ export async function getSupabaseServer() {
   );
 }
 
-export async function getCurrentUser() {
+/**
+ * Cached per-request — within the same React render pass, calling
+ * getCurrentUser() multiple times (header, sidebar, page, etc.) only
+ * hits Supabase once. Was a significant chunk of dashboard latency on
+ * mobile: 4-6 redundant auth round-trips per page.
+ */
+export const getCurrentUser = cache(async () => {
   const supabase = await getSupabaseServer();
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) return null;
   return data.user;
-}
+});

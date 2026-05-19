@@ -1,16 +1,17 @@
-import { DashboardShell } from '@/components/dashboard/DashboardShell';
-import { Skeleton, SkeletonCard } from '@/components/Skeleton';
-
+/**
+ * Minimal loading state — replaces the previous 6-skeleton-card grid that
+ * looked like the page had loaded with empty content. A small centered
+ * spinner makes "still loading" obvious instead of presenting fake UI
+ * the user keeps waiting for to fill in.
+ */
 export default function DashboardLoading() {
   return (
-    <DashboardShell title="…" action={<Skeleton className="h-10 w-40" />}>
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <li key={i}>
-            <SkeletonCard />
-          </li>
-        ))}
-      </ul>
-    </DashboardShell>
+    <div
+      role="status"
+      aria-label="Chargement"
+      className="mx-auto flex min-h-[50dvh] w-full max-w-6xl items-center justify-center px-4 py-12"
+    >
+      <span className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
   );
 }
