@@ -53,13 +53,19 @@ export default async function HiggsfieldPingPage() {
             <p className="mt-2 text-sm text-emerald-700/90">
               L'authentification Higgsfield fonctionne correctement.
             </p>
+            {result.verdict && (
+              <p className="mt-2 font-mono text-[11px] text-emerald-700/70">
+                {result.verdict}
+              </p>
+            )}
           </div>
         )}
 
         {!result.ok && (
           <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-5">
             <p className="font-display text-lg font-bold text-destructive">
-              ✗ Credentials rejetés ({result.status})
+              ✗ {result.status === 401 ? 'Credentials rejetés' : `Erreur ${result.status}`} (
+              {result.status})
             </p>
             <pre className="mt-3 overflow-x-auto rounded bg-white px-3 py-2 text-xs text-foreground">
               {result.body || '(empty)'}
@@ -72,20 +78,18 @@ export default async function HiggsfieldPingPage() {
                 Longueur KEY_ID (HIGGSFIELD_API_ID) :{' '}
                 <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
                   {result.idLen}
-                </code>
+                </code>{' '}
+                {result.idLen === 36 ? '✓ format UUID' : '⚠️ longueur inattendue'}
               </li>
               <li>
                 Longueur KEY_SECRET (HIGGSFIELD_API_KEY) :{' '}
                 <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
                   {result.secretLen}
-                </code>
+                </code>{' '}
+                {result.secretLen === 36 ? '✓ format UUID' : '⚠️ longueur inattendue'}
               </li>
             </ul>
-            <p className="mt-3 text-sm text-foreground/80">
-              {result.status === 401
-                ? 'Le 401 = Higgsfield refuse les credentials. Vérifie que tu n\'as pas inversé KEY_ID et KEY_SECRET, et qu\'il n\'y a pas d\'espace en début/fin de variable.'
-                : 'Erreur réseau ou serveur — réessaie dans une minute.'}
-            </p>
+            <p className="mt-3 text-sm text-foreground/80">{result.verdict}</p>
           </div>
         )}
       </div>

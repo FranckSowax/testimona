@@ -65,35 +65,54 @@ function authHeader() {
 
 /**
  * Admin-only diagnostic — pings Higgsfield with the current credentials.
- * Returns 'demo' when no creds are set, 'ok' on successful 200/2xx, or
- * { status, body } on failure so the admin can see whether the
- * credentials are accepted without spending a credit.
+ * Strategy: POST an intentionally-empty body to the image2video endpoint.
+ *  - 401 → credentials are wrong (auth gate rejected us)
+ *  - 400/422 → credentials are GOOD (auth passed, body validation fired)
+ *  - 405 → the path or method is wrong
+ *  - 2xx → unexpected but credentials work
  */
 export async function pingHiggsfield(): Promise<
-  | { ok: true; mode: 'demo' | 'real' }
-  | { ok: false; status: number; body: string; idLen: number; secretLen: number }
+  | { ok: true; mode: 'demo' | 'real'; verdict?: string }
+  | { ok: false; status: number; body: string; idLen: number; secretLen: number; verdict: string }
 > {
   if (isDemoMode()) return { ok: true, mode: 'demo' };
 
   const creds = readCreds()!;
   try {
-    // Touch a cheap endpoint — the requests list. A 200/2xx means auth
-    // is good. A 401 means the credentials are wrong. Anything else is
-    // a transient issue.
-    const res = await fetch(`${HIGGSFIELD_BASE}/v1/account`, {
+    const res = await fetch(`${HIGGSFIELD_BASE}/v1/image2video/dop`, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         Authorization: authHeader(),
         'User-Agent': 'testimona-web/1.0',
       },
+      body: JSON.stringify({}),
     });
-    if (res.ok) return { ok: true, mode: 'real' };
     const body = await res.text().catch(() => '');
+    const idLen = creds.id.length;
+    const secretLen = creds.secret.length;
+
+    // 400/422 means auth gate passed, validation rejected the body.
+    if (res.status === 400 || res.status === 422) {
+      return {
+        ok: true,
+        mode: 'real',
+        verdict: `auth OK — validation reply ${res.status}: ${body.slice(0, 200)}`,
+      };
+    }
+    // Some Higgsfield validators return 200 even with invalid params.
+    if (res.ok) return { ok: true, mode: 'real', verdict: '2xx response' };
+
     return {
       ok: false,
       status: res.status,
       body: body.slice(0, 400),
-      idLen: creds.id.length,
-      secretLen: creds.secret.length,
+      idLen,
+      secretLen,
+      verdict:
+        res.status === 401
+          ? 'Higgsfield rejette les credentials. Vérifie KEY_ID vs KEY_SECRET (peut-être inversés), espaces, et que ton compte a accès à l\'API REST (pas seulement MCP).'
+          : `Status inattendu — endpoint peut-être déplacé. Body: ${body.slice(0, 200)}`,
     };
   } catch (err) {
     return {
@@ -102,6 +121,7 @@ export async function pingHiggsfield(): Promise<
       body: err instanceof Error ? err.message : String(err),
       idLen: creds.id.length,
       secretLen: creds.secret.length,
+      verdict: 'Erreur réseau ou DNS',
     };
   }
 }
