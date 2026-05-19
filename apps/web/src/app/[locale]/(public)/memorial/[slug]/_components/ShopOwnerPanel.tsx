@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import {
   generateMemorialVisualAction,
   addShopItemAction,
-  removeShopItemAction,
   type ShopActionState,
 } from '../_actions/shop';
 import { SHOP_PRODUCTS, CATEGORY_LABEL, findProduct } from '@/lib/shop/catalog';
@@ -37,7 +36,7 @@ export interface ShopOwnerPanelProps {
   existingProductIds: string[];
 }
 
-function ShopOwnerPanelImpl({
+export function ShopOwnerPanel({
   memorialId,
   slug,
   photos,
@@ -392,28 +391,6 @@ function AddShopItemBlock({
   );
 }
 
-function RemoveButton({ itemId }: { itemId: string }) {
-  const [, formAction, isPending] = useActionState<
-    ShopActionState | null,
-    FormData
-  >(removeShopItemAction, null);
-  return (
-    <form action={formAction}>
-      <input type="hidden" name="id" value={itemId} />
-      <button
-        type="submit"
-        disabled={isPending}
-        aria-label="Retirer cet article de la boutique"
-        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-white text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive disabled:opacity-50"
-      >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-        </svg>
-      </button>
-    </form>
-  );
-}
-
-export const ShopOwnerPanel = Object.assign(ShopOwnerPanelImpl, {
-  RemoveButton,
-});
+// RemoveButton lives in its own file (ShopItemRemoveButton.tsx) so it can
+// be safely imported by the server-side ShopSection — Next.js doesn't
+// forward static properties across the Server → Client boundary.

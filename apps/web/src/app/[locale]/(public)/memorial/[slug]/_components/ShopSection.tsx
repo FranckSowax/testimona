@@ -4,6 +4,7 @@ import { findProduct, CATEGORY_LABEL } from '@/lib/shop/catalog';
 import { ShopProductIcon } from './ShopProductIcon';
 import { ShopOwnerPanel } from './ShopOwnerPanel';
 import { ShopContributeButton } from './ShopContributeButton';
+import { ShopItemRemoveButton } from './ShopItemRemoveButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -246,9 +247,7 @@ export async function ShopSection({
                       productName={product.name}
                       unitPriceCents={item.unitPriceCents}
                     />
-                    {isOwner && (
-                      <ShopOwnerPanel.RemoveButton itemId={item.id} />
-                    )}
+                    {isOwner && <ShopItemRemoveButton itemId={item.id} />}
                   </div>
                 </div>
               </li>
