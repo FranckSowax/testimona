@@ -94,6 +94,7 @@ export function PhotoStoryViewer({
   const [transition, setTransition] = useState<Transition>('swipe');
   const [speed, setSpeed] = useState<keyof typeof SPEEDS>('medium');
   const [musicMuted, setMusicMuted] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -367,13 +368,14 @@ export function PhotoStoryViewer({
         )}
       </div>
 
-      <footer className="relative z-10 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-t from-black to-transparent px-4 pb-6 pt-12 sm:px-6">
-        <div className="flex flex-wrap items-center gap-2">
+      {/* Compact glass control bar — always visible */}
+      <footer className="relative z-20 px-4 pb-[max(env(safe-area-inset-bottom),1.25rem)] pt-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+        <div className="mx-auto flex max-w-md items-center justify-between gap-2 rounded-full border border-white/15 bg-white/10 px-2 py-2 shadow-[var(--shadow-overlay)] backdrop-blur-xl">
           <button
             type="button"
             onClick={() => setPaused((p) => !p)}
             aria-label={paused ? labels.play : labels.pause}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/15 transition-colors hover:bg-white/25"
+            className="press-scale inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-foreground transition-transform hover:scale-105"
           >
             {paused ? (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -386,35 +388,142 @@ export function PhotoStoryViewer({
               </svg>
             )}
           </button>
-          <Pill label={labels.filterNone} active={filter === 'none'} onClick={() => setFilter('none')} />
-          <Pill label={labels.filterBw} active={filter === 'bw'} onClick={() => setFilter('bw')} />
-          <Pill label={labels.filterSepia} active={filter === 'sepia'} onClick={() => setFilter('sepia')} />
-          <Pill label={labels.kenBurns} active={kenBurns} onClick={() => setKenBurns((v) => !v)} />
-          <Pill label={labels.vignette} active={vignette} onClick={() => setVignette((v) => !v)} />
-          <Pill label={labels.bokeh} active={bokeh} onClick={() => setBokeh((v) => !v)} />
-          <Pill
-            label={transition === 'swipe' ? labels.swipe : labels.fade}
-            active
-            onClick={() => setTransition((t) => (t === 'swipe' ? 'fade' : 'swipe'))}
-          />
-        </div>
 
-        <div className="flex items-center gap-2">
-          <span className="hidden font-display text-[11px] font-bold uppercase tracking-wide text-white/60 sm:inline">
-            {labels.speed}
-          </span>
-          {(['slow', 'medium', 'fast'] as const).map((s) => (
-            <Pill
-              key={s}
-              label={
-                s === 'slow' ? labels.speedSlow : s === 'medium' ? labels.speedMedium : labels.speedFast
-              }
-              active={speed === s}
-              onClick={() => setSpeed(s)}
-            />
-          ))}
+          <button
+            type="button"
+            onClick={() => setSettingsOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={settingsOpen}
+            aria-label="Réglages"
+            className="flex flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 font-display text-[11px] font-bold uppercase tracking-wider text-white/90 transition-colors hover:bg-white/10"
+          >
+            <span className="truncate">
+              {filter === 'bw'
+                ? labels.filterBw
+                : filter === 'sepia'
+                ? labels.filterSepia
+                : labels.filterNone}
+            </span>
+            <span aria-hidden="true" className="text-white/40">·</span>
+            <span className="text-white/70">
+              {speed === 'slow'
+                ? labels.speedSlow
+                : speed === 'fast'
+                ? labels.speedFast
+                : labels.speedMedium}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSettingsOpen(true)}
+            aria-label="Réglages"
+            className="press-scale inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </button>
         </div>
       </footer>
+
+      {/* Settings bottom sheet */}
+      {settingsOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Réglages du diaporama"
+          className="absolute inset-0 z-30 flex items-end"
+        >
+          <button
+            type="button"
+            aria-label="Fermer les réglages"
+            onClick={() => setSettingsOpen(false)}
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+          />
+          <div className="animate-slide-in-up relative z-10 w-full rounded-t-3xl border-t border-white/15 bg-[rgba(20,20,28,0.85)] px-5 pb-[max(env(safe-area-inset-bottom),1.5rem)] pt-3 shadow-[var(--shadow-overlay)] backdrop-blur-2xl">
+            {/* Drag handle */}
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/30" aria-hidden="true" />
+
+            <div className="space-y-5">
+              <Section title={labels.filterNone === 'Original' ? 'Filtre' : 'Filter'}>
+                <SegPill
+                  label={labels.filterNone}
+                  active={filter === 'none'}
+                  onClick={() => setFilter('none')}
+                />
+                <SegPill
+                  label={labels.filterBw}
+                  active={filter === 'bw'}
+                  onClick={() => setFilter('bw')}
+                />
+                <SegPill
+                  label={labels.filterSepia}
+                  active={filter === 'sepia'}
+                  onClick={() => setFilter('sepia')}
+                />
+              </Section>
+
+              <Section title="Effets">
+                <ToggleChip
+                  label={labels.kenBurns}
+                  active={kenBurns}
+                  onClick={() => setKenBurns((v) => !v)}
+                />
+                <ToggleChip
+                  label={labels.vignette}
+                  active={vignette}
+                  onClick={() => setVignette((v) => !v)}
+                />
+                <ToggleChip
+                  label={labels.bokeh}
+                  active={bokeh}
+                  onClick={() => setBokeh((v) => !v)}
+                />
+              </Section>
+
+              <Section title="Transition">
+                <SegPill
+                  label={labels.swipe}
+                  active={transition === 'swipe'}
+                  onClick={() => setTransition('swipe')}
+                />
+                <SegPill
+                  label={labels.fade}
+                  active={transition === 'fade'}
+                  onClick={() => setTransition('fade')}
+                />
+              </Section>
+
+              <Section title={labels.speed}>
+                {(['slow', 'medium', 'fast'] as const).map((s) => (
+                  <SegPill
+                    key={s}
+                    label={
+                      s === 'slow'
+                        ? labels.speedSlow
+                        : s === 'medium'
+                        ? labels.speedMedium
+                        : labels.speedFast
+                    }
+                    active={speed === s}
+                    onClick={() => setSpeed(s)}
+                  />
+                ))}
+              </Section>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setSettingsOpen(false)}
+              className="press-scale mt-6 block w-full rounded-full bg-white py-3 font-display text-sm font-bold uppercase tracking-wide text-foreground transition-opacity hover:opacity-90"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
 
       {music?.kind === 'youtube' && !musicMuted && (
         <iframe
@@ -479,7 +588,18 @@ function SlideImage({
   );
 }
 
-function Pill({
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="mb-2 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-white/50">
+        {title}
+      </p>
+      <div className="flex flex-wrap gap-2">{children}</div>
+    </div>
+  );
+}
+
+function SegPill({
   label,
   active,
   onClick,
@@ -494,10 +614,51 @@ function Pill({
       onClick={onClick}
       aria-pressed={active}
       className={[
-        'rounded-full px-3 py-1 font-display text-[11px] font-bold uppercase tracking-wide transition-colors',
-        active ? 'bg-white text-foreground' : 'bg-white/15 text-white hover:bg-white/25',
+        'press-scale rounded-full px-4 py-2 font-display text-xs font-bold uppercase tracking-wide transition-all duration-150',
+        active
+          ? 'bg-white text-foreground shadow-lg shadow-white/20'
+          : 'bg-white/10 text-white/80 ring-1 ring-inset ring-white/15 hover:bg-white/15 hover:text-white',
       ].join(' ')}
     >
+      {label}
+    </button>
+  );
+}
+
+function ToggleChip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={[
+        'press-scale inline-flex items-center gap-2 rounded-full px-3.5 py-2 font-display text-xs font-bold uppercase tracking-wide transition-all duration-150',
+        active
+          ? 'bg-[var(--color-primary)]/90 text-white shadow-lg shadow-[var(--color-primary)]/30'
+          : 'bg-white/10 text-white/80 ring-1 ring-inset ring-white/15 hover:bg-white/15 hover:text-white',
+      ].join(' ')}
+    >
+      <span
+        aria-hidden="true"
+        className={[
+          'inline-flex h-3.5 w-3.5 items-center justify-center rounded-full transition-colors',
+          active ? 'bg-white text-[var(--color-primary)]' : 'bg-white/20',
+        ].join(' ')}
+      >
+        {active && (
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+        )}
+      </span>
       {label}
     </button>
   );
