@@ -19,18 +19,19 @@ export const STUDIA_COST_PER_VIDEO = 1;
 /**
  * Top-up packs offered by Studia Labs to the Testimona admin.
  *
- * Underlying real cost: ~0.18€ per video on fal.ai (Seedance 2.0,
- * 5s, 720p). Studia markup ×2 → admin pays ~0.36€/video baseline.
- * Volume packs apply a rebate on top.
+ * Real fal.ai cost per Seedance 2 image-to-video: $1.827 USD ≈ €1.68.
+ * Studia adds a flat +$0.25 margin per video → admin pays ≈ €1.95/video.
+ * Volume packs nudge the per-credit price down slightly without ever
+ * dipping below the Studia breakeven (+$0.05 floor).
  *
- *   Starter:     50 vidéos =  19€   (0.38€/vidéo)
- *   Croissance: 200 vidéos =  69€   (0.345€/vidéo, −9%)
- *   Échelle:   1000 vidéos = 299€   (0.30€/vidéo,  −21%)
+ *   Starter:     50 vidéos =   99€  (1.98€/vidéo)
+ *   Croissance: 200 vidéos =  389€  (1.945€/vidéo)
+ *   Échelle:   1000 vidéos = 1899€  (1.899€/vidéo)
  */
 export const STUDIA_PACKS = [
-  { id: 'starter', credits: 50, priceCents: 1900, label: 'Starter' },
-  { id: 'growth', credits: 200, priceCents: 6900, label: 'Croissance' },
-  { id: 'scale', credits: 1000, priceCents: 29900, label: 'Échelle' },
+  { id: 'starter', credits: 50, priceCents: 9900, label: 'Starter' },
+  { id: 'growth', credits: 200, priceCents: 38900, label: 'Croissance' },
+  { id: 'scale', credits: 1000, priceCents: 189900, label: 'Échelle' },
 ] as const;
 
 export type StudiaPackId = (typeof STUDIA_PACKS)[number]['id'];

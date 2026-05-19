@@ -13,21 +13,22 @@ export interface CreditTransactionRow {
 }
 
 /**
- * End-user credit packs. Pricing follows the platform's 2× markup chain:
+ * End-user credit packs. Pricing follows the platform's additive markup
+ * chain calibrated on the real fal.ai cost ($1.827 USD per Seedance 2
+ * image-to-video):
  *
- *   provider cost  ×2  →  admin (Studia)  ×2  →  end user
+ *   real fal cost  +$0.25 Studia  +$0.25 admin  =  $2.327 ≈ €2.14/video
  *
- * Real fal.ai cost: ~0.18€/video. Studia → Admin (×2) → 0.36€.
- * Admin → User (×2) → 0.72€ baseline. Volume tiers apply a rebate.
+ *   Découverte:  10 vidéos =  22€   (2.20€/vidéo)
+ *   Standard:    30 vidéos =  64€   (2.13€/vidéo, légère remise)
+ *   Pro:        100 vidéos = 209€   (2.09€/vidéo)
  *
- *   Découverte:  10 vidéos =  9€   (0.90€/vidéo)
- *   Standard:    30 vidéos = 19€   (0.63€/vidéo, −30%)
- *   Pro:        100 vidéos = 49€   (0.49€/vidéo, −46%)
+ * Volume tiers shave a few cents while keeping admin margin positive.
  */
 export const CREDIT_PACKS = [
-  { id: 'starter', credits: 10, priceCents: 900, label: 'Découverte' },
-  { id: 'standard', credits: 30, priceCents: 1900, label: 'Standard' },
-  { id: 'pro', credits: 100, priceCents: 4900, label: 'Pro' },
+  { id: 'starter', credits: 10, priceCents: 2200, label: 'Découverte' },
+  { id: 'standard', credits: 30, priceCents: 6400, label: 'Standard' },
+  { id: 'pro', credits: 100, priceCents: 20900, label: 'Pro' },
 ] as const;
 
 export type CreditPackId = (typeof CREDIT_PACKS)[number]['id'];
