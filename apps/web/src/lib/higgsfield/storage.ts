@@ -13,8 +13,12 @@ function looksLikeHiggsfieldUrl(url: string): boolean {
 }
 
 function higgsfieldAuthHeader(): string | undefined {
-  const id = process.env.HIGGSFIELD_API_KEY;
-  const secret = process.env.HIGGSFIELD_API_SECRET;
+  const id =
+    process.env.HIGGSFIELD_API_ID ?? process.env.HIGGSFIELD_KEY_ID;
+  const secret =
+    process.env.HIGGSFIELD_API_SECRET ??
+    process.env.HIGGSFIELD_KEY_SECRET ??
+    process.env.HIGGSFIELD_API_KEY;
   if (!id || !secret) return undefined;
   return `Key ${id}:${secret}`;
 }

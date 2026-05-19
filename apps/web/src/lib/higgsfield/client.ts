@@ -3,10 +3,15 @@ import 'server-only';
 /**
  * Higgsfield client — abstraction over the image-to-video generation API.
  *
- * Real integration hits https://platform.higgsfield.ai with the credentials
- * stored as HIGGSFIELD_API_KEY (= KEY_ID) and HIGGSFIELD_API_SECRET
- * (= KEY_SECRET). When either is missing we fall back to a deterministic
- * demo so the workflow can be exercised end-to-end without burning credit.
+ * Real integration hits https://platform.higgsfield.ai using the
+ * `Authorization: Key <KEY_ID>:<KEY_SECRET>` scheme. We read the
+ * credentials from one of these env layouts (in order):
+ *
+ *   1) HIGGSFIELD_API_ID    + HIGGSFIELD_API_KEY     ← Higgsfield's docs
+ *   2) HIGGSFIELD_API_KEY   + HIGGSFIELD_API_SECRET  ← legacy
+ *
+ * When both halves are missing we fall back to a deterministic demo so
+ * the workflow can be exercised end-to-end without burning credit.
  */
 
 const DEMO_CLIP_URL =
@@ -26,12 +31,29 @@ export interface JobStatus {
   error?: string;
 }
 
+function readCreds(): { id: string; secret: string } | null {
+  // Preferred: their docs call them KEY_ID and KEY_SECRET; we accept
+  // HIGGSFIELD_API_ID + HIGGSFIELD_API_KEY (which is what most users
+  // see when they copy from the Higgsfield dashboard — id + key).
+  const id =
+    process.env.HIGGSFIELD_API_ID ?? process.env.HIGGSFIELD_KEY_ID ?? null;
+  const secret =
+    process.env.HIGGSFIELD_API_SECRET ??
+    process.env.HIGGSFIELD_KEY_SECRET ??
+    process.env.HIGGSFIELD_API_KEY ??
+    null;
+  if (!id || !secret) return null;
+  return { id, secret };
+}
+
 function isDemoMode() {
-  return !process.env.HIGGSFIELD_API_KEY || !process.env.HIGGSFIELD_API_SECRET;
+  return readCreds() === null;
 }
 
 function authHeader() {
-  return `Key ${process.env.HIGGSFIELD_API_KEY}:${process.env.HIGGSFIELD_API_SECRET}`;
+  const creds = readCreds();
+  if (!creds) throw new Error('Higgsfield credentials missing');
+  return `Key ${creds.id}:${creds.secret}`;
 }
 
 /**
