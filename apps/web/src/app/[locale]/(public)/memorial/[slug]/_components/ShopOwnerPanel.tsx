@@ -188,19 +188,16 @@ function GenerateVisualBlock({
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-xs text-muted-foreground">
               {readyVisuals.length} visuel{readyVisuals.length > 1 ? 's' : ''}{' '}
-              déjà généré{readyVisuals.length > 1 ? 's' : ''}
-              {hasProcessing && ' · 1 en cours…'}
+              prêt{readyVisuals.length > 1 ? 's' : ''}
+              {hasProcessing &&
+                ` · ${hasProcessing ? 'génération en cours' : ''}`}
             </p>
             <button
               type="submit"
-              disabled={isPending || !selectedPhotoId || hasProcessing}
+              disabled={isPending || !selectedPhotoId}
               className="press-scale rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
             >
-              {isPending
-                ? 'Envoi…'
-                : hasProcessing
-                ? 'Génération en cours…'
-                : 'Générer un nouveau visuel'}
+              {isPending ? 'Envoi…' : 'Générer un nouveau visuel'}
             </button>
           </div>
 

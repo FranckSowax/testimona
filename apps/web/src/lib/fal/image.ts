@@ -58,8 +58,10 @@ function baseHeaders(): Record<string, string> {
 
 /**
  * Submit a Flux Pro image-to-image job. Returns the packaged status URL
- * (`falimg:<status_url>`) so the polling worker uses the exact regional
- * URL fal returned.
+ * AND response URL (when fal provides one) so the polling worker uses
+ * the exact regional URLs fal returned. Format:
+ *   `falimg:<status_url>` (legacy) OR
+ *   `falimg2:<status_url>||<response_url>` (current)
  */
 export async function falSubmitImage(
   params: VisualSubmitParams,
@@ -91,6 +93,7 @@ export async function falSubmitImage(
     const json = (await res.json()) as {
       request_id?: string;
       status_url?: string;
+      response_url?: string;
     };
     const statusUrl =
       json.status_url ??
@@ -98,22 +101,74 @@ export async function falSubmitImage(
         ? `${FAL_BASE}/${FLUX_I2I_PATH}/requests/${json.request_id}/status`
         : null);
     if (!statusUrl) return { error: 'fal img: missing status_url' };
-    return { jobId: `falimg:${statusUrl}` };
+    const responseUrl = json.response_url ?? '';
+    return { jobId: `falimg2:${statusUrl}||${responseUrl}` };
   } catch (err) {
     return { error: err instanceof Error ? err.message : String(err) };
   }
 }
 
 /**
- * Poll status. `jobId` is `falimg:<status_url>`. On COMPLETED we fetch
- * the result endpoint to recover the generated image URL.
+ * Try to fetch the result from a few URL variants. fal's queue layer
+ * uses `/response` for the result of the new endpoints, but historical
+ * docs and SDK code use `/{request_id}` directly — different model
+ * routes serve different conventions. We try the saved response_url
+ * first, then fall back to `<status_url without /status>/response`,
+ * then to `<status_url without /status>`.
+ */
+async function fetchResultFromCandidates(
+  candidates: string[],
+): Promise<
+  | { ok: true; imageUrl: string }
+  | { ok: false; lastStatus: number; error: string }
+> {
+  let lastStatus = 0;
+  let lastErr = 'no candidates';
+  for (const url of candidates) {
+    if (!url) continue;
+    const res = await fetch(url, { headers: baseHeaders() });
+    if (!res.ok) {
+      lastStatus = res.status;
+      lastErr = `${res.status}`;
+      continue;
+    }
+    const result = (await res.json().catch(() => null)) as
+      | { images?: { url?: string }[]; image?: { url?: string } }
+      | null;
+    const imageUrl = result?.images?.[0]?.url ?? result?.image?.url;
+    if (imageUrl) return { ok: true, imageUrl };
+    lastErr = 'no url in body';
+  }
+  return { ok: false, lastStatus, error: lastErr };
+}
+
+/**
+ * Poll status. `jobId` is `falimg2:<status_url>||<response_url>` (new) or
+ * `falimg:<status_url>` (legacy). On COMPLETED we fetch the result.
  */
 export async function falGetImageStatus(jobId: string): Promise<VisualJobStatus> {
-  if (!jobId.startsWith('falimg:')) {
+  let statusUrl = '';
+  let savedResponseUrl = '';
+
+  if (jobId.startsWith('falimg2:')) {
+    const payload = jobId.slice('falimg2:'.length);
+    const [s, r] = payload.split('||');
+    statusUrl = s ?? '';
+    savedResponseUrl = r ?? '';
+  } else if (jobId.startsWith('falimg:')) {
+    statusUrl = jobId.slice('falimg:'.length);
+  } else {
     return { status: 'failed', error: 'unsupported jobId' };
   }
-  const statusUrl = jobId.slice('falimg:'.length);
-  const resultUrl = statusUrl.replace(/\/status\b.*$/, '');
+  if (!statusUrl) return { status: 'failed', error: 'no statusUrl' };
+
+  const stripped = statusUrl.replace(/\/status\b.*$/, '');
+  const candidates = [
+    savedResponseUrl,
+    `${stripped}/response`,
+    stripped,
+  ];
+
   try {
     const statusRes = await fetch(statusUrl, { headers: baseHeaders() });
     if (!statusRes.ok) {
@@ -122,16 +177,9 @@ export async function falGetImageStatus(jobId: string): Promise<VisualJobStatus>
     const status = (await statusRes.json()) as { status?: string };
 
     if (status.status === 'COMPLETED') {
-      const resultRes = await fetch(resultUrl, { headers: baseHeaders() });
-      if (!resultRes.ok) {
-        return { status: 'failed', error: `fal img result ${resultRes.status}` };
-      }
-      const result = (await resultRes.json()) as {
-        images?: { url?: string }[];
-      };
-      const url = result.images?.[0]?.url;
-      if (!url) return { status: 'failed', error: 'fal img: no url' };
-      return { status: 'ready', imageUrl: url };
+      const r = await fetchResultFromCandidates(candidates);
+      if (!r.ok) return { status: 'failed', error: `fal img result ${r.error}` };
+      return { status: 'ready', imageUrl: r.imageUrl };
     }
     if (status.status === 'IN_QUEUE' || status.status === 'IN_PROGRESS') {
       return { status: 'processing' };
