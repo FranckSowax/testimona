@@ -193,17 +193,15 @@ export async function submitImageToVideo(
   }
 
   // Route through fal.ai when configured — Seedance 2.0 hosted directly
-  // by Bytedance, cheaper than Higgsfield's DOP. We prefix the job id
-  // with "fal_" so the polling worker knows which provider's status
-  // endpoint to call.
+  // by Bytedance, cheaper than Higgsfield's DOP. The job id we receive
+  // already starts with `falurl:` (the packaged status URL) so the
+  // polling worker routes to the right provider.
   if (provider === 'fal') {
-    const r = await falSubmitImageToVideo({
+    return falSubmitImageToVideo({
       imageUrl: params.imageUrl,
       prompt: TESTIMONA_VIDEO_PROMPT,
       durationSec: params.durationSec,
     });
-    if ('error' in r) return r;
-    return { jobId: `fal_${r.jobId}` };
   }
 
   // Fall through to Higgsfield REST API on /v1/image2video/dop.
@@ -257,9 +255,11 @@ export async function getJobStatus(jobId: string): Promise<JobStatus> {
     return { status: 'ready', videoUrl: DEMO_CLIP_URL };
   }
 
-  // fal-prefixed jobs route to fal.ai's queue status endpoint.
-  if (jobId.startsWith('fal_')) {
-    const realId = jobId.slice(4);
+  // fal-prefixed jobs route to fal.ai's queue status endpoint. The
+  // new format is `falurl:<status_url>`; the legacy `fal_<request_id>`
+  // is still supported by falGetJobStatus for in-flight jobs.
+  if (jobId.startsWith('falurl:') || jobId.startsWith('fal_')) {
+    const realId = jobId.startsWith('fal_') ? jobId.slice(4) : jobId;
     return falGetJobStatus(realId);
   }
 

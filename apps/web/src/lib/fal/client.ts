@@ -40,8 +40,28 @@ function authHeader() {
 }
 
 /**
+ * Headers every fal request needs. Empirically, fal's edge layer was
+ * returning 405 on status GETs when the request didn't look like it
+ * came from their official SDK — adding a user-agent mimicking the JS
+ * SDK gets through cleanly.
+ */
+function baseHeaders(): Record<string, string> {
+  return {
+    Authorization: authHeader(),
+    'User-Agent': '@fal-ai/client/testimona-1.0',
+    Accept: 'application/json',
+  };
+}
+
+/**
  * Submit a Seedance 2.0 image-to-video job to fal.ai's queue.
- * Returns the queue request id for later polling.
+ *
+ * Returns the queue status_url packaged as the job id (prefixed `falurl:`).
+ * Storing the URL directly side-steps fal's per-region queue routing:
+ * when we POST a submit fal may bounce us to a regional cluster, and the
+ * returned `status_url` already points at that cluster. Re-constructing
+ * the URL from the model path can return a 405 if we accidentally hit
+ * the wrong region.
  */
 export async function falSubmitImageToVideo(
   params: FalSubmitParams,
@@ -50,8 +70,8 @@ export async function falSubmitImageToVideo(
     const res = await fetch(`${FAL_BASE}/${SEEDANCE_PATH}`, {
       method: 'POST',
       headers: {
+        ...baseHeaders(),
         'Content-Type': 'application/json',
-        Authorization: authHeader(),
       },
       body: JSON.stringify({
         image_url: params.imageUrl,
@@ -69,39 +89,53 @@ export async function falSubmitImageToVideo(
     const json = (await res.json()) as {
       request_id?: string;
       gateway_request_id?: string;
+      status_url?: string;
+      response_url?: string;
     };
-    const jobId = json.request_id ?? json.gateway_request_id;
-    if (!jobId) return { error: 'fal: missing request_id' };
-    return { jobId };
+    // Prefer the absolute URLs fal returns — they point at the right
+    // regional cluster. Fall back to constructing with request_id only
+    // if the response is missing them (older API versions).
+    const statusUrl =
+      json.status_url ??
+      (json.request_id
+        ? `${FAL_BASE}/${SEEDANCE_PATH}/requests/${json.request_id}/status`
+        : null);
+    if (!statusUrl) return { error: 'fal: missing status_url & request_id' };
+    return { jobId: `falurl:${statusUrl}` };
   } catch (err) {
     return { error: err instanceof Error ? err.message : String(err) };
   }
 }
 
 /**
- * Poll the queue status. When COMPLETED we fetch the result endpoint to
- * recover the actual video URL.
+ * Poll the queue. `jobId` is expected to be the packaged status_url —
+ * we strip the `falurl:` prefix and GET the URL directly. The response
+ * URL is derived by removing the trailing /status segment.
  */
 export async function falGetJobStatus(jobId: string): Promise<FalJobStatus> {
+  // Support both the new packaged jobId (`falurl:<url>`) and the legacy
+  // bare request_id form so clips submitted before the fix still poll.
+  let statusUrl: string;
+  if (jobId.startsWith('falurl:')) {
+    statusUrl = jobId.slice('falurl:'.length);
+  } else {
+    statusUrl = `${FAL_BASE}/${SEEDANCE_PATH}/requests/${jobId}/status`;
+  }
+  const resultUrl = statusUrl.replace(/\/status\b.*$/, '');
+
   try {
-    const statusRes = await fetch(
-      `${FAL_BASE}/${SEEDANCE_PATH}/requests/${jobId}/status`,
-      {
-        headers: { Authorization: authHeader() },
-      },
-    );
+    const statusRes = await fetch(statusUrl, {
+      headers: baseHeaders(),
+    });
     if (!statusRes.ok) {
       return { status: 'failed', error: `fal status ${statusRes.status}` };
     }
     const status = (await statusRes.json()) as { status?: string };
 
     if (status.status === 'COMPLETED') {
-      const resultRes = await fetch(
-        `${FAL_BASE}/${SEEDANCE_PATH}/requests/${jobId}`,
-        {
-          headers: { Authorization: authHeader() },
-        },
-      );
+      const resultRes = await fetch(resultUrl, {
+        headers: baseHeaders(),
+      });
       if (!resultRes.ok) {
         return { status: 'failed', error: `fal result ${resultRes.status}` };
       }
@@ -140,8 +174,8 @@ export async function pingFal(): Promise<
     const res = await fetch(`${FAL_BASE}/${SEEDANCE_PATH}`, {
       method: 'POST',
       headers: {
+        ...baseHeaders(),
         'Content-Type': 'application/json',
-        Authorization: authHeader(),
       },
       body: JSON.stringify({}),
     });
