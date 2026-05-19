@@ -46,6 +46,7 @@ export function NewMemorialModalShell() {
           fd.set('language', 'fr');
           fd.set('isPublic', 'on');
           if (values.bio) fd.set('description', values.bio);
+          if (values.musicUrl) fd.set('musicUrl', values.musicUrl);
 
           const result = await createMemorialAction(null, fd);
 

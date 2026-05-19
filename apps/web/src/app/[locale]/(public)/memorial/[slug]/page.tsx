@@ -248,6 +248,7 @@ export default async function MemorialPage({
                 deathCountry: '',
                 relationship: '',
                 bio: memorial.description ?? '',
+                musicUrl: memorial.musicUrl ?? '',
               }}
             />
           ) : currentUser ? (

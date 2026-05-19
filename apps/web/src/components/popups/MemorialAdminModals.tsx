@@ -19,6 +19,7 @@ export interface MemorialFormValues {
   deathCity?: string;
   relationship: string;
   bio?: string;
+  musicUrl?: string;
 }
 
 interface MemorialFormPopupProps {
@@ -56,6 +57,7 @@ export function MemorialFormPopup({
     deathCity: initial.deathCity ?? '',
     relationship: initial.relationship ?? '',
     bio: initial.bio ?? '',
+    musicUrl: initial.musicUrl ?? '',
   });
   const set = <K extends keyof MemorialFormValues>(k: K, val: MemorialFormValues[K]) =>
     setV((p) => ({ ...p, [k]: val }));
@@ -195,6 +197,24 @@ export function MemorialFormPopup({
             />
             <span className="mt-1 block text-right text-xs italic text-muted-foreground tabular">
               {(v.bio ?? '').length}/280
+            </span>
+          </label>
+
+          <label className="block">
+            <span className="block font-display text-sm font-medium text-muted-foreground">
+              Ambient music (URL — optional)
+            </span>
+            <input
+              type="url"
+              value={v.musicUrl ?? ''}
+              onChange={(e) => set('musicUrl', e.target.value)}
+              placeholder="https://youtube.com/watch?v=… or https://…/song.mp3"
+              maxLength={500}
+              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-base font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)] sm:text-[15px]"
+            />
+            <span className="mt-1 block text-xs italic text-muted-foreground">
+              Plays in loop during the photo slideshow. YouTube link or direct
+              audio URL (mp3 / m4a / wav).
             </span>
           </label>
 

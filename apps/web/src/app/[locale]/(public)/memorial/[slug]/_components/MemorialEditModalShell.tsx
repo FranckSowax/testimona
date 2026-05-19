@@ -60,6 +60,8 @@ export function MemorialEditModalShell({
         if (values.deathMonth) fd.set('deathMonth', values.deathMonth);
         if (values.deathDay) fd.set('deathDay', values.deathDay);
         if (values.bio) fd.set('description', values.bio);
+        // Always set musicUrl (including empty) so the action can clear it.
+        fd.set('musicUrl', values.musicUrl ?? '');
 
         const result = await updateMemorialAction(null, fd);
         if (result?.error) {

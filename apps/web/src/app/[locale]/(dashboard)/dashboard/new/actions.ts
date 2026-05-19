@@ -58,6 +58,9 @@ export async function createMemorialAction(
   const suffix = Math.random().toString(36).slice(2, 8);
   const slug = baseSlug ? `${baseSlug}-${suffix}` : suffix;
 
+  const musicUrl =
+    String(formData.get('musicUrl') ?? '').trim().slice(0, 500) || null;
+
   const { error } = await supabase.from('Memorial').insert({
     ownerId: userData.user.id,
     slug,
@@ -69,6 +72,7 @@ export async function createMemorialAction(
     language: parsed.data.language,
     isPublic: parsed.data.isPublic,
     description: parsed.data.description ?? null,
+    musicUrl,
   });
 
   if (error) return { error: error.message };

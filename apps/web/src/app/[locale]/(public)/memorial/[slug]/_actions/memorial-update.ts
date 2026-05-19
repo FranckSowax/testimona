@@ -64,6 +64,8 @@ export async function updateMemorialAction(
     .trim()
     .slice(0, 280);
   const nickname = String(formData.get('nickname') ?? '').trim() || null;
+  const musicUrlRaw = String(formData.get('musicUrl') ?? '').trim();
+  const musicUrl = musicUrlRaw ? musicUrlRaw.slice(0, 500) : null;
 
   const { error } = await supabase
     .from('Memorial')
@@ -74,6 +76,7 @@ export async function updateMemorialAction(
       birthDate,
       deathDate,
       description: description || null,
+      musicUrl,
     })
     .eq('id', memorialId);
 

@@ -62,6 +62,11 @@ export async function PhotosSection({
             </li>
           ))}
         </ul>
+      ) : isOwner ? (
+        <p className="mt-4 rounded-md border border-dashed border-border bg-surface px-4 py-6 text-center text-sm italic text-muted-foreground">
+          Aucune photo encore. Glisse-dépose ou choisis un fichier ci-dessus
+          pour commencer le mémorial.
+        </p>
       ) : (
         <p className="text-sm text-muted-foreground">
           Aucune photo pour le moment.
