@@ -145,28 +145,30 @@ export function MemorialCoverSidebar({
         </ButtonIcon>
       )}
 
-      {/* Animate via Higgsfield (owner only) — play icon + small accent + */}
+      {/* Animate photos (owner only) — sparkles icon, universal AI affordance */}
       {isOwner && (
         <ButtonIcon
-          label="Animer les photos"
+          label="Animer les photos (IA)"
           tone="default"
           size="sm"
           onClick={openAnimate}
           className="!bg-accent/90 !text-white hover:!bg-accent"
         >
-          <span className="relative inline-flex">
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-            <span
-              aria-hidden="true"
-              className="absolute -right-1 -top-1 inline-flex h-3 w-3 items-center justify-center rounded-full bg-white text-accent"
-            >
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round">
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-            </span>
-          </span>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0L14.06 8.5A2 2 0 0 0 15.5 9.94l6.14 1.58a.5.5 0 0 1 0 .96L15.5 14.06a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z" />
+            <path d="M20 3v4" />
+            <path d="M22 5h-4" />
+            <path d="M4 17v2" />
+            <path d="M5 18H3" />
+          </svg>
         </ButtonIcon>
       )}
 
