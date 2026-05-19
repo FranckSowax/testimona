@@ -568,6 +568,26 @@
       "deleteTestimonial": "Supprimer le témoignage",
       "confirmDeleteTestimonial": "Supprimer définitivement ce témoignage et tous ses signalements ?"
     },
+    "settings": {
+      "youTitle": "Vous",
+      "envTitle": "Santé de l'environnement",
+      "version": "Version",
+      "envSupabase": "Supabase URL",
+      "envServiceRole": "Clé service-role",
+      "envSiteUrl": "URL publique du site",
+      "envStripe": "Clé Stripe",
+      "envSentry": "Sentry DSN",
+      "ok": "OK",
+      "missing": "Absent",
+      "adminsTitle": "Administrateurs",
+      "adminsSubtitle": "Comptes ayant le rôle Admin.",
+      "adminsEmpty": "Aucun autre administrateur.",
+      "lastSeen": "Dernière connexion",
+      "quickLinks": "Liens rapides",
+      "linkOverviewDesc": "KPI globaux et activité récente.",
+      "linkReportsDesc": "Modérer les témoignages signalés.",
+      "linkDonationsDesc": "Encaissements et historique des dons."
+    },
     "donations": {
       "totalPaid": "Total encaissé",
       "totalPending": "En attente",

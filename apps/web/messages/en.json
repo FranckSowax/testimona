@@ -568,6 +568,26 @@
       "deleteTestimonial": "Delete testimonial",
       "confirmDeleteTestimonial": "Permanently delete this testimonial and all its reports?"
     },
+    "settings": {
+      "youTitle": "You",
+      "envTitle": "Environment health",
+      "version": "Version",
+      "envSupabase": "Supabase URL",
+      "envServiceRole": "Service-role key",
+      "envSiteUrl": "Public site URL",
+      "envStripe": "Stripe secret key",
+      "envSentry": "Sentry DSN",
+      "ok": "OK",
+      "missing": "Missing",
+      "adminsTitle": "Administrators",
+      "adminsSubtitle": "Accounts with the Admin role.",
+      "adminsEmpty": "No other administrator.",
+      "lastSeen": "Last sign-in",
+      "quickLinks": "Quick links",
+      "linkOverviewDesc": "Global KPIs and recent activity.",
+      "linkReportsDesc": "Moderate flagged testimonials.",
+      "linkDonationsDesc": "Receipts and donations history."
+    },
     "donations": {
       "totalPaid": "Total received",
       "totalPending": "Pending",
