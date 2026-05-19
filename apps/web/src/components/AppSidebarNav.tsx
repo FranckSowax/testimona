@@ -7,9 +7,16 @@ interface NavItem {
     | '/'
     | '/dashboard'
     | '/dashboard/testimonials'
+    | '/dashboard/clips'
     | '/dashboard/notifications'
     | '/dashboard/profile';
-  labelKey: 'home' | 'memorials' | 'testimonials' | 'notifications' | 'settings';
+  labelKey:
+    | 'home'
+    | 'memorials'
+    | 'testimonials'
+    | 'clips'
+    | 'notifications'
+    | 'settings';
   iconPath: string;
 }
 
@@ -23,6 +30,12 @@ const ITEMS: NavItem[] = [
     href: '/dashboard/testimonials',
     labelKey: 'testimonials',
     iconPath: 'M21 12a8 8 0 0 1-11.4 7.3L3 21l1.7-5.6A8 8 0 1 1 21 12Z',
+  },
+  {
+    href: '/dashboard/clips',
+    labelKey: 'clips',
+    iconPath:
+      'M23 7l-7 5 7 5V7zM3 5h11a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z',
   },
   {
     href: '/dashboard/notifications',
@@ -49,6 +62,7 @@ interface Props {
     home: string;
     memorials: string;
     testimonials: string;
+    clips: string;
     notifications: string;
     settings: string;
     aria: string;

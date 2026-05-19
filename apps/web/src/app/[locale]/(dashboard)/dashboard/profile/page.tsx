@@ -9,6 +9,7 @@ import { ProfileForm } from './ProfileForm';
 import { SecuritySection } from './SecuritySection';
 import { DonationsHistorySection } from './DonationsHistorySection';
 import { PayoutSection } from './PayoutSection';
+import { CreditsSummarySection } from './CreditsSummarySection';
 
 export const metadata: Metadata = {
   title: 'Settings',
@@ -98,6 +99,12 @@ export default async function ProfilePage({
             title: tShared('securityTitle'),
             description: tShared('securityDesc'),
             content: <SecuritySection labels={securityLabels} />,
+          },
+          {
+            id: 'credits',
+            title: 'Crédits Testimona',
+            description: 'Tes crédits pour animer les photos d’un mémorial.',
+            content: <CreditsSummarySection userId={user.id} />,
           },
           {
             id: 'donations',

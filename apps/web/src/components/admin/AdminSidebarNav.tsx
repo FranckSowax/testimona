@@ -52,6 +52,18 @@ const ITEMS: NavItem[] = [
       'M3 11l18-5v12L3 13v-2zm0 0v2m6 9l-3-9M14 7v10',
   },
   {
+    href: '/admin/clips',
+    labelKey: 'clips',
+    iconPath:
+      'M23 7l-7 5 7 5V7zM3 5h11a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z',
+  },
+  {
+    href: '/admin/credits',
+    labelKey: 'credits',
+    iconPath:
+      'M12 2L4 7v10l8 5 8-5V7l-8-5zM12 22V12M4 7l8 5 8-5',
+  },
+  {
     href: '/admin/settings',
     labelKey: 'settings',
     iconPath:
@@ -67,6 +79,8 @@ export interface Labels {
   donations: string;
   reports: string;
   ads: string;
+  clips: string;
+  credits: string;
   settings: string;
   aria: string;
 }

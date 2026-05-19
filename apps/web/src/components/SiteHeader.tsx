@@ -7,6 +7,7 @@ import { Avatar } from './ui/Avatar';
 import { LocaleSwitcher } from './LocaleSwitcher';
 import { HeaderCreateMemorialButton } from './HeaderCreateMemorialButton';
 import { MobileHamburgerMenu } from './MobileHamburgerMenu';
+import { CreditBadge } from './CreditBadge';
 
 export async function SiteHeader() {
   const [user, t, tHome, tHeader, tNav, tFooter, badge] = await Promise.all([
@@ -104,6 +105,13 @@ export async function SiteHeader() {
         {user && (
           <div className="hidden sm:block">
             <HeaderCreateMemorialButton label={tHome('createMemorial')} />
+          </div>
+        )}
+
+        {/* Credit balance — only for logged-in users */}
+        {user && (
+          <div className="hidden sm:block">
+            <CreditBadge />
           </div>
         )}
 

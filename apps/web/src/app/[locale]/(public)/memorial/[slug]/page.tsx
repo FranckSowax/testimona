@@ -17,6 +17,8 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { MemorialEditModalShell } from './_components/MemorialEditModalShell';
 import { AdminRequestModalShell } from './_components/AdminModalShells';
 import { MemorialCoverSidebar } from './_components/MemorialCoverSidebar';
+import { AnimateMemorialModal } from './_components/AnimateMemorialModal';
+import { getBalance } from '@/lib/credits/balance';
 
 export const revalidate = 60; // ISR — 60s
 
@@ -72,6 +74,32 @@ async function getMemorialPhotos(memorialId: string): Promise<
       { id: string; url: string; caption: string | null; durationMs: number | null }[]
     >();
   return data ?? [];
+}
+
+interface ReadyClipRow {
+  photoId: string;
+  videoUrl: string | null;
+  caption: string | null;
+  durationMs: number | null;
+}
+
+async function getReadyClipsByPhoto(memorialId: string): Promise<
+  Map<string, ReadyClipRow>
+> {
+  const supabase = await getSupabaseServer();
+  const { data } = await supabase
+    .from('MemorialClip')
+    .select('photoId, videoUrl, caption, durationMs')
+    .eq('memorialId', memorialId)
+    .eq('status', 'ready')
+    .order('createdAt', { ascending: false })
+    .returns<ReadyClipRow[]>();
+  // Keep most-recent ready clip per photo
+  const map = new Map<string, ReadyClipRow>();
+  for (const c of data ?? []) {
+    if (!map.has(c.photoId)) map.set(c.photoId, c);
+  }
+  return map;
 }
 
 export async function generateMetadata({
@@ -139,14 +167,46 @@ export default async function MemorialPage({
   if (!memorial) notFound();
 
   const fullName = [memorial.firstname, memorial.lastname].filter(Boolean).join(' ');
-  const [coverUrl, memorialPhotos, tTabs, tBadge, tCover, currentUser] = await Promise.all([
+  const [coverUrl, memorialPhotos, readyClipsByPhoto, tTabs, tBadge, tCover, currentUser] = await Promise.all([
     getCoverPhotoUrl(memorial.id),
     getMemorialPhotos(memorial.id),
+    getReadyClipsByPhoto(memorial.id),
     getTranslations('tabs'),
     getTranslations('memorial.adminBadge'),
     getTranslations('memorial.coverSidebar'),
     getCurrentUser(),
   ]);
+  // Merge ready Higgsfield clips into the photo list. The viewer reads
+  // videoUrl + caption when present and falls back to the still image.
+  const storyPhotos = memorialPhotos.map((p) => {
+    const clip = readyClipsByPhoto.get(p.id);
+    return {
+      id: p.id,
+      url: p.url,
+      caption: clip?.caption ?? p.caption,
+      durationMs: clip?.durationMs ?? p.durationMs ?? null,
+      videoUrl: clip?.videoUrl ?? null,
+    };
+  });
+  // Owner-only payloads: testimonials list + credit balance for the
+  // Animate-via-Higgsfield wizard. Skip the queries for anon visitors.
+  const isOwnerEarly = currentUser?.id === memorial.ownerId;
+  const [animateTestimonials, ownerBalance] = isOwnerEarly
+    ? await Promise.all([
+        (async () => {
+          const sb = await getSupabaseServer();
+          const { data } = await sb
+            .from('Testimonial')
+            .select('id, authorName, message')
+            .eq('memorialId', memorial.id)
+            .order('createdAt', { ascending: false })
+            .limit(50)
+            .returns<{ id: string; authorName: string; message: string }[]>();
+          return data ?? [];
+        })(),
+        getBalance(currentUser!.id),
+      ])
+    : [[], 0];
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
   const shareUrl = `${siteUrl}/memorial/${memorial.slug}`;
   const coverLabels = {
@@ -264,7 +324,7 @@ export default async function MemorialPage({
             slug={memorial.slug}
             fullName={fullName}
             shareUrl={shareUrl}
-            photos={memorialPhotos}
+            photos={storyPhotos}
             musicUrl={memorial.musicUrl}
             isOwner={isOwner}
             isLoggedIn={!!currentUser}
@@ -283,6 +343,20 @@ export default async function MemorialPage({
           </>
         }
       />
+
+      {isOwner && (
+        <AnimateMemorialModal
+          memorialId={memorial.id}
+          memorialName={fullName}
+          photos={memorialPhotos.map((p) => ({
+            id: p.id,
+            url: p.url,
+            caption: p.caption,
+          }))}
+          testimonials={animateTestimonials}
+          initialBalance={ownerBalance}
+        />
+      )}
 
       <div className="mt-8">
         <MemorialTabs

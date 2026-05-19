@@ -16,6 +16,7 @@ export async function AppSidebar() {
           home: navT('home'),
           memorials: navT('memorials'),
           testimonials: navT('testimonials'),
+          clips: 'Clips',
           notifications: navT('notifications'),
           settings: navT('settings'),
           aria: navT('aria'),

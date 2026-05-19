@@ -97,6 +97,10 @@ export function MemorialCoverSidebar({
     window.dispatchEvent(new CustomEvent('testimona:open-memorial-edit'));
   }
 
+  function openAnimate() {
+    window.dispatchEvent(new CustomEvent('testimona:open-animate'));
+  }
+
   return (
     <>
       {/* Play diaporama */}
@@ -138,6 +142,31 @@ export function MemorialCoverSidebar({
             <path d="M12 20h9" />
             <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
           </svg>
+        </ButtonIcon>
+      )}
+
+      {/* Animate via Higgsfield (owner only) — play icon + small accent + */}
+      {isOwner && (
+        <ButtonIcon
+          label="Animer les photos"
+          tone="default"
+          size="sm"
+          onClick={openAnimate}
+          className="!bg-accent/90 !text-white hover:!bg-accent"
+        >
+          <span className="relative inline-flex">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            <span
+              aria-hidden="true"
+              className="absolute -right-1 -top-1 inline-flex h-3 w-3 items-center justify-center rounded-full bg-white text-accent"
+            >
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </span>
+          </span>
         </ButtonIcon>
       )}
 

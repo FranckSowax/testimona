@@ -9,6 +9,8 @@ export interface StoryPhoto {
   url: string;
   caption?: string | null;
   durationMs?: number | null;
+  /** Optional Higgsfield-generated MP4 — when set, plays as video instead of static image. */
+  videoUrl?: string | null;
 }
 
 type Filter = 'none' | 'bw' | 'sepia';
@@ -350,9 +352,18 @@ export function PhotoStoryViewer({
         )}
 
         {current?.caption && (
-          <p className="absolute bottom-28 left-1/2 z-10 max-w-[80vw] -translate-x-1/2 rounded-md bg-black/40 px-4 py-2 text-center text-sm backdrop-blur-sm">
-            {current.caption}
-          </p>
+          current.videoUrl ? (
+            <p
+              className="animate-fade-in-up motion-reduce:animate-none absolute bottom-28 left-1/2 z-10 max-w-[88vw] -translate-x-1/2 px-4 text-center text-3xl leading-[1.15] text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)] sm:max-w-[70vw] sm:text-5xl"
+              style={{ fontFamily: 'var(--font-cursive)' }}
+            >
+              {current.caption}
+            </p>
+          ) : (
+            <p className="absolute bottom-28 left-1/2 z-10 max-w-[80vw] -translate-x-1/2 rounded-md bg-black/40 px-4 py-2 text-center text-sm backdrop-blur-sm">
+              {current.caption}
+            </p>
+          )
         )}
 
         {paused && (
@@ -571,19 +582,35 @@ function SlideImage({
           />
         </div>
       )}
-      <Image
-        src={photo.url}
-        alt={photo.caption ?? ''}
-        fill
-        sizes="100vw"
-        priority={active}
-        className={[
-          'relative object-contain',
-          kenBurns && active ? 'animate-ken-burns motion-reduce:animate-none' : '',
-          crossFade ? 'animate-fade-in motion-reduce:animate-none' : '',
-        ].join(' ')}
-        style={{ filter: FILTER_CSS[filter] }}
-      />
+      {photo.videoUrl ? (
+        <video
+          src={photo.videoUrl}
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={photo.url}
+          className={[
+            'relative h-full w-full object-contain',
+            crossFade ? 'animate-fade-in motion-reduce:animate-none' : '',
+          ].join(' ')}
+          style={{ filter: FILTER_CSS[filter] }}
+        />
+      ) : (
+        <Image
+          src={photo.url}
+          alt={photo.caption ?? ''}
+          fill
+          sizes="100vw"
+          priority={active}
+          className={[
+            'relative object-contain',
+            kenBurns && active ? 'animate-ken-burns motion-reduce:animate-none' : '',
+            crossFade ? 'animate-fade-in motion-reduce:animate-none' : '',
+          ].join(' ')}
+          style={{ filter: FILTER_CSS[filter] }}
+        />
+      )}
     </div>
   );
 }
