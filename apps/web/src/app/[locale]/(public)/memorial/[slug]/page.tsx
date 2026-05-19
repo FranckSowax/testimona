@@ -18,6 +18,7 @@ import { MemorialEditModalShell } from './_components/MemorialEditModalShell';
 import { AdminRequestModalShell } from './_components/AdminModalShells';
 import { MemorialCoverSidebar } from './_components/MemorialCoverSidebar';
 import { AnimateMemorialModal } from './_components/AnimateMemorialModal';
+import { ShopSection } from './_components/ShopSection';
 import { getBalance } from '@/lib/credits/balance';
 
 export const revalidate = 60; // ISR — 60s
@@ -382,6 +383,18 @@ export default async function MemorialPage({
               id: 'donate',
               label: tTabs('donation'),
               panel: <DonateSection memorialId={memorial.id} slug={memorial.slug} />,
+            },
+            {
+              id: 'shop',
+              label: 'Boutique',
+              panel: (
+                <ShopSection
+                  memorialId={memorial.id}
+                  memorialName={fullName}
+                  slug={memorial.slug}
+                  isOwner={isOwner}
+                />
+              ),
             },
             {
               id: 'life-details',

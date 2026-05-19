@@ -1,0 +1,422 @@
+'use client';
+
+import Image from 'next/image';
+import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  generateMemorialVisualAction,
+  addShopItemAction,
+  removeShopItemAction,
+  type ShopActionState,
+} from '../_actions/shop';
+import { SHOP_PRODUCTS, CATEGORY_LABEL, findProduct } from '@/lib/shop/catalog';
+import { ShopProductIcon } from './ShopProductIcon';
+
+interface PhotoMin {
+  id: string;
+  url: string;
+}
+
+interface VisualMin {
+  id: string;
+  imageUrl: string;
+}
+
+interface VisualPending {
+  id: string;
+  status: string;
+}
+
+export interface ShopOwnerPanelProps {
+  memorialId: string;
+  slug: string;
+  photos: PhotoMin[];
+  readyVisuals: VisualMin[];
+  processingVisuals: VisualPending[];
+  failedVisuals: VisualPending[];
+  existingProductIds: string[];
+}
+
+function ShopOwnerPanelImpl({
+  memorialId,
+  slug,
+  photos,
+  readyVisuals,
+  processingVisuals,
+  existingProductIds,
+}: ShopOwnerPanelProps) {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+  const hasProcessing = processingVisuals.length > 0;
+  const cancelledRef = useRef(false);
+
+  // Poll while at least one visual is processing
+  useEffect(() => {
+    cancelledRef.current = false;
+    if (!hasProcessing) return;
+    const tick = async () => {
+      try {
+        await fetch('/api/visuals/poll', { method: 'POST' });
+      } catch {
+        /* ignore */
+      }
+      if (!cancelledRef.current) {
+        startTransition(() => router.refresh());
+      }
+    };
+    const id = setInterval(tick, 8_000);
+    void tick();
+    return () => {
+      cancelledRef.current = true;
+      clearInterval(id);
+    };
+  }, [hasProcessing, router]);
+
+  return (
+    <details
+      open
+      className="rounded-xl border border-dashed border-primary/40 bg-primary/5 p-5"
+    >
+      <summary className="cursor-pointer font-display text-sm font-bold uppercase tracking-wider text-primary">
+        Gestion boutique (propriétaire)
+      </summary>
+
+      <div className="mt-5 space-y-6">
+        <GenerateVisualBlock
+          memorialId={memorialId}
+          slug={slug}
+          photos={photos}
+          hasProcessing={hasProcessing}
+          readyVisuals={readyVisuals}
+        />
+
+        <AddShopItemBlock
+          memorialId={memorialId}
+          readyVisuals={readyVisuals}
+          existingProductIds={existingProductIds}
+        />
+      </div>
+    </details>
+  );
+}
+
+function GenerateVisualBlock({
+  memorialId,
+  slug,
+  photos,
+  hasProcessing,
+  readyVisuals,
+}: {
+  memorialId: string;
+  slug: string;
+  photos: PhotoMin[];
+  hasProcessing: boolean;
+  readyVisuals: VisualMin[];
+}) {
+  const [state, formAction, isPending] = useActionState<
+    ShopActionState | null,
+    FormData
+  >(generateMemorialVisualAction, null);
+  const [selectedPhotoId, setSelectedPhotoId] = useState<string>(
+    photos[0]?.id ?? '',
+  );
+
+  return (
+    <div className="rounded-lg bg-white p-4">
+      <h3 className="font-display text-base font-bold text-foreground">
+        1. Générer le visuel commémoratif
+      </h3>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Choisis une photo du défunt — notre IA en tire un portrait sublimé,
+        sobre et digne, qui sera appliqué sur les objets de la boutique.
+      </p>
+
+      {photos.length === 0 ? (
+        <p className="mt-3 rounded-md border border-dashed border-border bg-surface px-3 py-2 text-xs italic text-muted-foreground">
+          Ajoute d'abord des photos dans l'onglet Photos.
+        </p>
+      ) : (
+        <form action={formAction} className="mt-3 space-y-3">
+          <input type="hidden" name="memorialId" value={memorialId} />
+          <input type="hidden" name="slug" value={slug} />
+          <input type="hidden" name="photoId" value={selectedPhotoId} />
+
+          <ul className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+            {photos.slice(0, 12).map((p) => {
+              const picked = p.id === selectedPhotoId;
+              return (
+                <li key={p.id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPhotoId(p.id)}
+                    aria-pressed={picked}
+                    className={[
+                      'press-scale relative block w-full overflow-hidden rounded-md border-2 transition-all',
+                      picked
+                        ? 'border-primary shadow-[0_0_0_3px_var(--color-primary-soft)]'
+                        : 'border-transparent hover:border-primary/40',
+                    ].join(' ')}
+                  >
+                    <span className="relative block aspect-square">
+                      <Image
+                        src={p.url}
+                        alt=""
+                        fill
+                        sizes="100px"
+                        className="object-cover"
+                      />
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+
+          <label className="block">
+            <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Précision (optionnel)
+            </span>
+            <input
+              type="text"
+              name="extraPrompt"
+              maxLength={200}
+              placeholder="Ex: en costume traditionnel, lumière de coucher de soleil…"
+              className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+            />
+          </label>
+
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground">
+              {readyVisuals.length} visuel{readyVisuals.length > 1 ? 's' : ''}{' '}
+              déjà généré{readyVisuals.length > 1 ? 's' : ''}
+              {hasProcessing && ' · 1 en cours…'}
+            </p>
+            <button
+              type="submit"
+              disabled={isPending || !selectedPhotoId || hasProcessing}
+              className="press-scale rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+            >
+              {isPending
+                ? 'Envoi…'
+                : hasProcessing
+                ? 'Génération en cours…'
+                : 'Générer un nouveau visuel'}
+            </button>
+          </div>
+
+          {state?.error && (
+            <p role="alert" className="text-xs text-destructive">
+              {state.error}
+            </p>
+          )}
+        </form>
+      )}
+
+      {readyVisuals.length > 0 && (
+        <div className="mt-4">
+          <p className="mb-2 font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Visuels disponibles
+          </p>
+          <ul className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+            {readyVisuals.map((v) => (
+              <li
+                key={v.id}
+                className="relative aspect-[3/4] overflow-hidden rounded-md border border-border"
+              >
+                <Image
+                  src={v.imageUrl}
+                  alt=""
+                  fill
+                  sizes="120px"
+                  className="object-cover"
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AddShopItemBlock({
+  memorialId,
+  readyVisuals,
+  existingProductIds,
+}: {
+  memorialId: string;
+  readyVisuals: VisualMin[];
+  existingProductIds: string[];
+}) {
+  const [state, formAction, isPending] = useActionState<
+    ShopActionState | null,
+    FormData
+  >(addShopItemAction, null);
+  const [productId, setProductId] = useState(SHOP_PRODUCTS[0]!.id);
+  const product = findProduct(productId);
+  const inUse = existingProductIds.includes(productId);
+
+  // Reset on success
+  useEffect(() => {
+    if (state?.ok) {
+      // Form already cleared by re-render; intentionally no-op
+    }
+  }, [state]);
+
+  return (
+    <div className="rounded-lg bg-white p-4">
+      <h3 className="font-display text-base font-bold text-foreground">
+        2. Ajouter un objet à la boutique
+      </h3>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Définis la quantité ciblée et le prix unitaire. Les donateurs pourront
+        contribuer pour financer chaque article.
+      </p>
+
+      <form action={formAction} className="mt-3 space-y-3">
+        <input type="hidden" name="memorialId" value={memorialId} />
+
+        <label className="block">
+          <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Produit
+          </span>
+          <select
+            name="productId"
+            value={productId}
+            onChange={(e) => setProductId(e.target.value)}
+            className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+          >
+            {SHOP_PRODUCTS.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name} · {CATEGORY_LABEL[p.category]}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {product && (
+          <p className="rounded-md bg-surface/60 p-3 text-xs text-muted-foreground">
+            <ShopProductIcon
+              iconKey={product.iconKey}
+              className="mr-2 inline-block h-4 w-4 align-text-bottom text-primary"
+            />
+            {product.description}
+            {inUse && (
+              <span className="ml-2 inline-flex rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
+                déjà dans la boutique
+              </span>
+            )}
+          </p>
+        )}
+
+        <div className="grid grid-cols-2 gap-3">
+          <label className="block">
+            <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Quantité visée
+            </span>
+            <input
+              type="number"
+              name="targetQuantity"
+              min={1}
+              defaultValue={50}
+              required
+              className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+            />
+          </label>
+          <label className="block">
+            <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Prix unitaire (€)
+            </span>
+            <input
+              key={productId}
+              type="number"
+              name="unitPriceEuros"
+              min={0}
+              step="0.50"
+              defaultValue={
+                product ? (product.defaultPriceCents / 100).toFixed(2) : '5'
+              }
+              required
+              className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+            />
+          </label>
+        </div>
+
+        {readyVisuals.length > 0 && (
+          <label className="block">
+            <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Visuel associé (optionnel)
+            </span>
+            <select
+              name="visualId"
+              defaultValue={readyVisuals[0]?.id ?? ''}
+              className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+            >
+              <option value="">— Aucun —</option>
+              {readyVisuals.map((v, i) => (
+                <option key={v.id} value={v.id}>
+                  Visuel #{i + 1}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+
+        <label className="block">
+          <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Notes (optionnel)
+          </span>
+          <input
+            type="text"
+            name="notes"
+            maxLength={200}
+            placeholder="Ex: couleurs noires et blanches, tailles M/L/XL…"
+            className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+          />
+        </label>
+
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={isPending}
+            className="press-scale rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {isPending ? 'Ajout…' : 'Ajouter à la boutique'}
+          </button>
+        </div>
+
+        {state?.error && (
+          <p role="alert" className="text-xs text-destructive">
+            {state.error}
+          </p>
+        )}
+      </form>
+    </div>
+  );
+}
+
+function RemoveButton({ itemId }: { itemId: string }) {
+  const [, formAction, isPending] = useActionState<
+    ShopActionState | null,
+    FormData
+  >(removeShopItemAction, null);
+  return (
+    <form action={formAction}>
+      <input type="hidden" name="id" value={itemId} />
+      <button
+        type="submit"
+        disabled={isPending}
+        aria-label="Retirer cet article de la boutique"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-white text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive disabled:opacity-50"
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+        </svg>
+      </button>
+    </form>
+  );
+}
+
+export const ShopOwnerPanel = Object.assign(ShopOwnerPanelImpl, {
+  RemoveButton,
+});
