@@ -1,13 +1,12 @@
 'use client';
 
 import { useActionState, useState } from 'react';
-import { AD_SLOTS } from '@/lib/admin/ads';
+import { AD_SLOTS, type AdRow } from '@/lib/admin/ads-shared';
 import {
   createAdAction,
   updateAdAction,
   type AdActionState,
 } from './actions';
-import type { AdRow } from '@/lib/admin/ads';
 
 interface Labels {
   name: string;

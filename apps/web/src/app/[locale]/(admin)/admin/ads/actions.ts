@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getSupabaseAdminClient, requireAdmin } from '@/lib/supabase/admin';
-import { AD_SLOTS, type AdType } from '@/lib/admin/ads';
+import { AD_SLOTS, type AdType } from '@/lib/admin/ads-shared';
 
 export interface AdActionState {
   ok?: boolean;

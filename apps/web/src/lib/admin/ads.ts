@@ -1,29 +1,9 @@
 import 'server-only';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
+import type { AdRow, AdSlot } from './ads-shared';
 
-export type AdType = 'image' | 'html';
-export const AD_SLOTS = [
-  'home-sidebar',
-  'home-footer',
-  'memorial-aside',
-  'dashboard-sidebar',
-] as const;
-export type AdSlot = (typeof AD_SLOTS)[number];
-
-export interface AdRow {
-  id: string;
-  name: string;
-  slot: string;
-  type: AdType;
-  imageUrl: string | null;
-  targetUrl: string | null;
-  html: string | null;
-  isActive: boolean;
-  startsAt: string | null;
-  expiresAt: string | null;
-  createdAt: string;
-  updatedAt: string | null;
-}
+export { AD_SLOTS } from './ads-shared';
+export type { AdType, AdSlot, AdRow } from './ads-shared';
 
 export async function getAdsList(): Promise<AdRow[]> {
   const supabase = getSupabaseAdminClient();
@@ -50,12 +30,6 @@ export async function getAdById(id: string): Promise<AdRow | null> {
   return data ?? null;
 }
 
-/**
- * Reads at most one currently-active ad for a given slot. RLS on AdSpace
- * already filters by isActive + startsAt/expiresAt window for anon users,
- * but we re-filter in code to keep the helper robust when called from a
- * server-role context too.
- */
 export async function getActiveAdForSlot(slot: AdSlot): Promise<AdRow | null> {
   const supabase = getSupabaseAdminClient();
   const now = new Date().toISOString();
