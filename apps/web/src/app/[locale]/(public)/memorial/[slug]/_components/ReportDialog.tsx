@@ -137,7 +137,7 @@ export function ReportDialog({
             rows={3}
             maxLength={500}
             required={reason === 'other'}
-            className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2 text-base focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
           />
         </div>
 

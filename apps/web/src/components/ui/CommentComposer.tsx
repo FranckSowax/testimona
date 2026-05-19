@@ -67,7 +67,7 @@ export function CommentComposer({
         }}
         placeholder={placeholder}
         disabled={disabled || submitting}
-        className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+        className="min-w-0 flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground sm:text-sm"
       />
       {emojiLabel && (
         <ButtonIcon label={emojiLabel} size="sm" type="button" disabled>

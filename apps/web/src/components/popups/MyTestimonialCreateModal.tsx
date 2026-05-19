@@ -111,7 +111,7 @@ export function MyTestimonialCreateModal({
               placeholder={t('sharePlaceholder')}
               required
               rows={5}
-              className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+              className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)] sm:text-sm"
             />
           </label>
 
@@ -122,7 +122,7 @@ export function MyTestimonialCreateModal({
             <select
               value={relationship}
               onChange={(e) => setRelationship(e.target.value as Relation)}
-              className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+              className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-base text-foreground focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)] sm:text-sm"
             >
               {RELATION_KEYS.map((key) => (
                 <option key={key} value={key}>

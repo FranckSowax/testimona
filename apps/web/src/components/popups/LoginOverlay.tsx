@@ -87,7 +87,7 @@ export function LoginOverlay({ open, onClose, next }: LoginOverlayProps) {
             placeholder="Enter your email*"
             required
             autoComplete="email"
-            className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+            className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:text-sm"
           />
           {state?.fieldErrors?.email && (
             <p className="text-xs text-accent">{state.fieldErrors.email}</p>
@@ -99,7 +99,7 @@ export function LoginOverlay({ open, onClose, next }: LoginOverlayProps) {
             required
             minLength={8}
             autoComplete="current-password"
-            className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+            className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:text-sm"
           />
           {state?.fieldErrors?.password && (
             <p className="text-xs text-accent">{state.fieldErrors.password}</p>

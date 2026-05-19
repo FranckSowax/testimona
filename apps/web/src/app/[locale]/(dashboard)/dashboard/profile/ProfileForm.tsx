@@ -61,7 +61,7 @@ export function ProfileForm({
             value={defaultValues.email}
             readOnly
             disabled
-            className="mt-1 w-full cursor-not-allowed rounded-md border border-border bg-muted px-3 py-2.5 text-sm text-muted-foreground"
+            className="mt-1 w-full cursor-not-allowed rounded-md border border-border bg-muted px-3 py-2.5 text-base text-muted-foreground sm:text-sm"
           />
           <p className="mt-1 text-xs text-muted-foreground">{t('emailHelp')}</p>
         </div>
@@ -78,7 +78,7 @@ export function ProfileForm({
               maxLength={80}
               defaultValue={defaultValues.fullName}
               autoComplete="name"
-              className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2.5 text-base focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
             />
             {state?.fieldErrors?.fullName && (
               <p className="mt-1 text-xs text-destructive">{state.fieldErrors.fullName}</p>
@@ -95,7 +95,7 @@ export function ProfileForm({
               maxLength={50}
               defaultValue={defaultValues.nickname}
               autoComplete="nickname"
-              className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2.5 text-base focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
             />
             {state?.fieldErrors?.nickname && (
               <p className="mt-1 text-xs text-destructive">{state.fieldErrors.nickname}</p>

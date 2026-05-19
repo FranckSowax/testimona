@@ -77,7 +77,7 @@ export async function SiteHeader() {
               type="search"
               name="q"
               placeholder={t('search')}
-              className="h-11 min-w-0 flex-1 bg-transparent font-display text-sm font-medium text-foreground outline-none placeholder:font-medium placeholder:text-muted-foreground"
+              className="h-11 min-w-0 flex-1 bg-transparent font-display text-base font-medium text-foreground outline-none placeholder:font-medium placeholder:text-muted-foreground sm:text-sm"
               autoComplete="off"
             />
             <svg

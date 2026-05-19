@@ -73,7 +73,7 @@ export function CommentForm({
               }
             }}
             placeholder={t('writeComment')}
-            className="block min-h-[24px] flex-1 resize-none bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+            className="block min-h-[24px] flex-1 resize-none bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground sm:text-sm"
           />
 
           <ButtonIcon label="Emoji" size="sm" disabled type="button">

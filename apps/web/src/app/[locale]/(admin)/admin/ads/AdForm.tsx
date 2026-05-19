@@ -129,7 +129,7 @@ export function AdForm({
             rows={8}
             defaultValue={initial?.html ?? ''}
             placeholder="<a href='…'><img src='…' /></a>"
-            className="w-full rounded-md border border-border bg-white px-3 py-2.5 font-mono text-sm text-foreground focus:border-primary focus:outline-none"
+            className="w-full rounded-md border border-border bg-white px-3 py-2.5 font-mono text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
           />
         </Field>
       )}

@@ -116,7 +116,7 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
               type="text"
               placeholder="Firstname*"
               autoComplete="given-name"
-              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:text-sm"
             />
             <input
               name="nickname"
@@ -125,7 +125,7 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
               required
               autoComplete="nickname"
               maxLength={50}
-              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:text-sm"
             />
             {state?.fieldErrors?.nickname && (
               <p className="text-xs text-accent">{state.fieldErrors.nickname}</p>
@@ -136,7 +136,7 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
               placeholder="Enter your email*"
               required
               autoComplete="email"
-              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:text-sm"
             />
             {state?.fieldErrors?.email && (
               <p className="text-xs text-accent">{state.fieldErrors.email}</p>
@@ -148,7 +148,7 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
               required
               minLength={8}
               autoComplete="new-password"
-              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:text-sm"
             />
             {state?.fieldErrors?.password && (
               <p className="text-xs text-accent">{state.fieldErrors.password}</p>
@@ -159,12 +159,12 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
               placeholder="Repeat password"
               minLength={8}
               autoComplete="new-password"
-              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:text-sm"
             />
             <select
               name="favorite_color"
               defaultValue=""
-              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-sm text-foreground focus:border-primary focus:outline-none"
+              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
             >
               <option value="" disabled>
                 What is your favorite color?
@@ -177,7 +177,7 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
             <select
               name="security_question"
               defaultValue=""
-              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-sm text-foreground focus:border-primary focus:outline-none"
+              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
             >
               <option value="" disabled>
                 Choose your security question 2
