@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { getUnseenNotificationsCount } from '@/lib/notifications/count';
 import { AppSidebarNav } from './AppSidebarNav';
+import { AdSlot } from './AdSlot';
 
 export async function AppSidebar() {
   const [navT, badge] = await Promise.all([
@@ -22,12 +23,17 @@ export async function AppSidebar() {
         notificationsBadge={badge}
       />
 
-      <div
-        aria-label="Advertisement placeholder"
-        className="h-[420px] rounded-md border border-border bg-white p-4"
-      >
-        <p className="text-xs text-muted-foreground">Ads here</p>
-      </div>
+      <AdSlot
+        slot="home-sidebar"
+        fallback={
+          <div
+            aria-label="Advertisement placeholder"
+            className="h-[420px] rounded-md border border-dashed border-border bg-white p-4"
+          >
+            <p className="text-xs text-muted-foreground">Ads slot · home-sidebar</p>
+          </div>
+        }
+      />
     </aside>
   );
 }

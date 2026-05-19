@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 
 interface NavItem {
   href: string;
-  labelKey: keyof Labels;
+  labelKey: keyof Omit<Labels, 'aria'>;
   iconPath: string;
 }
 
@@ -46,6 +46,12 @@ const ITEMS: NavItem[] = [
       'M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0ZM12 9v4M12 17h.01',
   },
   {
+    href: '/admin/ads',
+    labelKey: 'ads',
+    iconPath:
+      'M3 11l18-5v12L3 13v-2zm0 0v2m6 9l-3-9M14 7v10',
+  },
+  {
     href: '/admin/settings',
     labelKey: 'settings',
     iconPath:
@@ -60,6 +66,7 @@ export interface Labels {
   testimonials: string;
   donations: string;
   reports: string;
+  ads: string;
   settings: string;
   aria: string;
 }

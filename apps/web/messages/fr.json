@@ -544,6 +544,7 @@
       "testimonials": "Témoignages",
       "donations": "Dons",
       "reports": "Signalements",
+      "ads": "Publicités",
       "settings": "Réglages"
     },
     "overview": {
@@ -708,6 +709,39 @@
       "resultsSummary": "{count, plural, =0 {Aucun don} =1 {1 don} other {{count} dons}}",
       "empty": "Aucun don ne correspond à ces filtres.",
       "anonymous": "Anonyme"
+    },
+    "ads": {
+      "subtitle": "Gérez les bannières publicitaires affichées sur le site.",
+      "newCta": "+ Nouvelle publicité",
+      "newTitle": "Nouvelle publicité",
+      "editTitle": "Modifier la publicité",
+      "empty": "Aucune publicité créée pour le moment.",
+      "active": "Active",
+      "inactive": "Inactive",
+      "starts": "Démarre le",
+      "expires": "Expire le",
+      "activate": "Activer",
+      "deactivate": "Désactiver",
+      "delete": "Supprimer",
+      "confirmDelete": "Supprimer définitivement cette publicité ?",
+      "form": {
+        "name": "Nom interne",
+        "slot": "Emplacement",
+        "type": "Type",
+        "typeImage": "Image (bannière + lien)",
+        "typeHtml": "HTML personnalisé",
+        "imageUrl": "URL de l'image",
+        "imageUrlHint": "JPG / PNG / WebP. Format vertical recommandé pour les sidebars (300×500).",
+        "targetUrl": "URL cible (au clic)",
+        "targetUrlHint": "Laissez vide pour ne pas rendre la bannière cliquable.",
+        "html": "HTML",
+        "htmlHint": "Snippet HTML brut. Réservé aux annonceurs de confiance.",
+        "startsAt": "Date de début (optionnel)",
+        "expiresAt": "Date de fin (optionnel)",
+        "isActive": "Activer immédiatement",
+        "save": "Enregistrer",
+        "saving": "Enregistrement…"
+      }
     }
   }
 }

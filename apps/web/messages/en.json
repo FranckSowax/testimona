@@ -544,6 +544,7 @@
       "testimonials": "Testimonials",
       "donations": "Donations",
       "reports": "Reports",
+      "ads": "Ads",
       "settings": "Settings"
     },
     "overview": {
@@ -708,6 +709,39 @@
       "resultsSummary": "{count, plural, =0 {No donation} =1 {1 donation} other {{count} donations}}",
       "empty": "No donation matches these filters.",
       "anonymous": "Anonymous"
+    },
+    "ads": {
+      "subtitle": "Manage banner ads displayed across the site.",
+      "newCta": "+ New ad",
+      "newTitle": "New ad",
+      "editTitle": "Edit ad",
+      "empty": "No ad created yet.",
+      "active": "Active",
+      "inactive": "Inactive",
+      "starts": "Starts",
+      "expires": "Expires",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "delete": "Delete",
+      "confirmDelete": "Permanently delete this ad?",
+      "form": {
+        "name": "Internal name",
+        "slot": "Slot",
+        "type": "Type",
+        "typeImage": "Image (banner + link)",
+        "typeHtml": "Custom HTML",
+        "imageUrl": "Image URL",
+        "imageUrlHint": "JPG / PNG / WebP. Vertical 300×500 works best for sidebars.",
+        "targetUrl": "Target URL (on click)",
+        "targetUrlHint": "Leave empty to render a non-clickable banner.",
+        "html": "HTML",
+        "htmlHint": "Raw HTML snippet. Restricted to trusted advertisers.",
+        "startsAt": "Start date (optional)",
+        "expiresAt": "End date (optional)",
+        "isActive": "Activate immediately",
+        "save": "Save",
+        "saving": "Saving…"
+      }
     }
   }
 }

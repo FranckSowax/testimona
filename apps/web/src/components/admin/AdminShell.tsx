@@ -31,6 +31,7 @@ export async function AdminShell({
                 testimonials: t('testimonials'),
                 donations: t('donations'),
                 reports: t('reports'),
+                ads: t('ads'),
                 settings: t('settings'),
                 aria: t('aria'),
               }}

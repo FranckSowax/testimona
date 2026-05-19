@@ -1,0 +1,58 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
+import { AdminShell } from '@/components/admin/AdminShell';
+import { requireAdmin } from '@/lib/supabase/admin';
+import { getAdById } from '@/lib/admin/ads';
+import { AdForm } from '../AdForm';
+
+export const metadata: Metadata = {
+  title: 'Admin — Edit ad',
+  robots: { index: false, follow: false },
+};
+
+export default async function AdminAdEditPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  await requireAdmin();
+  const { id } = await params;
+  const [t, tNav, ad] = await Promise.all([
+    getTranslations('admin.ads'),
+    getTranslations('admin.nav'),
+    getAdById(id),
+  ]);
+  if (!ad) notFound();
+
+  const labels = {
+    name: t('form.name'),
+    slot: t('form.slot'),
+    type: t('form.type'),
+    typeImage: t('form.typeImage'),
+    typeHtml: t('form.typeHtml'),
+    imageUrl: t('form.imageUrl'),
+    imageUrlHint: t('form.imageUrlHint'),
+    targetUrl: t('form.targetUrl'),
+    targetUrlHint: t('form.targetUrlHint'),
+    html: t('form.html'),
+    htmlHint: t('form.htmlHint'),
+    startsAt: t('form.startsAt'),
+    expiresAt: t('form.expiresAt'),
+    isActive: t('form.isActive'),
+    save: t('form.save'),
+    saving: t('form.saving'),
+  };
+
+  return (
+    <AdminShell title={`${t('editTitle')} — ${ad.name}`}>
+      <p className="mb-6 text-sm">
+        <Link href="/admin/ads" className="font-display font-bold text-primary hover:underline">
+          ← {tNav('ads')}
+        </Link>
+      </p>
+      <AdForm initial={ad} labels={labels} />
+    </AdminShell>
+  );
+}
