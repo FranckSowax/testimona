@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { ClipsList, type ClipRowDto } from './ClipsList';
@@ -58,6 +59,25 @@ export default async function ClipsPage() {
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8 sm:px-6 lg:py-10">
+      <Link
+        href="/dashboard"
+        className="press-scale inline-flex items-center gap-1.5 self-start rounded-md px-2 py-1.5 font-display text-sm font-bold text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        Retour
+      </Link>
       <header className="space-y-1">
         <p className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
           Animations
