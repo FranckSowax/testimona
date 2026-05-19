@@ -431,5 +431,39 @@
       "dangerTitle": "Zone de danger",
       "signOut": "Se déconnecter de cet appareil"
     }
+  },
+  "admin": {
+    "nav": {
+      "header": "Administration",
+      "aria": "Navigation admin",
+      "overview": "Vue d'ensemble",
+      "users": "Utilisateurs",
+      "memorials": "Mémoriels",
+      "testimonials": "Témoignages",
+      "donations": "Dons",
+      "reports": "Signalements",
+      "settings": "Réglages"
+    },
+    "overview": {
+      "title": "Vue d'ensemble",
+      "subtitle": "Indicateurs clés et activité récente de la plateforme.",
+      "kpiSectionAria": "Indicateurs clés",
+      "recentSectionAria": "Activité récente",
+      "usersLabel": "Utilisateurs",
+      "memorialsLabel": "Mémoriels",
+      "testimonialsLabel": "Témoignages",
+      "photosLabel": "Photos",
+      "donationsLabel": "Dons (encaissés)",
+      "last30d": "sur 30 j",
+      "paidSuffix": "payés",
+      "publicSuffix": "publics",
+      "recentUsers": "Derniers inscrits",
+      "recentMemorials": "Derniers mémoriels",
+      "viewAll": "Tout voir",
+      "emptyUsers": "Aucun utilisateur encore.",
+      "emptyMemorials": "Aucun mémorial encore.",
+      "publicMemorial": "Public",
+      "privateMemorial": "Privé"
+    }
   }
 }

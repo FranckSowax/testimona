@@ -431,5 +431,39 @@
       "dangerTitle": "Danger zone",
       "signOut": "Sign out of this device"
     }
+  },
+  "admin": {
+    "nav": {
+      "header": "Administration",
+      "aria": "Admin navigation",
+      "overview": "Overview",
+      "users": "Users",
+      "memorials": "Memorials",
+      "testimonials": "Testimonials",
+      "donations": "Donations",
+      "reports": "Reports",
+      "settings": "Settings"
+    },
+    "overview": {
+      "title": "Overview",
+      "subtitle": "Key metrics and recent platform activity.",
+      "kpiSectionAria": "Key metrics",
+      "recentSectionAria": "Recent activity",
+      "usersLabel": "Users",
+      "memorialsLabel": "Memorials",
+      "testimonialsLabel": "Testimonials",
+      "photosLabel": "Photos",
+      "donationsLabel": "Donations (paid)",
+      "last30d": "in 30d",
+      "paidSuffix": "paid",
+      "publicSuffix": "public",
+      "recentUsers": "Latest signups",
+      "recentMemorials": "Latest memorials",
+      "viewAll": "View all",
+      "emptyUsers": "No users yet.",
+      "emptyMemorials": "No memorials yet.",
+      "publicMemorial": "Public",
+      "privateMemorial": "Private"
+    }
   }
 }
