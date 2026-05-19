@@ -19,8 +19,23 @@ const DEMO_CLIP_URL =
 
 const HIGGSFIELD_BASE = 'https://platform.higgsfield.ai';
 
+/**
+ * Uniform prompt used for every memorial animation. We don't pass the
+ * caption text to Higgsfield — that gets overlayed in calligraphy on the
+ * client. Higgsfield only ever sees this template, which produces a
+ * dignified, restrained animation suitable for a remembrance context.
+ */
+export const TESTIMONA_VIDEO_PROMPT =
+  'A dignified, restrained portrait animation of the person in the photo. ' +
+  'They breathe gently, blink naturally, and offer a soft, warm, affectionate smile. ' +
+  'Subtle, simple, emotive gestures only — a tilt of the head, a kind look, ' +
+  'a tender expression. No background change. Cinematic lighting, gentle slow ' +
+  'camera drift. Solemn, noble, peaceful atmosphere. Photorealistic, preserve ' +
+  'the subject\'s identity and features faithfully.';
+
 export interface SubmitJobParams {
   imageUrl: string;
+  /** Currently ignored — we use TESTIMONA_VIDEO_PROMPT for every job. */
   prompt: string;
   durationSec: number;
 }
@@ -173,10 +188,15 @@ export async function submitImageToVideo(
         Authorization: authHeader(),
         'User-Agent': 'testimona-web/1.0',
       },
+      // Higgsfield wraps the model payload in `params` — the 422 response
+      // body confirms it: { detail: [{ loc: ["body","params"], msg:
+      // "Field required" }] }.
       body: JSON.stringify({
-        model: 'dop-turbo',
-        prompt: params.prompt,
-        input_images: [{ type: 'image_url', image_url: params.imageUrl }],
+        params: {
+          model: 'dop-turbo',
+          prompt: TESTIMONA_VIDEO_PROMPT,
+          input_images: [{ type: 'image_url', image_url: params.imageUrl }],
+        },
       }),
     });
     if (!res.ok) {
