@@ -15,6 +15,7 @@ interface RawClipRow {
   durationMs: number;
   errorMessage: string | null;
   creditCost: number;
+  validatedAt: string | null;
   createdAt: string;
   Memorial: { slug: string; firstname: string; lastname: string } | null;
   Photo: { url: string } | null;
@@ -29,7 +30,7 @@ export default async function ClipsPage() {
     .from('MemorialClip')
     .select(
       `id, memorialId, photoId, caption, status, videoUrl, durationMs,
-       errorMessage, creditCost, createdAt,
+       errorMessage, creditCost, validatedAt, createdAt,
        Memorial:Memorial!MemorialClip_memorialId_fkey(slug, firstname, lastname),
        Photo:Photo!MemorialClip_photoId_fkey(url)`,
     )
@@ -52,6 +53,7 @@ export default async function ClipsPage() {
     errorMessage: c.errorMessage,
     creditCost: c.creditCost,
     createdAt: c.createdAt,
+    validatedAt: c.validatedAt,
   }));
 
   return (
@@ -64,12 +66,13 @@ export default async function ClipsPage() {
           Mes clips
         </h1>
         <p className="text-sm text-muted-foreground">
-          Les clips se génèrent en 1-3 min. Cette page se rafraîchit
-          automatiquement.
+          Les clips se génèrent en 1-3 min. Valide-les pour qu'ils apparaissent
+          dans le diaporama public du mémorial, ou regénère-les si le résultat
+          ne te plaît pas (1 crédit par regénération).
         </p>
       </header>
 
-      <ClipsList initial={clips} />
+      <ClipsList clips={clips} />
     </div>
   );
 }

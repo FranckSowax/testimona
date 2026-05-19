@@ -92,9 +92,10 @@ async function getReadyClipsByPhoto(memorialId: string): Promise<
     .select('photoId, videoUrl, caption, durationMs')
     .eq('memorialId', memorialId)
     .eq('status', 'ready')
+    .not('validatedAt', 'is', null)
     .order('createdAt', { ascending: false })
     .returns<ReadyClipRow[]>();
-  // Keep most-recent ready clip per photo
+  // Keep most-recent validated clip per photo
   const map = new Map<string, ReadyClipRow>();
   for (const c of data ?? []) {
     if (!map.has(c.photoId)) map.set(c.photoId, c);
