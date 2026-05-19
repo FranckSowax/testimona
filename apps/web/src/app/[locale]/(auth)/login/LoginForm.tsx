@@ -19,7 +19,11 @@ export function LoginForm() {
   useEffect(() => {
     if (state?.ok) {
       const next = searchParams.get('next');
-      const target = next && next.startsWith('/') ? next : '/dashboard';
+      const welcome = searchParams.get('welcome') === '1';
+      let target = next && next.startsWith('/') ? next : '/dashboard';
+      if (welcome) {
+        target = target.includes('?') ? `${target}&welcome=1` : `${target}?welcome=1`;
+      }
       router.replace(target);
       router.refresh();
     }

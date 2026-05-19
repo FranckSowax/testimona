@@ -404,6 +404,19 @@
       "anonymous": "Someone",
       "viewMemorial": "Open"
     },
+    "adminRequests": {
+      "title": "Admin requests",
+      "subtitle": "Users asking to co-administer one of your memorials.",
+      "pendingTitle": "Pending",
+      "emptyPendingTitle": "No pending request",
+      "emptyPendingBody": "When someone asks to become an admin on a memorial, it shows up here.",
+      "historyTitle": "Recent history",
+      "relationship": "Relationship",
+      "accept": "Accept",
+      "decline": "Decline",
+      "accepted": "Accepted",
+      "declined": "Declined"
+    },
     "profile": {
       "title": "My profile",
       "subtitle": "Manage your personal information and account security.",
@@ -430,7 +443,50 @@
       "passwordReset": "Send reset link",
       "passwordSent": "Password reset email sent.",
       "dangerTitle": "Danger zone",
-      "signOut": "Sign out of this device"
+      "signOut": "Sign out of this device",
+      "breadcrumbAccount": "My account",
+      "accordionAria": "Account settings",
+      "myAccount": "My account",
+      "myAccountDesc": "Profile picture, personal info, contact email.",
+      "securityTitle": "Sign in and Security",
+      "securityDesc": "Password and security options.",
+      "donationsTitle": "My donations",
+      "donationsDesc": "History of donations made and received.",
+      "payoutTitle": "Receive payments",
+      "payoutDesc": "Configure how you receive donations.",
+      "security": {
+        "formTitle": "Change my password",
+        "formSubtitle": "Pick a new password with at least 8 characters.",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm password",
+        "save": "Save",
+        "saving": "Saving…",
+        "saved": "Password updated.",
+        "resetTitle": "Forgot your password",
+        "resetBody": "Receive an email link to set a new password.",
+        "resetCta": "Send reset email",
+        "resetSent": "Reset email sent."
+      },
+      "donationsHistory": {
+        "totalMade": "Total donations made",
+        "totalReceived": "Total donations received",
+        "donationsCount": "{count, plural, =0 {No donation} =1 {1 donation} other {{count} donations}}",
+        "madeListTitle": "My latest donations",
+        "madeEmpty": "You haven't made any donation yet."
+      },
+      "payout": {
+        "intro": "To start receiving donations on your memorials, pick a preferred method. Our team will follow up to finalize the setup.",
+        "methodLabel": "Payout method",
+        "methodHint": "Stripe Connect is coming — until then we onboard you manually.",
+        "methodPaypal": "PayPal",
+        "methodBank": "Bank transfer (IBAN)",
+        "methodOther": "Other / let's discuss",
+        "noteLabel": "Note (optional)",
+        "notePlaceholder": "Account info, special constraints, preferred currency…",
+        "submit": "Send request",
+        "submitting": "Sending…",
+        "sent": "Request sent. We'll get back to you within 48h."
+      }
     }
   },
   "admin": {

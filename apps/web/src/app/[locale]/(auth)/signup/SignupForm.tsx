@@ -16,7 +16,9 @@ export function SignupForm() {
 
   useEffect(() => {
     if (state?.success) {
-      router.replace('/login?signup=ok');
+      // welcome flag is forwarded by LoginForm to /dashboard?welcome=1 on
+      // first sign-in, where WelcomeOverlayTrigger picks it up.
+      router.replace('/login?signup=ok&welcome=1');
       router.refresh();
     }
   }, [state, router]);

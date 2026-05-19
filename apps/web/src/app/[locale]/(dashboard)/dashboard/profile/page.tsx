@@ -6,37 +6,81 @@ import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { SettingsAccordion } from '@/components/dashboard/SettingsAccordion';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { ProfileForm } from './ProfileForm';
+import { SecuritySection } from './SecuritySection';
+import { DonationsHistorySection } from './DonationsHistorySection';
+import { PayoutSection } from './PayoutSection';
 
 export const metadata: Metadata = {
   title: 'Settings',
   robots: { index: false, follow: false },
 };
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/dashboard/profile');
+  const { locale } = await params;
 
-  const t = await getTranslations('dashboard.profile');
+  const [t, tSec, tPay, tShared] = await Promise.all([
+    getTranslations('dashboard.profile'),
+    getTranslations('dashboard.profile.security'),
+    getTranslations('dashboard.profile.payout'),
+    getTranslations('dashboard.profile'),
+  ]);
   const meta =
     (user.user_metadata as
       | { full_name?: string; nickname?: string; avatar_url?: string | null }
       | null) ?? {};
 
+  const securityLabels = {
+    formTitle: tSec('formTitle'),
+    formSubtitle: tSec('formSubtitle'),
+    newPassword: tSec('newPassword'),
+    confirmPassword: tSec('confirmPassword'),
+    save: tSec('save'),
+    saving: tSec('saving'),
+    saved: tSec('saved'),
+    resetTitle: tSec('resetTitle'),
+    resetBody: tSec('resetBody'),
+    resetCta: tSec('resetCta'),
+    resetSent: tSec('resetSent'),
+  };
+
+  const payoutLabels = {
+    intro: tPay('intro'),
+    methodLabel: tPay('methodLabel'),
+    methodHint: tPay('methodHint'),
+    methodPaypal: tPay('methodPaypal'),
+    methodBank: tPay('methodBank'),
+    methodOther: tPay('methodOther'),
+    noteLabel: tPay('noteLabel'),
+    notePlaceholder: tPay('notePlaceholder'),
+    submit: tPay('submit'),
+    submitting: tPay('submitting'),
+    sent: tPay('sent'),
+  };
+
   return (
-    <DashboardShell title="Settings">
+    <DashboardShell title={tShared('title')}>
       <Breadcrumb
-        items={[{ label: 'Settings', href: '/dashboard/profile' }, { label: 'My account' }]}
+        items={[
+          { label: tShared('title'), href: '/dashboard/profile' },
+          { label: tShared('breadcrumbAccount') },
+        ]}
         className="-mt-2 mb-4"
       />
       <p className="mb-6 text-sm text-muted-foreground">{t('subtitle')}</p>
 
       <SettingsAccordion
-        ariaLabel="Account settings"
+        ariaLabel={tShared('accordionAria')}
         sections={[
           {
             id: 'my-account',
-            title: 'My account',
-            description: 'Profile picture, personal information, contact email.',
+            title: tShared('myAccount'),
+            description: tShared('myAccountDesc'),
             defaultOpen: true,
             content: (
               <ProfileForm
@@ -51,33 +95,21 @@ export default async function ProfilePage() {
           },
           {
             id: 'sign-in-security',
-            title: 'Sign in and Security',
-            description: 'Password and security questions.',
-            content: (
-              <p className="text-sm italic text-muted-foreground">
-                Coming soon : reset password, security questions, two-factor authentication.
-              </p>
-            ),
+            title: tShared('securityTitle'),
+            description: tShared('securityDesc'),
+            content: <SecuritySection labels={securityLabels} />,
           },
           {
             id: 'donations',
-            title: 'Donations',
-            description: 'Manage donations made and received.',
-            content: (
-              <p className="text-sm italic text-muted-foreground">
-                Coming soon : view your donations history and donations received on your memorials.
-              </p>
-            ),
+            title: tShared('donationsTitle'),
+            description: tShared('donationsDesc'),
+            content: <DonationsHistorySection locale={locale} />,
           },
           {
             id: 'request-payment',
-            title: 'Request Payment',
-            description: 'Configure how you receive donation payouts.',
-            content: (
-              <p className="text-sm italic text-muted-foreground">
-                Coming soon : payout method setup (PayPal / bank transfer) and tax forms.
-              </p>
-            ),
+            title: tShared('payoutTitle'),
+            description: tShared('payoutDesc'),
+            content: <PayoutSection labels={payoutLabels} />,
           },
         ]}
       />

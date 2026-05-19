@@ -223,3 +223,38 @@ export async function requestAdminAction(
   if (slug) revalidatePath(`/memorial/${slug}`);
   return { ok: true };
 }
+
+/**
+ * V2 — Accept or decline an admin request. Restricted to the memorial owner.
+ * Decision is logged on the MemorialAdminRequest row (status → 'accepted' or
+ * 'declined'); accepting does NOT yet grant write access on the memorial —
+ * that requires a memorial_admin join table which is intentionally out of
+ * scope for this iteration. The status flip alone is enough to clear the
+ * request from the owner's pending list.
+ */
+export async function resolveAdminRequestAction(
+  _prev: AdminActionState | null,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const requestId = String(formData.get('requestId') ?? '').trim();
+  const memorialId = String(formData.get('memorialId') ?? '').trim();
+  const slug = String(formData.get('slug') ?? '').trim();
+  const decision = String(formData.get('decision') ?? '').trim();
+  if (!requestId || !memorialId) return { error: 'requestId/memorialId requis.' };
+  if (decision !== 'accepted' && decision !== 'declined')
+    return { error: 'Décision invalide.' };
+
+  const owner = await ensureOwner(memorialId);
+  if (typeof owner === 'string') return { error: owner };
+  const { supabase } = owner;
+
+  const { error } = await supabase
+    .from('MemorialAdminRequest')
+    .update({ status: decision })
+    .eq('id', requestId)
+    .eq('memorialId', memorialId);
+  if (error) return { error: error.message };
+
+  if (slug) revalidatePath(`/memorial/${slug}`);
+  return { ok: true };
+}

@@ -404,6 +404,19 @@
       "anonymous": "Quelqu'un",
       "viewMemorial": "Voir"
     },
+    "adminRequests": {
+      "title": "Demandes d'administration",
+      "subtitle": "Les utilisateurs qui demandent à co-administrer un de vos mémoriels.",
+      "pendingTitle": "En attente",
+      "emptyPendingTitle": "Aucune demande en attente",
+      "emptyPendingBody": "Quand quelqu'un demandera à devenir admin d'un mémorial, vous le verrez ici.",
+      "historyTitle": "Historique récent",
+      "relationship": "Relation",
+      "accept": "Accepter",
+      "decline": "Refuser",
+      "accepted": "Accepté",
+      "declined": "Refusé"
+    },
     "profile": {
       "title": "Mon profil",
       "subtitle": "Gérez vos informations personnelles et la sécurité de votre compte.",
@@ -430,7 +443,50 @@
       "passwordReset": "Envoyer le lien de réinitialisation",
       "passwordSent": "Email de réinitialisation envoyé.",
       "dangerTitle": "Zone de danger",
-      "signOut": "Se déconnecter de cet appareil"
+      "signOut": "Se déconnecter de cet appareil",
+      "breadcrumbAccount": "Mon compte",
+      "accordionAria": "Réglages du compte",
+      "myAccount": "Mon compte",
+      "myAccountDesc": "Photo de profil, informations personnelles, email de contact.",
+      "securityTitle": "Connexion et sécurité",
+      "securityDesc": "Mot de passe et options de sécurité.",
+      "donationsTitle": "Mes dons",
+      "donationsDesc": "Historique des dons effectués et reçus.",
+      "payoutTitle": "Recevoir des paiements",
+      "payoutDesc": "Configurez comment vous recevez les dons.",
+      "security": {
+        "formTitle": "Changer mon mot de passe",
+        "formSubtitle": "Choisissez un nouveau mot de passe d'au moins 8 caractères.",
+        "newPassword": "Nouveau mot de passe",
+        "confirmPassword": "Confirmer le mot de passe",
+        "save": "Enregistrer",
+        "saving": "Enregistrement…",
+        "saved": "Mot de passe mis à jour.",
+        "resetTitle": "Mot de passe oublié",
+        "resetBody": "Recevez par email un lien pour définir un nouveau mot de passe.",
+        "resetCta": "Envoyer le lien par email",
+        "resetSent": "Email de réinitialisation envoyé."
+      },
+      "donationsHistory": {
+        "totalMade": "Total des dons effectués",
+        "totalReceived": "Total des dons reçus",
+        "donationsCount": "{count, plural, =0 {Aucun don} =1 {1 don} other {{count} dons}}",
+        "madeListTitle": "Mes derniers dons",
+        "madeEmpty": "Vous n'avez encore effectué aucun don."
+      },
+      "payout": {
+        "intro": "Pour activer la réception des dons sur vos mémoriels, indiquez la méthode souhaitée. Notre équipe vous contactera pour finaliser la configuration.",
+        "methodLabel": "Méthode de paiement",
+        "methodHint": "Stripe Connect arrive bientôt — d'ici là, on vous accompagne manuellement.",
+        "methodPaypal": "PayPal",
+        "methodBank": "Virement bancaire (IBAN)",
+        "methodOther": "Autre / à discuter",
+        "noteLabel": "Note (facultatif)",
+        "notePlaceholder": "Coordonnées, contraintes particulières, devise souhaitée…",
+        "submit": "Envoyer la demande",
+        "submitting": "Envoi…",
+        "sent": "Demande envoyée. Nous vous recontactons sous 48 h."
+      }
     }
   },
   "admin": {

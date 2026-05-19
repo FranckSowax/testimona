@@ -7,6 +7,7 @@ import { MemorialCard } from '@/components/MemorialCard';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { EmptyState } from '@/components/EmptyState';
 import { buttonClasses } from '@/components/ui/Button';
+import { WelcomeOverlayTrigger } from './WelcomeOverlayTrigger';
 
 export const metadata: Metadata = {
   title: 'Tableau de bord',
@@ -104,6 +105,7 @@ export default async function DashboardPage() {
           })}
         </ul>
       )}
+      <WelcomeOverlayTrigger />
     </DashboardShell>
   );
 }
