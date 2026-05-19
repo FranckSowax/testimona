@@ -60,28 +60,55 @@ async function getCoverPhotoUrl(memorialId: string): Promise<string | null> {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; locale: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   const memorial = await getMemorial(slug);
-  if (!memorial) return { title: 'Mémorial introuvable' };
+  if (!memorial) return { title: 'Mémorial introuvable', robots: { index: false } };
 
-  const fullName = [
-    memorial.firstname,
-    memorial.nickname && `« ${memorial.nickname} »`,
-    memorial.lastname,
-  ]
-    .filter(Boolean)
-    .join(' ');
+  const fullName = [memorial.firstname, memorial.lastname].filter(Boolean).join(' ');
+  const displayName = memorial.nickname
+    ? `${fullName} « ${memorial.nickname} »`
+    : fullName;
+  const yearLine = (() => {
+    const birth = memorial.birthDate ? new Date(memorial.birthDate).getFullYear() : null;
+    const death = memorial.deathDate ? new Date(memorial.deathDate).getFullYear() : null;
+    if (birth && death) return `${birth} – ${death}`;
+    if (death) return `${death}`;
+    return '';
+  })();
+
+  const title = yearLine ? `${displayName}, ${yearLine}` : displayName;
+  const description =
+    memorial.description?.slice(0, 200) ??
+    (locale === 'en'
+      ? `In memory of ${fullName}. Share testimonials, photos and tributes.`
+      : `En mémoire de ${fullName}. Partagez témoignages, photos et hommages.`);
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://testimona.com';
+  const canonical = `${siteUrl}/${locale}/memorial/${slug}`;
+  const ogImage = `${siteUrl}/api/og/memorial/${slug}`;
 
   return {
-    title: fullName,
-    description: memorial.description?.slice(0, 160) ?? `Mémorial de ${fullName}`,
+    title,
+    description,
+    alternates: { canonical },
     openGraph: {
-      title: fullName,
-      description: memorial.description?.slice(0, 160),
       type: 'profile',
+      url: canonical,
+      title,
+      description,
+      siteName: 'Testimona',
+      locale: locale === 'en' ? 'en_US' : 'fr_FR',
+      images: [{ url: ogImage, width: 1200, height: 630, alt: displayName }],
     },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
+    robots: { index: true, follow: true },
   };
 }
 
