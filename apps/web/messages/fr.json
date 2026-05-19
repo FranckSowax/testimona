@@ -546,6 +546,27 @@
       "goalTitle": "Objectif de collecte",
       "recentTestimonials": "Derniers témoignages",
       "noTestimonials": "Aucun témoignage."
+    },
+    "testimonials": {
+      "searchLabel": "Rechercher",
+      "searchPlaceholder": "Auteur ou contenu du témoignage…",
+      "reportFilter": "Signalements",
+      "filterAll": "Tous",
+      "filterReported": "Signalés uniquement",
+      "resultsSummary": "{count, plural, =0 {Aucun témoignage} =1 {1 témoignage} other {{count} témoignages}}",
+      "empty": "Aucun témoignage ne correspond à ces filtres.",
+      "reportsBadge": "{count, plural, =1 {1 signalement} other {{count} signalements}}",
+      "delete": "Supprimer",
+      "confirmDelete": "Supprimer ce témoignage ? Les commentaires, likes et signalements seront également supprimés."
+    },
+    "reports": {
+      "subtitle": "File d'attente des témoignages signalés par les utilisateurs.",
+      "empty": "Aucun signalement en attente.",
+      "reportsCount": "{count, plural, =1 {1 signalement} other {{count} signalements}}",
+      "dismiss": "Ignorer",
+      "dismissAll": "Tout ignorer",
+      "deleteTestimonial": "Supprimer le témoignage",
+      "confirmDeleteTestimonial": "Supprimer définitivement ce témoignage et tous ses signalements ?"
     }
   }
 }

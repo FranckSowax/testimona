@@ -546,6 +546,27 @@
       "goalTitle": "Fundraising goal",
       "recentTestimonials": "Latest testimonials",
       "noTestimonials": "No testimonial."
+    },
+    "testimonials": {
+      "searchLabel": "Search",
+      "searchPlaceholder": "Author or testimonial content…",
+      "reportFilter": "Reports",
+      "filterAll": "All",
+      "filterReported": "Reported only",
+      "resultsSummary": "{count, plural, =0 {No testimonial} =1 {1 testimonial} other {{count} testimonials}}",
+      "empty": "No testimonial matches these filters.",
+      "reportsBadge": "{count, plural, =1 {1 report} other {{count} reports}}",
+      "delete": "Delete",
+      "confirmDelete": "Delete this testimonial? Its comments, likes and reports will be removed too."
+    },
+    "reports": {
+      "subtitle": "Queue of testimonials flagged by users.",
+      "empty": "No pending report.",
+      "reportsCount": "{count, plural, =1 {1 report} other {{count} reports}}",
+      "dismiss": "Dismiss",
+      "dismissAll": "Dismiss all",
+      "deleteTestimonial": "Delete testimonial",
+      "confirmDeleteTestimonial": "Permanently delete this testimonial and all its reports?"
     }
   }
 }
