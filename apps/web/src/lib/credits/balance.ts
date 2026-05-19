@@ -12,10 +12,20 @@ export interface CreditTransactionRow {
   createdAt: string;
 }
 
+/**
+ * End-user credit packs. Pricing follows the platform's 2× markup chain:
+ *
+ *   provider cost  ×2  →  admin (Studia)  ×2  →  end user
+ *
+ * With STUDIA_COST_PER_VIDEO = 30 and the admin's mid-tier pack costing
+ * 0.38€ / Studia credit, 1 video costs the admin ~11.40€. Doubled for
+ * the end user → 22.80€ per video. Bigger packs apply a volume rebate
+ * but never drop below the admin breakeven.
+ */
 export const CREDIT_PACKS = [
-  { id: 'starter', credits: 10, priceCents: 900, label: 'Découverte' },
-  { id: 'standard', credits: 30, priceCents: 2200, label: 'Standard' },
-  { id: 'pro', credits: 100, priceCents: 6000, label: 'Pro' },
+  { id: 'starter', credits: 10, priceCents: 22900, label: 'Découverte' },
+  { id: 'standard', credits: 30, priceCents: 59900, label: 'Standard' },
+  { id: 'pro', credits: 100, priceCents: 179900, label: 'Pro' },
 ] as const;
 
 export type CreditPackId = (typeof CREDIT_PACKS)[number]['id'];

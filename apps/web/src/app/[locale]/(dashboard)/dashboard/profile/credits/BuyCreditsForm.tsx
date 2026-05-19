@@ -11,20 +11,42 @@ interface Props {
   label: string;
   credits: number;
   priceCents: number;
+  /** Per-credit price of the entry-level pack, used to compute the savings %. */
+  baselinePerCreditCents: number;
   highlight?: boolean;
 }
+
+const eurFmt = new Intl.NumberFormat('fr-FR', {
+  style: 'currency',
+  currency: 'EUR',
+  maximumFractionDigits: 0,
+});
+
+const perCreditFmt = new Intl.NumberFormat('fr-FR', {
+  style: 'currency',
+  currency: 'EUR',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
 
 export function BuyCreditsForm({
   packId,
   label,
   credits,
   priceCents,
+  baselinePerCreditCents,
   highlight,
 }: Props) {
   const [state, formAction, isPending] = useActionState<
     BuyCreditsActionState | null,
     FormData
   >(buyCreditsDemoAction, null);
+
+  const perCreditCents = priceCents / credits;
+  const savingsPercent =
+    baselinePerCreditCents > 0
+      ? Math.round((1 - perCreditCents / baselinePerCreditCents) * 100)
+      : 0;
 
   return (
     <form
@@ -49,19 +71,21 @@ export function BuyCreditsForm({
         </span>
         <span className="text-sm text-muted-foreground">crédits</span>
       </div>
-      <p className="text-sm text-muted-foreground">
-        <span className="tabular font-display text-xl font-bold text-foreground">
-          {(priceCents / 100).toFixed(0)}€
-        </span>
-        <span className="ml-1 text-xs">
-          (
-          {(priceCents / 100 / credits).toLocaleString('fr-FR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
-          €/crédit)
-        </span>
-      </p>
+      <div className="space-y-0.5">
+        <p>
+          <span className="tabular font-display text-2xl font-bold text-foreground">
+            {eurFmt.format(priceCents / 100)}
+          </span>
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {perCreditFmt.format(perCreditCents / 100)} par crédit
+          {savingsPercent > 0 && (
+            <span className="ml-2 inline-flex rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+              −{savingsPercent}%
+            </span>
+          )}
+        </p>
+      </div>
       <button
         type="submit"
         disabled={isPending}

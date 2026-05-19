@@ -77,6 +77,9 @@ export default async function CreditsPage() {
               label={pack.label}
               credits={pack.credits}
               priceCents={pack.priceCents}
+              baselinePerCreditCents={
+                CREDIT_PACKS[0]!.priceCents / CREDIT_PACKS[0]!.credits
+              }
               highlight={i === 1}
             />
           ))}
