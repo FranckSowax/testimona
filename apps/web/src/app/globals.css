@@ -172,6 +172,11 @@
   to   { transform: translateX(0); }
 }
 
+@keyframes ken-burns {
+  0%   { transform: scale(1.06) translate(-1%, -1%); }
+  100% { transform: scale(1.14) translate(1%, 1.5%); }
+}
+
 /* ===== Animation utilities ===== */
 .animate-fade-in-up {
   animation: fade-in-up var(--motion-base) var(--motion-ease-out) both;
@@ -184,6 +189,9 @@
 }
 .animate-slide-in-left {
   animation: slide-in-left var(--motion-base) var(--motion-ease-out) both;
+}
+.animate-ken-burns {
+  animation: ken-burns 8s ease-in-out infinite alternate;
 }
 .animate-spin-slow {
   animation: spin 1s linear infinite;

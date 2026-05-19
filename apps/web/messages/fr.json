@@ -342,6 +342,46 @@
       "dateOfDeath": "Date de décès",
       "inLocation": "à"
     },
+    "coverSidebar": {
+      "play": "Lancer le diaporama",
+      "edit": "Modifier le mémorial",
+      "like": "Ajouter aux favoris",
+      "liked": "Retiré des favoris",
+      "share": "Partager",
+      "email": "Envoyer par email",
+      "writeTestimonial": "Écrire un témoignage",
+      "reportThanks": "Signalement envoyé.",
+      "story": {
+        "aria": "Diaporama de souvenirs",
+        "close": "Fermer",
+        "prev": "Précédent",
+        "next": "Suivant",
+        "play": "Lecture",
+        "pause": "Pause",
+        "filterNone": "Original",
+        "filterBw": "Noir & blanc",
+        "filterSepia": "Sépia",
+        "kenBurns": "Zoom doux",
+        "empty": "Aucune photo à afficher pour le moment.",
+        "speed": "Vitesse",
+        "speedSlow": "Lent",
+        "speedMedium": "Moyen",
+        "speedFast": "Rapide"
+      },
+      "shareDialog": {
+        "aria": "Partager ce mémorial",
+        "heading": "Partager",
+        "copy": "Copier le lien",
+        "copied": "Copié ✓",
+        "close": "Fermer",
+        "nativeShare": "Plus d'options de partage",
+        "facebook": "Facebook",
+        "twitter": "X (Twitter)",
+        "whatsapp": "WhatsApp",
+        "linkedin": "LinkedIn",
+        "email": "Email"
+      }
+    },
     "biographySection": {
       "heading": "Un peu plus à propos de notre proche"
     },

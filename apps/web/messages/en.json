@@ -351,6 +351,46 @@
       "dateOfDeath": "Date of death",
       "inLocation": "in"
     },
+    "coverSidebar": {
+      "play": "Play slideshow",
+      "edit": "Edit memorial",
+      "like": "Add to favorites",
+      "liked": "Remove from favorites",
+      "share": "Share",
+      "email": "Send by email",
+      "writeTestimonial": "Write a testimonial",
+      "reportThanks": "Report sent.",
+      "story": {
+        "aria": "Memories slideshow",
+        "close": "Close",
+        "prev": "Previous",
+        "next": "Next",
+        "play": "Play",
+        "pause": "Pause",
+        "filterNone": "Original",
+        "filterBw": "Black & white",
+        "filterSepia": "Sepia",
+        "kenBurns": "Soft zoom",
+        "empty": "No photos to show yet.",
+        "speed": "Speed",
+        "speedSlow": "Slow",
+        "speedMedium": "Medium",
+        "speedFast": "Fast"
+      },
+      "shareDialog": {
+        "aria": "Share this memorial",
+        "heading": "Share",
+        "copy": "Copy link",
+        "copied": "Copied ✓",
+        "close": "Close",
+        "nativeShare": "More share options",
+        "facebook": "Facebook",
+        "twitter": "X (Twitter)",
+        "whatsapp": "WhatsApp",
+        "linkedin": "LinkedIn",
+        "email": "Email"
+      }
+    },
     "biographySection": {
       "heading": "A little more about our loved one"
     },

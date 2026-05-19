@@ -16,6 +16,7 @@ import { ButtonIcon } from '@/components/ui/ButtonIcon';
 import { AppSidebar } from '@/components/AppSidebar';
 import { MemorialEditModalShell } from './_components/MemorialEditModalShell';
 import { AdminRequestModalShell } from './_components/AdminModalShells';
+import { MemorialCoverSidebar } from './_components/MemorialCoverSidebar';
 
 export const revalidate = 60; // ISR — 60s
 
@@ -55,6 +56,19 @@ async function getCoverPhotoUrl(memorialId: string): Promise<string | null> {
     .limit(1)
     .maybeSingle<{ url: string }>();
   return data?.url ?? null;
+}
+
+async function getMemorialPhotos(
+  memorialId: string,
+): Promise<{ id: string; url: string; caption: string | null }[]> {
+  const supabase = await getSupabaseServer();
+  const { data } = await supabase
+    .from('Photo')
+    .select('id, url, caption')
+    .eq('memorialId', memorialId)
+    .order('position', { ascending: true })
+    .returns<{ id: string; url: string; caption: string | null }[]>();
+  return data ?? [];
 }
 
 export async function generateMetadata({
@@ -122,12 +136,56 @@ export default async function MemorialPage({
   if (!memorial) notFound();
 
   const fullName = [memorial.firstname, memorial.lastname].filter(Boolean).join(' ');
-  const [coverUrl, tTabs, tBadge, currentUser] = await Promise.all([
+  const [coverUrl, memorialPhotos, tTabs, tBadge, tCover, currentUser] = await Promise.all([
     getCoverPhotoUrl(memorial.id),
+    getMemorialPhotos(memorial.id),
     getTranslations('tabs'),
     getTranslations('memorial.adminBadge'),
+    getTranslations('memorial.coverSidebar'),
     getCurrentUser(),
   ]);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+  const shareUrl = `${siteUrl}/memorial/${memorial.slug}`;
+  const coverLabels = {
+    play: tCover('play'),
+    edit: tCover('edit'),
+    like: tCover('like'),
+    liked: tCover('liked'),
+    share: tCover('share'),
+    email: tCover('email'),
+    writeTestimonial: tCover('writeTestimonial'),
+    reportThanks: tCover('reportThanks'),
+    story: {
+      aria: tCover('story.aria'),
+      close: tCover('story.close'),
+      prev: tCover('story.prev'),
+      next: tCover('story.next'),
+      play: tCover('story.play'),
+      pause: tCover('story.pause'),
+      filterNone: tCover('story.filterNone'),
+      filterBw: tCover('story.filterBw'),
+      filterSepia: tCover('story.filterSepia'),
+      kenBurns: tCover('story.kenBurns'),
+      empty: tCover('story.empty'),
+      speed: tCover('story.speed'),
+      speedSlow: tCover('story.speedSlow'),
+      speedMedium: tCover('story.speedMedium'),
+      speedFast: tCover('story.speedFast'),
+    },
+    shareDialog: {
+      aria: tCover('shareDialog.aria'),
+      heading: tCover('shareDialog.heading'),
+      copy: tCover('shareDialog.copy'),
+      copied: tCover('shareDialog.copied'),
+      close: tCover('shareDialog.close'),
+      nativeShare: tCover('shareDialog.nativeShare'),
+      facebook: tCover('shareDialog.facebook'),
+      twitter: tCover('shareDialog.twitter'),
+      whatsapp: tCover('shareDialog.whatsapp'),
+      linkedin: tCover('shareDialog.linkedin'),
+      email: tCover('shareDialog.email'),
+    },
+  };
   const isOwner = currentUser?.id === memorial.ownerId;
 
   const yearLine = formatYearLine(memorial.birthDate, memorial.deathDate);
@@ -193,39 +251,15 @@ export default async function MemorialPage({
           )
         }
         sideActions={
-          <>
-            <ButtonIcon label="Play diaporama" tone="default" size="sm" className="!bg-white/20 !text-white">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </ButtonIcon>
-            <ButtonIcon label="Edit" tone="default" size="sm" className="!bg-white/20 !text-white">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M12 20h9" />
-                <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
-              </svg>
-            </ButtonIcon>
-            <ButtonIcon label="Like" tone="default" size="sm" className="!bg-white/20 !text-white">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
-            </ButtonIcon>
-            <ButtonIcon label="Share" tone="default" size="sm" className="!bg-white/20 !text-white">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <circle cx="18" cy="5" r="3" />
-                <circle cx="6" cy="12" r="3" />
-                <circle cx="18" cy="19" r="3" />
-                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-              </svg>
-            </ButtonIcon>
-            <ButtonIcon label="Contact" tone="default" size="sm" className="!bg-white/20 !text-white">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M4 4h16v16H4z" />
-                <path d="M22 6l-10 7L2 6" />
-              </svg>
-            </ButtonIcon>
-          </>
+          <MemorialCoverSidebar
+            slug={memorial.slug}
+            fullName={fullName}
+            shareUrl={shareUrl}
+            photos={memorialPhotos}
+            isOwner={isOwner}
+            isLoggedIn={!!currentUser}
+            labels={coverLabels}
+          />
         }
         bioActions={
           <>
