@@ -79,11 +79,15 @@ export default async function AdminCreditsPage() {
                 <p className="truncate font-display text-sm font-bold text-foreground">
                   {usersById.get(c.userId) ?? c.userId.slice(0, 8)}
                 </p>
-                <p className="text-[11px] text-muted-foreground">
+                <p
+                  className="text-[11px] text-muted-foreground"
+                  suppressHydrationWarning
+                >
                   Maj{' '}
                   {new Date(c.updatedAt).toLocaleString('fr-FR', {
                     dateStyle: 'short',
                     timeStyle: 'short',
+                    timeZone: 'Europe/Paris',
                   })}
                 </p>
               </div>
@@ -118,10 +122,14 @@ export default async function AdminCreditsPage() {
                   {tx.type}
                   {tx.note ? ` · ${tx.note}` : ''}
                 </p>
-                <p className="text-[11px] text-muted-foreground">
+                <p
+                  className="text-[11px] text-muted-foreground"
+                  suppressHydrationWarning
+                >
                   {new Date(tx.createdAt).toLocaleString('fr-FR', {
                     dateStyle: 'short',
                     timeStyle: 'short',
+                    timeZone: 'Europe/Paris',
                   })}
                 </p>
               </div>

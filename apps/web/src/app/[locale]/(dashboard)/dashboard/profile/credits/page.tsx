@@ -112,10 +112,14 @@ export default async function CreditsPage() {
                         {tx.note}
                       </p>
                     )}
-                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                    <p
+                      className="text-[11px] uppercase tracking-wide text-muted-foreground"
+                      suppressHydrationWarning
+                    >
                       {new Date(tx.createdAt).toLocaleString('fr-FR', {
                         dateStyle: 'short',
                         timeStyle: 'short',
+                        timeZone: 'Europe/Paris',
                       })}
                     </p>
                   </div>

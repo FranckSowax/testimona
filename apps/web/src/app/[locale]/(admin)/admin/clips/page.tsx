@@ -93,11 +93,15 @@ export default async function AdminClipsPage() {
                     {c.caption}
                   </p>
                 )}
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                <p
+                  className="text-[10px] uppercase tracking-wide text-muted-foreground"
+                  suppressHydrationWarning
+                >
                   {c.higgsfieldJobId ?? '—'} ·{' '}
                   {new Date(c.createdAt).toLocaleString('fr-FR', {
                     dateStyle: 'short',
                     timeStyle: 'short',
+                    timeZone: 'Europe/Paris',
                   })}
                 </p>
                 {c.errorMessage && (

@@ -289,8 +289,13 @@ export default async function NotificationsPage() {
                 />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm leading-relaxed text-foreground">{message}</p>
-                  <p className="mt-1 text-xs text-muted-foreground tabular">
-                    {new Date(event.createdAt).toLocaleString('fr-FR')}
+                  <p
+                    className="mt-1 text-xs text-muted-foreground tabular"
+                    suppressHydrationWarning
+                  >
+                    {new Date(event.createdAt).toLocaleString('fr-FR', {
+                      timeZone: 'Europe/Paris',
+                    })}
                   </p>
                 </div>
                 <Link

@@ -3,16 +3,16 @@ import 'server-only';
 /**
  * Higgsfield client — abstraction over the image-to-video generation API.
  *
- * Real integration goes through the Higgsfield MCP at
- * https://mcp.higgsfield.ai/mcp, which expects HIGGSFIELD_API_KEY +
- * HIGGSFIELD_API_SECRET. When those env vars are missing we fall back to
- * a deterministic demo mode that pretends to generate clips so the rest
- * of the workflow (UI, polling, viewer) can be exercised end-to-end
- * without burning real credits.
+ * Real integration hits https://platform.higgsfield.ai with the credentials
+ * stored as HIGGSFIELD_API_KEY (= KEY_ID) and HIGGSFIELD_API_SECRET
+ * (= KEY_SECRET). When either is missing we fall back to a deterministic
+ * demo so the workflow can be exercised end-to-end without burning credit.
  */
 
 const DEMO_CLIP_URL =
   'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4';
+
+const HIGGSFIELD_BASE = 'https://platform.higgsfield.ai';
 
 export interface SubmitJobParams {
   imageUrl: string;
@@ -30,9 +30,14 @@ function isDemoMode() {
   return !process.env.HIGGSFIELD_API_KEY || !process.env.HIGGSFIELD_API_SECRET;
 }
 
+function authHeader() {
+  return `Key ${process.env.HIGGSFIELD_API_KEY}:${process.env.HIGGSFIELD_API_SECRET}`;
+}
+
 /**
- * Submit an image-to-video job. Returns the Higgsfield job id (or a stub
- * id prefixed with `demo_` in demo mode).
+ * Submit an image-to-video job using Higgsfield's DOP turbo model
+ * (short, character-preserving animations of a single portrait).
+ * Returns the request id we'll poll later.
  */
 export async function submitImageToVideo(
   params: SubmitJobParams,
@@ -42,27 +47,30 @@ export async function submitImageToVideo(
   }
 
   try {
-    const res = await fetch('https://mcp.higgsfield.ai/mcp/jobs', {
+    const res = await fetch(`${HIGGSFIELD_BASE}/v1/image2video/dop`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.HIGGSFIELD_API_KEY}`,
-        'X-API-Secret': process.env.HIGGSFIELD_API_SECRET as string,
+        Authorization: authHeader(),
+        'User-Agent': 'testimona-web/1.0',
       },
       body: JSON.stringify({
-        type: 'image_to_video',
-        image_url: params.imageUrl,
+        model: 'dop-turbo',
         prompt: params.prompt,
-        duration_seconds: params.durationSec,
+        input_images: [{ type: 'image_url', image_url: params.imageUrl }],
       }),
     });
     if (!res.ok) {
       const text = await res.text().catch(() => '');
-      return { error: `Higgsfield ${res.status}: ${text.slice(0, 200)}` };
+      return { error: `submit ${res.status}: ${text.slice(0, 200)}` };
     }
-    const json = (await res.json()) as { id?: string; job_id?: string };
-    const jobId = json.id ?? json.job_id;
-    if (!jobId) return { error: 'Higgsfield response missing job id' };
+    const json = (await res.json()) as {
+      request_id?: string;
+      id?: string;
+      status?: string;
+    };
+    const jobId = json.request_id ?? json.id;
+    if (!jobId) return { error: 'missing request_id in response' };
     return { jobId };
   } catch (err) {
     return { error: err instanceof Error ? err.message : String(err) };
@@ -82,27 +90,41 @@ export async function getJobStatus(jobId: string): Promise<JobStatus> {
   }
 
   try {
-    const res = await fetch(`https://mcp.higgsfield.ai/mcp/jobs/${jobId}`, {
+    const res = await fetch(`${HIGGSFIELD_BASE}/requests/${jobId}/status`, {
       headers: {
-        Authorization: `Bearer ${process.env.HIGGSFIELD_API_KEY}`,
-        'X-API-Secret': process.env.HIGGSFIELD_API_SECRET as string,
+        Authorization: authHeader(),
+        'User-Agent': 'testimona-web/1.0',
       },
     });
     if (!res.ok) {
-      return { status: 'failed', error: `Status ${res.status}` };
+      return { status: 'failed', error: `status ${res.status}` };
     }
     const json = (await res.json()) as {
       status?: string;
-      video_url?: string;
+      video?: { url?: string };
+      videos?: { url?: string }[];
       error?: string;
     };
-    if (json.status === 'completed' || json.status === 'done') {
-      if (!json.video_url) return { status: 'failed', error: 'no video_url' };
-      return { status: 'ready', videoUrl: json.video_url };
+
+    if (json.status === 'completed') {
+      const url =
+        json.video?.url ??
+        json.videos?.[0]?.url ??
+        null;
+      if (!url) return { status: 'failed', error: 'no video url in response' };
+      return { status: 'ready', videoUrl: url };
     }
-    if (json.status === 'failed' || json.status === 'error') {
-      return { status: 'failed', error: json.error ?? 'unknown' };
+    if (
+      json.status === 'failed' ||
+      json.status === 'nsfw' ||
+      json.status === 'error'
+    ) {
+      return {
+        status: 'failed',
+        error: json.error ?? json.status ?? 'unknown',
+      };
     }
+    // 'queued' | 'in_progress' | anything else → still processing
     return { status: 'processing' };
   } catch (err) {
     return {

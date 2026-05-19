@@ -173,10 +173,14 @@ export function ClipsList({ clips }: { clips: ClipRowDto[] }) {
                   {clip.errorMessage}
                 </p>
               )}
-              <p className="text-[11px] text-muted-foreground">
+              <p
+                className="text-[11px] text-muted-foreground"
+                suppressHydrationWarning
+              >
                 {new Date(clip.createdAt).toLocaleString('fr-FR', {
                   dateStyle: 'short',
                   timeStyle: 'short',
+                  timeZone: 'Europe/Paris',
                 })}
               </p>
               {clip.status === 'ready' && (

@@ -47,13 +47,22 @@ export async function POST() {
     }
 
     if (job.status === 'ready' && job.videoUrl) {
-      const mirror = await mirrorClipToStorage(clip.id, job.videoUrl);
-      if (!mirror.ok) {
+      // Demo mode jobs use a public CDN URL — no need to mirror, the
+      // <video> tag can stream it directly. We only mirror real
+      // Higgsfield CDN URLs which can expire or have CORS limits.
+      const isDemo = clip.higgsfieldJobId.startsWith('demo_');
+      const finalUrl = isDemo
+        ? job.videoUrl
+        : await mirrorClipToStorage(clip.id, job.videoUrl).then((m) =>
+            m.ok ? m.url : null,
+          );
+
+      if (!finalUrl) {
         await supabase
           .from('MemorialClip')
           .update({
             status: 'failed',
-            errorMessage: `storage: ${mirror.error}`,
+            errorMessage: 'storage mirror failed',
             updatedAt: new Date().toISOString(),
           })
           .eq('id', clip.id);
@@ -67,7 +76,7 @@ export async function POST() {
         .from('MemorialClip')
         .update({
           status: 'ready',
-          videoUrl: mirror.url,
+          videoUrl: finalUrl,
           updatedAt: new Date().toISOString(),
         })
         .eq('id', clip.id);
