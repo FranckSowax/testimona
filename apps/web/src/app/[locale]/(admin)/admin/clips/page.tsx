@@ -54,10 +54,18 @@ export default async function AdminClipsPage() {
         <StatTile label="Échoués" value={counts.failed} tone="failed" />
       </section>
 
-      <p className="mb-4 rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-xs text-foreground/80">
-        Le worker tourne automatiquement quand un user a la page « Mes clips »
-        ouverte. Pour pousser un cycle manuel, utilise{' '}
-        <code className="rounded bg-muted px-1.5 py-0.5">POST /api/clips/poll</code>.
+      <p className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-xs text-foreground/80">
+        <span>
+          Le worker tourne automatiquement quand un user a la page « Mes clips »
+          ouverte. Pour pousser un cycle manuel, utilise{' '}
+          <code className="rounded bg-muted px-1.5 py-0.5">POST /api/clips/poll</code>.
+        </span>
+        <a
+          href="/admin/clips/ping"
+          className="press-scale inline-flex items-center gap-1 rounded-md border border-border bg-white px-2.5 py-1 font-display text-[11px] font-bold uppercase tracking-wider text-foreground hover:bg-muted"
+        >
+          Tester credentials
+        </a>
       </p>
 
       {!data || data.length === 0 ? (

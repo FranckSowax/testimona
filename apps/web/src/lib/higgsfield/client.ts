@@ -35,13 +35,20 @@ function readCreds(): { id: string; secret: string } | null {
   // Preferred: their docs call them KEY_ID and KEY_SECRET; we accept
   // HIGGSFIELD_API_ID + HIGGSFIELD_API_KEY (which is what most users
   // see when they copy from the Higgsfield dashboard — id + key).
-  const id =
-    process.env.HIGGSFIELD_API_ID ?? process.env.HIGGSFIELD_KEY_ID ?? null;
-  const secret =
+  // Trim defensively — Railway's UI sometimes adds trailing whitespace
+  // or newlines when pasting, and Higgsfield's auth rejects those
+  // silently with a 401 "Invalid credentials".
+  const id = (
+    process.env.HIGGSFIELD_API_ID ??
+    process.env.HIGGSFIELD_KEY_ID ??
+    ''
+  ).trim();
+  const secret = (
     process.env.HIGGSFIELD_API_SECRET ??
     process.env.HIGGSFIELD_KEY_SECRET ??
     process.env.HIGGSFIELD_API_KEY ??
-    null;
+    ''
+  ).trim();
   if (!id || !secret) return null;
   return { id, secret };
 }
@@ -54,6 +61,49 @@ function authHeader() {
   const creds = readCreds();
   if (!creds) throw new Error('Higgsfield credentials missing');
   return `Key ${creds.id}:${creds.secret}`;
+}
+
+/**
+ * Admin-only diagnostic — pings Higgsfield with the current credentials.
+ * Returns 'demo' when no creds are set, 'ok' on successful 200/2xx, or
+ * { status, body } on failure so the admin can see whether the
+ * credentials are accepted without spending a credit.
+ */
+export async function pingHiggsfield(): Promise<
+  | { ok: true; mode: 'demo' | 'real' }
+  | { ok: false; status: number; body: string; idLen: number; secretLen: number }
+> {
+  if (isDemoMode()) return { ok: true, mode: 'demo' };
+
+  const creds = readCreds()!;
+  try {
+    // Touch a cheap endpoint — the requests list. A 200/2xx means auth
+    // is good. A 401 means the credentials are wrong. Anything else is
+    // a transient issue.
+    const res = await fetch(`${HIGGSFIELD_BASE}/v1/account`, {
+      headers: {
+        Authorization: authHeader(),
+        'User-Agent': 'testimona-web/1.0',
+      },
+    });
+    if (res.ok) return { ok: true, mode: 'real' };
+    const body = await res.text().catch(() => '');
+    return {
+      ok: false,
+      status: res.status,
+      body: body.slice(0, 400),
+      idLen: creds.id.length,
+      secretLen: creds.secret.length,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      body: err instanceof Error ? err.message : String(err),
+      idLen: creds.id.length,
+      secretLen: creds.secret.length,
+    };
+  }
 }
 
 /**
