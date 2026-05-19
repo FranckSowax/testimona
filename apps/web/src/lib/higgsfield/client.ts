@@ -1,17 +1,20 @@
 import 'server-only';
+import {
+  isFalConfigured,
+  falSubmitImageToVideo,
+  falGetJobStatus,
+} from '@/lib/fal/client';
 
 /**
- * Higgsfield client — abstraction over the image-to-video generation API.
+ * Video provider abstraction. Routes the request based on which provider
+ * is configured in env:
  *
- * Real integration hits https://platform.higgsfield.ai using the
- * `Authorization: Key <KEY_ID>:<KEY_SECRET>` scheme. We read the
- * credentials from one of these env layouts (in order):
+ *   FAL_KEY                                  → fal.ai (Seedance 2.0)
+ *   HIGGSFIELD_API_ID + HIGGSFIELD_API_KEY   → Higgsfield (DOP)
+ *   none of the above                        → deterministic demo
  *
- *   1) HIGGSFIELD_API_ID    + HIGGSFIELD_API_KEY     ← Higgsfield's docs
- *   2) HIGGSFIELD_API_KEY   + HIGGSFIELD_API_SECRET  ← legacy
- *
- * When both halves are missing we fall back to a deterministic demo so
- * the workflow can be exercised end-to-end without burning credit.
+ * fal.ai is preferred when both are set: Seedance 2.0 is cheaper per
+ * second and hosts the original Bytedance model.
  */
 
 const DEMO_CLIP_URL =
@@ -44,6 +47,13 @@ export interface JobStatus {
   status: 'processing' | 'ready' | 'failed';
   videoUrl?: string;
   error?: string;
+}
+
+/** What provider is currently routing this request? */
+export function getActiveProvider(): 'fal' | 'higgsfield' | 'demo' {
+  if (isFalConfigured()) return 'fal';
+  if (readCreds() !== null) return 'higgsfield';
+  return 'demo';
 }
 
 function readCreds(): { id: string; secret: string } | null {
@@ -176,77 +186,60 @@ export async function pingHiggsfield(): Promise<
 export async function submitImageToVideo(
   params: SubmitJobParams,
 ): Promise<{ jobId: string } | { error: string }> {
-  if (isDemoMode()) {
+  const provider = getActiveProvider();
+
+  if (provider === 'demo') {
     return { jobId: `demo_${Date.now()}_${Math.random().toString(36).slice(2, 8)}` };
   }
 
-  // Endpoints we try in order — Higgsfield exposes different routes per
-  // model family. We start with Seedance (cheaper, identity-preserving),
-  // and only fall back to DOP if Seedance returns a routing 404.
-  const attempts: { url: string; body: unknown }[] = [
-    {
-      url: `${HIGGSFIELD_BASE}/v1/image2video/seedance`,
-      body: {
-        params: {
-          model: 'seedance_2_0',
-          prompt: TESTIMONA_VIDEO_PROMPT,
-          mode: 'std',
-          resolution: '720p',
-          duration: 5,
-          input_images: [{ type: 'image_url', image_url: params.imageUrl }],
-        },
+  // Route through fal.ai when configured — Seedance 2.0 hosted directly
+  // by Bytedance, cheaper than Higgsfield's DOP. We prefix the job id
+  // with "fal_" so the polling worker knows which provider's status
+  // endpoint to call.
+  if (provider === 'fal') {
+    const r = await falSubmitImageToVideo({
+      imageUrl: params.imageUrl,
+      prompt: TESTIMONA_VIDEO_PROMPT,
+      durationSec: params.durationSec,
+    });
+    if ('error' in r) return r;
+    return { jobId: `fal_${r.jobId}` };
+  }
+
+  // Fall through to Higgsfield REST API on /v1/image2video/dop.
+  try {
+    const res = await fetch(`${HIGGSFIELD_BASE}/v1/image2video/dop`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: authHeader(),
+        'User-Agent': 'testimona-web/1.0',
       },
-    },
-    {
-      url: `${HIGGSFIELD_BASE}/v1/image2video/dop`,
-      body: {
+      body: JSON.stringify({
         params: {
           model: 'dop-lite',
           prompt: TESTIMONA_VIDEO_PROMPT,
           input_images: [{ type: 'image_url', image_url: params.imageUrl }],
         },
-      },
-    },
-  ];
-
-  try {
-    let lastRes: { status: number; text: string } | null = null;
-    for (const a of attempts) {
-      const res = await fetch(a.url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authHeader(),
-          'User-Agent': 'testimona-web/1.0',
-        },
-        body: JSON.stringify(a.body),
-      });
-      if (res.ok) {
-        const json = (await res.json()) as {
-          request_id?: string;
-          id?: string;
-        };
-        const jobId = json.request_id ?? json.id;
-        if (!jobId) return { error: 'missing request_id in response' };
-        return { jobId };
-      }
+      }),
+    });
+    if (!res.ok) {
       const text = await res.text().catch(() => '');
-      lastRes = { status: res.status, text: text.slice(0, 200) };
-      // Skip to next endpoint on routing-shaped failures only.
-      if (res.status !== 404 && res.status !== 405) {
-        break;
+      if (res.status === 403 && text.includes('credits')) {
+        return {
+          error:
+            'Crédits compute insuffisants côté fournisseur. L\'admin doit recharger le solde Studia.',
+        };
       }
+      return { error: `submit ${res.status}: ${text.slice(0, 200)}` };
     }
-    if (lastRes && lastRes.status === 403 && lastRes.text.includes('credits')) {
-      return {
-        error:
-          'Crédits compute insuffisants côté fournisseur. L\'admin doit recharger le solde Studia.',
-      };
-    }
-    if (lastRes) {
-      return { error: `submit ${lastRes.status}: ${lastRes.text}` };
-    }
-    return { error: 'no endpoint accepted the submission' };
+    const json = (await res.json()) as {
+      request_id?: string;
+      id?: string;
+    };
+    const jobId = json.request_id ?? json.id;
+    if (!jobId) return { error: 'missing request_id in response' };
+    return { jobId };
   } catch (err) {
     return { error: err instanceof Error ? err.message : String(err) };
   }
@@ -262,6 +255,12 @@ export async function getJobStatus(jobId: string): Promise<JobStatus> {
     const elapsed = Date.now() - ts;
     if (elapsed < 30_000) return { status: 'processing' };
     return { status: 'ready', videoUrl: DEMO_CLIP_URL };
+  }
+
+  // fal-prefixed jobs route to fal.ai's queue status endpoint.
+  if (jobId.startsWith('fal_')) {
+    const realId = jobId.slice(4);
+    return falGetJobStatus(realId);
   }
 
   try {
