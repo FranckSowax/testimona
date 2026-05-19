@@ -47,31 +47,21 @@ export async function POST() {
     }
 
     if (job.status === 'ready' && job.videoUrl) {
-      // Demo mode jobs use a public CDN URL — no need to mirror, the
-      // <video> tag can stream it directly. We only mirror real
-      // Higgsfield CDN URLs which can expire or have CORS limits.
+      // Try to mirror the Higgsfield CDN URL into our own bucket so we
+      // own the lifetime. Demo job → skip mirror (CDN sample blocks
+      // hot-linkers anyway, and the <video> tag streams it directly).
+      // Real job → attempt mirror, but if the mirror fails (CDN auth
+      // quirk, transient failure), fall back to the original URL so the
+      // user still gets their clip — losing the long-term-retention
+      // guarantee is acceptable, losing the clip + credit isn't.
       const isDemo = clip.higgsfieldJobId.startsWith('demo_');
-      const finalUrl = isDemo
-        ? job.videoUrl
-        : await mirrorClipToStorage(clip.id, job.videoUrl).then((m) =>
-            m.ok ? m.url : null,
-          );
-
-      if (!finalUrl) {
-        await supabase
-          .from('MemorialClip')
-          .update({
-            status: 'failed',
-            errorMessage: 'storage mirror failed',
-            updatedAt: new Date().toISOString(),
-          })
-          .eq('id', clip.id);
-        await refundCredits(clip.createdById, clip.creditCost, {
-          memorialClipId: clip.id,
-          note: 'Stockage du clip échoué — remboursé',
-        });
-        continue;
+      let finalUrl = job.videoUrl;
+      if (!isDemo) {
+        const mirror = await mirrorClipToStorage(clip.id, job.videoUrl);
+        if (mirror.ok) finalUrl = mirror.url;
+        // else: silent fall-back to the original CDN URL
       }
+
       await supabase
         .from('MemorialClip')
         .update({

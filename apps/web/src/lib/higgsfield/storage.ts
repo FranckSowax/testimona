@@ -3,17 +3,47 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 
 const BUCKET = 'memorial-clips';
 
+function looksLikeHiggsfieldUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return /higgsfield\.ai$/.test(u.hostname) || u.hostname.includes('higgsfield');
+  } catch {
+    return false;
+  }
+}
+
+function higgsfieldAuthHeader(): string | undefined {
+  const id = process.env.HIGGSFIELD_API_KEY;
+  const secret = process.env.HIGGSFIELD_API_SECRET;
+  if (!id || !secret) return undefined;
+  return `Key ${id}:${secret}`;
+}
+
 /**
  * Fetch a remote MP4 (Higgsfield CDN) and re-upload it to our Supabase
  * `memorial-clips` bucket so we control the lifetime and CORS. Returns the
  * public URL stored on MemorialClip.videoUrl.
+ *
+ * If the source fetch fails (CDN doesn't allow our IP, signed URL expired,
+ * etc.), the caller can fall back to the original URL — the <video> tag
+ * works fine with hot-linked URLs, we just lose the long-term guarantee.
  */
 export async function mirrorClipToStorage(
   clipId: string,
   sourceUrl: string,
 ): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
   try {
-    const res = await fetch(sourceUrl);
+    const headers: Record<string, string> = {
+      'User-Agent': 'testimona-web/1.0',
+    };
+    // Higgsfield video URLs are sometimes protected — send the API key
+    // when we recognise the host.
+    if (looksLikeHiggsfieldUrl(sourceUrl)) {
+      const auth = higgsfieldAuthHeader();
+      if (auth) headers.Authorization = auth;
+    }
+
+    const res = await fetch(sourceUrl, { headers });
     if (!res.ok) return { ok: false, error: `source fetch ${res.status}` };
     const buf = Buffer.from(await res.arrayBuffer());
     const supabase = getSupabaseAdminClient();
