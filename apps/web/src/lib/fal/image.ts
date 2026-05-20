@@ -9,9 +9,13 @@ import 'server-only';
  */
 
 const FAL_BASE = 'https://queue.fal.run';
-// FLUX Pro 1.1 Ultra image-to-image: strong identity preservation +
-// painterly stylisation. Replace endpoint if you want a different model.
-const FLUX_I2I_PATH = 'fal-ai/flux-pro/v1.1-ultra/image-to-image';
+// FLUX.1 Kontext [pro] — identity-preserving image editing via natural-
+// language instruction. Replaces the previous v1.1-ultra/image-to-image
+// path that fal returned 404 for (the ultra variant doesn't expose an
+// i2i endpoint). Kontext is purpose-built for "edit this image
+// according to the prompt" workflows and preserves the subject's
+// likeness reliably. Cost: ~$0.04 per image.
+const FLUX_I2I_PATH = 'fal-ai/flux-pro/kontext';
 
 /**
  * Single canonical prompt for memorial visuals. Designed to "sublime"
@@ -76,10 +80,13 @@ export async function falSubmitImage(
         ...baseHeaders(),
         'Content-Type': 'application/json',
       },
+      // FLUX Kontext params: prompt + image_url required, the rest are
+      // optional with sensible defaults. We don't pass `strength` here
+      // because Kontext is edit-by-instruction and ignores the
+      // diffusion-strength knob the older v1.1-ultra exposed.
       body: JSON.stringify({
-        image_url: params.imageUrl,
         prompt,
-        strength: 0.6,
+        image_url: params.imageUrl,
         aspect_ratio: '3:4',
         num_images: 1,
         output_format: 'jpeg',
