@@ -1,6 +1,5 @@
 'use server';
 
-import { TestimonialCreateSchema } from '@testimona/shared';
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
@@ -17,55 +16,114 @@ export async function submitTestimonialAction(
   formData: FormData,
 ): Promise<TestimonialActionState> {
   const slug = String(formData.get('slug') ?? '');
+  const memorialId = String(formData.get('memorialId') ?? '');
+  const authorName = String(formData.get('authorName') ?? '').trim().slice(0, 80);
+  const authorFirstname = String(formData.get('authorFirstname') ?? '').trim().slice(0, 60);
+  const authorEmail = String(formData.get('authorEmail') ?? '').trim().slice(0, 200);
+  const message = String(formData.get('message') ?? '').trim().slice(0, 2000);
+  const language = String(formData.get('language') ?? 'fr');
 
-  const raw = {
-    memorialId: String(formData.get('memorialId') ?? ''),
-    authorName: String(formData.get('authorName') ?? '').trim(),
-    message: String(formData.get('message') ?? '').trim(),
-    language: String(formData.get('language') ?? 'fr'),
-  };
+  // Per-field validation — open to anonymous visitors so we can't rely
+  // on the existing TestimonialCreateSchema (which required full auth).
+  const fieldErrors: Record<string, string> = {};
+  if (!memorialId) fieldErrors.memorialId = 'requis';
+  if (!authorName) fieldErrors.authorName = 'Nom requis';
+  if (!authorFirstname) fieldErrors.authorFirstname = 'Prénom requis';
+  if (message.length < 10) fieldErrors.message = '10 caractères minimum';
+  if (authorEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(authorEmail))
+    fieldErrors.authorEmail = 'Email invalide';
+  if (Object.keys(fieldErrors).length) return { error: 'Validation', fieldErrors };
 
-  const parsed = TestimonialCreateSchema.safeParse(raw);
-  if (!parsed.success) {
-    const fieldErrors: Record<string, string> = {};
-    for (const issue of parsed.error.issues) {
-      const key = issue.path.join('.');
-      if (!fieldErrors[key]) fieldErrors[key] = issue.message;
-    }
-    return { error: 'Validation', fieldErrors };
-  }
+  const displayName = `${authorFirstname} ${authorName}`.trim();
+
+  // Get current user (may be anonymous). Owner / admin auto-approve;
+  // everyone else lands in pending and needs owner moderation.
+  const supabase = await getSupabaseServer();
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData.user?.id ?? null;
+
+  const adminDb = getSupabaseAdminClient();
+  const { data: memorial } = await adminDb
+    .from('Memorial')
+    .select('ownerId')
+    .eq('id', memorialId)
+    .maybeSingle<{ ownerId: string }>();
+  if (!memorial) return { error: 'Mémorial introuvable.' };
+
+  const isOwner = userId !== null && userId === memorial.ownerId;
+  const status = isOwner ? 'approved' : 'pending';
+
+  const { error } = await adminDb.from('Testimonial').insert({
+    memorialId,
+    authorId: userId,
+    authorName: displayName,
+    authorFirstname: authorFirstname,
+    authorEmail: authorEmail || null,
+    message,
+    language,
+    status,
+  });
+  if (error) return { error: error.message };
+
+  // Notify the memorial owner so they know a testimonial is waiting for
+  // moderation (or just landed publicly when they posted it themselves).
+  void notifyOwnerOfNewTestimonial({
+    memorialId,
+    authorName: displayName,
+    message,
+    locale: language === 'en' ? 'en' : 'fr',
+    actorId: userId ?? '00000000-0000-0000-0000-000000000000',
+  });
+
+  if (slug) revalidatePath(`/memorial/${slug}`);
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Owner moderation — approve / reject pending testimonials
+// ---------------------------------------------------------------------------
+export async function moderateTestimonialAction(
+  _prev: TestimonialActionState | null,
+  formData: FormData,
+): Promise<TestimonialActionState> {
+  const id = String(formData.get('id') ?? '').trim();
+  const decision = String(formData.get('decision') ?? '').trim();
+  const slug = String(formData.get('slug') ?? '').trim();
+  if (!id) return { error: 'id requis.' };
+  if (decision !== 'approved' && decision !== 'rejected')
+    return { error: 'Décision invalide.' };
 
   const supabase = await getSupabaseServer();
   const { data: userData } = await supabase.auth.getUser();
-  if (!userData.user) {
-    return { error: 'Vous devez être connecté pour publier un témoignage.' };
-  }
+  if (!userData.user) return { error: 'Non connecté.' };
 
-  const { error } = await supabase.from('Testimonial').insert({
-    memorialId: parsed.data.memorialId,
-    authorId: userData.user.id,
-    authorName: parsed.data.authorName,
-    message: parsed.data.message,
-    language: parsed.data.language,
-  });
+  const adminDb = getSupabaseAdminClient();
+  const { data: tx } = await adminDb
+    .from('Testimonial')
+    .select('memorialId')
+    .eq('id', id)
+    .maybeSingle<{ memorialId: string }>();
+  if (!tx) return { error: 'Témoignage introuvable.' };
 
-  if (error) {
-    return { error: error.message };
-  }
+  const { data: memorial } = await adminDb
+    .from('Memorial')
+    .select('ownerId')
+    .eq('id', tx.memorialId)
+    .maybeSingle<{ ownerId: string }>();
+  if (!memorial || memorial.ownerId !== userData.user.id)
+    return { error: 'Modération réservée au propriétaire.' };
 
-  // Fire-and-forget email to the memorial owner. Uses the admin client so we
-  // can look up the owner's email even when RLS would block the current user.
-  void notifyOwnerOfNewTestimonial({
-    memorialId: parsed.data.memorialId,
-    authorName: parsed.data.authorName,
-    message: parsed.data.message,
-    locale: parsed.data.language === 'en' ? 'en' : 'fr',
-    actorId: userData.user.id,
-  });
+  const { error } = await adminDb
+    .from('Testimonial')
+    .update({
+      status: decision,
+      moderatedAt: new Date().toISOString(),
+      moderatedById: userData.user.id,
+    })
+    .eq('id', id);
+  if (error) return { error: error.message };
 
-  if (slug) {
-    revalidatePath(`/memorial/${slug}`);
-  }
+  if (slug) revalidatePath(`/memorial/${slug}`);
   return { ok: true };
 }
 

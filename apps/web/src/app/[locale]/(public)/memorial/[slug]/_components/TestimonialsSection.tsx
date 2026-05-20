@@ -1,15 +1,18 @@
-import Link from 'next/link';
-import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
+import { getCurrentUser } from '@/lib/supabase/server';
+import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { unsplashAvatarFor } from '@/lib/avatars';
-import { TestimonialModalShell } from './TestimonialModalShell';
 import { TestimonialItem, type TestimonialComment } from './TestimonialItem';
+import { TestimonialPublicForm } from './TestimonialPublicForm';
+import { TestimonialModerateButtons } from './TestimonialModerateButtons';
 
 interface TestimonialRow {
   id: string;
-  authorId: string;
+  authorId: string | null;
   authorName: string;
+  authorFirstname: string | null;
   message: string;
   language: string;
+  status: string;
   createdAt: string;
 }
 
@@ -22,21 +25,48 @@ interface CommentRow extends TestimonialComment {
   testimonialId: string;
 }
 
+interface MemorialMetaLite {
+  firstname: string;
+  lastname: string;
+  ownerId: string;
+}
+
+/**
+ * Use the admin client server-side to fetch testimonials — RLS would
+ * otherwise force us into multiple queries for public vs owner views.
+ * We apply the visibility filter in code so the owner sees pending +
+ * approved, public visitors only see approved.
+ */
 async function getTestimonials(memorialId: string): Promise<TestimonialRow[]> {
-  const supabase = await getSupabaseServer();
+  const supabase = getSupabaseAdminClient();
   const { data } = await supabase
     .from('Testimonial')
-    .select('id, authorId, authorName, message, language, createdAt')
+    .select(
+      'id, authorId, authorName, authorFirstname, message, language, status, createdAt',
+    )
     .eq('memorialId', memorialId)
+    .in('status', ['pending', 'approved'])
     .order('createdAt', { ascending: false })
-    .limit(100)
+    .limit(150)
     .returns<TestimonialRow[]>();
   return data ?? [];
 }
 
+async function getMemorialMeta(memorialId: string): Promise<MemorialMetaLite> {
+  const supabase = getSupabaseAdminClient();
+  const { data } = await supabase
+    .from('Memorial')
+    .select('firstname, lastname, ownerId')
+    .eq('id', memorialId)
+    .maybeSingle<MemorialMetaLite>();
+  return (
+    data ?? { firstname: '', lastname: '', ownerId: '' }
+  );
+}
+
 async function getLikes(testimonialIds: string[]): Promise<LikeRow[]> {
   if (testimonialIds.length === 0) return [];
-  const supabase = await getSupabaseServer();
+  const supabase = getSupabaseAdminClient();
   const { data } = await supabase
     .from('TestimonialLike')
     .select('testimonialId, userId')
@@ -47,7 +77,7 @@ async function getLikes(testimonialIds: string[]): Promise<LikeRow[]> {
 
 async function getComments(testimonialIds: string[]): Promise<CommentRow[]> {
   if (testimonialIds.length === 0) return [];
-  const supabase = await getSupabaseServer();
+  const supabase = getSupabaseAdminClient();
   const { data } = await supabase
     .from('TestimonialComment')
     .select('id, testimonialId, authorName, message, createdAt')
@@ -64,13 +94,31 @@ export async function TestimonialsSection({
   memorialId: string;
   slug: string;
 }) {
-  const [user, testimonials, memorialMeta] = await Promise.all([
+  const [user, testimonials, meta] = await Promise.all([
     getCurrentUser(),
     getTestimonials(memorialId),
     getMemorialMeta(memorialId),
   ]);
-  const ids = testimonials.map((t) => t.id);
-  const [likes, comments] = await Promise.all([getLikes(ids), getComments(ids)]);
+  const isOwner = !!user && user.id === meta.ownerId;
+  const memorialName = `${meta.firstname} ${meta.lastname}`.trim();
+
+  // Public visitors see only approved entries. Owner sees pending too,
+  // sorted with pending first so they hit the moderation queue.
+  const visible = testimonials.filter(
+    (t) => t.status === 'approved' || (isOwner && t.status === 'pending'),
+  );
+  visible.sort((a, b) => {
+    if (a.status !== b.status) return a.status === 'pending' ? -1 : 1;
+    return b.createdAt.localeCompare(a.createdAt);
+  });
+
+  const approvedIds = testimonials
+    .filter((t) => t.status === 'approved')
+    .map((t) => t.id);
+  const [likes, comments] = await Promise.all([
+    getLikes(approvedIds),
+    getComments(approvedIds),
+  ]);
 
   const likesByTestimonial = new Map<string, number>();
   const userLikeSet = new Set<string>();
@@ -97,93 +145,90 @@ export async function TestimonialsSection({
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
   const memorialShareUrl = `${siteUrl}/memorial/${slug}`;
 
+  const pendingCount = testimonials.filter((t) => t.status === 'pending').length;
+  const meta_user = user?.user_metadata as
+    | { full_name?: string; nickname?: string }
+    | null;
+  const userFirstname = meta_user?.nickname?.split(' ')[0] ?? '';
+  const userLastname =
+    meta_user?.full_name?.split(' ').slice(1).join(' ') ?? '';
+
   return (
     <section aria-labelledby="testimonials-heading">
       <h2 id="testimonials-heading" className="sr-only">
         Témoignages
       </h2>
 
-      {testimonials.length === 0 ? (
+      {isOwner && pendingCount > 0 && (
+        <p className="mb-4 rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-sm text-foreground/80">
+          <span className="font-display font-bold text-foreground">
+            {pendingCount} témoignage{pendingCount > 1 ? 's' : ''}
+          </span>{' '}
+          en attente de votre validation.
+        </p>
+      )}
+
+      {visible.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Aucun témoignage pour le moment. Soyez le premier à partager un souvenir.
+          Aucun témoignage pour le moment. Soyez le premier à partager un
+          souvenir.
         </p>
       ) : (
         <ul className="space-y-6">
-          {testimonials.map((t) => (
-            <TestimonialItem
-              key={t.id}
-              testimonialId={t.id}
-              slug={slug}
-              memorialName={memorialMeta.name}
-              authorName={t.authorName}
-              authorAvatarUrl={unsplashAvatarFor(t.authorName)}
-              message={t.message}
-              createdAt={t.createdAt}
-              likesCount={likesByTestimonial.get(t.id) ?? 0}
-              hasLiked={userLikeSet.has(t.id)}
-              comments={commentsByTestimonial.get(t.id) ?? []}
-              isLogged={!!user}
-              isOwner={!!user && user.id === t.authorId}
-              shareUrl={`${memorialShareUrl}#testimonial-${t.id}`}
-            />
-          ))}
+          {visible.map((t) => {
+            const isPending = t.status === 'pending';
+            return (
+              <li key={t.id} className="space-y-2">
+                {isPending && (
+                  <div className="flex items-center justify-between gap-3 rounded-t-lg border border-b-0 border-accent/40 bg-accent/10 px-3 py-1.5">
+                    <span className="font-display text-[11px] font-bold uppercase tracking-wider text-accent">
+                      À valider
+                    </span>
+                    <TestimonialModerateButtons
+                      testimonialId={t.id}
+                      slug={slug}
+                    />
+                  </div>
+                )}
+                <div
+                  className={isPending ? 'opacity-90 ring-2 ring-accent/30' : ''}
+                >
+                  <TestimonialItem
+                    testimonialId={t.id}
+                    slug={slug}
+                    memorialName={memorialName}
+                    authorName={t.authorName}
+                    authorAvatarUrl={unsplashAvatarFor(t.authorName)}
+                    message={t.message}
+                    createdAt={t.createdAt}
+                    likesCount={likesByTestimonial.get(t.id) ?? 0}
+                    hasLiked={userLikeSet.has(t.id)}
+                    comments={commentsByTestimonial.get(t.id) ?? []}
+                    isLogged={!!user}
+                    isOwner={!!user && user.id === t.authorId}
+                    shareUrl={`${memorialShareUrl}#testimonial-${t.id}`}
+                  />
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
 
-      <div className="mt-8 flex justify-center">
-        {user ? (
-          <TestimonialModalShell
-            memorialId={memorialId}
-            slug={slug}
-            memorialName={memorialMeta.name}
-            memorialCoverUrl={memorialMeta.coverUrl}
-            authorName={
-              (user.user_metadata as { full_name?: string; nickname?: string } | null)?.nickname ||
-              (user.user_metadata as { full_name?: string } | null)?.full_name ||
-              user.email?.split('@')[0] ||
-              'Anonyme'
-            }
-            authorAvatarUrl={
-              (user.user_metadata as { avatar_url?: string | null } | null)?.avatar_url ||
-              unsplashAvatarFor(user.email ?? user.id)
-            }
-          />
-        ) : (
-          <p className="rounded-md border border-border bg-muted/50 px-4 py-3 text-sm">
-            <Link href={`/login?next=/memorial/${slug}`} className="font-medium underline">
-              Connectez-vous
-            </Link>{' '}
-            pour publier un témoignage.
-          </p>
-        )}
-      </div>
+      <TestimonialPublicForm
+        memorialId={memorialId}
+        slug={slug}
+        memorialName={memorialName}
+        prefill={
+          user
+            ? {
+                firstname: userFirstname || undefined,
+                lastname: userLastname || undefined,
+                email: user.email ?? undefined,
+              }
+            : undefined
+        }
+      />
     </section>
   );
-}
-
-interface MemorialMetaLite {
-  firstname: string;
-  lastname: string;
-}
-
-async function getMemorialMeta(
-  memorialId: string,
-): Promise<{ name: string; coverUrl: string | null }> {
-  const supabase = await getSupabaseServer();
-  const [{ data: m }, { data: p }] = await Promise.all([
-    supabase
-      .from('Memorial')
-      .select('firstname, lastname')
-      .eq('id', memorialId)
-      .maybeSingle<MemorialMetaLite>(),
-    supabase
-      .from('Photo')
-      .select('url')
-      .eq('memorialId', memorialId)
-      .order('position', { ascending: true })
-      .limit(1)
-      .maybeSingle<{ url: string }>(),
-  ]);
-  const name = m ? `${m.firstname} ${m.lastname}`.trim() : 'Memorial';
-  return { name, coverUrl: p?.url ?? null };
 }
