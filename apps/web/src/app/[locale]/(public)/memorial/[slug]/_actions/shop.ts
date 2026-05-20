@@ -115,6 +115,123 @@ export async function generateMemorialVisualAction(
   return { ok: true };
 }
 
+/**
+ * Owner re-runs the same visual generation prompt against the same
+ * source photo. Creates a NEW MemorialVisual row so the previous one
+ * stays available — owner picks the best one later.
+ */
+export async function regenerateMemorialVisualAction(
+  _prev: ShopActionState | null,
+  formData: FormData,
+): Promise<ShopActionState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'Non connecté.' };
+  const id = String(formData.get('id') ?? '').trim();
+  if (!id) return { error: 'id requis.' };
+
+  const supabase = getSupabaseAdminClient();
+  const { data: visual } = await supabase
+    .from('MemorialVisual')
+    .select('memorialId, sourcePhotoId, prompt')
+    .eq('id', id)
+    .maybeSingle<{
+      memorialId: string;
+      sourcePhotoId: string | null;
+      prompt: string | null;
+    }>();
+  if (!visual || !visual.sourcePhotoId)
+    return { error: 'Visuel introuvable ou sans photo source.' };
+
+  const memorial = await loadOwnedMemorial(visual.memorialId, user.id);
+  if (!memorial) return { error: 'Action réservée au propriétaire.' };
+
+  if (!isFalImageConfigured()) {
+    return { error: 'Service de génération indisponible.' };
+  }
+
+  const { data: photo } = await supabase
+    .from('Photo')
+    .select('url')
+    .eq('id', visual.sourcePhotoId)
+    .maybeSingle<{ url: string }>();
+  if (!photo) return { error: 'Photo source introuvable.' };
+
+  const { data: newVisual, error: insErr } = await supabase
+    .from('MemorialVisual')
+    .insert({
+      memorialId: visual.memorialId,
+      sourcePhotoId: visual.sourcePhotoId,
+      prompt: visual.prompt,
+      status: 'pending',
+      createdById: user.id,
+    })
+    .select('id')
+    .single<{ id: string }>();
+  if (insErr || !newVisual) {
+    return { error: insErr?.message ?? 'Insert visual failed' };
+  }
+
+  const job = await falSubmitImage({
+    imageUrl: photo.url,
+    extraPrompt: visual.prompt ?? undefined,
+  });
+  if ('error' in job) {
+    await supabase
+      .from('MemorialVisual')
+      .update({
+        status: 'failed',
+        errorMessage: job.error,
+        updatedAt: new Date().toISOString(),
+      })
+      .eq('id', newVisual.id);
+    return { error: job.error };
+  }
+
+  await supabase
+    .from('MemorialVisual')
+    .update({
+      providerJobId: job.jobId,
+      status: 'processing',
+      updatedAt: new Date().toISOString(),
+    })
+    .eq('id', newVisual.id);
+
+  revalidatePath(`/memorial/${memorial.slug}`);
+  return { ok: true };
+}
+
+/**
+ * Owner removes a generated visual from the available pool. Cascade
+ * via FK clears the visualId on any shop item referencing it, so the
+ * item simply loses its visual and shows the fallback icon/skeleton.
+ */
+export async function deleteMemorialVisualAction(
+  _prev: ShopActionState | null,
+  formData: FormData,
+): Promise<ShopActionState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'Non connecté.' };
+  const id = String(formData.get('id') ?? '').trim();
+  if (!id) return { error: 'id requis.' };
+
+  const supabase = getSupabaseAdminClient();
+  const { data: visual } = await supabase
+    .from('MemorialVisual')
+    .select('memorialId')
+    .eq('id', id)
+    .maybeSingle<{ memorialId: string }>();
+  if (!visual) return { error: 'Visuel introuvable.' };
+
+  const memorial = await loadOwnedMemorial(visual.memorialId, user.id);
+  if (!memorial) return { error: 'Action réservée au propriétaire.' };
+
+  const { error } = await supabase.from('MemorialVisual').delete().eq('id', id);
+  if (error) return { error: error.message };
+
+  revalidatePath(`/memorial/${memorial.slug}`);
+  return { ok: true };
+}
+
 // =========================================================================
 // Shop wishlist management (owner)
 // =========================================================================

@@ -17,6 +17,11 @@ const nextConfig = {
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: '*.supabase.co' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      // fal.ai CDN domains for AI-generated visuals + product mockups
+      { protocol: 'https', hostname: '*.fal.media' },
+      { protocol: 'https', hostname: 'fal.media' },
+      { protocol: 'https', hostname: 'v3.fal.media' },
+      { protocol: 'https', hostname: 'storage.googleapis.com' },
     ],
   },
   async headers() {

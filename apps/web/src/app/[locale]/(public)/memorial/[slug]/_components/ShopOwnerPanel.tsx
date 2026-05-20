@@ -10,6 +10,7 @@ import {
 } from '../_actions/shop';
 import { SHOP_PRODUCTS, CATEGORY_LABEL, findProduct } from '@/lib/shop/catalog';
 import { ShopProductIcon } from './ShopProductIcon';
+import { VisualActions } from './VisualActions';
 
 interface PhotoMin {
   id: string;
@@ -218,22 +219,31 @@ function GenerateVisualBlock({
           <p className="mb-2 font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
             Visuels disponibles
           </p>
-          <ul className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {readyVisuals.map((v) => (
               <li
                 key={v.id}
-                className="relative aspect-[3/4] overflow-hidden rounded-md border border-border"
+                className="overflow-hidden rounded-md border border-border bg-white"
               >
-                <Image
-                  src={v.imageUrl}
-                  alt=""
-                  fill
-                  sizes="120px"
-                  className="object-cover"
-                />
+                <div className="relative aspect-[3/4]">
+                  <Image
+                    src={v.imageUrl}
+                    alt=""
+                    fill
+                    sizes="200px"
+                    className="object-cover"
+                  />
+                </div>
+                <VisualActions visualId={v.id} />
               </li>
             ))}
           </ul>
+          <p className="mt-2 text-[11px] italic text-muted-foreground">
+            Le visuel à appliquer sur les objets de la boutique se choisit
+            ci-dessous, dans le menu déroulant « Visuel associé » à l'ajout
+            d'un article. Tu peux regénérer ou supprimer un visuel à tout
+            moment.
+          </p>
         </div>
       )}
     </div>
