@@ -34,6 +34,13 @@ export interface VisualSubmitParams {
   imageUrl: string;
   /** Optional timeline-derived caption appended to the base prompt. */
   extraPrompt?: string;
+  /**
+   * If provided, replaces the default MEMORIAL_VISUAL_PROMPT entirely.
+   * Used by the shop mockup pipeline to send a per-product prompt
+   * ("place this image on a white t-shirt …") while reusing the same
+   * fal.ai Kontext infrastructure.
+   */
+  overridePrompt?: string;
 }
 
 export interface VisualJobStatus {
@@ -70,7 +77,9 @@ function baseHeaders(): Record<string, string> {
 export async function falSubmitImage(
   params: VisualSubmitParams,
 ): Promise<{ jobId: string } | { error: string }> {
-  const prompt = params.extraPrompt
+  const prompt = params.overridePrompt
+    ? params.overridePrompt
+    : params.extraPrompt
     ? `${MEMORIAL_VISUAL_PROMPT} ${params.extraPrompt}`
     : MEMORIAL_VISUAL_PROMPT;
   try {

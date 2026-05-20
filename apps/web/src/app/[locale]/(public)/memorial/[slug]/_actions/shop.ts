@@ -7,7 +7,7 @@ import {
   falSubmitImage,
   isFalImageConfigured,
 } from '@/lib/fal/image';
-import { findProduct } from '@/lib/shop/catalog';
+import { findProduct, type ShopProduct } from '@/lib/shop/catalog';
 
 export interface ShopActionState {
   ok?: boolean;
@@ -157,16 +157,180 @@ export async function addShopItemAction(
     .maybeSingle<{ position: number }>();
   const nextPos = (existing?.position ?? -1) + 1;
 
-  const { error } = await supabase.from('MemorialShopItem').insert({
-    memorialId,
-    productId,
-    visualId,
-    targetQuantity,
-    unitPriceCents,
-    notes,
-    position: nextPos,
+  // Stage mockup pipeline: pending if the product supports mockup AND
+  // a visual is attached; skipped otherwise (e.g. partner products,
+  // digital-card where the visual IS the product).
+  const mockupReady = !!visualId && !!product.mockupPromptSuffix;
+  const mockupStatus = mockupReady ? 'pending' : 'skipped';
+
+  const { data: inserted, error } = await supabase
+    .from('MemorialShopItem')
+    .insert({
+      memorialId,
+      productId,
+      visualId,
+      targetQuantity,
+      unitPriceCents,
+      notes,
+      position: nextPos,
+      mockupStatus,
+    })
+    .select('id')
+    .single<{ id: string }>();
+  if (error || !inserted) return { error: error?.message ?? 'Insert failed' };
+
+  // Auto-trigger mockup generation in the background. Failure here
+  // doesn't block the add — the owner sees the item and can manually
+  // retry via the regen button if it ever fails.
+  if (mockupReady) {
+    void triggerShopItemMockupInternal(inserted.id, product);
+  }
+
+  revalidatePath(`/memorial/${memorial.slug}`);
+  return { ok: true };
+}
+
+// =========================================================================
+// Shop item mockup generation
+// =========================================================================
+
+interface ShopItemForMockup {
+  id: string;
+  memorialId: string;
+  productId: string;
+  visualUrl: string | null;
+}
+
+async function loadShopItemForMockup(
+  itemId: string,
+): Promise<ShopItemForMockup | null> {
+  const supabase = getSupabaseAdminClient();
+  const { data } = await supabase
+    .from('MemorialShopItem')
+    .select(
+      `id, memorialId, productId,
+       MemorialVisual:MemorialVisual!MemorialShopItem_visualId_fkey(imageUrl, status)`,
+    )
+    .eq('id', itemId)
+    .maybeSingle<{
+      id: string;
+      memorialId: string;
+      productId: string;
+      MemorialVisual: { imageUrl: string | null; status: string } | null;
+    }>();
+  if (!data) return null;
+  const visualUrl =
+    data.MemorialVisual?.status === 'ready'
+      ? data.MemorialVisual.imageUrl
+      : null;
+  return {
+    id: data.id,
+    memorialId: data.memorialId,
+    productId: data.productId,
+    visualUrl: visualUrl ?? null,
+  };
+}
+
+async function triggerShopItemMockupInternal(
+  itemId: string,
+  product: ShopProduct,
+): Promise<void> {
+  const supabase = getSupabaseAdminClient();
+
+  if (!product.mockupPromptSuffix) {
+    await supabase
+      .from('MemorialShopItem')
+      .update({
+        mockupStatus: 'skipped',
+        updatedAt: new Date().toISOString(),
+      })
+      .eq('id', itemId);
+    return;
+  }
+
+  if (!isFalImageConfigured()) {
+    await supabase
+      .from('MemorialShopItem')
+      .update({
+        mockupStatus: 'failed',
+        mockupErrorMessage: 'fal not configured',
+        updatedAt: new Date().toISOString(),
+      })
+      .eq('id', itemId);
+    return;
+  }
+
+  const item = await loadShopItemForMockup(itemId);
+  if (!item || !item.visualUrl) {
+    await supabase
+      .from('MemorialShopItem')
+      .update({
+        mockupStatus: 'skipped',
+        updatedAt: new Date().toISOString(),
+      })
+      .eq('id', itemId);
+    return;
+  }
+
+  const job = await falSubmitImage({
+    imageUrl: item.visualUrl,
+    overridePrompt: product.mockupPromptSuffix,
   });
-  if (error) return { error: error.message };
+  if ('error' in job) {
+    await supabase
+      .from('MemorialShopItem')
+      .update({
+        mockupStatus: 'failed',
+        mockupErrorMessage: job.error,
+        updatedAt: new Date().toISOString(),
+      })
+      .eq('id', itemId);
+    return;
+  }
+
+  await supabase
+    .from('MemorialShopItem')
+    .update({
+      mockupJobId: job.jobId,
+      mockupStatus: 'processing',
+      updatedAt: new Date().toISOString(),
+    })
+    .eq('id', itemId);
+}
+
+/** Owner-facing action to (re)trigger mockup generation for an item. */
+export async function regenerateShopItemMockupAction(
+  _prev: ShopActionState | null,
+  formData: FormData,
+): Promise<ShopActionState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'Non connecté.' };
+  const id = String(formData.get('id') ?? '').trim();
+  if (!id) return { error: 'id requis.' };
+
+  const supabase = getSupabaseAdminClient();
+  const { data: item } = await supabase
+    .from('MemorialShopItem')
+    .select('memorialId, productId')
+    .eq('id', id)
+    .maybeSingle<{ memorialId: string; productId: string }>();
+  if (!item) return { error: 'Item introuvable.' };
+  const memorial = await loadOwnedMemorial(item.memorialId, user.id);
+  if (!memorial) return { error: 'Action réservée au propriétaire.' };
+  const product = findProduct(item.productId);
+  if (!product) return { error: 'Produit inconnu.' };
+
+  await supabase
+    .from('MemorialShopItem')
+    .update({
+      mockupStatus: 'pending',
+      mockupErrorMessage: null,
+      mockupImageUrl: null,
+      updatedAt: new Date().toISOString(),
+    })
+    .eq('id', id);
+
+  void triggerShopItemMockupInternal(id, product);
 
   revalidatePath(`/memorial/${memorial.slug}`);
   return { ok: true };

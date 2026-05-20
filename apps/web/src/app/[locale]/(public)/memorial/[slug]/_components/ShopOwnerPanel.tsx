@@ -34,6 +34,8 @@ export interface ShopOwnerPanelProps {
   processingVisuals: VisualPending[];
   failedVisuals: VisualPending[];
   existingProductIds: string[];
+  /** True if any shop item still has a mockup job in pending/processing. */
+  mockupsInProgress?: boolean;
 }
 
 export function ShopOwnerPanel({
@@ -43,16 +45,19 @@ export function ShopOwnerPanel({
   readyVisuals,
   processingVisuals,
   existingProductIds,
+  mockupsInProgress = false,
 }: ShopOwnerPanelProps) {
   const router = useRouter();
   const [, startTransition] = useTransition();
   const hasProcessing = processingVisuals.length > 0;
   const cancelledRef = useRef(false);
 
-  // Poll while at least one visual is processing
+  // Poll while at least one visual OR one shop-item mockup is processing.
+  // Both share the /api/visuals/poll endpoint under the hood.
+  const shouldPoll = hasProcessing || mockupsInProgress;
   useEffect(() => {
     cancelledRef.current = false;
-    if (!hasProcessing) return;
+    if (!shouldPoll) return;
     const tick = async () => {
       try {
         await fetch('/api/visuals/poll', { method: 'POST' });
@@ -69,7 +74,7 @@ export function ShopOwnerPanel({
       cancelledRef.current = true;
       clearInterval(id);
     };
-  }, [hasProcessing, router]);
+  }, [shouldPoll, router]);
 
   return (
     <details

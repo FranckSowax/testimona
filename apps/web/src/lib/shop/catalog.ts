@@ -38,7 +38,20 @@ export interface ShopProduct {
     | 'digital';
   /** Marks partner-fulfilled items that need an extra contact step. */
   partner?: boolean;
+  /**
+   * Optional fal-kontext prompt suffix used to mock the source visual
+   * onto this product (e-commerce style). When undefined, no mockup
+   * is generated and the shop falls back to displaying the bare
+   * visual.
+   */
+  mockupPromptSuffix?: string;
 }
+
+// Common preamble for every mockup prompt — tells Kontext to preserve
+// the source visual verbatim and only paint the product around it.
+const MOCKUP_PROMPT_COMMON =
+  'Use this image AS-IS, perfectly intact — do not modify colors, ' +
+  'composition or details. Generate the product around it. ';
 
 export const SHOP_PRODUCTS: ShopProduct[] = [
   {
@@ -48,6 +61,9 @@ export const SHOP_PRODUCTS: ShopProduct[] = [
     category: 'apparel',
     defaultPriceCents: 1900,
     iconKey: 'tshirt',
+    mockupPromptSuffix:
+      MOCKUP_PROMPT_COMMON +
+      'Place this image centered on the chest of a plain white cotton t-shirt as a printed graphic. Studio product photography on a clean white background, soft even lighting, gentle natural shadow. Front view, garment laid flat or on an invisible mannequin. E-commerce catalog mockup.',
   },
   {
     id: 'cap',
@@ -56,6 +72,9 @@ export const SHOP_PRODUCTS: ShopProduct[] = [
     category: 'apparel',
     defaultPriceCents: 1500,
     iconKey: 'cap',
+    mockupPromptSuffix:
+      MOCKUP_PROMPT_COMMON +
+      'Place this image on the front panel of a plain white baseball cap as an embroidered patch. Studio product photo on a clean white background, soft light, three-quarter front view of the cap. E-commerce mockup style.',
   },
   {
     id: 'pagne',
@@ -64,6 +83,9 @@ export const SHOP_PRODUCTS: ShopProduct[] = [
     category: 'apparel',
     defaultPriceCents: 4500,
     iconKey: 'fabric',
+    mockupPromptSuffix:
+      MOCKUP_PROMPT_COMMON +
+      'Print this image as the central motif on a draped white pagne fabric (traditional West African cloth) folded elegantly on a white surface. Studio product photo, soft natural light, subtle fabric texture and folds visible. E-commerce mockup.',
   },
   {
     id: 'fan',
@@ -72,6 +94,9 @@ export const SHOP_PRODUCTS: ShopProduct[] = [
     category: 'paper',
     defaultPriceCents: 350,
     iconKey: 'fan',
+    mockupPromptSuffix:
+      MOCKUP_PROMPT_COMMON +
+      'Print this image at the center of an open white paper folding fan with wooden ribs, held against a clean white background. Studio product photo, soft shadow. E-commerce mockup.',
   },
   {
     id: 'vigil-card',
@@ -80,6 +105,9 @@ export const SHOP_PRODUCTS: ShopProduct[] = [
     category: 'paper',
     defaultPriceCents: 250,
     iconKey: 'card',
+    mockupPromptSuffix:
+      MOCKUP_PROMPT_COMMON +
+      'Print this image on a small portrait-orientation memorial card with a thin elegant white border, lying flat on a clean white surface. Studio product photo, soft natural shadow.',
   },
   {
     id: 'digital-card',
@@ -88,6 +116,7 @@ export const SHOP_PRODUCTS: ShopProduct[] = [
     category: 'digital',
     defaultPriceCents: 0,
     iconKey: 'digital',
+    // No mockup — the visual IS the digital card.
   },
   {
     id: 'banner',
@@ -96,6 +125,9 @@ export const SHOP_PRODUCTS: ShopProduct[] = [
     category: 'banner',
     defaultPriceCents: 8900,
     iconKey: 'banner',
+    mockupPromptSuffix:
+      MOCKUP_PROMPT_COMMON +
+      'Print this image centered on a large horizontal white vinyl banner with thin black grommets at the corners, hung against a clean white wall. Studio product photo, slight natural drape, soft shadow. E-commerce catalog mockup.',
   },
   {
     id: 'casket',
@@ -105,6 +137,7 @@ export const SHOP_PRODUCTS: ShopProduct[] = [
     defaultPriceCents: 95000,
     iconKey: 'casket',
     partner: true,
+    // Partner products are coordinated manually; no mockup generated.
   },
   {
     id: 'headstone',

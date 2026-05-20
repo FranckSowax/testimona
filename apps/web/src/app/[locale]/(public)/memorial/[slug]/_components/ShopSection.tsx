@@ -32,6 +32,9 @@ interface ShopItemRow {
   fundedCents: number;
   notes: string | null;
   position: number;
+  mockupImageUrl: string | null;
+  mockupStatus: string;
+  mockupErrorMessage: string | null;
 }
 
 const eurFmt = new Intl.NumberFormat('fr-FR', {
@@ -70,7 +73,7 @@ export async function ShopSection({
     supabase
       .from('MemorialShopItem')
       .select(
-        'id, productId, visualId, targetQuantity, unitPriceCents, fundedCents, notes, position',
+        'id, productId, visualId, targetQuantity, unitPriceCents, fundedCents, notes, position, mockupImageUrl, mockupStatus, mockupErrorMessage',
       )
       .eq('memorialId', memorialId)
       .order('position', { ascending: true })
@@ -171,22 +174,44 @@ export async function ShopSection({
                 className="overflow-hidden rounded-xl border border-border bg-white shadow-[var(--shadow-card)]"
               >
                 <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start sm:gap-5 sm:p-5">
-                  <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-lg bg-surface">
-                    {visual?.imageUrl ? (
+                  <div className="relative aspect-square w-full max-w-[160px] shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-white to-surface ring-1 ring-border sm:w-40">
+                    {item.mockupImageUrl ? (
+                      <Image
+                        src={item.mockupImageUrl}
+                        alt={`Mockup ${product.name} avec visuel commémoratif`}
+                        fill
+                        sizes="160px"
+                        className="object-cover"
+                      />
+                    ) : item.mockupStatus === 'processing' ||
+                      item.mockupStatus === 'pending' ? (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-3 text-center">
+                        <span className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                        <p className="font-display text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Mockup en cours
+                        </p>
+                      </div>
+                    ) : visual?.imageUrl ? (
                       <Image
                         src={visual.imageUrl}
                         alt=""
                         fill
-                        sizes="128px"
-                        className="object-cover"
+                        sizes="160px"
+                        className="object-cover opacity-90"
                       />
                     ) : (
                       <span className="absolute inset-0 flex items-center justify-center text-foreground/40">
-                        <ShopProductIcon iconKey={product.iconKey} className="h-12 w-12" />
+                        <ShopProductIcon
+                          iconKey={product.iconKey}
+                          className="h-14 w-14"
+                        />
                       </span>
                     )}
                     <span className="absolute bottom-1.5 left-1.5 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-foreground shadow ring-1 ring-border">
-                      <ShopProductIcon iconKey={product.iconKey} className="h-4 w-4" />
+                      <ShopProductIcon
+                        iconKey={product.iconKey}
+                        className="h-4 w-4"
+                      />
                     </span>
                   </div>
 
@@ -270,6 +295,10 @@ export async function ShopSection({
           )}
           failedVisuals={visuals.filter((v) => v.status === 'failed')}
           existingProductIds={items.map((it) => it.productId)}
+          mockupsInProgress={items.some(
+            (it) =>
+              it.mockupStatus === 'pending' || it.mockupStatus === 'processing',
+          )}
         />
       )}
     </section>
