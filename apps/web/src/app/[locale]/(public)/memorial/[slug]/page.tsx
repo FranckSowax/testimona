@@ -315,11 +315,7 @@ export default async function MemorialPage({
             />
           ) : currentUser ? (
             <AdminRequestModalShell memorialId={memorial.id} slug={memorial.slug} />
-          ) : (
-            <ButtonText variant="action" type="button">
-              Be an admin
-            </ButtonText>
-          )
+          ) : null
         }
         sideActions={
           <MemorialCoverSidebar
