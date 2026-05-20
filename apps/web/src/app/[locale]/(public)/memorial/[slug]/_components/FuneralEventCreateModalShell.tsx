@@ -40,6 +40,7 @@ export function FuneralEventCreateModalShell({
         fd.set('startsAt', values.startsAt);
         fd.set('endsAt', values.endsAt);
         if (values.location) fd.set('location', values.location);
+        if (values.address) fd.set('address', values.address);
 
         const result = await createFuneralEventAction(null, fd);
         if (result?.error) {

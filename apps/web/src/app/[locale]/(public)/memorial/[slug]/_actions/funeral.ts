@@ -37,6 +37,7 @@ export async function createFuneralEventAction(
   const startsAt = String(formData.get('startsAt') ?? '').trim();
   const endsAt = String(formData.get('endsAt') ?? '').trim();
   const location = String(formData.get('location') ?? '').trim();
+  const address = String(formData.get('address') ?? '').trim();
 
   if (!memorialId) return { error: 'memorialId requis.' };
   if (!title) return { error: 'Validation', fieldErrors: { title: 'Titre requis.' } };
@@ -91,8 +92,55 @@ export async function createFuneralEventAction(
     date,
     hour,
     location: location || null,
+    address: address || null,
     position: nextPosition,
   });
+  if (error) return { error: error.message };
+
+  if (slug) revalidatePath(`/memorial/${slug}`);
+  return { ok: true };
+}
+
+/**
+ * Delete a funeral event. Owner-only via Memorial.ownerId.
+ */
+export async function deleteFuneralEventAction(
+  _prev: FuneralEventActionState | null,
+  formData: FormData,
+): Promise<FuneralEventActionState> {
+  const id = String(formData.get('id') ?? '').trim();
+  const slug = String(formData.get('slug') ?? '').trim();
+  if (!id) return { error: 'id requis.' };
+
+  const supabase = await getSupabaseServer();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) return { error: 'Non connecté.' };
+
+  // Resolve memorial via the parent Funeral row to check ownership.
+  const { data: event } = await supabase
+    .from('FuneralEvent')
+    .select('funeralId')
+    .eq('id', id)
+    .maybeSingle<{ funeralId: string }>();
+  if (!event) return { error: 'Événement introuvable.' };
+
+  const { data: funeral } = await supabase
+    .from('Funeral')
+    .select('memorialId')
+    .eq('id', event.funeralId)
+    .maybeSingle<{ memorialId: string }>();
+  if (!funeral) return { error: 'Funérailles introuvables.' };
+
+  const { data: memorial } = await supabase
+    .from('Memorial')
+    .select('ownerId')
+    .eq('id', funeral.memorialId)
+    .maybeSingle<MemorialOwnerRow>();
+  if (!memorial || memorial.ownerId !== userData.user.id) {
+    return { error: 'Action réservée au propriétaire.' };
+  }
+
+  const { error } = await supabase.from('FuneralEvent').delete().eq('id', id);
   if (error) return { error: error.message };
 
   if (slug) revalidatePath(`/memorial/${slug}`);

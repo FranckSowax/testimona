@@ -11,7 +11,13 @@ export interface FuneralEventValues {
   endsAt: string;
   url?: string;
   note?: string;
+  /** Display name of the venue, e.g. "Église Saint-Michel". */
   location?: string;
+  /**
+   * Geocodable street address used to embed a Google Maps preview on
+   * the public page. e.g. "Boulevard Triomphal, Libreville, Gabon".
+   */
+  address?: string;
 }
 
 const TIME_OPTIONS = (() => {
@@ -111,6 +117,7 @@ export function FuneralEventCreatePopup({
     url: '',
     note: '',
     location: '',
+    address: '',
   });
   const set = <K extends keyof FuneralEventValues>(k: K, val: FuneralEventValues[K]) =>
     setV((p) => ({ ...p, [k]: val }));
@@ -166,10 +173,26 @@ export function FuneralEventCreatePopup({
           </label>
 
           <Field
-            label="Location (address)"
+            label="Lieu — nom du lieu"
             value={v.location ?? ''}
             onChange={(val) => set('location', val)}
           />
+          <Field
+            label="Adresse complète (apparaîtra sur la carte Google Maps)"
+            value={v.address ?? ''}
+            onChange={(val) => set('address', val)}
+          />
+          {v.address && v.address.trim().length > 3 && (
+            <div className="rounded-lg overflow-hidden border border-border">
+              <iframe
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(v.address)}&output=embed`}
+                title="Aperçu carte"
+                className="h-48 w-full"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
+          )}
 
           <div className="flex justify-center gap-3 pt-2">
             <ButtonOutlined type="button" variant="thankyou-gray" size="md" onClick={onClose}>
