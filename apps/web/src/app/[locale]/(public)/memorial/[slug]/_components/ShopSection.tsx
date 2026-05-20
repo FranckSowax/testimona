@@ -85,7 +85,6 @@ export async function ShopSection({
   const items = itemsRes.data ?? [];
 
   const readyVisuals = visuals.filter((v) => v.status === 'ready' && v.imageUrl);
-  const activeVisual = readyVisuals[0] ?? null;
   const visualById = new Map(visuals.map((v) => [v.id, v]));
 
   const totalTargetCents = items.reduce(
@@ -113,23 +112,10 @@ export async function ShopSection({
         </p>
       </header>
 
-      {activeVisual?.imageUrl && (
-        <figure className="overflow-hidden rounded-2xl border border-border bg-white shadow-[var(--shadow-card)]">
-          <div className="relative aspect-[3/4] w-full sm:aspect-[4/3]">
-            <Image
-              src={activeVisual.imageUrl}
-              alt={`Visuel commémoratif de ${memorialName}`}
-              fill
-              sizes="(max-width: 768px) 100vw, 800px"
-              className="object-cover"
-            />
-          </div>
-          <figcaption className="px-4 py-3 text-xs italic text-muted-foreground">
-            Visuel commémoratif généré pour ce mémorial — appliqué sur les
-            objets ci-dessous.
-          </figcaption>
-        </figure>
-      )}
+      {/* Hero visual hidden on the public-facing shop — visitors land
+          directly on the product cards (the visual is still visible on
+          the items themselves via the mockup image). It remains in the
+          owner panel below for management. */}
 
       {items.length > 0 && (
         <div className="rounded-xl border border-border bg-white p-5 shadow-[var(--shadow-card)]">
