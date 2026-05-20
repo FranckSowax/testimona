@@ -83,18 +83,33 @@ export function ClipsList({ clips }: { clips: ClipRowDto[] }) {
     );
   }
 
+  // Float ready-but-not-yet-validated clips to the top so the owner
+  // hits the moderation queue first.
+  const sorted = [...clips].sort((a, b) => {
+    const aPending = a.status === 'ready' && !a.validatedAt ? 0 : 1;
+    const bPending = b.status === 'ready' && !b.validatedAt ? 0 : 1;
+    if (aPending !== bPending) return aPending - bPending;
+    return b.createdAt.localeCompare(a.createdAt);
+  });
+
   return (
     <ul className="grid gap-3 sm:grid-cols-2">
-      {clips.map((clip) => {
+      {sorted.map((clip) => {
         const status = STATUS[clip.status] ?? {
           label: clip.status,
           tone: 'pending' as const,
         };
         const validated = !!clip.validatedAt;
+        const awaitingValidation = clip.status === 'ready' && !validated;
         return (
           <li
             key={clip.id}
-            className="overflow-hidden rounded-xl border border-border bg-white shadow-[var(--shadow-card)]"
+            className={[
+              'overflow-hidden rounded-xl border bg-white shadow-[var(--shadow-card)]',
+              awaitingValidation
+                ? 'border-accent/40 ring-2 ring-accent/30'
+                : 'border-border',
+            ].join(' ')}
           >
             <div className="relative aspect-video w-full bg-muted">
               {clip.status === 'ready' && clip.videoUrl ? (
@@ -143,6 +158,15 @@ export function ClipsList({ clips }: { clips: ClipRowDto[] }) {
                     <path d="M20 6 9 17l-5-5" />
                   </svg>
                   Validé
+                </span>
+              )}
+              {awaitingValidation && (
+                <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wider text-white shadow">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 8v4M12 16h.01" />
+                  </svg>
+                  À valider
                 </span>
               )}
             </div>
