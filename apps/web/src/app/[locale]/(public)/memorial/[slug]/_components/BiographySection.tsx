@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { ChapterCreateModalShell } from './ChapterCreateModalShell';
 import { BiographyInfoCard, type BiographyInfo } from './BiographyInfoCard';
+import { BiographyChaptersManager } from './BiographyChaptersManager';
 
 interface ChapterRow {
   id: string;
@@ -71,7 +72,15 @@ export async function BiographySection({
         />
       )}
 
-      {chapters.length > 0 && (
+      {chapters.length > 0 && isOwner && slug && (
+        <BiographyChaptersManager
+          memorialId={memorialId}
+          slug={slug}
+          initialChapters={chapters}
+        />
+      )}
+
+      {chapters.length > 0 && !isOwner && (
         <div className="space-y-8">
           {chapters.map((c) => (
             <article

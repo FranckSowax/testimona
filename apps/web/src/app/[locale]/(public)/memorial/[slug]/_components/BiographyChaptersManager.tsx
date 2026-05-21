@@ -1,0 +1,391 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  reorderChaptersAction,
+  updateChapterAction,
+  deleteChapterAction,
+} from '../_actions/biography';
+
+interface ChapterDraft {
+  id: string;
+  title: string;
+  content: string;
+  position: number;
+}
+
+interface Props {
+  memorialId: string;
+  slug: string;
+  initialChapters: ChapterDraft[];
+}
+
+/**
+ * Owner-only management UI for biography chapters: drag-and-drop
+ * reorder, inline edit + delete. Uses the native HTML5 drag API so we
+ * avoid pulling in dnd-kit / react-beautiful-dnd. On drop we send the
+ * full ordered id list to reorderChaptersAction, which rewrites every
+ * position field atomically.
+ */
+export function BiographyChaptersManager({
+  memorialId,
+  slug,
+  initialChapters,
+}: Props) {
+  const router = useRouter();
+  const [chapters, setChapters] = useState<ChapterDraft[]>(initialChapters);
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{
+    kind: 'ok' | 'error';
+    text: string;
+  } | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  function onDragStart(id: string) {
+    return (e: React.DragEvent<HTMLLIElement>) => {
+      setDraggedId(id);
+      e.dataTransfer.effectAllowed = 'move';
+      // Required for Firefox to fire `drop` events
+      try {
+        e.dataTransfer.setData('text/plain', id);
+      } catch {
+        /* ignore — older browsers */
+      }
+    };
+  }
+
+  function onDragOver(id: string) {
+    return (e: React.DragEvent<HTMLLIElement>) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (id !== dragOverId) setDragOverId(id);
+    };
+  }
+
+  function onDragLeave(e: React.DragEvent<HTMLLIElement>) {
+    // Only clear when leaving the item entirely, not when entering a child.
+    const related = e.relatedTarget as HTMLElement | null;
+    if (related && (e.currentTarget as HTMLElement).contains(related)) return;
+    setDragOverId(null);
+  }
+
+  function onDrop(targetId: string) {
+    return (e: React.DragEvent<HTMLLIElement>) => {
+      e.preventDefault();
+      const sourceId =
+        draggedId ?? (e.dataTransfer.getData('text/plain') || null);
+      setDraggedId(null);
+      setDragOverId(null);
+      if (!sourceId || sourceId === targetId) return;
+
+      const fromIndex = chapters.findIndex((c) => c.id === sourceId);
+      const toIndex = chapters.findIndex((c) => c.id === targetId);
+      if (fromIndex < 0 || toIndex < 0) return;
+
+      const next = [...chapters];
+      const [moved] = next.splice(fromIndex, 1);
+      if (!moved) return;
+      next.splice(toIndex, 0, moved);
+      setChapters(next);
+      persistOrder(next.map((c) => c.id));
+    };
+  }
+
+  function move(id: string, direction: -1 | 1) {
+    const idx = chapters.findIndex((c) => c.id === id);
+    if (idx < 0) return;
+    const target = idx + direction;
+    if (target < 0 || target >= chapters.length) return;
+    const next = [...chapters];
+    const a = next[idx]!;
+    const b = next[target]!;
+    next[idx] = b;
+    next[target] = a;
+    setChapters(next);
+    persistOrder(next.map((c) => c.id));
+  }
+
+  function persistOrder(orderedIds: string[]) {
+    setFeedback(null);
+    startTransition(async () => {
+      const result = await reorderChaptersAction(memorialId, slug, orderedIds);
+      if (result?.error) {
+        setFeedback({ kind: 'error', text: result.error });
+        // Roll back to whatever the server has
+        router.refresh();
+        return;
+      }
+      setFeedback({ kind: 'ok', text: 'Ordre enregistré.' });
+      router.refresh();
+      setTimeout(() => setFeedback(null), 2200);
+    });
+  }
+
+  async function submitEdit(id: string, title: string, content: string) {
+    setFeedback(null);
+    const fd = new FormData();
+    fd.set('id', id);
+    fd.set('memorialId', memorialId);
+    fd.set('slug', slug);
+    fd.set('title', title);
+    fd.set('content', content);
+    const result = await updateChapterAction(null, fd);
+    if (result?.error) {
+      setFeedback({ kind: 'error', text: result.error });
+      return false;
+    }
+    setChapters((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, title, content } : c)),
+    );
+    setEditingId(null);
+    router.refresh();
+    return true;
+  }
+
+  async function submitDelete(id: string) {
+    setFeedback(null);
+    const fd = new FormData();
+    fd.set('id', id);
+    fd.set('memorialId', memorialId);
+    fd.set('slug', slug);
+    const result = await deleteChapterAction(null, fd);
+    if (result?.error) {
+      setFeedback({ kind: 'error', text: result.error });
+      return;
+    }
+    setChapters((prev) => prev.filter((c) => c.id !== id));
+    router.refresh();
+  }
+
+  if (chapters.length === 0) return null;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Gestion des chapitres
+        </p>
+        <p className="text-[11px] italic text-muted-foreground">
+          Glisse-dépose pour réordonner · clique sur un chapitre pour le modifier
+        </p>
+      </div>
+
+      <ul className="space-y-2">
+        {chapters.map((c, index) => {
+          const isDragging = draggedId === c.id;
+          const isDragOver = dragOverId === c.id && draggedId !== c.id;
+          const isEditing = editingId === c.id;
+          return (
+            <li
+              key={c.id}
+              draggable={!isEditing}
+              onDragStart={onDragStart(c.id)}
+              onDragOver={onDragOver(c.id)}
+              onDragLeave={onDragLeave}
+              onDrop={onDrop(c.id)}
+              onDragEnd={() => {
+                setDraggedId(null);
+                setDragOverId(null);
+              }}
+              className={[
+                'group relative rounded-lg border bg-white transition-all',
+                isDragging ? 'opacity-50' : 'opacity-100',
+                isDragOver
+                  ? 'border-primary ring-2 ring-primary/30'
+                  : 'border-border',
+                isEditing ? '' : 'cursor-grab active:cursor-grabbing',
+              ].join(' ')}
+            >
+              {isEditing ? (
+                <ChapterEditForm
+                  initialTitle={c.title}
+                  initialContent={c.content}
+                  onCancel={() => setEditingId(null)}
+                  onSubmit={(title, content) => submitEdit(c.id, title, content)}
+                />
+              ) : (
+                <div className="flex items-start gap-2 p-3 sm:p-4">
+                  <span
+                    aria-hidden="true"
+                    className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center text-muted-foreground"
+                    title="Faire glisser pour réordonner"
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <circle cx="9" cy="6" r="1.5" />
+                      <circle cx="15" cy="6" r="1.5" />
+                      <circle cx="9" cy="12" r="1.5" />
+                      <circle cx="15" cy="12" r="1.5" />
+                      <circle cx="9" cy="18" r="1.5" />
+                      <circle cx="15" cy="18" r="1.5" />
+                    </svg>
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="flex items-baseline gap-2">
+                      <span className="font-display text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                        #{index + 1}
+                      </span>
+                      <span className="truncate font-display text-base font-bold text-foreground">
+                        {c.title}
+                      </span>
+                    </p>
+                    {c.content && (
+                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                        {c.content}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex shrink-0 items-center gap-0.5 opacity-60 group-hover:opacity-100">
+                    <button
+                      type="button"
+                      aria-label="Monter d'un cran"
+                      disabled={index === 0 || isPending}
+                      onClick={() => move(c.id, -1)}
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M18 15l-6-6-6 6" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Descendre d'un cran"
+                      disabled={index === chapters.length - 1 || isPending}
+                      onClick={() => move(c.id, 1)}
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Modifier ce chapitre"
+                      onClick={() => setEditingId(c.id)}
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M12 20h9" />
+                        <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Supprimer ce chapitre"
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            `Supprimer le chapitre « ${c.title} » ? Cette action est irréversible.`,
+                          )
+                        ) {
+                          void submitDelete(c.id);
+                        }
+                      }}
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+
+      {feedback && (
+        <p
+          role={feedback.kind === 'error' ? 'alert' : 'status'}
+          className={[
+            'text-xs',
+            feedback.kind === 'error' ? 'text-destructive' : 'text-primary',
+          ].join(' ')}
+        >
+          {feedback.text}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function ChapterEditForm({
+  initialTitle,
+  initialContent,
+  onCancel,
+  onSubmit,
+}: {
+  initialTitle: string;
+  initialContent: string;
+  onCancel: () => void;
+  onSubmit: (title: string, content: string) => Promise<boolean>;
+}) {
+  const [title, setTitle] = useState(initialTitle);
+  const [content, setContent] = useState(initialContent);
+  const [isPending, startTransition] = useTransition();
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const t = title.trim();
+    if (!t) return;
+    startTransition(async () => {
+      await onSubmit(t, content.trim());
+    });
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-2 p-3 sm:p-4">
+      <label className="block">
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Titre
+        </span>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          maxLength={200}
+          className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+        />
+      </label>
+      <label className="block">
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Contenu
+        </span>
+        <textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          rows={5}
+          maxLength={5000}
+          className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+        />
+      </label>
+      <div className="flex items-center justify-end gap-2">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={isPending}
+          className="press-scale rounded-md border border-border bg-white px-3 py-1.5 font-display text-xs font-bold text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          disabled={isPending || !title.trim()}
+          className="press-scale rounded-md bg-primary px-4 py-1.5 font-display text-xs font-bold uppercase tracking-wider text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          {isPending ? 'Enregistrement…' : 'Enregistrer'}
+        </button>
+      </div>
+    </form>
+  );
+}
