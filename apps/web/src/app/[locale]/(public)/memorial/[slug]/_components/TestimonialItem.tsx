@@ -101,7 +101,10 @@ export function TestimonialItem({
               </span>
             )}
           </p>
-          <p className="text-xs italic text-muted-foreground tabular">
+          <p
+            className="text-xs italic text-muted-foreground tabular"
+            suppressHydrationWarning
+          >
             {t('publishedOn', { date: formattedDate })}
           </p>
         </div>
@@ -260,7 +263,10 @@ function ReplyItem({ testimonialId, slug, comment, isLogged, shareUrl }: ReplyIt
         <Avatar src={avatarUrl} name={comment.authorName} size="sm" />
         <div className="min-w-0 flex-1">
           <p className="font-display text-sm font-bold text-foreground">{comment.authorName}</p>
-          <p className="text-xs italic text-muted-foreground tabular">
+          <p
+            className="text-xs italic text-muted-foreground tabular"
+            suppressHydrationWarning
+          >
             {t('publishedOn', { date: formattedDate })}
           </p>
         </div>
