@@ -19,7 +19,6 @@ import { AdminRequestModalShell } from './_components/AdminModalShells';
 import { MemorialCoverSidebar } from './_components/MemorialCoverSidebar';
 import { AnimateMemorialModal } from './_components/AnimateMemorialModal';
 import { ShopSection } from './_components/ShopSection';
-import { MemorialClipsSection } from './_components/MemorialClipsSection';
 import { getBalance } from '@/lib/credits/balance';
 
 export const revalidate = 60; // ISR — 60s
@@ -376,25 +375,6 @@ export default async function MemorialPage({
                 />
               ),
             },
-            // Clips animés tab — owner-only management surface for AI
-            // clips. Validated clips already appear in the cover-photo
-            // story player; this tab is purely for finding, validating,
-            // regenerating and deleting them.
-            ...(isOwner
-              ? [
-                  {
-                    id: 'clips',
-                    label: 'Clips animés',
-                    panel: (
-                      <MemorialClipsSection
-                        memorialId={memorial.id}
-                        memorialName={fullName}
-                        slug={memorial.slug}
-                      />
-                    ),
-                  },
-                ]
-              : []),
             {
               id: 'donate',
               label: tTabs('donation'),
