@@ -108,19 +108,44 @@ export function BiographyChaptersManager({
     persistOrder(next.map((c) => c.id));
   }
 
+  // After a redeploy Next.js may invalidate the hashed server-action IDs
+  // that the loaded client bundle still references. Detect that error and
+  // force a hard reload so the user picks up the new bundle.
+  function isStaleActionError(err: unknown): boolean {
+    const msg =
+      err instanceof Error
+        ? err.message
+        : typeof err === 'string'
+          ? err
+          : '';
+    return /Server Action|UnrecognizedActionError|was not found on the server/i.test(
+      msg,
+    );
+  }
+
   function persistOrder(orderedIds: string[]) {
     setFeedback(null);
     startTransition(async () => {
-      const result = await reorderChaptersAction(memorialId, slug, orderedIds);
-      if (result?.error) {
-        setFeedback({ kind: 'error', text: result.error });
-        // Roll back to whatever the server has
+      try {
+        const result = await reorderChaptersAction(memorialId, slug, orderedIds);
+        if (result?.error) {
+          setFeedback({ kind: 'error', text: result.error });
+          router.refresh();
+          return;
+        }
+        setFeedback({ kind: 'ok', text: 'Ordre enregistré.' });
         router.refresh();
-        return;
+        setTimeout(() => setFeedback(null), 2200);
+      } catch (err) {
+        if (isStaleActionError(err)) {
+          window.location.reload();
+          return;
+        }
+        setFeedback({
+          kind: 'error',
+          text: 'Échec enregistrement. Réessaie.',
+        });
       }
-      setFeedback({ kind: 'ok', text: 'Ordre enregistré.' });
-      router.refresh();
-      setTimeout(() => setFeedback(null), 2200);
     });
   }
 
@@ -132,17 +157,26 @@ export function BiographyChaptersManager({
     fd.set('slug', slug);
     fd.set('title', title);
     fd.set('content', content);
-    const result = await updateChapterAction(null, fd);
-    if (result?.error) {
-      setFeedback({ kind: 'error', text: result.error });
+    try {
+      const result = await updateChapterAction(null, fd);
+      if (result?.error) {
+        setFeedback({ kind: 'error', text: result.error });
+        return false;
+      }
+      setChapters((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, title, content } : c)),
+      );
+      setEditingId(null);
+      router.refresh();
+      return true;
+    } catch (err) {
+      if (isStaleActionError(err)) {
+        window.location.reload();
+        return false;
+      }
+      setFeedback({ kind: 'error', text: 'Échec édition. Réessaie.' });
       return false;
     }
-    setChapters((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, title, content } : c)),
-    );
-    setEditingId(null);
-    router.refresh();
-    return true;
   }
 
   async function submitDelete(id: string) {
@@ -151,13 +185,21 @@ export function BiographyChaptersManager({
     fd.set('id', id);
     fd.set('memorialId', memorialId);
     fd.set('slug', slug);
-    const result = await deleteChapterAction(null, fd);
-    if (result?.error) {
-      setFeedback({ kind: 'error', text: result.error });
-      return;
+    try {
+      const result = await deleteChapterAction(null, fd);
+      if (result?.error) {
+        setFeedback({ kind: 'error', text: result.error });
+        return;
+      }
+      setChapters((prev) => prev.filter((c) => c.id !== id));
+      router.refresh();
+    } catch (err) {
+      if (isStaleActionError(err)) {
+        window.location.reload();
+        return;
+      }
+      setFeedback({ kind: 'error', text: 'Échec suppression. Réessaie.' });
     }
-    setChapters((prev) => prev.filter((c) => c.id !== id));
-    router.refresh();
   }
 
   if (chapters.length === 0) return null;
