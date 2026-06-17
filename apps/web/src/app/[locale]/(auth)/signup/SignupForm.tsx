@@ -15,13 +15,39 @@ export function SignupForm() {
   );
 
   useEffect(() => {
-    if (state?.success) {
+    // Only auto-redirect when the account is already usable (email
+    // confirmation disabled). When confirmation is required (G2) we keep the
+    // user on the page and show the "check your inbox" panel below.
+    if (state?.success && !state.confirmEmail) {
       // welcome flag is forwarded by LoginForm to /dashboard?welcome=1 on
       // first sign-in, where WelcomeOverlayTrigger picks it up.
       router.replace('/login?signup=ok&welcome=1');
       router.refresh();
     }
   }, [state, router]);
+
+  if (state?.success && state.confirmEmail) {
+    return (
+      <div
+        role="status"
+        className="mt-8 space-y-3 rounded-lg border border-emerald-300 bg-emerald-50 p-5 text-center"
+      >
+        <p className="font-display text-lg font-bold text-emerald-700">
+          Vérifie ta boîte mail
+        </p>
+        <p className="text-sm text-emerald-800">
+          Nous t&apos;avons envoyé un e-mail de confirmation. Clique sur le lien
+          qu&apos;il contient pour activer ton compte, puis connecte-toi.
+        </p>
+        <a
+          href="/login"
+          className="press-scale inline-block rounded-md border-2 border-emerald-600 px-4 py-2 font-display text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-600 hover:text-white"
+        >
+          Aller à la connexion
+        </a>
+      </div>
+    );
+  }
 
   return (
     <form action={formAction} className="mt-8 space-y-4">

@@ -46,6 +46,8 @@ model Testimonial {
   memorialId String   @db.Uuid
   authorId   String   @db.Uuid
   authorName String
+  /** Author's family relationship to the deceased (e.g. "Petite-fille"). */
+  relationship String?
   message    String
   language   String   @default("fr")
   createdAt  DateTime @default(now()) @db.Timestamptz(6)
@@ -166,7 +168,12 @@ model FuneralEvent {
   title     String
   date      String?
   hour      String?
+  url       String?
+  note      String?
   location  String?
+  address   String?
+  latitude  Decimal? @db.Decimal(10, 7)
+  longitude Decimal? @db.Decimal(10, 7)
   position  Int      @default(0)
   createdAt DateTime @default(now()) @db.Timestamptz(6)
 

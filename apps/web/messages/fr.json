@@ -142,7 +142,7 @@
     "messageLabel": "Message (facultatif)",
     "submit": "Faire un don",
     "submitting": "Redirection vers Stripe…",
-    "goalTitle": "Objectif de collecte",
+    "goalTitle": "À propos du don",
     "goalRaised": "{raised} collectés sur {goal}",
     "goalNoTarget": "{raised} collectés",
     "goalSupporters": "{count, plural, =0 {Aucun donateur pour l'instant} =1 {1 donateur} other {{count} donateurs}}",
@@ -268,7 +268,9 @@
       "religion": "Religion",
       "education": "Éducation",
       "work": "Travail",
-      "hobby": "Loisir"
+      "hobby": "Loisir",
+      "socialLinks": "Comptes réseaux sociaux",
+      "socialLinksPlaceholder": "Un lien par ligne — Facebook, Instagram, LinkedIn…"
     },
     "biographyChapter": {
       "scriptTitle": "Biographie",
@@ -487,8 +489,9 @@
       "passwordDescription": "Recevez un email pour réinitialiser votre mot de passe.",
       "passwordReset": "Envoyer le lien de réinitialisation",
       "passwordSent": "Email de réinitialisation envoyé.",
-      "dangerTitle": "Zone de danger",
+      "dangerTitle": "Session",
       "signOut": "Se déconnecter de cet appareil",
+      "signOutDesc": "Déconnectez-vous de Testimona sur cet appareil.",
       "breadcrumbAccount": "Mon compte",
       "accordionAria": "Réglages du compte",
       "myAccount": "Mon compte",

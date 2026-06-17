@@ -1,5 +1,6 @@
 import { cache } from 'react';
 import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
+import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 
 const WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -68,10 +69,24 @@ export const getUnseenNotificationsCount = cache(async (): Promise<number> => {
       : Promise.resolve({ count: 0 }),
   ]);
 
+  // G3 — pending co-owner invitations addressed to this user (by linked id
+  // or by email). Uses the service-role client because email-only invites
+  // (userId still null) aren't visible under the user's RLS.
+  const adminDb = getSupabaseAdminClient();
+  const orFilter = user.email
+    ? `userId.eq.${user.id},invitedEmail.ilike.${user.email}`
+    : `userId.eq.${user.id}`;
+  const { count: invites } = await adminDb
+    .from('MemorialMember')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'pending')
+    .or(orFilter);
+
   return (
     (received.count ?? 0) +
     (likes.count ?? 0) +
     (comments.count ?? 0) +
-    (donations.count ?? 0)
+    (donations.count ?? 0) +
+    (invites ?? 0)
   );
 });

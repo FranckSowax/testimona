@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Réponse à la recette — Testimona — 2026-06-07</title>
+<style>
+  :root{
+    --blue:#1f3864; --primary:#50aac3; --accent:#db8186;
+    --ink:#2d3250; --muted:#788199; --line:#e7e9f0; --bg:#f6f8fb;
+    --ok:#1f9d55; --okbg:#e7f6ee; --partial:#b7791f; --partialbg:#fdf6e3; --no:#c0392b; --nobg:#fdecea;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.55}
+  .wrap{max-width:980px;margin:0 auto;padding:32px 20px 80px}
+  header.top{background:linear-gradient(135deg,var(--blue),#2a4a86);color:#fff;border-radius:18px;padding:28px 30px;box-shadow:0 10px 30px rgba(31,56,100,.18)}
+  header.top h1{margin:0 0 6px;font-size:26px;letter-spacing:.2px}
+  header.top p{margin:4px 0;opacity:.9;font-size:14px}
+  .kpis{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+  .kpi{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 16px;min-width:96px}
+  .kpi b{display:block;font-size:24px;line-height:1.1}
+  .kpi span{font-size:12px;opacity:.9}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 8px;font-size:13px;color:var(--muted)}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12px;border-radius:999px;padding:3px 10px;white-space:nowrap}
+  .b-ok{background:var(--okbg);color:var(--ok)}
+  .b-partial{background:var(--partialbg);color:var(--partial)}
+  .b-no{background:var(--nobg);color:var(--no)}
+  h2.section{font-size:15px;text-transform:uppercase;letter-spacing:.8px;color:var(--blue);
+    margin:34px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+  .grid{display:grid;gap:12px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 1px 2px rgba(45,50,80,.04)}
+  .card .head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .card .id{font-weight:800;color:var(--primary);font-size:12px;letter-spacing:.5px}
+  .card h3{margin:2px 0 0;font-size:15px}
+  .card .ask{color:var(--muted);font-size:13px;margin:2px 0 10px;font-style:italic}
+  .card .did{font-size:14px}
+  .card .did b{color:var(--ink)}
+  .meta{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+  .tag{font-size:11px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:2px 8px;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .note{background:#fff;border-left:4px solid var(--primary);border-radius:10px;padding:14px 18px;margin:14px 0;font-size:14px}
+  .note.warn{border-left-color:var(--partial)}
+  footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
+  @media print{body{background:#fff}.card,.note,header.top{box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1>Testimona — Réponse à la recette du 2026-06-07</h1>
+    <p>Document de retour point par point sur le PDF <em>« 2026-06-07 Testimona Testing »</em> (44 pages).</p>
+    <p>Mise à jour : 2026-06-08 · Vérifié par <code>tsc --noEmit</code> + <code>next build</code> + advisors Supabase · Migrations v11→v16 appliquées.</p>
+    <div class="kpis">
+      <div class="kpi"><b>48</b><span>points analysés</span></div>
+      <div class="kpi"><b>42</b><span>✅ faits</span></div>
+      <div class="kpi"><b>1</b><span>🟡 partiel</span></div>
+      <div class="kpi"><b>5</b><span>⛔ différés</span></div>
+    </div>
+  </header>
+
+  <div class="legend">
+    <span class="badge b-ok">✅ Fait</span>
+    <span class="badge b-partial">🟡 Partiel</span>
+    <span class="badge b-no">⛔ Non fait / différé</span>
+    <span>— Légende identique au PDF : <strong>ANS</strong> = bug/question, <strong>PHO</strong> = design.</span>
+  </div>
+
+  <!-- 1. GÉNÉRAL -->
+  <h2 class="section">1 · Général (p.4)</h2>
+  <div class="grid">
+    <div class="card"><div class="head"><div><div class="id">G1</div><h3>Pas de « log out » sur la photo en haut à droite</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">L'avatar ouvre désormais un <b>menu déroulant</b> : Profil, Mémoriaux, Notifications et <b>Déconnexion</b> (POST <code>/auth/signout</code>).</p>
+      <div class="meta"><span class="tag">HeaderUserMenu.tsx</span><span class="tag">SiteHeader.tsx</span></div></div>
+
+    <div class="card"><div class="head"><div><div class="id">G2</div><h3>Page de création + courriel de confirmation</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Flux d'inscription avec <code>emailRedirectTo</code> ; après création, écran <b>« Vérifie ta boîte mail »</b>. <em>Config requise :</em> activer « Confirm email » (Supabase Auth) + clé Resend.</p>
+      <div class="meta"><span class="tag">signup/actions.ts</span><span class="tag">SignupForm.tsx</span></div></div>
+
+    <div class="card"><div class="head"><div><div class="id">G3</div><h3>Plusieurs propriétaires (invitation + accepter/rejeter)</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Co-propriété complète : invitation <b>par e-mail</b> → notification + courriel → l'invité <b>accepte ou refuse</b>. Les droits de gestion sont réellement accordés (centralisés sur ~14 contrôles).</p>
+      <div class="meta"><span class="tag">migration v15 · MemorialMember</span><span class="tag">_actions/members.ts</span><span class="tag">lib/memorial/access.ts</span></div></div>
+
+    <div class="card"><div class="head"><div><div class="id">G4</div><h3>Algorithme d'envoi de l'argent à la bonne personne</h3></div><span class="badge b-no">⛔ Différé</span></div>
+      <p class="did">Hors périmètre technique immédiat : nécessite une <b>spécification métier</b> (bénéficiaire vérifié, KYC/LCB-FT, règles de répartition, prestataire de payout). À cadrer avant développement.</p></div>
+  </div>
+
+  <!-- 2. HOME -->
+  <h2 class="section">2 · Home Page (p.6-9)</h2>
+  <div class="grid">
+    <div class="card"><div class="head"><div><div class="id">H1</div><h3>« Create a memorial » en haut</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">CTA <b>« Create a memorial »</b> ajouté en haut du fil d'accueil connecté.</p>
+      <div class="meta"><span class="tag">[locale]/page.tsx</span></div></div>
+
+    <div class="card"><div class="head"><div><div class="id">H2</div><h3>Suggestions de noms dès 3 lettres</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Autocomplétion débouncée dans la barre de recherche : à partir de 3 caractères, propositions de mémoriaux (navigation clavier, clic → page).</p>
+      <div class="meta"><span class="tag">api/search/suggest</span><span class="tag">HeaderSearch.tsx</span></div></div>
+
+    <div class="card"><div class="head"><div><div class="id">H3</div><h3>Modale « nouveau mémorial » reste ouverte au submit</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">La cause était une validation silencieuse : un <b>message d'erreur visible</b> s'affiche désormais si un champ requis manque ; succès → fermeture + redirection.</p>
+      <div class="meta"><span class="tag">MemorialAdminModals.tsx</span></div></div>
+
+    <div class="card"><div class="head"><div><div class="id">H4</div><h3>Lien de famille après une virgule suivant le nom</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Nouveau champ « Lien de famille » (colonne <code>relationship</code>) ; affichage « <b>Nom, lien</b> » dans les bulles de témoignage (home + onglet).</p>
+      <div class="meta"><span class="tag">migration v12</span><span class="tag">TestimonialItem.tsx</span><span class="tag">HomeFeed.tsx</span></div></div>
+  </div>
+
+  <!-- 3. MY TESTIMONIALS -->
+  <h2 class="section">3 · My Testimonials (p.11)</h2>
+  <div class="grid">
+    <div class="card"><div class="head"><div><div class="id">MT1</div><h3>Lien de famille après le nom</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Affiché via la bulle partagée.</p></div>
+    <div class="card"><div class="head"><div><div class="id">MT2</div><h3>Même format de bulle que « Home → Recent testimonials »</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Composant <b>TestimonialBubble</b> factorisé et réutilisé sur Home et My Testimonials (visuel harmonisé).</p>
+      <div class="meta"><span class="tag">ui/TestimonialBubble.tsx</span></div></div>
+  </div>
+
+  <!-- 4. MY CLIPS -->
+  <h2 class="section">4 · My Clips (p.13)</h2>
+  <div class="grid">
+    <div class="card"><div class="head"><div><div class="id">MC1</div><h3>Enlever « Retour » et afficher le menu à gauche</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Page intégrée au <b>DashboardShell</b> (sidebar gauche) ; bouton « Retour » supprimé.</p>
+      <div class="meta"><span class="tag">dashboard/clips/page.tsx</span></div></div>
+  </div>
+
+  <!-- 5. NOTIFICATIONS -->
+  <h2 class="section">5 · Notifications (p.15)</h2>
+  <div class="grid">
+    <div class="card"><div class="head"><div><div class="id">N1</div><h3>Total des dons par mémorial</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Section « Contributions par mémorial » : total + nombre, par mémorial.</p></div>
+    <div class="card"><div class="head"><div><div class="id">N2</div><h3>5 derniers donateurs (récent → ancien) + « see all »</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Groupe « Dons » repliable montrant les 5 derniers, avec bouton <b>« Voir tout »</b>.</p>
+      <div class="meta"><span class="tag">ContributionGroup.tsx</span></div></div>
+    <div class="card"><div class="head"><div><div class="id">N3</div><h3>Idem pour la boutique</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Groupe « Boutique » identique (5 derniers acheteurs via <code>ShopContribution</code> + « voir tout »).</p></div>
+    <div class="card"><div class="head"><div><div class="id">N4</div><h3>Notification réseau (contributeur croisé)</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Section <b>« Votre réseau »</b> : quand une personne ayant témoigné sur l'un de vos mémoriaux témoigne sur un autre mémorial public, le lien apparaît.</p>
+      <div class="meta"><span class="tag">dashboard/notifications/page.tsx</span></div></div>
+  </div>
+
+  <!-- 6. MEMORIAL PAGE -->
+  <h2 class="section">6 · Page mémorial — vue principale (p.17-19)</h2>
+  <div class="grid">
+    <div class="card"><div class="head"><div><div class="id">MP1</div><h3>Titre au survol des icônes</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Attribut <code>title</code> (tooltip) ajouté sur tous les boutons-icônes.</p>
+      <div class="meta"><span class="tag">ui/ButtonIcon.tsx</span></div></div>
+    <div class="card"><div class="head"><div><div class="id">MP2</div><h3>La 2ᵉ icône : le commentaire va où ?</h3></div><span class="badge b-ok">✅ Clarifié</span></div>
+      <p class="did">La 2ᵉ icône ouvre le <b>formulaire de témoignage</b> (onglet Testimonials) ; le tooltip (MP1) le nomme explicitement.</p></div>
+    <div class="card"><div class="head"><div><div class="id">MP3</div><h3>« N'importe qui peut éditer ? » — contrôle d'accès</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">L'édition est réservée au <b>propriétaire ou co-propriétaire accepté</b> (vérifié côté serveur et masqué dans l'UI).</p></div>
+    <div class="card"><div class="head"><div><div class="id">MP4</div><h3>« in City (Country) at the age of xx »</h3></div><span class="badge b-partial">🟡 Partiel</span></div>
+      <p class="did"><b>Âge au décès affiché</b> dans l'en-tête (« à l'âge de XX ans »). La ville/pays restent à faire (nécessite d'ajouter ces colonnes au mémorial et au formulaire).</p></div>
+  </div>
+
+  <!-- 7. ONGLET TESTIMONIALS -->
+  <h2 class="section">7 · Onglet Testimonials (p.21-24)</h2>
+  <div class="grid">
+    <div class="card"><div class="head"><div><div class="id">T1</div><h3>Bulle au format « Recent testimonials »</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Composant de bulle partagé.</p></div>
+    <div class="card"><div class="head"><div><div class="id">T2</div><h3>Lien de famille après le nom</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">idem H4.</p></div>
+    <div class="card"><div class="head"><div><div class="id">T3</div><h3>Tous les onglets sur la même ligne</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did"><code>flex-nowrap</code> + défilement horizontal : « Funeral arrangements » ne passe plus à la ligne.</p>
+      <div class="meta"><span class="tag">MemorialTabs.tsx</span></div></div>
+    <div class="card"><div class="head"><div><div class="id">T4</div><h3>Boutique en dernier onglet</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Ordre : Témoignages, Photos, Don, Biographie, Funérailles, <b>Boutique</b>.</p></div>
+    <div class="card"><div class="head"><div><div class="id">T5</div><h3>Zone pour écrire un témoignage directement dans l'onglet</h3></div><span class="badge b-no">⛔ Différé</span></div>
+      <p class="did">Le formulaire existe mais reste déclenché par un bouton. La zone d'écriture toujours visible (refonte design) est à faire avec T6.</p></div>
+    <div class="card"><div class="head"><div><div class="id">T6</div><h3>Retirer le bouton « Laisser un témoignage »</h3></div><span class="badge b-no">⛔ Différé</span></div>
+      <p class="did">Lié à T5 (le bouton disparaît une fois la zone d'écriture en place).</p></div>
+    <div class="card"><div class="head"><div><div class="id">T7</div><h3>Inscription obligatoire pour témoigner</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Mode anonyme retiré : garde côté serveur + CTA <b>« Se connecter pour témoigner »</b>. (Les commentaires l'exigeaient déjà.)</p></div>
+    <div class="card"><div class="head"><div><div class="id">T8</div><h3>Témoignage : texte seul / photo seule / texte + photo(s)</h3></div><span class="badge b-no">⛔ Différé</span></div>
+      <p class="did">Nécessite l'ajout de l'upload de photos au formulaire de témoignage (+ stockage). Non inclus dans ce lot.</p></div>
+  </div>
+
+  <!-- 8. PHOTOS -->
+  <h2 class="section">8 · Onglet Photos (p.26)</h2>
+  <div class="grid">
+    <div class="card"><div class="head"><div><div class="id">P1</div><h3>Bouton « proposer une photo » en haut</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Remonté au-dessus de la grille.</p></div>
+    <div class="card"><div class="head"><div><div class="id">P2</div><h3>Photos/vidéos revues a posteriori (pas avant publication)</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Publication <b>immédiate</b> (statut « approuvé ») ; la famille peut retirer ensuite. (Décision validée.)</p></div>
+    <div class="card"><div class="head"><div><div class="id">P3</div><h3>Sous les photos : commenter, partager, liker, signaler</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Barre d'actions complète : <b>like</b>, <b>partage</b>, <b>signalement</b> et <b>commentaires</b> (fil + formulaire, compte requis).</p>
+      <div class="meta"><span class="tag">migration v14 · likes/reports</span><span class="tag">migration v16 · comments</span><span class="tag">PhotoActions.tsx</span></div></div>
+  </div>
+
+  <!-- 9. DONATIONS -->
+  <h2 class="section">9 · Onglet Donations (p.28-29)</h2>
+  <div class="grid">
+    <div class="card"><div class="head"><div><div class="id">D1</div><h3>Courriel de confirmation + remerciement</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Le webhook Stripe envoie déjà le <b>reçu au donateur</b> et l'<b>alerte au propriétaire</b>. <em>Config :</em> Resend + <code>STRIPE_WEBHOOK_SECRET</code>.</p>
+      <div class="meta"><span class="tag">api/webhooks/stripe</span></div></div>
+    <div class="card"><div class="head"><div><div class="id">D2</div><h3>Bouton « Make a donation » en haut du carré</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Déplacé au-dessus de la barre de progression.</p></div>
+    <div class="card"><div class="head"><div><div class="id">D3</div><h3>Zone de texte « mot aux donateurs »</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Message <code>donationAbout</code> affiché aux donateurs et éditable par l'administrateur.</p></div>
+    <div class="card"><div class="head"><div><div class="id">D4</div><h3>Boutons partage + édition (montant cible + message)</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Bouton de partage + modale d'édition (objectif, devise, message).</p>
+      <div class="meta"><span class="tag">DonationSettingsModalShell.tsx</span></div></div>
+    <div class="card"><div class="head"><div><div class="id">D5</div><h3>Écrire plutôt « About the donation »</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Libellé renommé (FR/EN).</p></div>
+  </div>
+
+  <!-- 10. BOUTIQUE -->
+  <h2 class="section">10 · Onglet Boutique (p.31-33)</h2>
+  <div class="grid">
+    <div class="card"><div class="head"><div><div class="id">B1</div><h3>Champ quantité (acheter des unités)</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Sélecteur de quantité ; le montant = quantité × prix unitaire. Les dons restent dans l'onglet Donation.</p></div>
+    <div class="card"><div class="head"><div><div class="id">B2</div><h3>Prix unitaire identique aux dons (menu déroulant)</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Champ prix en menu déroulant (paliers alignés sur ceux des dons + prix par défaut du produit).</p></div>
+    <div class="card"><div class="head"><div><div class="id">B3</div><h3>Éviter les doublons + ordre alphabétique</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Garde anti-doublon (serveur + UI) et affichage trié par nom de produit.</p></div>
+  </div>
+
+  <!-- 11. BIOGRAPHY -->
+  <h2 class="section">11 · Onglet Biography (p.35-36)</h2>
+  <div class="grid">
+    <div class="card"><div class="head"><div><div class="id">BIO1</div><h3>Bouton « Add a life chapter » en haut</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Remonté au-dessus de la liste des chapitres.</p></div>
+    <div class="card"><div class="head"><div><div class="id">BIO2</div><h3>Valider les villes (autocomplétion)</h3></div><span class="badge b-no">⛔ Différé</span></div>
+      <p class="did">Nécessite l'intégration d'un service d'autocomplétion (Google Places). À planifier.</p></div>
+    <div class="card"><div class="head"><div><div class="id">BIO3</div><h3>Champ pour les liens réseaux sociaux du défunt</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Champ « Comptes réseaux sociaux » (un lien par ligne) + affichage en puces cliquables.</p>
+      <div class="meta"><span class="tag">migration v13</span><span class="tag">BiographyInfoCard.tsx</span></div></div>
+    <div class="card"><div class="head"><div><div class="id">BIO4</div><h3>Ne pas limiter à 2 photos/vidéos par chapitre</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Limite levée.</p></div>
+  </div>
+
+  <!-- 12. FUNERAL -->
+  <h2 class="section">12 · Onglet Funeral (p.38-40)</h2>
+  <div class="grid">
+    <div class="card"><div class="head"><div><div class="id">F1</div><h3>La fenêtre se ferme après submit</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Fermeture + revalidation après création confirmées.</p></div>
+    <div class="card"><div class="head"><div><div class="id">F2</div><h3>Boutons partage + édition par événement</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Bouton partage + édition (nouvelle action <code>updateFuneralEventAction</code> + modale).</p></div>
+    <div class="card"><div class="head"><div><div class="id">F3</div><h3>Événements en ordre chronologique</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Tri par date puis heure.</p></div>
+    <div class="card"><div class="head"><div><div class="id">F4</div><h3>URL et Note ne s'affichent pas</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Colonnes <code>url</code>/<code>note</code> ajoutées, transmises, stockées et affichées.</p>
+      <div class="meta"><span class="tag">migration v11</span><span class="tag">FuneralSection.tsx</span></div></div>
+    <div class="card"><div class="head"><div><div class="id">F5</div><h3>Adresse complète ou lien Google Maps + validation</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Le champ accepte une <b>adresse libre OU un lien Google Maps</b> (extraction coordonnées/lieu), avec aperçu carte et validation visuelle (« ✓ Localisation reconnue »).</p>
+      <div class="meta"><span class="tag">lib/geo/maps.ts</span></div></div>
+  </div>
+
+  <!-- 13. SETTINGS -->
+  <h2 class="section">13 · Page Settings (p.42)</h2>
+  <div class="grid">
+    <div class="card"><div class="head"><div><div class="id">S1</div><h3>« C'est quoi danger zone ? »</h3></div><span class="badge b-ok">✅ Fait</span></div>
+      <p class="did">Section renommée <b>« Session »</b> avec une description, style neutralisé (ce n'était que la déconnexion de l'appareil).</p></div>
+  </div>
+
+  <div class="note">
+    <strong>Migrations base de données appliquées</strong> (fichiers SQL versionnés dans <code>infra/supabase/</code>) :
+    v11 (funeral url/note) · v12 (testimonial relationship) · v13 (biography social links) ·
+    v14 (photo likes/reports) · v15 (memorial members) · v16 (photo comments).
+  </div>
+
+  <div class="note warn">
+    <strong>Réserves de configuration (hors code)</strong> à activer pour rendre certaines fonctions pleinement opérationnelles :
+    <br>• <strong>E-mails</strong> (confirmation de don, invitation co-propriétaire) : clés <code>RESEND_API_KEY</code> / <code>RESEND_FROM_EMAIL</code>.
+    <br>• <strong>D1</strong> (reçu de don) : endpoint webhook Stripe + <code>STRIPE_WEBHOOK_SECRET</code>.
+    <br>• <strong>G2</strong> (confirmation d'inscription) : activer « Confirm email » dans Supabase → Auth.
+  </div>
+
+  <footer>
+    Testimona · Réponse à la recette du 2026-06-07 — générée le 2026-06-08.<br>
+    Détail technique complet dans <code>RAPPORT_TESTS_2026-06-07.md</code>.
+  </footer>
+
+</div>
+</body>
+</html>

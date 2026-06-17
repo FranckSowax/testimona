@@ -1,5 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { ShareLinkButton } from '@/components/ui/ShareLinkButton';
+import { DonationSettingsModalShell } from './DonationSettingsModalShell';
 
 interface DonationRow {
   amount: number;
@@ -11,14 +13,19 @@ async function getDonationStats(memorialId: string): Promise<{
   raisedCents: number;
   currency: string;
   count: number;
+  about: string | null;
 }> {
   const supabase = await getSupabaseServer();
 
   const { data: memorial } = await supabase
     .from('Memorial')
-    .select('donationGoalCents')
+    .select('donationGoalCents, donationCurrency, donationAbout')
     .eq('id', memorialId)
-    .maybeSingle<{ donationGoalCents: number }>();
+    .maybeSingle<{
+      donationGoalCents: number;
+      donationCurrency: string | null;
+      donationAbout: string | null;
+    }>();
 
   const { data: donations } = await supabase
     .from('Donation')
@@ -29,12 +36,13 @@ async function getDonationStats(memorialId: string): Promise<{
 
   const list = donations ?? [];
   const raisedCents = list.reduce((acc, d) => acc + (d.amount ?? 0), 0);
-  const currency = list[0]?.currency ?? 'EUR';
+  const currency = memorial?.donationCurrency || list[0]?.currency || 'EUR';
   return {
     goalCents: memorial?.donationGoalCents ?? 0,
     raisedCents,
     currency,
     count: list.length,
+    about: memorial?.donationAbout ?? null,
   };
 }
 
@@ -46,11 +54,28 @@ function format(cents: number, currency: string): string {
   }).format(cents / 100);
 }
 
-export async function DonationGoal({ memorialId }: { memorialId: string }) {
+export async function DonationGoal({
+  memorialId,
+  slug,
+  isOwner = false,
+  shareUrl,
+}: {
+  memorialId: string;
+  slug?: string;
+  isOwner?: boolean;
+  shareUrl?: string;
+}) {
   const stats = await getDonationStats(memorialId);
   const t = await getTranslations('donate');
 
-  if (stats.goalCents === 0 && stats.raisedCents === 0 && stats.count === 0) return null;
+  // Public: hide the empty card. Owner: always show so they can set a goal
+  // and write the "about the donation" message (D3/D4).
+  const isEmpty =
+    stats.goalCents === 0 &&
+    stats.raisedCents === 0 &&
+    stats.count === 0 &&
+    !stats.about;
+  if (isEmpty && !isOwner) return null;
 
   const pct =
     stats.goalCents > 0
@@ -62,10 +87,37 @@ export async function DonationGoal({ memorialId }: { memorialId: string }) {
 
   return (
     <div className="rounded-lg border border-border bg-white p-5 shadow-sm">
-      <p className="font-display text-sm font-semibold uppercase tracking-widest text-foreground/70">
-        {t('goalTitle')}
-      </p>
-      <p className="mt-2 text-2xl font-bold text-foreground">
+      <div className="flex items-start justify-between gap-3">
+        <p className="font-display text-sm font-semibold uppercase tracking-widest text-foreground/70">
+          {t('goalTitle')}
+        </p>
+        <div className="flex shrink-0 items-center gap-1">
+          {shareUrl && <ShareLinkButton url={shareUrl} title={t('goalTitle')} />}
+          {isOwner && slug && (
+            <DonationSettingsModalShell
+              memorialId={memorialId}
+              slug={slug}
+              initialGoalEuros={Math.round(stats.goalCents / 100)}
+              initialCurrency={stats.currency}
+              initialAbout={stats.about ?? ''}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* About the donation — owner's message to potential donors (D3). */}
+      {stats.about ? (
+        <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-foreground/90">
+          {stats.about}
+        </p>
+      ) : isOwner ? (
+        <p className="mt-2 text-sm italic text-muted-foreground">
+          Ajoutez un mot à l&apos;attention des donateurs et un objectif de
+          collecte via le bouton ✎.
+        </p>
+      ) : null}
+
+      <p className="mt-3 text-2xl font-bold text-foreground">
         {goal ? t('goalRaised', { raised, goal }) : t('goalNoTarget', { raised })}
       </p>
       {goal && (

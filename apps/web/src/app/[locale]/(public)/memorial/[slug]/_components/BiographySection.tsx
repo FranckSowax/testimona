@@ -22,7 +22,7 @@ async function getBiographyData(
   const { data: bio } = await supabase
     .from('Biography')
     .select(
-      'id, username, homeCity, placesLived, relatives, religion, education, work, hobby',
+      'id, username, homeCity, placesLived, relatives, religion, education, work, hobby, socialLinks',
     )
     .eq('memorialId', memorialId)
     .maybeSingle<BiographyRow>();
@@ -63,6 +63,13 @@ export async function BiographySection({
         <h2 id="biography-heading">{t('heading')}</h2>
       </header>
 
+      {/* PDF p35 — « Add a life chapter » doit être placé en haut. */}
+      {isOwner && slug && (
+        <div className="flex justify-center">
+          <ChapterCreateModalShell memorialId={memorialId} slug={slug} />
+        </div>
+      )}
+
       {(hasInfo || isOwner) && slug && (
         <BiographyInfoCard
           memorialId={memorialId}
@@ -102,11 +109,6 @@ export async function BiographySection({
         </p>
       )}
 
-      {isOwner && slug && (
-        <div className="flex justify-center pt-4">
-          <ChapterCreateModalShell memorialId={memorialId} slug={slug} />
-        </div>
-      )}
     </section>
   );
 }

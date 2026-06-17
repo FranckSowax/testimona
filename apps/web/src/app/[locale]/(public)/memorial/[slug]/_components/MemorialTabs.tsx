@@ -30,7 +30,7 @@ export function MemorialTabs({ tabs }: { tabs: TabItem[] }) {
       <div
         role="tablist"
         aria-label="Sections du mémorial"
-        className="flex flex-wrap items-center justify-center gap-2 border-b border-border sm:gap-6"
+        className="flex flex-nowrap items-center justify-start gap-2 overflow-x-auto border-b border-border [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:justify-center sm:gap-6"
       >
         {tabs.map((t, i) => {
           const selected = t.id === activeId;
@@ -46,7 +46,7 @@ export function MemorialTabs({ tabs }: { tabs: TabItem[] }) {
               onClick={() => setActiveId(t.id)}
               onKeyDown={(e) => onKeyDown(e, i)}
               className={[
-                'px-3 py-3 -mb-px border-b-2 font-display text-base font-bold transition-colors focus:outline-none focus-visible:underline',
+                'shrink-0 whitespace-nowrap px-3 py-3 -mb-px border-b-2 font-display text-base font-bold transition-colors focus:outline-none focus-visible:underline',
                 selected
                   ? 'border-primary text-primary'
                   : 'border-transparent text-foreground hover:text-primary',

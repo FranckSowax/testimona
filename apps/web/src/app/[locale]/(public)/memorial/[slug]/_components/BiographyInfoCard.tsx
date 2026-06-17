@@ -22,6 +22,26 @@ export interface BiographyInfo {
   education: string | null;
   work: string | null;
   hobby: string | null;
+  socialLinks: string | null;
+}
+
+/** Split the stored newline/comma-separated links into clean URLs. */
+function parseSocialLinks(raw: string | null): string[] {
+  if (!raw) return [];
+  return raw
+    .split(/[\n,]+/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((s) => (/^https?:\/\//i.test(s) ? s : `https://${s}`));
+}
+
+/** Short label for a social link (host without www). */
+function socialLabel(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return url;
+  }
 }
 
 interface Props {
@@ -116,6 +136,25 @@ export function BiographyInfoCard({ memorialId, slug, bio, isOwner }: Props) {
         ))}
       </dl>
 
+      {parseSocialLinks(bio?.socialLinks ?? null).length > 0 && (
+        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+          <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            {tFields('socialLinks')}
+          </span>
+          {parseSocialLinks(bio?.socialLinks ?? null).map((url) => (
+            <a
+              key={url}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1 font-display text-xs font-bold text-primary transition-colors hover:border-primary/40 hover:bg-primary/5"
+            >
+              {socialLabel(url)}
+            </a>
+          ))}
+        </div>
+      )}
+
       {isOwner && (
         <BiographyEditPopup
           open={editOpen}
@@ -129,6 +168,7 @@ export function BiographyInfoCard({ memorialId, slug, bio, isOwner }: Props) {
             education: bio?.education ?? '',
             work: bio?.work ?? '',
             hobby: bio?.hobby ?? '',
+            socialLinks: bio?.socialLinks ?? '',
           }}
           onSubmit={handleEdit}
           submitting={pending}

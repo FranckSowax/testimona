@@ -1,5 +1,6 @@
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
+import { canManageMemorial } from '@/lib/memorial/access';
 import { unsplashAvatarFor } from '@/lib/avatars';
 import { TestimonialItem, type TestimonialComment } from './TestimonialItem';
 import { TestimonialPublicForm } from './TestimonialPublicForm';
@@ -10,6 +11,7 @@ interface TestimonialRow {
   authorId: string | null;
   authorName: string;
   authorFirstname: string | null;
+  relationship: string | null;
   message: string;
   language: string;
   status: string;
@@ -42,7 +44,7 @@ async function getTestimonials(memorialId: string): Promise<TestimonialRow[]> {
   const { data } = await supabase
     .from('Testimonial')
     .select(
-      'id, authorId, authorName, authorFirstname, message, language, status, createdAt',
+      'id, authorId, authorName, authorFirstname, relationship, message, language, status, createdAt',
     )
     .eq('memorialId', memorialId)
     .in('status', ['pending', 'approved'])
@@ -99,7 +101,7 @@ export async function TestimonialsSection({
     getTestimonials(memorialId),
     getMemorialMeta(memorialId),
   ]);
-  const isOwner = !!user && user.id === meta.ownerId;
+  const isOwner = await canManageMemorial(memorialId, user?.id);
   const memorialName = `${meta.firstname} ${meta.lastname}`.trim();
 
   // Public visitors see only approved entries. Owner sees pending too,
@@ -198,6 +200,7 @@ export async function TestimonialsSection({
                     slug={slug}
                     memorialName={memorialName}
                     authorName={t.authorName}
+                    authorRelation={t.relationship ?? undefined}
                     authorAvatarUrl={unsplashAvatarFor(t.authorName)}
                     message={t.message}
                     createdAt={t.createdAt}
@@ -219,6 +222,7 @@ export async function TestimonialsSection({
         memorialId={memorialId}
         slug={slug}
         memorialName={memorialName}
+        isLoggedIn={!!user}
         prefill={
           user
             ? {

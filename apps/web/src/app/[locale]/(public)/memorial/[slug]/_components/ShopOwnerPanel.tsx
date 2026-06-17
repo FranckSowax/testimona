@@ -12,6 +12,10 @@ import { SHOP_PRODUCTS, CATEGORY_LABEL, findProduct } from '@/lib/shop/catalog';
 import { ShopProductIcon } from './ShopProductIcon';
 import { VisualActions } from './VisualActions';
 
+// Preset unit prices — mirrors the donation modal tiers (PDF p32 "le prix
+// unitaire doit être le même que dans make a donation — menu déroulant").
+const UNIT_PRICE_PRESETS_EUR = [10, 15, 20, 50, 100];
+
 interface PhotoMin {
   id: string;
   url: string;
@@ -338,18 +342,28 @@ function AddShopItemBlock({
             <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
               Prix unitaire (€)
             </span>
-            <input
+            <select
               key={productId}
-              type="number"
               name="unitPriceEuros"
-              min={0}
-              step="0.50"
-              defaultValue={
-                product ? (product.defaultPriceCents / 100).toFixed(2) : '5'
-              }
+              defaultValue={String(
+                product ? Math.round(product.defaultPriceCents / 100) : 10,
+              )}
               required
               className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
-            />
+            >
+              {Array.from(
+                new Set([
+                  ...(product ? [Math.round(product.defaultPriceCents / 100)] : []),
+                  ...UNIT_PRICE_PRESETS_EUR,
+                ]),
+              )
+                .sort((a, b) => a - b)
+                .map((euros) => (
+                  <option key={euros} value={String(euros)}>
+                    {euros} €
+                  </option>
+                ))}
+            </select>
           </label>
         </div>
 
@@ -389,10 +403,10 @@ function AddShopItemBlock({
         <div className="flex justify-end">
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isPending || inUse}
             className="press-scale rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {isPending ? 'Ajout…' : 'Ajouter à la boutique'}
+            {isPending ? 'Ajout…' : inUse ? 'Déjà dans la boutique' : 'Ajouter à la boutique'}
           </button>
         </div>
 

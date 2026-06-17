@@ -6,6 +6,9 @@ import { ButtonOutlined } from '@/components/ui/ButtonOutlined';
 import { ButtonText } from '@/components/ui/ButtonText';
 import { PopupCard, PopupHeader } from './PopupCard';
 
+/** Max photos/videos per life chapter (PDF p36 — previously capped at 2). */
+const MAX_CHAPTER_MEDIA = 10;
+
 export interface BiographyInfoValues {
   username?: string;
   homeCity?: string;
@@ -15,6 +18,8 @@ export interface BiographyInfoValues {
   education?: string;
   work?: string;
   hobby?: string;
+  /** Social media accounts of the deceased — one URL per line (PDF p35). */
+  socialLinks?: string;
 }
 
 export interface ChapterFormValues {
@@ -52,6 +57,7 @@ export function BiographyEditPopup({
     education: initial.education ?? '',
     work: initial.work ?? '',
     hobby: initial.hobby ?? '',
+    socialLinks: initial.socialLinks ?? '',
   });
   const set = <K extends keyof BiographyInfoValues>(k: K, val: BiographyInfoValues[K]) =>
     setV((p) => ({ ...p, [k]: val }));
@@ -76,6 +82,19 @@ export function BiographyEditPopup({
           <Field label={t('education')} value={v.education ?? ''} onChange={(val) => set('education', val)} />
           <Field label={t('work')} value={v.work ?? ''} onChange={(val) => set('work', val)} />
           <Field label={t('hobby')} value={v.hobby ?? ''} onChange={(val) => set('hobby', val)} />
+
+          <label className="block">
+            <span className="block font-display text-sm font-medium text-muted-foreground">
+              {t('socialLinks')}
+            </span>
+            <textarea
+              value={v.socialLinks ?? ''}
+              onChange={(e) => set('socialLinks', e.target.value)}
+              rows={3}
+              placeholder={t('socialLinksPlaceholder')}
+              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+            />
+          </label>
 
           <div className="flex justify-center gap-3 pt-2">
             <ButtonOutlined type="button" variant="thankyou-gray" size="md" onClick={onClose}>
@@ -151,8 +170,9 @@ export function BiographyChapterCreatePopup({
             <ButtonText
               variant="action"
               type="button"
-              onClick={() => setPhotoCount((c) => Math.min(2, c + 1))}
-              disabled={photoCount >= 2}
+              // PDF p36 — ne pas limiter à 2 photos/vidéos par chapitre de vie.
+              onClick={() => setPhotoCount((c) => Math.min(MAX_CHAPTER_MEDIA, c + 1))}
+              disabled={photoCount >= MAX_CHAPTER_MEDIA}
             >
               {t('addPhoto')}
             </ButtonText>

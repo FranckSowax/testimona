@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ButtonOutlined } from '@/components/ui/ButtonOutlined';
+import { parseLocation, mapsEmbedSrc } from '@/lib/geo/maps';
 import { PopupCard, PopupHeader } from './PopupCard';
 
 export interface FuneralEventValues {
@@ -98,26 +99,31 @@ interface FuneralEventCreatePopupProps {
   onClose: () => void;
   onSubmit: (values: FuneralEventValues) => Promise<void> | void;
   submitting?: boolean;
+  /** When provided, the popup acts as an edit form pre-filled with these values. */
+  initial?: Partial<FuneralEventValues>;
+  mode?: 'create' | 'edit';
 }
 
 /**
- * V2 popup "Funerals — Create a new" (PDF p43-44).
+ * V2 popup "Funerals — Create a new / Edit" (PDF p43-44, p39 edit).
  */
 export function FuneralEventCreatePopup({
   open,
   onClose,
   onSubmit,
   submitting = false,
+  initial,
+  mode = 'create',
 }: FuneralEventCreatePopupProps) {
   const [v, setV] = useState<FuneralEventValues>({
-    title: '',
-    date: '',
-    startsAt: '14:00',
-    endsAt: '15:00',
-    url: '',
-    note: '',
-    location: '',
-    address: '',
+    title: initial?.title ?? '',
+    date: initial?.date ?? '',
+    startsAt: initial?.startsAt ?? '14:00',
+    endsAt: initial?.endsAt ?? '15:00',
+    url: initial?.url ?? '',
+    note: initial?.note ?? '',
+    location: initial?.location ?? '',
+    address: initial?.address ?? '',
   });
   const set = <K extends keyof FuneralEventValues>(k: K, val: FuneralEventValues[K]) =>
     setV((p) => ({ ...p, [k]: val }));
@@ -129,9 +135,14 @@ export function FuneralEventCreatePopup({
   }
 
   return (
-    <PopupCard open={open} onClose={onClose} ariaLabel="Create funeral event" width="lg">
+    <PopupCard
+      open={open}
+      onClose={onClose}
+      ariaLabel={mode === 'edit' ? 'Edit funeral event' : 'Create funeral event'}
+      width="lg"
+    >
       <div className="space-y-5">
-        <PopupHeader scriptTitle="Funerals" subtitle="Create a new" />
+        <PopupHeader scriptTitle="Funerals" subtitle={mode === 'edit' ? 'Edit event' : 'Create a new'} />
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <Field label="Event title*" value={v.title} onChange={(val) => set('title', val)} required />
@@ -178,21 +189,43 @@ export function FuneralEventCreatePopup({
             onChange={(val) => set('location', val)}
           />
           <Field
-            label="Adresse complète (apparaîtra sur la carte Google Maps)"
+            label="Adresse complète ou lien Google Maps"
             value={v.address ?? ''}
             onChange={(val) => set('address', val)}
           />
-          {v.address && v.address.trim().length > 3 && (
-            <div className="rounded-lg overflow-hidden border border-border">
-              <iframe
-                src={`https://maps.google.com/maps?q=${encodeURIComponent(v.address)}&output=embed`}
-                title="Aperçu carte"
-                className="h-48 w-full"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-            </div>
-          )}
+          {(() => {
+            const raw = v.address?.trim() ?? '';
+            if (!raw) return null;
+            const loc = parseLocation(raw);
+            const embed = mapsEmbedSrc(raw);
+            return (
+              <>
+                <p
+                  className={[
+                    'text-xs',
+                    loc.valid ? 'text-emerald-600' : 'text-muted-foreground',
+                  ].join(' ')}
+                >
+                  {loc.valid
+                    ? loc.kind === 'coords'
+                      ? '✓ Localisation reconnue (coordonnées)'
+                      : '✓ Localisation reconnue'
+                    : 'Saisis une adresse complète ou colle un lien Google Maps.'}
+                </p>
+                {embed && (
+                  <div className="rounded-lg overflow-hidden border border-border">
+                    <iframe
+                      src={embed}
+                      title="Aperçu carte"
+                      className="h-48 w-full"
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                  </div>
+                )}
+              </>
+            );
+          })()}
 
           <div className="flex justify-center gap-3 pt-2">
             <ButtonOutlined type="button" variant="thankyou-gray" size="md" onClick={onClose}>
@@ -205,7 +238,7 @@ export function FuneralEventCreatePopup({
               loading={submitting}
               disabled={!v.title.trim() || !v.date}
             >
-              Submit
+              {mode === 'edit' ? 'Save' : 'Submit'}
             </ButtonOutlined>
           </div>
         </form>

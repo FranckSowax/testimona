@@ -39,6 +39,8 @@ export function FuneralEventCreateModalShell({
         fd.set('date', values.date);
         fd.set('startsAt', values.startsAt);
         fd.set('endsAt', values.endsAt);
+        if (values.url) fd.set('url', values.url);
+        if (values.note) fd.set('note', values.note);
         if (values.location) fd.set('location', values.location);
         if (values.address) fd.set('address', values.address);
 

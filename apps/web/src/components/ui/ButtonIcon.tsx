@@ -47,6 +47,7 @@ export const ButtonIcon = forwardRef<HTMLButtonElement, ButtonIconProps>(functio
       ref={ref}
       type={type}
       aria-label={label}
+      title={label}
       aria-pressed={active || undefined}
       className={[
         'inline-flex shrink-0 items-center justify-center rounded-full',

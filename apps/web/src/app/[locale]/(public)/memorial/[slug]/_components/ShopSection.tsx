@@ -82,7 +82,12 @@ export async function ShopSection({
 
   const photos = photosRes.data ?? [];
   const visuals = visualsRes.data ?? [];
-  const items = itemsRes.data ?? [];
+  // PDF p33 — display shop items in alphabetical order (by product name).
+  const items = [...(itemsRes.data ?? [])].sort((a, b) => {
+    const an = findProduct(a.productId)?.name ?? a.productId;
+    const bn = findProduct(b.productId)?.name ?? b.productId;
+    return an.localeCompare(bn, 'fr');
+  });
 
   const readyVisuals = visuals.filter((v) => v.status === 'ready' && v.imageUrl);
   const visualById = new Map(visuals.map((v) => [v.id, v]));

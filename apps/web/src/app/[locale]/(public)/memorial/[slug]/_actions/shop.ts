@@ -7,6 +7,7 @@ import {
   falSubmitImage,
   isFalImageConfigured,
 } from '@/lib/fal/image';
+import { canManageMemorial } from '@/lib/memorial/access';
 import { findProduct, type ShopProduct } from '@/lib/shop/catalog';
 
 export interface ShopActionState {
@@ -31,7 +32,8 @@ async function loadOwnedMemorial(
     .eq('id', memorialId)
     .maybeSingle<MemorialOwnerRow>();
   if (!data) return null;
-  if (data.ownerId !== userId) return null;
+  // G3 — owner OR an accepted co-owner may manage the shop.
+  if (!(await canManageMemorial(memorialId, userId))) return null;
   return data;
 }
 
@@ -264,6 +266,17 @@ export async function addShopItemAction(
   if (!memorial) return { error: 'Action réservée au propriétaire.' };
 
   const supabase = getSupabaseAdminClient();
+
+  // PDF p33 — éviter les doublons : un même produit ne peut être ajouté
+  // qu'une seule fois par mémorial.
+  const { data: duplicate } = await supabase
+    .from('MemorialShopItem')
+    .select('id')
+    .eq('memorialId', memorialId)
+    .eq('productId', productId)
+    .maybeSingle<{ id: string }>();
+  if (duplicate) return { error: 'Cet article est déjà dans la boutique.' };
+
   // Get next position
   const { data: existing } = await supabase
     .from('MemorialShopItem')

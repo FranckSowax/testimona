@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
+import { canManageMemorial } from '@/lib/memorial/access';
 import { TestimonialsSection } from './_components/TestimonialsSection';
 import { PhotosSection } from './_components/PhotosSection';
 import { BiographySection } from './_components/BiographySection';
@@ -17,6 +18,7 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { MemorialEditModalShell } from './_components/MemorialEditModalShell';
 import { AdminRequestModalShell } from './_components/AdminModalShells';
 import { MemorialCoverSidebar } from './_components/MemorialCoverSidebar';
+import { MemorialMembersSection } from './_components/MemorialMembersSection';
 import { AnimateMemorialModal } from './_components/AnimateMemorialModal';
 import { ShopSection } from './_components/ShopSection';
 import { getBalance } from '@/lib/credits/balance';
@@ -192,7 +194,8 @@ export default async function MemorialPage({
   });
   // Owner-only payloads: testimonials list + credit balance for the
   // Animate-via-Higgsfield wizard. Skip the queries for anon visitors.
-  const isOwnerEarly = currentUser?.id === memorial.ownerId;
+  // G3 — owner OR accepted co-owner sees the management tools.
+  const isOwnerEarly = await canManageMemorial(memorial.id, currentUser?.id);
   const [animateTestimonials, ownerBalance] = isOwnerEarly
     ? await Promise.all([
         (async () => {
@@ -256,7 +259,7 @@ export default async function MemorialPage({
       email: tCover('shareDialog.email'),
     },
   };
-  const isOwner = currentUser?.id === memorial.ownerId;
+  const isOwner = isOwnerEarly;
 
   const yearLine = formatYearLine(memorial.birthDate, memorial.deathDate);
   const birthLine = memorial.birthDate
@@ -356,6 +359,10 @@ export default async function MemorialPage({
         />
       )}
 
+      {isOwner && (
+        <MemorialMembersSection memorialId={memorial.id} slug={memorial.slug} />
+      )}
+
       <div className="mt-8">
         <MemorialTabs
           tabs={[
@@ -378,15 +385,9 @@ export default async function MemorialPage({
             {
               id: 'donate',
               label: tTabs('donation'),
-              panel: <DonateSection memorialId={memorial.id} slug={memorial.slug} />,
-            },
-            {
-              id: 'shop',
-              label: 'Boutique',
               panel: (
-                <ShopSection
+                <DonateSection
                   memorialId={memorial.id}
-                  memorialName={fullName}
                   slug={memorial.slug}
                   isOwner={isOwner}
                 />
@@ -409,6 +410,19 @@ export default async function MemorialPage({
               panel: (
                 <FuneralSection
                   memorialId={memorial.id}
+                  slug={memorial.slug}
+                  isOwner={isOwner}
+                />
+              ),
+            },
+            // Boutique placée en dernier onglet (recette PDF p22).
+            {
+              id: 'shop',
+              label: 'Boutique',
+              panel: (
+                <ShopSection
+                  memorialId={memorial.id}
+                  memorialName={fullName}
                   slug={memorial.slug}
                   isOwner={isOwner}
                 />
@@ -446,5 +460,21 @@ export default async function MemorialPage({
 function formatYearLine(birth: string | null, death: string | null): string {
   const year = (d: string | null) => (d ? new Date(d).getFullYear().toString() : '?');
   if (!birth && !death) return '';
-  return `${year(birth)} – ${year(death)}`;
+  const base = `${year(birth)} – ${year(death)}`;
+  // PDF p19 — show the age at death so the right person is identified even
+  // when there is no photo.
+  const age = computeAge(birth, death);
+  return age != null ? `${base} · à l'âge de ${age} ans` : base;
+}
+
+/** Age in full years between birth and death dates (null if either is missing). */
+function computeAge(birth: string | null, death: string | null): number | null {
+  if (!birth || !death) return null;
+  const b = new Date(birth);
+  const d = new Date(death);
+  if (Number.isNaN(b.getTime()) || Number.isNaN(d.getTime())) return null;
+  let age = d.getFullYear() - b.getFullYear();
+  const monthDiff = d.getMonth() - b.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && d.getDate() < b.getDate())) age -= 1;
+  return age >= 0 && age < 150 ? age : null;
 }

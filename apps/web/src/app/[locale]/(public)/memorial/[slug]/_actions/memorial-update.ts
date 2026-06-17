@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { canManageMemorial } from '@/lib/memorial/access';
 
 export interface MemorialUpdateActionState {
   ok?: boolean;
@@ -9,13 +10,9 @@ export interface MemorialUpdateActionState {
   fieldErrors?: Record<string, string>;
 }
 
-interface MemorialOwnerRow {
-  ownerId: string;
-}
-
 /**
  * V2 Server Action — update Memorial info (PDF p21).
- * Owner-only via Memorial.ownerId match.
+ * Owner or accepted co-owner (G3).
  */
 export async function updateMemorialAction(
   _prev: MemorialUpdateActionState | null,
@@ -29,13 +26,8 @@ export async function updateMemorialAction(
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return { error: 'Non connecté.' };
 
-  const { data: memorial } = await supabase
-    .from('Memorial')
-    .select('ownerId')
-    .eq('id', memorialId)
-    .maybeSingle<MemorialOwnerRow>();
-  if (!memorial || memorial.ownerId !== userData.user.id) {
-    return { error: 'Action réservée au propriétaire du mémorial.' };
+  if (!(await canManageMemorial(memorialId, userData.user.id))) {
+    return { error: 'Action réservée aux administrateurs du mémorial.' };
   }
 
   const firstname = String(formData.get('firstname') ?? '').trim();

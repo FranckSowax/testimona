@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
+import { canManageMemorial } from '@/lib/memorial/access';
 
 export interface ChapterActionState {
   ok?: boolean;
@@ -19,27 +20,16 @@ interface ChapterPositionRow {
   position: number;
 }
 
-interface MemorialOwnerRow {
-  ownerId: string;
-}
-
 /**
- * Resolves the memorial owner (auth-gated). Returns null if the
- * current user is not authenticated OR isn't the owner of memorialId.
- * Used by every chapter-mutating action below.
+ * Resolves the memorial manager (auth-gated). Returns null if the current
+ * user is not authenticated OR can't manage memorialId (owner or accepted
+ * co-owner, G3). Used by every chapter-mutating action below.
  */
 async function ensureOwner(memorialId: string): Promise<string | null> {
   const supabase = await getSupabaseServer();
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return null;
-
-  const adminDb = getSupabaseAdminClient();
-  const { data: memorial } = await adminDb
-    .from('Memorial')
-    .select('ownerId')
-    .eq('id', memorialId)
-    .maybeSingle<MemorialOwnerRow>();
-  if (!memorial || memorial.ownerId !== userData.user.id) return null;
+  if (!(await canManageMemorial(memorialId, userData.user.id))) return null;
   return userData.user.id;
 }
 

@@ -4,6 +4,47 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { PhotoUploader } from './PhotoUploader';
 import { PhotoPublicSubmitModal } from './PhotoPublicSubmitModal';
 import { PhotoModerateButtons } from './PhotoModerateButtons';
+import { PhotoActions, type PhotoComment } from './PhotoActions';
+
+async function getPhotoComments(
+  photoIds: string[],
+): Promise<Map<string, PhotoComment[]>> {
+  const map = new Map<string, PhotoComment[]>();
+  if (photoIds.length === 0) return map;
+  const supabase = getSupabaseAdminClient();
+  const { data } = await supabase
+    .from('PhotoComment')
+    .select('id, photoId, authorName, message, createdAt')
+    .in('photoId', photoIds)
+    .order('createdAt', { ascending: true })
+    .returns<(PhotoComment & { photoId: string })[]>();
+  for (const c of data ?? []) {
+    const list = map.get(c.photoId) ?? [];
+    list.push({ id: c.id, authorName: c.authorName, message: c.message, createdAt: c.createdAt });
+    map.set(c.photoId, list);
+  }
+  return map;
+}
+
+async function getPhotoLikes(
+  photoIds: string[],
+  userId: string | null,
+): Promise<{ counts: Map<string, number>; liked: Set<string> }> {
+  const counts = new Map<string, number>();
+  const liked = new Set<string>();
+  if (photoIds.length === 0) return { counts, liked };
+  const supabase = getSupabaseAdminClient();
+  const { data } = await supabase
+    .from('PhotoLike')
+    .select('photoId, userId')
+    .in('photoId', photoIds)
+    .returns<{ photoId: string; userId: string }[]>();
+  for (const row of data ?? []) {
+    counts.set(row.photoId, (counts.get(row.photoId) ?? 0) + 1);
+    if (userId && row.userId === userId) liked.add(row.photoId);
+  }
+  return { counts, liked };
+}
 
 interface PhotoRow {
   id: string;
@@ -79,6 +120,13 @@ export async function PhotosSection({
   const pendingCount = photos.filter((p) => p.status === 'pending').length;
   const memorialName = `${memorial.firstname} ${memorial.lastname}`.trim();
 
+  const approvedIds = visible.filter((p) => p.status === 'approved').map((p) => p.id);
+  const [{ counts: likeCounts, liked: likedSet }, commentsByPhoto] = await Promise.all([
+    getPhotoLikes(approvedIds, user?.id ?? null),
+    getPhotoComments(approvedIds),
+  ]);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+
   const meta = user?.user_metadata as
     | { full_name?: string; nickname?: string }
     | null;
@@ -102,6 +150,21 @@ export async function PhotosSection({
       )}
 
       {isOwner && <PhotoUploader memorialId={memorialId} slug={slug} />}
+
+      {/* PDF p26 — proposer/ajouter une photo doit être en haut. */}
+      <div className="flex flex-col items-center gap-2 pb-2">
+        <PhotoPublicSubmitModal
+          memorialId={memorialId}
+          slug={slug}
+          memorialName={memorialName}
+          prefillName={prefillName || undefined}
+          prefillEmail={user?.email ?? undefined}
+        />
+        <p className="text-center text-xs text-muted-foreground">
+          Vous avez une photo du défunt ? Partagez-la — elle est publiée
+          aussitôt ; la famille pourra la retirer si besoin.
+        </p>
+      </div>
 
       {visible.length > 0 ? (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -150,6 +213,19 @@ export async function PhotosSection({
                     <PhotoModerateButtons photoId={p.id} slug={slug} />
                   </div>
                 )}
+                {!isPending && (
+                  <div className="border-t border-border">
+                    <PhotoActions
+                      photoId={p.id}
+                      slug={slug}
+                      shareUrl={`${siteUrl}/memorial/${slug}#photo-${p.id}`}
+                      initialLikes={likeCounts.get(p.id) ?? 0}
+                      initiallyLiked={likedSet.has(p.id)}
+                      initialComments={commentsByPhoto.get(p.id) ?? []}
+                      isLoggedIn={!!user}
+                    />
+                  </div>
+                )}
               </li>
             );
           })}
@@ -165,19 +241,6 @@ export async function PhotosSection({
         </p>
       )}
 
-      <div className="flex flex-col items-center gap-2 pt-2">
-        <PhotoPublicSubmitModal
-          memorialId={memorialId}
-          slug={slug}
-          memorialName={memorialName}
-          prefillName={prefillName || undefined}
-          prefillEmail={user?.email ?? undefined}
-        />
-        <p className="text-center text-xs text-muted-foreground">
-          Vous avez une photo du défunt ? Partagez-la — elle sera relue par la
-          famille avant publication.
-        </p>
-      </div>
     </section>
   );
 }

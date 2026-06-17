@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
+import { canManageMemorial } from '@/lib/memorial/access';
 import { getBalance, spendCredits } from '@/lib/credits/balance';
 import {
   STUDIA_COST_PER_VIDEO,
@@ -67,8 +68,8 @@ export async function submitAnimationAction(
     .eq('id', memorialId)
     .maybeSingle<MemorialRow>();
   if (!memorial) return { ok: false, error: 'Mémorial introuvable.' };
-  if (memorial.ownerId !== user.id)
-    return { ok: false, error: 'Réservé au propriétaire du mémorial.' };
+  if (!(await canManageMemorial(memorialId, user.id)))
+    return { ok: false, error: 'Réservé aux administrateurs du mémorial.' };
 
   // Validate and sanitize selections
   const photoIds = Array.from(new Set(selections.map((s) => s.photoId)));

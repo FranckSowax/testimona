@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
+import { canManageMemorial } from '@/lib/memorial/access';
 
 const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp'] as const;
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -41,7 +42,8 @@ export async function uploadMemorialPhotoAction(
     .eq('id', memorialId)
     .maybeSingle<{ ownerId: string }>();
   if (!memorial) return { error: 'memorial not found' };
-  if (memorial.ownerId !== userData.user.id) return { error: 'forbidden' };
+  if (!(await canManageMemorial(memorialId, userData.user.id)))
+    return { error: 'forbidden' };
 
   const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
@@ -87,12 +89,7 @@ export async function deleteMemorialPhotoAction(
     .maybeSingle<{ url: string; memorialId: string }>();
   if (!photo) return { error: 'photo not found' };
 
-  const { data: memorial } = await supabase
-    .from('Memorial')
-    .select('ownerId')
-    .eq('id', photo.memorialId)
-    .maybeSingle<{ ownerId: string }>();
-  if (!memorial || memorial.ownerId !== userData.user.id) {
+  if (!(await canManageMemorial(photo.memorialId, userData.user.id))) {
     return { error: 'forbidden' };
   }
 
@@ -168,8 +165,10 @@ export async function submitPublicPhotoAction(
   if (!memorial.isPublic && !userId)
     return { error: 'Mémorial privé — connexion requise.' };
 
-  const isOwner = userId !== null && userId === memorial.ownerId;
-  const status = isOwner ? 'approved' : 'pending';
+  // Décision recette p26 (P2) : les photos/vidéos sont publiées
+  // immédiatement et revues a posteriori par la famille (qui peut les
+  // retirer via le bouton supprimer), au lieu d'une validation préalable.
+  const status = 'approved';
 
   // Upload file via the admin client so anon visitors can write to
   // the bucket without an RLS storage policy gymnastic.
@@ -243,13 +242,8 @@ export async function moderatePhotoAction(
     .maybeSingle<{ memorialId: string; url: string }>();
   if (!photo) return { error: 'Photo introuvable.' };
 
-  const { data: memorial } = await adminDb
-    .from('Memorial')
-    .select('ownerId')
-    .eq('id', photo.memorialId)
-    .maybeSingle<{ ownerId: string }>();
-  if (!memorial || memorial.ownerId !== userData.user.id)
-    return { error: 'Modération réservée au propriétaire.' };
+  if (!(await canManageMemorial(photo.memorialId, userData.user.id)))
+    return { error: 'Modération réservée aux administrateurs.' };
 
   if (decision === 'rejected') {
     // Hard-delete + remove storage object.
@@ -270,6 +264,125 @@ export async function moderatePhotoAction(
       })
       .eq('id', id);
   }
+
+  if (slug) revalidatePath(`/memorial/${slug}`);
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Photo engagement — like + report (PDF p26). Comments deferred.
+// ---------------------------------------------------------------------------
+
+export interface PhotoLikeState {
+  ok?: boolean;
+  liked?: boolean;
+  count?: number;
+  error?: string;
+}
+
+/** Toggle the current user's like on a photo. Account required. */
+export async function togglePhotoLikeAction(
+  _prev: PhotoLikeState | null,
+  formData: FormData,
+): Promise<PhotoLikeState> {
+  const photoId = String(formData.get('photoId') ?? '').trim();
+  const slug = String(formData.get('slug') ?? '').trim();
+  if (!photoId) return { error: 'photoId requis.' };
+
+  const supabase = await getSupabaseServer();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) return { error: 'Connecte-toi pour aimer cette photo.' };
+  const userId = userData.user.id;
+
+  const adminDb = getSupabaseAdminClient();
+  const { data: existing } = await adminDb
+    .from('PhotoLike')
+    .select('id')
+    .eq('photoId', photoId)
+    .eq('userId', userId)
+    .maybeSingle<{ id: string }>();
+
+  if (existing) {
+    await adminDb.from('PhotoLike').delete().eq('id', existing.id);
+  } else {
+    const { error } = await adminDb
+      .from('PhotoLike')
+      .insert({ photoId, userId });
+    if (error) return { error: error.message };
+  }
+
+  const { count } = await adminDb
+    .from('PhotoLike')
+    .select('id', { count: 'exact', head: true })
+    .eq('photoId', photoId);
+
+  if (slug) revalidatePath(`/memorial/${slug}`);
+  return { ok: true, liked: !existing, count: count ?? 0 };
+}
+
+export interface PhotoReportState {
+  ok?: boolean;
+  error?: string;
+}
+
+/** Report a photo as inappropriate. Account required. */
+export async function reportPhotoAction(
+  _prev: PhotoReportState | null,
+  formData: FormData,
+): Promise<PhotoReportState> {
+  const photoId = String(formData.get('photoId') ?? '').trim();
+  const reason = String(formData.get('reason') ?? '').trim().slice(0, 500);
+  if (!photoId) return { error: 'photoId requis.' };
+  if (reason.length === 0) return { error: 'Motif requis.' };
+
+  const supabase = await getSupabaseServer();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) return { error: 'Connecte-toi pour signaler cette photo.' };
+
+  const adminDb = getSupabaseAdminClient();
+  const { error } = await adminDb.from('PhotoReport').insert({
+    photoId,
+    reporterId: userData.user.id,
+    reason,
+  });
+  if (error) return { error: error.message };
+  return { ok: true };
+}
+
+export interface PhotoCommentState {
+  ok?: boolean;
+  error?: string;
+}
+
+/** Add a comment under a photo. Account required (T7). */
+export async function addPhotoCommentAction(
+  _prev: PhotoCommentState | null,
+  formData: FormData,
+): Promise<PhotoCommentState> {
+  const photoId = String(formData.get('photoId') ?? '').trim();
+  const slug = String(formData.get('slug') ?? '').trim();
+  const message = String(formData.get('message') ?? '').trim().slice(0, 2000);
+  if (!photoId) return { error: 'photoId requis.' };
+  if (message.length === 0) return { error: 'Message requis.' };
+
+  const supabase = await getSupabaseServer();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) return { error: 'Connecte-toi pour commenter.' };
+
+  const meta = userData.user.user_metadata as
+    | { full_name?: string; nickname?: string }
+    | null;
+  const authorName =
+    meta?.nickname || meta?.full_name || userData.user.email?.split('@')[0] || 'Anonyme';
+
+  const adminDb = getSupabaseAdminClient();
+  const { error } = await adminDb.from('PhotoComment').insert({
+    photoId,
+    authorId: userData.user.id,
+    authorName,
+    message,
+  });
+  if (error) return { error: error.message };
 
   if (slug) revalidatePath(`/memorial/${slug}`);
   return { ok: true };

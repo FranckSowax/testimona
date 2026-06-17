@@ -245,6 +245,51 @@ export function donationOwnerAlertEmail({
   };
 }
 
+interface CoOwnerInviteArgs extends BaseI18n {
+  to: string;
+  inviterName: string | null;
+  memorialName: string;
+  memorialSlug: string;
+}
+
+export function coOwnerInviteEmail({
+  to,
+  inviterName,
+  memorialName,
+  memorialSlug,
+  locale,
+}: CoOwnerInviteArgs) {
+  const isFr = locale === 'fr';
+  const subject = isFr
+    ? `Invitation à co-administrer la page de ${memorialName}`
+    : `Invitation to co-manage ${memorialName}'s memorial`;
+  const intro = isFr
+    ? `${inviterName ? `<strong>${escapeHtml(inviterName)}</strong>` : 'Un proche'} vous invite à devenir co-administrateur de la page mémorielle de <strong>${escapeHtml(memorialName)}</strong>.`
+    : `${inviterName ? `<strong>${escapeHtml(inviterName)}</strong>` : 'A relative'} invites you to co-manage <strong>${escapeHtml(memorialName)}</strong>'s memorial page.`;
+  const explain = isFr
+    ? "Connectez-vous (ou créez un compte avec cette adresse), puis acceptez ou refusez l'invitation depuis « Invitations »."
+    : 'Sign in (or create an account with this email), then accept or decline from "Invitations".';
+  const ctaText = isFr ? 'Voir mes invitations' : 'View my invitations';
+  return {
+    subject,
+    to,
+    html: layout({
+      heading: subject,
+      body: `
+        <p>${intro}</p>
+        <p>${explain}</p>
+        <p style="text-align:center;margin:32px 0">
+          <a href="${SITE_URL}/dashboard/admin-requests" style="${button()}">${ctaText}</a>
+        </p>
+        <p style="font-size:13px;color:#788199">${
+          isFr ? 'Page concernée' : 'Memorial'
+        } : <a href="${SITE_URL}/memorial/${memorialSlug}" style="color:#50aac3">${escapeHtml(memorialName)}</a></p>
+      `,
+      locale,
+    }),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------

@@ -5,6 +5,17 @@ import { Link } from '@/i18n/navigation';
 import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { EmptyState } from '@/components/EmptyState';
+import { ContributionGroup, type Contributor } from './ContributionGroup';
+
+interface MemorialSummary {
+  donationTotal: number;
+  donationCount: number;
+  donationCurrency: string;
+  donors: Contributor[];
+  shopTotal: number;
+  shopCount: number;
+  shopBuyers: Contributor[];
+}
 
 export const metadata: Metadata = {
   title: 'Notifications',
@@ -222,9 +233,260 @@ export default async function NotificationsPage() {
   events.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
   const top = events.slice(0, 50);
 
+  // N1-N3 — per-memorial contribution summary: total + recent donors/buyers.
+  const summaries = new Map<string, MemorialSummary>();
+  function ensureSummary(memorialId: string): MemorialSummary {
+    let s = summaries.get(memorialId);
+    if (!s) {
+      s = {
+        donationTotal: 0,
+        donationCount: 0,
+        donationCurrency: 'EUR',
+        donors: [],
+        shopTotal: 0,
+        shopCount: 0,
+        shopBuyers: [],
+      };
+      summaries.set(memorialId, s);
+    }
+    return s;
+  }
+
+  if (ownedIds.length > 0) {
+    const [allDonationsRes, shopItemsRes] = await Promise.all([
+      supabase
+        .from('Donation')
+        .select('memorialId, donorName, amount, currency, createdAt')
+        .in('memorialId', ownedIds)
+        .eq('status', 'Succeeded')
+        .order('createdAt', { ascending: false })
+        .limit(500)
+        .returns<
+          {
+            memorialId: string;
+            donorName: string | null;
+            amount: number;
+            currency: string;
+            createdAt: string;
+          }[]
+        >(),
+      supabase
+        .from('MemorialShopItem')
+        .select('id, memorialId')
+        .in('memorialId', ownedIds)
+        .returns<{ id: string; memorialId: string }[]>(),
+    ]);
+
+    for (const d of allDonationsRes.data ?? []) {
+      const s = ensureSummary(d.memorialId);
+      s.donationTotal += d.amount ?? 0;
+      s.donationCount += 1;
+      s.donationCurrency = d.currency || s.donationCurrency;
+      s.donors.push({
+        name: d.donorName || t('anonymous'),
+        amountCents: d.amount ?? 0,
+        currency: d.currency || 'EUR',
+        createdAt: d.createdAt,
+      });
+    }
+
+    const shopItems = shopItemsRes.data ?? [];
+    const shopItemMemorial = new Map(shopItems.map((it) => [it.id, it.memorialId]));
+    if (shopItems.length > 0) {
+      const { data: contribs } = await supabase
+        .from('ShopContribution')
+        .select('shopItemId, donorName, amountCents, createdAt')
+        .in(
+          'shopItemId',
+          shopItems.map((it) => it.id),
+        )
+        .eq('status', 'Succeeded')
+        .order('createdAt', { ascending: false })
+        .limit(500)
+        .returns<
+          {
+            shopItemId: string;
+            donorName: string | null;
+            amountCents: number;
+            createdAt: string;
+          }[]
+        >();
+      for (const c of contribs ?? []) {
+        const memorialId = shopItemMemorial.get(c.shopItemId);
+        if (!memorialId) continue;
+        const s = ensureSummary(memorialId);
+        s.shopTotal += c.amountCents ?? 0;
+        s.shopCount += 1;
+        s.shopBuyers.push({
+          name: c.donorName || t('anonymous'),
+          amountCents: c.amountCents ?? 0,
+          currency: 'EUR',
+          createdAt: c.createdAt,
+        });
+      }
+    }
+  }
+
+  const summaryCards = (ownedMemorials ?? [])
+    .map((m) => ({ memorial: m, summary: summaries.get(m.id) }))
+    .filter(
+      (x): x is { memorial: MemorialLite; summary: MemorialSummary } =>
+        !!x.summary && (x.summary.donationCount > 0 || x.summary.shopCount > 0),
+    );
+
+  // N4 — "Votre réseau": when someone who has posted on one of YOUR memorials
+  // also posts on another memorial (that you don't own), surface it so you can
+  // recognise them and join the conversation.
+  const networkEvents: {
+    authorName: string;
+    memorial: MemorialLite;
+    testimonialId: string;
+    createdAt: string;
+  }[] = [];
+  if (ownedIds.length > 0) {
+    // People who engaged with my memorials (authors of testimonials on them).
+    const { data: engagerRows } = await supabase
+      .from('Testimonial')
+      .select('authorId')
+      .in('memorialId', ownedIds)
+      .not('authorId', 'is', null)
+      .neq('authorId', user.id)
+      .limit(500)
+      .returns<{ authorId: string }[]>();
+    const engagerIds = Array.from(
+      new Set((engagerRows ?? []).map((r) => r.authorId).filter(Boolean)),
+    ).slice(0, 200);
+
+    if (engagerIds.length > 0) {
+      const { data: crossRows } = await supabase
+        .from('Testimonial')
+        .select('id, memorialId, authorName, createdAt')
+        .in('authorId', engagerIds)
+        .eq('status', 'approved')
+        .order('createdAt', { ascending: false })
+        .limit(40)
+        .returns<
+          { id: string; memorialId: string; authorName: string; createdAt: string }[]
+        >();
+      const cross = (crossRows ?? []).filter((r) => !ownedIds.includes(r.memorialId));
+      const crossMemorialIds = Array.from(new Set(cross.map((r) => r.memorialId)));
+      const crossMemorials = new Map<string, MemorialLite>();
+      if (crossMemorialIds.length > 0) {
+        const { data: mems } = await supabase
+          .from('Memorial')
+          .select('id, slug, firstname, lastname')
+          .in('id', crossMemorialIds)
+          .eq('isPublic', true)
+          .returns<MemorialLite[]>();
+        for (const m of mems ?? []) crossMemorials.set(m.id, m);
+      }
+      for (const r of cross) {
+        const memorial = crossMemorials.get(r.memorialId);
+        if (!memorial) continue;
+        networkEvents.push({
+          authorName: r.authorName || t('anonymous'),
+          memorial,
+          testimonialId: r.id,
+          createdAt: r.createdAt,
+        });
+      }
+    }
+  }
+  const networkTop = networkEvents.slice(0, 15);
+
   return (
     <DashboardShell title={t('title')}>
       <p className="-mt-4 mb-6 text-sm text-muted-foreground">{t('subtitle')}</p>
+
+      {summaryCards.length > 0 && (
+        <section className="mb-8 space-y-4">
+          <h2 className="font-display text-base font-bold text-foreground">
+            Contributions par mémorial
+          </h2>
+          <div className="space-y-4">
+            {summaryCards.map(({ memorial, summary }) => {
+              const name = [memorial.firstname, memorial.lastname]
+                .filter(Boolean)
+                .join(' ');
+              return (
+                <div
+                  key={memorial.id}
+                  className="rounded-xl border border-border bg-white p-4 shadow-sm"
+                >
+                  <div className="mb-3 flex items-baseline justify-between gap-2">
+                    <Link
+                      href={`/memorial/${memorial.slug}`}
+                      className="font-display text-sm font-bold text-foreground hover:text-primary"
+                    >
+                      {name}
+                    </Link>
+                  </div>
+                  <div className="space-y-2">
+                    <ContributionGroup
+                      label="Dons"
+                      icon="donation"
+                      totalCents={summary.donationTotal}
+                      currency={summary.donationCurrency}
+                      count={summary.donationCount}
+                      contributors={summary.donors}
+                    />
+                    <ContributionGroup
+                      label="Boutique"
+                      icon="shop"
+                      totalCents={summary.shopTotal}
+                      currency="EUR"
+                      count={summary.shopCount}
+                      contributors={summary.shopBuyers}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {networkTop.length > 0 && (
+        <section className="mb-8 space-y-3">
+          <h2 className="font-display text-base font-bold text-foreground">
+            Votre réseau
+          </h2>
+          <p className="-mt-1 text-xs text-muted-foreground">
+            Des personnes ayant témoigné sur vos mémoriaux ont aussi écrit
+            ailleurs.
+          </p>
+          <ul className="space-y-2">
+            {networkTop.map((ev, i) => {
+              const name = [ev.memorial.firstname, ev.memorial.lastname]
+                .filter(Boolean)
+                .join(' ');
+              return (
+                <li
+                  key={`net-${ev.testimonialId}-${i}`}
+                  className="flex items-start justify-between gap-3 rounded-lg border border-border bg-white p-4 shadow-sm"
+                >
+                  <p className="min-w-0 text-sm leading-relaxed text-foreground">
+                    <span className="font-display font-bold">{ev.authorName}</span>{' '}
+                    a témoigné sur{' '}
+                    <Link
+                      href={`/memorial/${ev.memorial.slug}`}
+                      className="font-display font-bold text-foreground hover:text-primary"
+                    >
+                      {name}
+                    </Link>
+                  </p>
+                  <Link
+                    href={`/memorial/${ev.memorial.slug}#testimonial-${ev.testimonialId}`}
+                    className="shrink-0 text-xs font-medium text-primary hover:underline"
+                  >
+                    {t('viewMemorial')} →
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       {top.length === 0 ? (
         <EmptyState title={t('emptyTitle')} description={t('emptyBody')} />

@@ -1,9 +1,7 @@
-import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { unsplashAvatarFor } from '@/lib/avatars';
-import { Avatar } from '@/components/ui/Avatar';
+import { TestimonialBubble } from '@/components/ui/TestimonialBubble';
 
 interface MemorialLite {
   id: string;
@@ -16,6 +14,7 @@ interface FeedTestimonial {
   id: string;
   memorialId: string;
   authorName: string;
+  relationship: string | null;
   message: string;
   createdAt: string;
 }
@@ -37,7 +36,7 @@ async function getRecentTestimonials(memorialIds: string[]): Promise<FeedTestimo
   const supabase = await getSupabaseServer();
   const { data } = await supabase
     .from('Testimonial')
-    .select('id, memorialId, authorName, message, createdAt')
+    .select('id, memorialId, authorName, relationship, message, createdAt')
     .in('memorialId', memorialIds)
     .order('createdAt', { ascending: false })
     .limit(30)
@@ -73,61 +72,20 @@ export async function HomeFeed() {
             if (!memorial) return null;
             const fullName = [memorial.firstname, memorial.lastname].filter(Boolean).join(' ');
             return (
-              <li
+              <TestimonialBubble
                 key={item.id}
-                className="animate-fade-in-up rounded-lg border border-border bg-white p-5 shadow-sm"
-                style={{ animationDelay: `${Math.min(i * 25, 200)}ms` }}
-              >
-                <header className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <Avatar
-                      src={unsplashAvatarFor(item.authorName)}
-                      name={item.authorName}
-                      size="sm"
-                    />
-                    <div>
-                      <p className="font-display text-sm font-semibold text-foreground">
-                        {item.authorName}
-                      </p>
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                        {t('publishedOn')}{' '}
-                        <Link
-                          href={`/memorial/${memorial.slug}`}
-                          className="font-display font-semibold text-foreground hover:text-primary hover:underline"
-                        >
-                          {fullName}
-                        </Link>
-                      </p>
-                    </div>
-                  </div>
-                  <time
-                    dateTime={item.createdAt}
-                    className="tabular shrink-0 text-xs text-muted-foreground"
-                  >
-                    {new Date(item.createdAt).toLocaleDateString('fr-FR')}
-                  </time>
-                </header>
-                <div className="relative mt-3 pl-9">
-                  <Image
-                    src="/images/quote-open.svg"
-                    alt=""
-                    width={22}
-                    height={22}
-                    className="absolute left-0 top-0 h-5 w-5 opacity-60"
-                  />
-                  <p className="line-clamp-4 whitespace-pre-line text-sm italic leading-relaxed text-foreground/90">
-                    {item.message}
-                  </p>
-                </div>
-                <footer className="mt-4 flex items-center justify-end border-t border-border pt-3 text-xs">
-                  <Link
-                    href={`/memorial/${memorial.slug}#testimonial-${item.id}`}
-                    className="font-medium text-primary hover:underline"
-                  >
-                    {t('viewMemorial')} →
-                  </Link>
-                </footer>
-              </li>
+                index={i}
+                authorName={item.authorName}
+                authorRelation={item.relationship}
+                authorAvatarUrl={unsplashAvatarFor(item.authorName)}
+                memorialName={fullName}
+                memorialSlug={memorial.slug}
+                message={item.message}
+                createdAt={item.createdAt}
+                testimonialId={item.id}
+                publishedOnLabel={t('publishedOn')}
+                viewMemorialLabel={t('viewMemorial')}
+              />
             );
           })}
         </ul>

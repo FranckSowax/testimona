@@ -38,11 +38,15 @@ async function getMemorialMeta(
 export async function DonateSection({
   memorialId,
   slug,
+  isOwner = false,
 }: {
   memorialId: string;
   slug: string;
+  isOwner?: boolean;
 }) {
   const [user, meta] = await Promise.all([getCurrentUser(), getMemorialMeta(memorialId)]);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+  const shareUrl = `${siteUrl}/memorial/${slug}#donate`;
   const userMeta = (user?.user_metadata ?? null) as
     | { avatar_url?: string | null; nickname?: string | null; full_name?: string | null }
     | null;
@@ -57,9 +61,8 @@ export async function DonateSection({
         Faire un don en hommage
       </h2>
 
-      <DonationGoal memorialId={memorialId} />
-
-      <div className="flex justify-center pt-2">
+      {/* PDF p29 — bouton de don placé en haut du carré fundraising goal. */}
+      <div className="flex justify-center">
         <DonateModalShell
           memorialId={memorialId}
           slug={slug}
@@ -69,6 +72,13 @@ export async function DonateSection({
           donorName={donorName}
         />
       </div>
+
+      <DonationGoal
+        memorialId={memorialId}
+        slug={slug}
+        isOwner={isOwner}
+        shareUrl={shareUrl}
+      />
 
       <DonorsList memorialId={memorialId} />
     </section>

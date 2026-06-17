@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
-import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
+import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { ClipsList, type ClipRowDto } from './ClipsList';
 
 export const dynamic = 'force-dynamic';
@@ -62,52 +62,27 @@ export default async function ClipsPage() {
   ).length;
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8 sm:px-6 lg:py-10">
-      <Link
-        href="/dashboard"
-        className="press-scale inline-flex items-center gap-1.5 self-start rounded-md px-2 py-1.5 font-display text-sm font-bold text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M19 12H5M12 19l-7-7 7-7" />
-        </svg>
-        Retour
-      </Link>
-      <header className="space-y-1">
-        <p className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          Animations
-        </p>
-        <h1 className="font-display text-3xl font-bold text-foreground">
-          Mes clips
-        </h1>
-        <p className="text-sm text-muted-foreground">
+    <DashboardShell title="Mes clips">
+      <div className="space-y-6">
+        <p className="-mt-4 text-sm text-muted-foreground">
           Les clips se génèrent en 1-3 min. Valide-les pour qu'ils apparaissent
           dans le diaporama public du mémorial, ou regénère-les si le résultat
           ne te plaît pas (1 crédit par regénération). Tant qu'un clip n'a pas
           été validé ou refusé, il reste en attente ici.
         </p>
-      </header>
 
-      {awaitingCount > 0 && (
-        <p className="rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-sm text-foreground/80">
-          <span className="font-display font-bold text-foreground">
-            {awaitingCount} clip{awaitingCount > 1 ? 's' : ''}
-          </span>{' '}
-          en attente de validation. Clique sur <strong>Valider</strong> pour
-          chaque clip que tu veux publier dans le diaporama du mémorial.
-        </p>
-      )}
+        {awaitingCount > 0 && (
+          <p className="rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-sm text-foreground/80">
+            <span className="font-display font-bold text-foreground">
+              {awaitingCount} clip{awaitingCount > 1 ? 's' : ''}
+            </span>{' '}
+            en attente de validation. Clique sur <strong>Valider</strong> pour
+            chaque clip que tu veux publier dans le diaporama du mémorial.
+          </p>
+        )}
 
-      <ClipsList clips={clips} />
-    </div>
+        <ClipsList clips={clips} />
+      </div>
+    </DashboardShell>
   );
 }

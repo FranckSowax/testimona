@@ -11,6 +11,8 @@ interface Props {
   memorialId: string;
   slug: string;
   memorialName: string;
+  /** Account required to post (recette T7). */
+  isLoggedIn: boolean;
   /** When the user is logged-in we pre-fill name from their profile. */
   prefill?: {
     firstname?: string;
@@ -29,6 +31,7 @@ export function TestimonialPublicForm({
   memorialId,
   slug,
   memorialName,
+  isLoggedIn,
   prefill,
 }: Props) {
   const router = useRouter();
@@ -52,6 +55,24 @@ export function TestimonialPublicForm({
     }
   }, [state, router]);
 
+  // Recette T7 — un compte est requis pour témoigner.
+  if (!isLoggedIn) {
+    return (
+      <div className="mt-8 flex flex-col items-center gap-2">
+        <a
+          href={`/login?next=/memorial/${slug}`}
+          className="press-scale rounded-md bg-primary px-5 py-2.5 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+        >
+          Se connecter pour témoigner
+        </a>
+        <p className="text-xs text-muted-foreground">
+          Pour garantir la qualité des messages, un compte est nécessaire pour
+          publier un témoignage.
+        </p>
+      </div>
+    );
+  }
+
   if (!open) {
     return (
       <div className="mt-8 flex flex-col items-center gap-2">
@@ -63,8 +84,7 @@ export function TestimonialPublicForm({
           Laisser un témoignage
         </button>
         <p className="text-xs text-muted-foreground">
-          Pas besoin de compte — laissez votre prénom et votre nom. Votre
-          message sera publié après validation par la famille.
+          Votre message sera publié après validation par la famille.
         </p>
       </div>
     );
@@ -141,6 +161,19 @@ export function TestimonialPublicForm({
           )}
         </label>
       </div>
+
+      <label className="block">
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Lien de famille <span className="font-normal text-foreground/60">(optionnel — ex. Petite-fille, Ami)</span>
+        </span>
+        <input
+          name="authorRelationship"
+          type="text"
+          maxLength={60}
+          placeholder="Petite-fille"
+          className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+        />
+      </label>
 
       <label className="block">
         <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">

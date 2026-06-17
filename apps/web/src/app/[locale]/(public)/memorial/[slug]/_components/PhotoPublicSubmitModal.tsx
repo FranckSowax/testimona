@@ -248,14 +248,15 @@ export function PhotoPublicSubmitModal({
                 )}
                 {state?.ok && (
                   <p className="mt-4 rounded-md border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700">
-                    Merci ! Votre photo a été envoyée. Elle apparaîtra après
-                    validation par la famille.
+                    Merci ! Votre photo est publiée. La famille pourra la
+                    retirer si nécessaire.
                   </p>
                 )}
 
                 <div className="mt-5 flex items-center justify-between gap-3">
                   <p className="text-[11px] italic text-muted-foreground">
-                    Toutes les photos sont relues avant publication.
+                    Les photos sont publiées aussitôt et revues a posteriori
+                    par la famille.
                   </p>
                   <button
                     type="submit"

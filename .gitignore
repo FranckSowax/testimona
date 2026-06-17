@@ -41,6 +41,13 @@ playwright/.cache/
 .env.*.local
 !.env.example
 
+# Local MCP server config (machine-specific, contains project refs)
+.mcp.json
+
+# Next.js build artifacts (stale build cache)
+.next.stale/
+**/.next.stale/
+
 # Prisma
 .prisma/
 

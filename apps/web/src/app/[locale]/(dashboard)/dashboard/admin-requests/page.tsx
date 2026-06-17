@@ -7,6 +7,44 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { EmptyState } from '@/components/EmptyState';
 import { AdminRequestActions } from './AdminRequestActions';
+import { MemorialInviteActions } from './MemorialInviteActions';
+
+interface InviteRow {
+  id: string;
+  memorialId: string;
+  invitedEmail: string | null;
+  status: string;
+  createdAt: string;
+}
+
+async function getMyInvites(
+  userId: string,
+  email: string | null,
+): Promise<{ invites: InviteRow[]; memorials: Map<string, MemorialLite> }> {
+  const adminDb = getSupabaseAdminClient();
+  const orFilter = email
+    ? `userId.eq.${userId},invitedEmail.ilike.${email}`
+    : `userId.eq.${userId}`;
+  const { data } = await adminDb
+    .from('MemorialMember')
+    .select('id, memorialId, invitedEmail, status, createdAt')
+    .eq('status', 'pending')
+    .or(orFilter)
+    .order('createdAt', { ascending: false })
+    .returns<InviteRow[]>();
+  const invites = data ?? [];
+  const memorials = new Map<string, MemorialLite>();
+  if (invites.length > 0) {
+    const ids = Array.from(new Set(invites.map((i) => i.memorialId)));
+    const { data: mems } = await adminDb
+      .from('Memorial')
+      .select('id, slug, firstname, lastname')
+      .in('id', ids)
+      .returns<MemorialLite[]>();
+    for (const m of mems ?? []) memorials.set(m.id, m);
+  }
+  return { invites, memorials };
+}
 
 export const metadata: Metadata = {
   title: 'Admin requests',
@@ -84,9 +122,55 @@ export default async function AdminRequestsInboxPage({
 
   const labels = { accept: t('accept'), decline: t('decline') };
 
+  // G3 — invitations the current user has received (by linked id or email).
+  const { invites, memorials: inviteMemorials } = await getMyInvites(
+    user.id,
+    user.email ?? null,
+  );
+
   return (
     <DashboardShell title={t('title')}>
       <p className="-mt-4 mb-6 text-sm text-muted-foreground">{t('subtitle')}</p>
+
+      {invites.length > 0 && (
+        <section className="mb-10 space-y-4">
+          <header className="flex items-baseline justify-between">
+            <h2 className="font-display text-base font-bold text-foreground">
+              Invitations reçues
+            </h2>
+            <span className="rounded-full bg-accent/15 px-2.5 py-0.5 font-display text-[11px] font-bold tabular text-accent">
+              {invites.length}
+            </span>
+          </header>
+          <ul className="space-y-3">
+            {invites.map((inv) => {
+              const memorial = inviteMemorials.get(inv.memorialId);
+              return (
+                <li
+                  key={inv.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-accent/30 bg-accent/5 p-4"
+                >
+                  <p className="text-sm text-foreground">
+                    Invitation à co-administrer{' '}
+                    {memorial ? (
+                      <Link
+                        href={`/memorial/${memorial.slug}`}
+                        target="_blank"
+                        className="font-display font-bold text-foreground hover:text-primary"
+                      >
+                        {memorial.firstname} {memorial.lastname}
+                      </Link>
+                    ) : (
+                      'un mémorial'
+                    )}
+                  </p>
+                  <MemorialInviteActions memberId={inv.id} labels={labels} />
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       <section className="space-y-4">
         <header className="flex items-baseline justify-between">

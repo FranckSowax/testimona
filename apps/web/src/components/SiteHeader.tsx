@@ -7,6 +7,8 @@ import { Avatar } from './ui/Avatar';
 import { LocaleSwitcher } from './LocaleSwitcher';
 import { HeaderCreateMemorialButton } from './HeaderCreateMemorialButton';
 import { MobileHamburgerMenu } from './MobileHamburgerMenu';
+import { HeaderUserMenu } from './HeaderUserMenu';
+import { HeaderSearch } from './HeaderSearch';
 import { CreditBadge } from './CreditBadge';
 
 export async function SiteHeader() {
@@ -62,41 +64,8 @@ export async function SiteHeader() {
           />
         </Link>
 
-        {/* Search input — hidden on small screens to avoid overflow */}
-        <form
-          method="get"
-          action="/search"
-          className="ml-auto hidden max-w-md flex-1 sm:flex sm:max-w-sm md:max-w-md"
-          role="search"
-        >
-          <label htmlFor="header-search" className="sr-only">
-            {t('search')}
-          </label>
-          <span className="flex w-full items-center gap-3 rounded-full border border-transparent bg-[var(--color-bg-active-gray)] px-5 transition-[background-color,border-color,box-shadow] duration-150 focus-within:border-primary focus-within:bg-white focus-within:shadow-[var(--shadow-glow-primary)]">
-            <input
-              id="header-search"
-              type="search"
-              name="q"
-              placeholder={t('search')}
-              className="h-11 min-w-0 flex-1 bg-transparent font-display text-base font-medium text-foreground outline-none placeholder:font-medium placeholder:text-muted-foreground sm:text-sm"
-              autoComplete="off"
-            />
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-              aria-hidden="true"
-              className="shrink-0 text-muted-foreground"
-            >
-              <circle cx="11" cy="11" r="7" />
-              <path d="M21 21l-4.3-4.3" />
-            </svg>
-          </span>
-        </form>
+        {/* Search input with name autocomplete — hidden on small screens */}
+        <HeaderSearch placeholder={t('search')} />
 
         {/* Spacer for mobile when search is hidden */}
         <div className="ml-auto sm:hidden" aria-hidden="true" />
@@ -118,14 +87,25 @@ export async function SiteHeader() {
         {/* Locale switcher — compact on mobile */}
         <LocaleSwitcher />
 
-        {/* Avatar — anonymous → login, logged-in → profile */}
-        <Link
-          href={user ? '/dashboard/profile' : '/login'}
-          aria-label={user ? displayName || 'Mon compte' : 'Se connecter'}
-          className="shrink-0"
-        >
-          <Avatar src={avatarUrl} name={displayName || undefined} size="md" />
-        </Link>
+        {/* Avatar — anonymous → login, logged-in → dropdown menu (incl. log out) */}
+        {user ? (
+          <HeaderUserMenu
+            avatarUrl={avatarUrl}
+            displayName={displayName}
+            labels={{
+              account: displayName || 'Mon compte',
+              profile: tNav('settings'),
+              memorials: tNav('memorials'),
+              notifications: tNav('notifications'),
+              settings: tNav('settings'),
+              signOut: tHeader('signOut'),
+            }}
+          />
+        ) : (
+          <Link href="/login" aria-label="Se connecter" className="shrink-0">
+            <Avatar src={avatarUrl} name={displayName || undefined} size="md" />
+          </Link>
+        )}
       </div>
     </header>
   );

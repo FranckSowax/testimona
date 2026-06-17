@@ -14,6 +14,8 @@ export interface SignupActionState {
   error?: string;
   fieldErrors?: Record<string, string>;
   success?: boolean;
+  /** True when Supabase requires the user to confirm their email first (G2). */
+  confirmEmail?: boolean;
 }
 
 export async function signupAction(
@@ -36,7 +38,7 @@ export async function signupAction(
   }
 
   const supabase = await getSupabaseServer();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
@@ -46,6 +48,10 @@ export async function signupAction(
   });
 
   if (error) return { error: error.message };
+
+  // When "Confirm email" is enabled in Supabase Auth, signUp returns no
+  // session — the user must click the confirmation link first (G2).
+  const confirmEmail = !data.session;
 
   // Fire-and-forget welcome email. Failures are swallowed by sendEmail so a
   // flaky provider can never break the signup flow.
@@ -59,5 +65,5 @@ export async function signupAction(
 
   // Don't redirect from the server action — the intercepting-route @modal
   // slot stays mounted across server-side redirects on Next.js 15.
-  return { success: true };
+  return { success: true, confirmEmail };
 }

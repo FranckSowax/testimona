@@ -129,12 +129,13 @@ export function ProfileForm({
         </button>
       </section>
 
-      <section className="rounded-lg border border-destructive/30 bg-white p-6 shadow-sm">
-        <h2 className="font-display text-lg font-semibold text-destructive">{t('dangerTitle')}</h2>
+      <section className="rounded-lg border border-border bg-white p-6 shadow-sm">
+        <h2 className="font-display text-lg font-semibold text-foreground">{t('dangerTitle')}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t('signOutDesc')}</p>
         <form action="/auth/signout" method="post" className="mt-4">
           <button
             type="submit"
-            className="rounded-md border-2 border-destructive/60 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive hover:text-white"
+            className="rounded-md border-2 border-foreground/70 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
           >
             {t('signOut')}
           </button>

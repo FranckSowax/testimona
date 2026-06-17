@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
+import { canManageMemorial } from '@/lib/memorial/access';
 import { newTestimonialEmail, sendEmail } from '@/lib/email/resend';
 
 export interface TestimonialActionState {
@@ -20,6 +21,7 @@ export async function submitTestimonialAction(
   const authorName = String(formData.get('authorName') ?? '').trim().slice(0, 80);
   const authorFirstname = String(formData.get('authorFirstname') ?? '').trim().slice(0, 60);
   const authorEmail = String(formData.get('authorEmail') ?? '').trim().slice(0, 200);
+  const relationship = String(formData.get('authorRelationship') ?? '').trim().slice(0, 60);
   const message = String(formData.get('message') ?? '').trim().slice(0, 2000);
   const language = String(formData.get('language') ?? 'fr');
 
@@ -41,6 +43,11 @@ export async function submitTestimonialAction(
   const supabase = await getSupabaseServer();
   const { data: userData } = await supabase.auth.getUser();
   const userId = userData.user?.id ?? null;
+  // Décision recette p23 (T7) : un compte est obligatoire pour publier un
+  // témoignage (meilleur contrôle du contenu).
+  if (!userId) {
+    return { error: 'Connecte-toi pour publier un témoignage.' };
+  }
 
   const adminDb = getSupabaseAdminClient();
   const { data: memorial } = await adminDb
@@ -50,7 +57,8 @@ export async function submitTestimonialAction(
     .maybeSingle<{ ownerId: string }>();
   if (!memorial) return { error: 'Mémorial introuvable.' };
 
-  const isOwner = userId !== null && userId === memorial.ownerId;
+  // G3 — owner OR accepted co-owner auto-approves their own testimonial.
+  const isOwner = await canManageMemorial(memorialId, userId);
   const status = isOwner ? 'approved' : 'pending';
 
   const { error } = await adminDb.from('Testimonial').insert({
@@ -59,6 +67,7 @@ export async function submitTestimonialAction(
     authorName: displayName,
     authorFirstname: authorFirstname,
     authorEmail: authorEmail || null,
+    relationship: relationship || null,
     message,
     language,
     status,
@@ -105,13 +114,8 @@ export async function moderateTestimonialAction(
     .maybeSingle<{ memorialId: string }>();
   if (!tx) return { error: 'Témoignage introuvable.' };
 
-  const { data: memorial } = await adminDb
-    .from('Memorial')
-    .select('ownerId')
-    .eq('id', tx.memorialId)
-    .maybeSingle<{ ownerId: string }>();
-  if (!memorial || memorial.ownerId !== userData.user.id)
-    return { error: 'Modération réservée au propriétaire.' };
+  if (!(await canManageMemorial(tx.memorialId, userData.user.id)))
+    return { error: 'Modération réservée aux administrateurs.' };
 
   const { error } = await adminDb
     .from('Testimonial')

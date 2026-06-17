@@ -33,7 +33,16 @@ export default async function HomePage({
             </div>
           </aside>
 
-          <main className="min-w-0">
+          <main className="min-w-0 space-y-6">
+            {/* PDF p6 — « Create a memorial » must be available at the top of home. */}
+            <div className="flex justify-end">
+              <Link
+                href="/dashboard/new"
+                className={buttonClasses({ variant: 'accent', size: 'md' })}
+              >
+                {t('ctaCreateMemorial')}
+              </Link>
+            </div>
             <HomeFeed />
           </main>
 

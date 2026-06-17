@@ -61,10 +61,18 @@ export function MemorialFormPopup({
   });
   const set = <K extends keyof MemorialFormValues>(k: K, val: MemorialFormValues[K]) =>
     setV((p) => ({ ...p, [k]: val }));
+  const [localError, setLocalError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (submitting || !v.firstname || !v.lastname || !v.deathYear || !v.deathCountry) return;
+    if (submitting) return;
+    // Surface the reason instead of silently swallowing the click — otherwise
+    // the popup just "stays open" with no feedback (recette PDF p8).
+    if (!v.firstname || !v.lastname || !v.deathYear || !v.deathCountry) {
+      setLocalError('Renseigne au minimum le prénom, le nom, l’année et le pays de décès.');
+      return;
+    }
+    setLocalError(null);
     await onSubmit(v);
   }
 
@@ -217,6 +225,12 @@ export function MemorialFormPopup({
               audio URL (mp3 / m4a / wav).
             </span>
           </label>
+
+          {localError && (
+            <p role="alert" className="text-center text-sm text-destructive">
+              {localError}
+            </p>
+          )}
 
           <div className="flex justify-center gap-3 pt-2">
             <ButtonOutlined type="button" variant="thankyou-gray" size="md" onClick={onClose}>
