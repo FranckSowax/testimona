@@ -86,7 +86,7 @@ export function TestimonialItem({
   }
 
   return (
-    <li
+    <article
       id={`testimonial-${testimonialId}`}
       className="rounded-lg border border-border bg-white p-5 shadow-[var(--shadow-card)]"
     >
@@ -240,7 +240,7 @@ export function TestimonialItem({
           )}
         </>
       )}
-    </li>
+    </article>
   );
 }
 
