@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { unsplashAvatarFor } from '@/lib/avatars';
 import { TestimonialBubble } from '@/components/ui/TestimonialBubble';
+import { Reveal } from '@/components/motion/Reveal';
 
 interface MemorialLite {
   id: string;
@@ -66,7 +67,7 @@ export async function HomeFeed() {
           {t('emptyBody')}
         </p>
       ) : (
-        <ul className="space-y-4">
+        <Reveal as="ul" className="space-y-4">
           {items.map((item, i) => {
             const memorial = memorialMap.get(item.memorialId);
             if (!memorial) return null;
@@ -88,7 +89,7 @@ export async function HomeFeed() {
               />
             );
           })}
-        </ul>
+        </Reveal>
       )}
     </section>
   );

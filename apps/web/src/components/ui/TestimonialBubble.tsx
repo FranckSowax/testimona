@@ -39,7 +39,6 @@ export function TestimonialBubble({
   footerNote,
   publishedOnLabel,
   viewMemorialLabel,
-  index = 0,
 }: TestimonialBubbleProps) {
   const memorialHref = `/memorial/${memorialSlug}`;
   const anchorHref = testimonialId
@@ -48,8 +47,9 @@ export function TestimonialBubble({
 
   return (
     <li
-      className="animate-fade-in-up rounded-lg border border-border bg-white p-5 shadow-sm"
-      style={{ animationDelay: `${Math.min(index * 25, 200)}ms` }}
+      className="rounded-lg border border-border bg-white p-5 shadow-sm"
+      // Entrance is handled by the <Reveal> wrapper (GSAP) where this bubble
+      // is listed, so no CSS entrance animation here.
     >
       <header className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">

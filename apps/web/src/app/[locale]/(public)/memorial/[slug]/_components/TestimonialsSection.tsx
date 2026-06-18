@@ -2,6 +2,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { canManageMemorial } from '@/lib/memorial/access';
 import { unsplashAvatarFor } from '@/lib/avatars';
+import { Reveal } from '@/components/motion/Reveal';
 import { TestimonialItem, type TestimonialComment } from './TestimonialItem';
 import { TestimonialPublicForm } from './TestimonialPublicForm';
 import { TestimonialModerateButtons } from './TestimonialModerateButtons';
@@ -176,7 +177,7 @@ export async function TestimonialsSection({
           souvenir.
         </p>
       ) : (
-        <ul className="space-y-6">
+        <Reveal as="ul" className="space-y-6">
           {visible.map((t) => {
             const isPending = t.status === 'pending';
             return (
@@ -215,7 +216,7 @@ export async function TestimonialsSection({
               </li>
             );
           })}
-        </ul>
+        </Reveal>
       )}
 
       <TestimonialPublicForm

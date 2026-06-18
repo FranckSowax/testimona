@@ -6,6 +6,7 @@ import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { EmptyState } from '@/components/EmptyState';
 import { TestimonialBubble } from '@/components/ui/TestimonialBubble';
+import { Reveal } from '@/components/motion/Reveal';
 import { unsplashAvatarFor } from '@/lib/avatars';
 
 export const metadata: Metadata = {
@@ -120,7 +121,7 @@ export default async function MyTestimonialsPage() {
       {items.length === 0 ? (
         <EmptyState title={t('emptyTitle')} description={t('emptyBody')} action={cta} />
       ) : (
-        <ul className="space-y-4">
+        <Reveal as="ul" className="space-y-4">
           {items.map((item, i) => {
             const memorial = memorials.get(item.memorialId);
             if (!memorial) return null;
@@ -146,7 +147,7 @@ export default async function MyTestimonialsPage() {
               />
             );
           })}
-        </ul>
+        </Reveal>
       )}
     </DashboardShell>
   );

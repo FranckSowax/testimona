@@ -2,6 +2,7 @@ import Image from 'next/image';
 import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { Avatar } from './Avatar';
+import { AnimatedName } from '@/components/motion/AnimatedName';
 
 interface MemorialHeaderCardProps {
   fullName: string;
@@ -89,7 +90,7 @@ export async function MemorialHeaderCard({
 
       <div className="px-4 pb-6 pt-14 sm:px-10 sm:pt-16">
         <h1 className="font-display text-xl font-bold leading-tight text-foreground sm:text-3xl">
-          {fullName}
+          <AnimatedName text={fullName} />
           {yearLine && <span className="font-normal text-muted-foreground">, {yearLine}</span>}
         </h1>
         {nickname && (
