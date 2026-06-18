@@ -1,6 +1,7 @@
 'use client';
 
-import { useId, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useId, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { ScrollTrigger } from '@/lib/gsap/setup';
 
 export interface TabItem {
   id: string;
@@ -11,6 +12,14 @@ export interface TabItem {
 export function MemorialTabs({ tabs }: { tabs: TabItem[] }) {
   const [activeId, setActiveId] = useState<string>(tabs[0]?.id ?? '');
   const baseId = useId();
+
+  // When a tab becomes visible, its panel gains layout — recalc any
+  // ScrollTrigger inside it (parallax, scrub fills, reveals) which couldn't be
+  // measured while hidden. Presentation-only.
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => cancelAnimationFrame(raf);
+  }, [activeId]);
 
   if (tabs.length === 0) return null;
 

@@ -19,6 +19,7 @@ import { MemorialEditModalShell } from './_components/MemorialEditModalShell';
 import { AdminRequestModalShell } from './_components/AdminModalShells';
 import { MemorialCoverSidebar } from './_components/MemorialCoverSidebar';
 import { MemorialMembersSection } from './_components/MemorialMembersSection';
+import { TiltCard } from '@/components/motion/TiltCard';
 import { AnimateMemorialModal } from './_components/AnimateMemorialModal';
 import { ShopSection } from './_components/ShopSection';
 import { getBalance } from '@/lib/credits/balance';
@@ -279,7 +280,8 @@ export default async function MemorialPage({
         className="mb-4"
       />
 
-      <MemorialHeaderCard
+      <TiltCard>
+        <MemorialHeaderCard
         fullName={fullName}
         yearLine={yearLine}
         nickname={memorial.nickname}
@@ -343,7 +345,8 @@ export default async function MemorialPage({
             </ButtonText>
           </>
         }
-      />
+        />
+      </TiltCard>
 
       {isOwner && (
         <AnimateMemorialModal

@@ -1,8 +1,8 @@
-import Image from 'next/image';
 import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { Avatar } from './Avatar';
 import { AnimatedName } from '@/components/motion/AnimatedName';
+import { ParallaxCover } from '@/components/motion/ParallaxCover';
 
 interface MemorialHeaderCardProps {
   fullName: string;
@@ -59,9 +59,7 @@ export async function MemorialHeaderCard({
     >
       <header className="relative">
         <div className="relative aspect-[4/3] w-full bg-secondary sm:aspect-[16/6]">
-          {coverUrl ? (
-            <Image src={coverUrl} alt="" fill sizes="100vw" priority className="object-cover" />
-          ) : null}
+          {coverUrl ? <ParallaxCover src={coverUrl} /> : null}
           <div
             aria-hidden="true"
             className="absolute inset-0"

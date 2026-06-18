@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { ShareLinkButton } from '@/components/ui/ShareLinkButton';
+import { DonationBar } from '@/components/motion/DonationBar';
 import { DonationSettingsModalShell } from './DonationSettingsModalShell';
 
 interface DonationRow {
@@ -120,17 +121,7 @@ export async function DonationGoal({
       <p className="mt-3 text-2xl font-bold text-foreground">
         {goal ? t('goalRaised', { raised, goal }) : t('goalNoTarget', { raised })}
       </p>
-      {goal && (
-        <div
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={pct}
-          className="mt-3 h-2 w-full overflow-hidden rounded-full bg-surface"
-        >
-          <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
-        </div>
-      )}
+      {goal && <DonationBar pct={pct} />}
       <p className="mt-2 text-xs text-muted-foreground">
         {t('goalSupporters', { count: stats.count })}
       </p>

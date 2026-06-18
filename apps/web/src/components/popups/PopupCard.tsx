@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
+import { gsap, useGSAP } from '@/lib/gsap/setup';
 
 type Width = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 
@@ -35,6 +36,7 @@ export function PopupCard({
   className,
 }: PopupCardProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -45,6 +47,26 @@ export function PopupCard({
       dialog.close();
     }
   }, [open]);
+
+  // Open choreography (#3): card scales/translates in with an overshoot, then
+  // its contents cascade. Presentation only — no effect on open/close logic.
+  // Disabled under reduced-motion (content just appears).
+  useGSAP(
+    () => {
+      if (!open) return;
+      const el = contentRef.current;
+      if (!el) return;
+      const mm = gsap.matchMedia();
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsap
+          .timeline({ defaults: { ease: 'power3.out' } })
+          .from(el, { autoAlpha: 0, scale: 0.94, y: 18, duration: 0.4, ease: 'back.out(1.5)' })
+          .from(el.children, { y: 10, duration: 0.3, stagger: 0.04 }, '-=0.2');
+      });
+      return () => mm.revert();
+    },
+    { dependencies: [open], scope: contentRef, revertOnUpdate: true },
+  );
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -76,7 +98,7 @@ export function PopupCard({
         .filter(Boolean)
         .join(' ')}
     >
-      <div className="animate-pop-in relative p-4 sm:p-6">
+      <div ref={contentRef} className="relative p-4 sm:p-6">
         <button
           type="button"
           onClick={onClose}
