@@ -89,7 +89,7 @@ export async function RipSuggestions() {
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-display text-sm font-semibold text-foreground">
+                  <p className="line-clamp-2 break-words font-display text-sm font-semibold text-foreground">
                     {fullName}
                   </p>
                   <p className="text-xs text-muted-foreground tabular">

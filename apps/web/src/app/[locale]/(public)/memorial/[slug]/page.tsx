@@ -192,19 +192,21 @@ async function getMemorialPlaces(memorialId: string): Promise<{
   birthCity: string | null;
   deathCountry: string | null;
   deathCity: string | null;
+  relationship: string | null;
 }> {
   const supabase = await getSupabaseServer();
   // Tolerant: if migration v19 hasn't run, the columns don't exist and
   // supabase-js returns an error (not a throw) → data is null → no places.
   const { data } = await supabase
     .from('Memorial')
-    .select('birthCountry, birthCity, deathCountry, deathCity')
+    .select('birthCountry, birthCity, deathCountry, deathCity, relationship')
     .eq('id', memorialId)
     .maybeSingle<{
       birthCountry: string | null;
       birthCity: string | null;
       deathCountry: string | null;
       deathCity: string | null;
+      relationship: string | null;
     }>();
   return (
     data ?? {
@@ -212,9 +214,21 @@ async function getMemorialPlaces(memorialId: string): Promise<{
       birthCity: null,
       deathCountry: null,
       deathCity: null,
+      relationship: null,
     }
   );
 }
+
+const RELATIONSHIP_LABELS: Record<string, string> = {
+  spouse: 'Spouse',
+  partner: 'Partner',
+  child: 'Child',
+  parent: 'Parent',
+  sibling: 'Sibling',
+  family: 'Family member',
+  friend: 'Friend',
+  colleague: 'Colleague',
+};
 
 async function getIsFavorite(
   memorialId: string,
@@ -387,6 +401,12 @@ export default async function MemorialPage({
             <span className="font-display font-bold not-italic text-foreground">
               {isOwner ? tBadge('you') : tBadge('family')}
             </span>
+            {places.relationship && RELATIONSHIP_LABELS[places.relationship] && (
+              <span className="text-muted-foreground">
+                {' · '}
+                {RELATIONSHIP_LABELS[places.relationship]}
+              </span>
+            )}
           </span>
         }
         adminAction={
