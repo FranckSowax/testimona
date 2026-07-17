@@ -1,5 +1,6 @@
 'use server';
 
+import { randomUUID } from 'node:crypto';
 import { MemorialCreateSchema } from '@testimona/shared';
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
@@ -62,6 +63,12 @@ export async function createMemorialAction(
     String(formData.get('musicUrl') ?? '').trim().slice(0, 500) || null;
 
   const { error } = await supabase.from('Memorial').insert({
+    // Explicit id: the base "Memorial" table was created by Prisma db push,
+    // whose @default(uuid()) is generated client-side only — Postgres has no
+    // column default. Inserting via supabase-js (not Prisma) without an id
+    // fails with `null value in column "id"`. Same defensive pattern as the
+    // Biography insert.
+    id: randomUUID(),
     ownerId: userData.user.id,
     slug,
     firstname: parsed.data.firstname,
