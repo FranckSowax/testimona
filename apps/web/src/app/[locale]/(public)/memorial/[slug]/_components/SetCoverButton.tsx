@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { setCoverPhotoAction, type PhotoActionState } from '../photo-actions';
 
 /**
@@ -20,6 +21,7 @@ export function SetCoverButton({
   slug: string;
   isCover: boolean;
 }) {
+  const t = useTranslations('memorial.setCover');
   const router = useRouter();
   const [state, formAction, isPending] = useActionState<
     PhotoActionState | null,
@@ -36,7 +38,7 @@ export function SetCoverButton({
         <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.8 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" />
         </svg>
-        Couverture
+        {t('cover')}
       </div>
     );
   }
@@ -49,7 +51,7 @@ export function SetCoverButton({
       <button
         type="submit"
         disabled={isPending}
-        title="Définir comme photo de couverture"
+        title={t('setAsCover')}
         className="press-scale flex w-full items-center justify-center gap-1 px-2 py-1 font-display text-[10px] font-bold uppercase tracking-wider text-muted-foreground transition-colors hover:text-accent disabled:opacity-50"
       >
         <svg
@@ -65,7 +67,7 @@ export function SetCoverButton({
         >
           <path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.8 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" />
         </svg>
-        {isPending ? '…' : 'Couverture'}
+        {isPending ? '…' : t('cover')}
       </button>
       {state?.error && (
         <p className="px-2 pb-1 text-center text-[10px] text-destructive">{state.error}</p>

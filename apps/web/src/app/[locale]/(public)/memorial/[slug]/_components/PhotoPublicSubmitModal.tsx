@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   submitPublicPhotoAction,
   type PhotoActionState,
@@ -31,6 +32,7 @@ export function PhotoPublicSubmitModal({
   prefillName,
   prefillEmail,
 }: Props) {
+  const t = useTranslations('memorial.photoSubmit');
   const router = useRouter();
   const [state, formAction, isPending] = useActionState<
     PhotoActionState | null,
@@ -102,7 +104,7 @@ export function PhotoPublicSubmitModal({
           <path d="M21 17l-5-5-5 5" />
           <path d="M16 3v4M14 5h4" />
         </svg>
-        Proposer une photo
+        {t('propose')}
       </button>
 
       {open && mounted &&
@@ -110,12 +112,12 @@ export function PhotoPublicSubmitModal({
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="Proposer une photo"
+            aria-label={t('propose')}
             className="fixed inset-0 z-[var(--z-modal)] flex items-end justify-center sm:items-center"
           >
             <button
               type="button"
-              aria-label="Fermer"
+              aria-label={t('close')}
               onClick={() => !isPending && setOpen(false)}
               className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
             />
@@ -123,16 +125,16 @@ export function PhotoPublicSubmitModal({
               <header className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
                 <div>
                   <p className="font-display text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                    Photo pour {memorialName}
+                    {t('forMemorial', { name: memorialName })}
                   </p>
                   <h2 className="font-display text-lg font-bold text-foreground">
-                    Proposer une photo
+                    {t('propose')}
                   </h2>
                 </div>
                 <button
                   type="button"
                   onClick={() => !isPending && setOpen(false)}
-                  aria-label="Fermer"
+                  aria-label={t('close')}
                   disabled={isPending}
                   className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
                 >
@@ -152,7 +154,7 @@ export function PhotoPublicSubmitModal({
 
                 <label className="block">
                   <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Photo *
+                    {t('photoLabel')}
                   </span>
                   <div className="mt-1">
                     <input
@@ -170,7 +172,7 @@ export function PhotoPublicSubmitModal({
                     </p>
                   )}
                   <p className="mt-1 text-[11px] text-muted-foreground">
-                    JPG, PNG ou WebP · 10 Mo max.
+                    {t('fileHint')}
                   </p>
                 </label>
 
@@ -179,7 +181,7 @@ export function PhotoPublicSubmitModal({
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={filePreview}
-                      alt="Aperçu de la photo"
+                      alt={t('previewAlt')}
                       className="aspect-square w-full object-cover"
                     />
                   </div>
@@ -187,13 +189,13 @@ export function PhotoPublicSubmitModal({
 
                 <label className="mt-4 block">
                   <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Légende (optionnel)
+                    {t('captionLabel')}
                   </span>
                   <textarea
                     name="caption"
                     rows={2}
                     maxLength={500}
-                    placeholder="Anniversaire d'Henri en 1982, jardin familial…"
+                    placeholder={t('captionPlaceholder')}
                     className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2.5 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
                   />
                 </label>
@@ -201,7 +203,7 @@ export function PhotoPublicSubmitModal({
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <label className="block">
                     <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      Votre nom *
+                      {t('nameLabel')}
                     </span>
                     <input
                       name="submitterName"
@@ -220,7 +222,7 @@ export function PhotoPublicSubmitModal({
                   </label>
                   <label className="block">
                     <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      Email <span className="font-normal text-foreground/60">(optionnel)</span>
+                      {t('emailLabel')} <span className="font-normal text-foreground/60">{t('emailOptional')}</span>
                     </span>
                     <input
                       name="submitterEmail"
@@ -248,22 +250,20 @@ export function PhotoPublicSubmitModal({
                 )}
                 {state?.ok && (
                   <p className="mt-4 rounded-md border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700">
-                    Merci ! Votre photo est publiée. La famille pourra la
-                    retirer si nécessaire.
+                    {t('successMessage')}
                   </p>
                 )}
 
                 <div className="mt-5 flex items-center justify-between gap-3">
                   <p className="text-[11px] italic text-muted-foreground">
-                    Les photos sont publiées aussitôt et revues a posteriori
-                    par la famille.
+                    {t('moderationNote')}
                   </p>
                   <button
                     type="submit"
                     disabled={isPending || !!state?.ok}
                     className="press-scale rounded-md bg-primary px-5 py-2.5 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
                   >
-                    {isPending ? 'Envoi…' : state?.ok ? 'Envoyée ✓' : 'Envoyer'}
+                    {isPending ? t('sending') : state?.ok ? t('sent') : t('send')}
                   </button>
                 </div>
               </form>

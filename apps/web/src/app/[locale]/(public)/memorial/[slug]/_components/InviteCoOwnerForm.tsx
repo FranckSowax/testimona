@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   inviteCoOwnerAction,
   type MemberActionState,
@@ -14,6 +15,7 @@ export function InviteCoOwnerForm({
   memorialId: string;
   slug: string;
 }) {
+  const t = useTranslations('memorial.membersSection');
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction, pending] = useActionState<MemberActionState | null, FormData>(
@@ -37,7 +39,7 @@ export function InviteCoOwnerForm({
           name="email"
           type="email"
           required
-          placeholder="email@exemple.com"
+          placeholder={t('emailPlaceholder')}
           className="h-10 w-full rounded-md border border-border bg-white px-3 text-sm text-foreground focus:border-primary focus:outline-none"
         />
         {state?.fieldErrors?.email && (
@@ -49,7 +51,7 @@ export function InviteCoOwnerForm({
           </p>
         )}
         {state?.ok && (
-          <p className="mt-1 text-xs font-bold text-emerald-600">Invitation envoyée ✓</p>
+          <p className="mt-1 text-xs font-bold text-emerald-600">{t('inviteSent')}</p>
         )}
       </div>
       <button
@@ -57,7 +59,7 @@ export function InviteCoOwnerForm({
         disabled={pending}
         className="h-10 shrink-0 rounded-md bg-primary px-4 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
       >
-        {pending ? 'Envoi…' : 'Inviter'}
+        {pending ? t('sending') : t('invite')}
       </button>
     </form>
   );

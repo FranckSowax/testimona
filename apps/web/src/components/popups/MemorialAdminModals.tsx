@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ButtonOutlined } from '@/components/ui/ButtonOutlined';
 import { COUNTRIES, RELATIONSHIP_OPTIONS } from '@/lib/countries';
 import { PopupCard, PopupHeader } from './PopupCard';
@@ -43,6 +44,7 @@ export function MemorialFormPopup({
   onSubmit,
   submitting = false,
 }: MemorialFormPopupProps) {
+  const t = useTranslations('popups.memorialForm');
   const [v, setV] = useState<MemorialFormValues>({
     firstname: initial.firstname ?? '',
     lastname: initial.lastname ?? '',
@@ -89,20 +91,18 @@ export function MemorialFormPopup({
         !v.deathYear || !v.deathMonth || !v.deathDay || !v.deathCountry ||
         !v.relationship;
       if (missing) {
-        setLocalError('Tous les champs marqués * sont obligatoires, dates complètes (année, mois, jour) incluses.');
+        setLocalError(t('errorRequired'));
         return;
       }
       if (
         badDateTriplet(v.birthYear, v.birthMonth, v.birthDay) ||
         badDateTriplet(v.deathYear, v.deathMonth, v.deathDay)
       ) {
-        setLocalError(
-          `Vérifie les dates : année entre 1900 et ${new Date().getFullYear()}, mois 1–12, jour 1–31.`,
-        );
+        setLocalError(t('errorBadDate', { year: String(new Date().getFullYear()) }));
         return;
       }
     } else if (!v.firstname || !v.lastname || !v.deathYear) {
-      setLocalError('Renseigne au minimum le prénom, le nom et l’année de décès.');
+      setLocalError(t('errorMinimum'));
       return;
     }
 

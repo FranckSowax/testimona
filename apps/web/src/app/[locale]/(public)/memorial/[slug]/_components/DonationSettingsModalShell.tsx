@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { ButtonOutlined } from '@/components/ui/ButtonOutlined';
 import { PopupCard, PopupHeader } from '@/components/popups/PopupCard';
 import { updateDonationSettingsAction } from '../_actions/admin';
@@ -27,6 +28,7 @@ export function DonationSettingsModalShell({
   initialCurrency,
   initialAbout,
 }: Props) {
+  const t = useTranslations('memorial.donationSettings');
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -60,7 +62,7 @@ export function DonationSettingsModalShell({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Modifier la collecte"
+        aria-label={t('editAria')}
         className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-[var(--color-bg-hover-gray)] hover:text-foreground"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -69,14 +71,14 @@ export function DonationSettingsModalShell({
         </svg>
       </button>
 
-      <PopupCard open={open} onClose={() => setOpen(false)} ariaLabel="Modifier la collecte" width="lg">
+      <PopupCard open={open} onClose={() => setOpen(false)} ariaLabel={t('editAria')} width="lg">
         <div className="space-y-5">
-          <PopupHeader scriptTitle="Donation" subtitle="Edit goal" />
+          <PopupHeader scriptTitle={t('scriptTitle')} subtitle={t('subtitle')} />
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
                 <span className="block font-display text-sm font-medium text-muted-foreground">
-                  Objectif (montant cible)
+                  {t('goalLabel')}
                 </span>
                 <input
                   type="number"
@@ -90,7 +92,7 @@ export function DonationSettingsModalShell({
               </label>
               <label className="block">
                 <span className="block font-display text-sm font-medium text-muted-foreground">
-                  Devise
+                  {t('currencyLabel')}
                 </span>
                 <select
                   value={currency}
@@ -108,13 +110,13 @@ export function DonationSettingsModalShell({
 
             <label className="block">
               <span className="block font-display text-sm font-medium text-muted-foreground">
-                Mot à l&apos;attention des donateurs
+                {t('aboutLabel')}
               </span>
               <textarea
                 value={about}
                 onChange={(e) => setAbout(e.target.value.slice(0, 1000))}
                 rows={4}
-                placeholder="Expliquez à quoi servira la collecte…"
+                placeholder={t('aboutPlaceholder')}
                 className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-base text-foreground focus:border-primary focus:outline-none"
               />
               <span className="mt-1 block text-right text-xs italic text-muted-foreground">
@@ -130,10 +132,10 @@ export function DonationSettingsModalShell({
 
             <div className="flex justify-center gap-3 pt-2">
               <ButtonOutlined type="button" variant="thankyou-gray" size="md" onClick={() => setOpen(false)}>
-                Annuler
+                {t('cancel')}
               </ButtonOutlined>
               <ButtonOutlined type="submit" variant="popup-rose" size="md" loading={pending}>
-                Enregistrer
+                {t('save')}
               </ButtonOutlined>
             </div>
           </form>

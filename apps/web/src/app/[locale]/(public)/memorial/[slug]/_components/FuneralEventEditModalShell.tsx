@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   FuneralEventCreatePopup,
   type FuneralEventValues,
@@ -19,6 +20,8 @@ interface Props {
  * popup in `mode="edit"` pre-filled with the current values.
  */
 export function FuneralEventEditModalShell({ id, slug, initial }: Props) {
+  const t = useTranslations('memorial.funeralSection');
+  const tActions = useTranslations('memorial.actions');
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -43,7 +46,7 @@ export function FuneralEventEditModalShell({ id, slug, initial }: Props) {
         const result = await updateFuneralEventAction(null, fd);
         if (result?.error) {
           setError(
-            result.error === 'Validation' ? 'Vérifie les champs requis.' : result.error,
+            result.error === 'Validation' ? tActions('checkRequiredFields') : result.error,
           );
           resolve();
           return;
@@ -62,7 +65,7 @@ export function FuneralEventEditModalShell({ id, slug, initial }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Modifier cet événement"
+        aria-label={t('editEventAria')}
         className="inline-flex h-8 items-center gap-1 rounded-md border border-border bg-white px-2.5 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
       >
         <svg
@@ -79,7 +82,7 @@ export function FuneralEventEditModalShell({ id, slug, initial }: Props) {
           <path d="M12 20h9" />
           <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
         </svg>
-        Modifier
+        {t('editEvent')}
       </button>
       <FuneralEventCreatePopup
         open={open}

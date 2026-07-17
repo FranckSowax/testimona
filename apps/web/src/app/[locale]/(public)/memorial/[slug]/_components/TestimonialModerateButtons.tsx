@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   moderateTestimonialAction,
   type TestimonialActionState,
@@ -19,6 +20,7 @@ export function TestimonialModerateButtons({
   testimonialId: string;
   slug: string;
 }) {
+  const t = useTranslations('memorial.moderate');
   const [state, formAction, isPending] = useActionState<
     TestimonialActionState | null,
     FormData
@@ -38,7 +40,7 @@ export function TestimonialModerateButtons({
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M20 6 9 17l-5-5" />
             </svg>
-            Publier
+            {t('approve')}
           </button>
         </form>
         <form action={formAction} className="flex-1">
@@ -53,7 +55,7 @@ export function TestimonialModerateButtons({
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
-            Refuser
+            {t('reject')}
           </button>
         </form>
       </div>

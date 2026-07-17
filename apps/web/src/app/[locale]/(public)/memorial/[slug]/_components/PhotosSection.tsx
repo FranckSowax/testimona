@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { getTranslations } from 'next-intl/server';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { PhotoUploader } from './PhotoUploader';
@@ -135,6 +136,7 @@ export async function PhotosSection({
   });
 
   const pendingCount = photos.filter((p) => p.status === 'pending').length;
+  const t = await getTranslations('memorial.photosSection');
   const memorialName = `${memorial.firstname} ${memorial.lastname}`.trim();
 
   // Which photo is the cover: explicit coverPhotoId, else the first approved
@@ -159,16 +161,15 @@ export async function PhotosSection({
   return (
     <section aria-labelledby="photos-heading" className="space-y-4">
       <h2 id="photos-heading" className="sr-only">
-        Photos
+        {t('heading')}
       </h2>
 
       {isOwner && pendingCount > 0 && (
         <p className="rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-sm text-foreground/80">
           <span className="font-display font-bold text-foreground">
-            {pendingCount} photo{pendingCount > 1 ? 's' : ''}
+            {t('pendingCount', { count: pendingCount })}
           </span>{' '}
-          proposée{pendingCount > 1 ? 's' : ''} par des visiteurs, en attente de
-          votre validation.
+          {t('pendingSuggested', { count: pendingCount })}
         </p>
       )}
 
@@ -184,8 +185,7 @@ export async function PhotosSection({
           prefillEmail={user?.email ?? undefined}
         />
         <p className="text-center text-xs text-muted-foreground">
-          Vous avez une photo du défunt ? Partagez-la — elle est publiée
-          aussitôt ; la famille pourra la retirer si besoin.
+          {t('shareHint')}
         </p>
       </div>
 
@@ -206,11 +206,11 @@ export async function PhotosSection({
                 {isPending && (
                   <div className="flex items-center justify-between gap-2 bg-accent/10 px-2 py-1">
                     <span className="font-display text-[10px] font-bold uppercase tracking-wider text-accent">
-                      À valider
+                      {t('toValidate')}
                     </span>
                     {p.submittedByName && (
                       <span className="truncate text-[10px] text-muted-foreground">
-                        par {p.submittedByName}
+                        {t('submittedBy', { name: p.submittedByName })}
                       </span>
                     )}
                   </div>
@@ -265,12 +265,11 @@ export async function PhotosSection({
         </ul>
       ) : isOwner ? (
         <p className="mt-2 rounded-md border border-dashed border-border bg-surface px-4 py-6 text-center text-sm italic text-muted-foreground">
-          Aucune photo encore. Glisse-dépose ou choisis un fichier ci-dessus
-          pour commencer le mémorial.
+          {t('emptyOwner')}
         </p>
       ) : (
         <p className="rounded-md border border-dashed border-border bg-surface px-4 py-6 text-center text-sm italic text-muted-foreground">
-          Aucune photo pour le moment. Soyez le premier à en proposer une.
+          {t('emptyPublic')}
         </p>
       )}
 

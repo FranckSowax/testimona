@@ -42,7 +42,7 @@ export function ChapterCreateModalShell({
         const result = await createChapterAction(null, fd);
         if (result?.error) {
           setError(
-            result.error === 'Validation' ? 'Vérifie les champs requis.' : result.error,
+            result.error === 'Validation' ? tActions('checkRequiredFields') : result.error,
           );
           resolve();
           return;

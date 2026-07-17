@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useId, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 import { ScrollTrigger } from '@/lib/gsap/setup';
 
 export interface TabItem {
@@ -10,6 +11,7 @@ export interface TabItem {
 }
 
 export function MemorialTabs({ tabs }: { tabs: TabItem[] }) {
+  const t = useTranslations('memorial');
   const [activeId, setActiveId] = useState<string>(tabs[0]?.id ?? '');
   const baseId = useId();
 
@@ -64,7 +66,7 @@ export function MemorialTabs({ tabs }: { tabs: TabItem[] }) {
     <div className="mt-8">
       <div
         role="tablist"
-        aria-label="Sections du mémorial"
+        aria-label={t('tabsAria')}
         className="flex flex-nowrap items-center justify-start gap-2 overflow-x-auto border-b border-border [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:justify-center sm:gap-6"
       >
         {tabs.map((t, i) => {

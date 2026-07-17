@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   submitTestimonialAction,
   type TestimonialActionState,
@@ -34,6 +35,7 @@ export function TestimonialPublicForm({
   isLoggedIn,
   prefill,
 }: Props) {
+  const t = useTranslations('memorial.testimonialForm');
   const router = useRouter();
   const [state, formAction, isPending] = useActionState<
     TestimonialActionState | null,
@@ -63,11 +65,10 @@ export function TestimonialPublicForm({
           href={`/login?next=/memorial/${slug}`}
           className="press-scale rounded-md bg-primary px-5 py-2.5 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
         >
-          Se connecter pour témoigner
+          {t('signinCta')}
         </a>
         <p className="text-xs text-muted-foreground">
-          Pour garantir la qualité des messages, un compte est nécessaire pour
-          publier un témoignage.
+          {t('signinHelp')}
         </p>
       </div>
     );
@@ -81,10 +82,10 @@ export function TestimonialPublicForm({
           onClick={() => setOpen(true)}
           className="press-scale rounded-md bg-primary px-5 py-2.5 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
         >
-          Laisser un témoignage
+          {t('leaveCta')}
         </button>
         <p className="text-xs text-muted-foreground">
-          Votre message sera publié après validation par la famille.
+          {t('leaveHelp')}
         </p>
       </div>
     );
@@ -103,16 +104,16 @@ export function TestimonialPublicForm({
       <header className="flex items-baseline justify-between gap-3">
         <div>
           <p className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Témoignage pour {memorialName}
+            {t('forMemorial', { name: memorialName })}
           </p>
           <h3 className="font-display text-lg font-bold text-foreground">
-            Partager un souvenir
+            {t('shareMemory')}
           </h3>
         </div>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          aria-label="Fermer"
+          aria-label={t('close')}
           className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -124,7 +125,7 @@ export function TestimonialPublicForm({
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block">
           <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Prénom *
+            {t('firstname')}
           </span>
           <input
             name="authorFirstname"
@@ -143,7 +144,7 @@ export function TestimonialPublicForm({
         </label>
         <label className="block">
           <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Nom *
+            {t('lastname')}
           </span>
           <input
             name="authorName"
@@ -164,20 +165,20 @@ export function TestimonialPublicForm({
 
       <label className="block">
         <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          Lien de famille <span className="font-normal text-foreground/60">(optionnel — ex. Petite-fille, Ami)</span>
+          {t('relationshipLabel')} <span className="font-normal text-foreground/60">{t('relationshipHint')}</span>
         </span>
         <input
           name="authorRelationship"
           type="text"
           maxLength={60}
-          placeholder="Petite-fille"
+          placeholder={t('relationshipPlaceholder')}
           className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
         />
       </label>
 
       <label className="block">
         <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          Email <span className="font-normal text-foreground/60">(optionnel — pour vous notifier)</span>
+          {t('emailLabel')} <span className="font-normal text-foreground/60">{t('emailHint')}</span>
         </span>
         <input
           name="authorEmail"
@@ -196,7 +197,7 @@ export function TestimonialPublicForm({
 
       <label className="block">
         <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          Votre message *
+          {t('messageLabel')}
         </span>
         <textarea
           name="message"
@@ -204,7 +205,7 @@ export function TestimonialPublicForm({
           rows={5}
           minLength={10}
           maxLength={2000}
-          placeholder="Un souvenir, une anecdote, un message d'hommage…"
+          placeholder={t('messagePlaceholder')}
           className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2.5 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
         />
         {state?.fieldErrors?.message && (
@@ -224,21 +225,20 @@ export function TestimonialPublicForm({
       )}
       {state?.ok && (
         <p className="rounded-md border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700">
-          Merci ! Votre témoignage a été envoyé. Il apparaîtra après
-          validation par la famille.
+          {t('successMessage')}
         </p>
       )}
 
       <div className="flex items-center justify-between gap-3">
         <p className="text-[11px] italic text-muted-foreground">
-          Tous les témoignages sont relus avant publication.
+          {t('moderationNote')}
         </p>
         <button
           type="submit"
           disabled={isPending}
           className="press-scale rounded-md bg-primary px-5 py-2.5 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
         >
-          {isPending ? 'Envoi…' : 'Publier'}
+          {isPending ? t('sending') : t('publish')}
         </button>
       </div>
     </form>

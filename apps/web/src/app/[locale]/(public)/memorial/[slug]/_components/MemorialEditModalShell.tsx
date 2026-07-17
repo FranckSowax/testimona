@@ -66,7 +66,7 @@ export function MemorialEditModalShell({
         const result = await updateMemorialAction(null, fd);
         if (result?.error) {
           setError(
-            result.error === 'Validation' ? 'Vérifie les champs requis.' : result.error,
+            result.error === 'Validation' ? tActions('checkRequiredFields') : result.error,
           );
           resolve();
           return;

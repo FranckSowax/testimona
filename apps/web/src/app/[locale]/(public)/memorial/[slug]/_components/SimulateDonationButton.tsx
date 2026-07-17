@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   simulateDonationAction,
   type SimulateDonationState,
@@ -21,6 +22,7 @@ export function SimulateDonationButton({
   memorialId: string;
   slug: string;
 }) {
+  const t = useTranslations('memorial.simulateDonation');
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState<
@@ -41,9 +43,9 @@ export function SimulateDonationButton({
         type="button"
         onClick={() => setOpen(true)}
         className="press-scale rounded-md border border-dashed border-border px-2 py-1 font-display text-[11px] font-bold uppercase tracking-wider text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-        title="Créditer un don de test (sans paiement)"
+        title={t('buttonTitle')}
       >
-        Don de test
+        {t('button')}
       </button>
     );
   }
@@ -56,7 +58,7 @@ export function SimulateDonationButton({
       <input type="hidden" name="memorialId" value={memorialId} />
       <input type="hidden" name="slug" value={slug} />
       <p className="font-display text-xs font-bold text-foreground">
-        Don de test (simulation, sans paiement)
+        {t('formTitle')}
       </p>
       <div className="flex gap-2">
         <input
@@ -65,7 +67,7 @@ export function SimulateDonationButton({
           min="1"
           step="1"
           required
-          placeholder="Montant"
+          placeholder={t('amount')}
           className="w-24 rounded-md border border-border bg-white px-2 py-1 text-sm"
         />
         <select
@@ -82,7 +84,7 @@ export function SimulateDonationButton({
         <input
           name="donorName"
           type="text"
-          placeholder="Nom (optionnel)"
+          placeholder={t('namePlaceholder')}
           className="flex-1 rounded-md border border-border bg-white px-2 py-1 text-sm"
         />
       </div>
@@ -93,14 +95,14 @@ export function SimulateDonationButton({
           onClick={() => setOpen(false)}
           className="press-scale rounded-md px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
         >
-          Annuler
+          {t('cancel')}
         </button>
         <button
           type="submit"
           disabled={isPending}
           className="press-scale rounded-md bg-primary px-3 py-1 text-xs font-bold text-white disabled:opacity-50"
         >
-          {isPending ? '…' : 'Créditer'}
+          {isPending ? '…' : t('credit')}
         </button>
       </div>
     </form>

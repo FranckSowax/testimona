@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslations } from 'next-intl';
 import { contributeToShopItemAction } from '../_actions/shop';
 
 interface Props {
@@ -15,6 +16,7 @@ export function ShopContributeButton({
   productName,
   unitPriceCents,
 }: Props) {
+  const t = useTranslations('memorial.shopContribute');
   const unitPriceEur = unitPriceCents / 100;
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -48,7 +50,7 @@ export function ShopContributeButton({
       if (message) fd.set('message', message);
       const res = await contributeToShopItemAction(null, fd);
       if (!res.ok) {
-        setError(res.error ?? 'Erreur');
+        setError(res.error ?? t('error'));
         return;
       }
       setOk(true);
@@ -66,7 +68,7 @@ export function ShopContributeButton({
         onClick={() => setOpen(true)}
         className="press-scale rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
       >
-        Contribuer
+        {t('contribute')}
       </button>
 
       {open && mounted &&
@@ -74,37 +76,37 @@ export function ShopContributeButton({
           <div
             role="dialog"
             aria-modal="true"
-            aria-label={`Contribuer à ${productName}`}
+            aria-label={t('contributeTo', { name: productName })}
             className="fixed inset-0 z-[var(--z-modal)] flex items-end justify-center sm:items-center"
           >
             <button
               type="button"
-              aria-label="Fermer"
+              aria-label={t('close')}
               onClick={() => setOpen(false)}
               className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
             />
             <div className="animate-slide-in-up relative z-10 w-full max-w-md rounded-t-2xl bg-white p-5 shadow-[var(--shadow-overlay)] sm:my-auto sm:rounded-2xl">
               <header className="mb-4">
                 <p className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Contribution
+                  {t('header')}
                 </p>
                 <h3 className="font-display text-lg font-bold text-foreground">
                   {productName}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  Prix unitaire : {(unitPriceCents / 100).toFixed(2)}€
+                  {t('unitPrice', { price: `${(unitPriceCents / 100).toFixed(2)}€` })}
                 </p>
               </header>
 
               <div className="space-y-3">
                 <div className="block">
                   <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Quantité
+                    {t('quantity')}
                   </span>
                   <div className="mt-1 flex items-center gap-3">
                     <button
                       type="button"
-                      aria-label="Diminuer la quantité"
+                      aria-label={t('decrease')}
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                       disabled={quantity <= 1}
                       className="press-scale inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-white text-xl font-bold text-foreground hover:bg-muted disabled:opacity-40"
@@ -123,7 +125,7 @@ export function ShopContributeButton({
                     />
                     <button
                       type="button"
-                      aria-label="Augmenter la quantité"
+                      aria-label={t('increase')}
                       onClick={() => setQuantity((q) => q + 1)}
                       className="press-scale inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-white text-xl font-bold text-foreground hover:bg-muted"
                     >
@@ -141,20 +143,20 @@ export function ShopContributeButton({
                 </div>
                 <label className="block">
                   <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Nom (optionnel)
+                    {t('name')}
                   </span>
                   <input
                     type="text"
                     value={donorName}
                     onChange={(e) => setDonorName(e.target.value)}
                     maxLength={80}
-                    placeholder="Anonyme si laissé vide"
+                    placeholder={t('namePlaceholder')}
                     className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
                   />
                 </label>
                 <label className="block">
                   <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Message (optionnel)
+                    {t('message')}
                   </span>
                   <textarea
                     value={message}
@@ -173,7 +175,7 @@ export function ShopContributeButton({
               )}
               {ok && (
                 <p className="mt-3 rounded-md border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700">
-                  Merci pour votre contribution ✓
+                  {t('thanks')}
                 </p>
               )}
 
@@ -183,7 +185,7 @@ export function ShopContributeButton({
                   onClick={() => setOpen(false)}
                   className="press-scale rounded-md border border-border bg-white px-3 py-2 font-display text-sm font-bold text-foreground hover:bg-muted"
                 >
-                  Annuler
+                  {t('cancel')}
                 </button>
                 <button
                   type="button"
@@ -191,13 +193,14 @@ export function ShopContributeButton({
                   disabled={isPending || ok || amount < 1}
                   className="press-scale rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
                 >
-                  {isPending ? 'Envoi…' : `Contribuer ${amount.toFixed(2)}€`}
+                  {isPending
+                    ? t('sending')
+                    : t('contributeAmount', { amount: `${amount.toFixed(2)}€` })}
                 </button>
               </div>
 
               <p className="mt-3 text-[11px] italic text-muted-foreground">
-                Mode demo — aucun paiement réel. Le passage en réel se fait via
-                Stripe.
+                {t('demoNote')}
               </p>
             </div>
           </div>,

@@ -123,7 +123,7 @@ export async function BiographySection({
 
       {chapters.length === 0 && !hasInfo && !isOwner && (
         <p className="text-sm italic text-muted-foreground">
-          Les proches publieront bientôt les chapitres de vie.
+          {t('emptyPublic')}
         </p>
       )}
 

@@ -111,23 +111,21 @@ export async function FuneralSection({
             {t('heading')}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Dates, lieux et plans d'accès des cérémonies.
+            {t('subtitle')}
           </p>
         </div>
         {isOwner && slug && (
           <FuneralEventCreateModalShell
             memorialId={memorialId}
             slug={slug}
-            ctaLabel="Ajouter un événement"
+            ctaLabel={t('addEvent')}
           />
         )}
       </header>
 
       {events.length === 0 ? (
         <p className="rounded-md border border-dashed border-border bg-surface px-6 py-12 text-center text-sm italic text-muted-foreground">
-          {isOwner
-            ? 'Aucun événement encore. Ajoute la veillée, la cérémonie et l\'inhumation pour que les proches puissent s\'y rendre.'
-            : 'Les informations sur les funérailles seront publiées par la famille.'}
+          {isOwner ? t('emptyOwner') : t('emptyPublic')}
         </p>
       ) : (
         <ol className="space-y-5">
@@ -143,7 +141,7 @@ export async function FuneralSection({
                   <div className="p-5 sm:p-6">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        Étape {i + 1}
+                        {t('step', { n: i + 1 })}
                       </p>
                       <div className="flex flex-wrap items-center gap-1.5">
                         <FuneralEventShareButton
@@ -178,7 +176,7 @@ export async function FuneralSection({
                       {formattedDate && (
                         <div className="flex items-baseline gap-2">
                           <dt className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground sm:w-16">
-                            Date
+                            {t('date')}
                           </dt>
                           <dd className="text-foreground">{formattedDate}</dd>
                         </div>
@@ -186,7 +184,7 @@ export async function FuneralSection({
                       {event.hour && (
                         <div className="flex items-baseline gap-2">
                           <dt className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground sm:w-16">
-                            Heure
+                            {t('time')}
                           </dt>
                           <dd className="text-foreground">{event.hour}</dd>
                         </div>
@@ -194,7 +192,7 @@ export async function FuneralSection({
                       {event.location && (
                         <div className="flex items-baseline gap-2">
                           <dt className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground sm:w-16">
-                            Lieu
+                            {t('location')}
                           </dt>
                           <dd className="text-foreground">{event.location}</dd>
                         </div>
@@ -202,7 +200,7 @@ export async function FuneralSection({
                       {event.address && (
                         <div className="flex items-baseline gap-2">
                           <dt className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground sm:w-16">
-                            Adresse
+                            {t('address')}
                           </dt>
                           <dd className="text-foreground">
                             {event.address}
@@ -212,7 +210,7 @@ export async function FuneralSection({
                               rel="noopener noreferrer"
                               className="ml-2 inline-block font-display text-xs font-bold text-primary hover:underline"
                             >
-                              Itinéraire →
+                              {t('directions')}
                             </a>
                           </dd>
                         </div>
@@ -220,7 +218,7 @@ export async function FuneralSection({
                       {event.url && (
                         <div className="flex items-baseline gap-2">
                           <dt className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground sm:w-16">
-                            Lien
+                            {t('link')}
                           </dt>
                           <dd className="min-w-0 text-foreground">
                             <a
@@ -237,7 +235,7 @@ export async function FuneralSection({
                       {event.note && (
                         <div className="flex items-baseline gap-2">
                           <dt className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground sm:w-16">
-                            Note
+                            {t('note')}
                           </dt>
                           <dd className="whitespace-pre-line text-foreground">{event.note}</dd>
                         </div>
@@ -249,7 +247,7 @@ export async function FuneralSection({
                     <div className="relative min-h-[220px] border-t border-border sm:border-l sm:border-t-0">
                       <iframe
                         src={mapsEmbedSrc(event.address)}
-                        title={`Carte ${event.title}`}
+                        title={t('mapTitle', { title: event.title })}
                         loading="lazy"
                         referrerPolicy="no-referrer-when-downgrade"
                         className="absolute inset-0 h-full w-full"

@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import {
   ClipsList,
@@ -36,6 +37,7 @@ export async function MemorialClipsSection({
   memorialName: string;
   slug: string;
 }) {
+  const t = await getTranslations('memorial.clipsSection');
   const supabase = getSupabaseAdminClient();
   const { data } = await supabase
     .from('MemorialClip')
@@ -79,31 +81,27 @@ export async function MemorialClipsSection({
           id="memorial-clips-heading"
           className="font-display text-2xl font-bold text-foreground"
         >
-          Clips animés
+          {t('heading')}
         </h2>
         <p className="text-sm text-muted-foreground">
-          Retrouve ici toutes les vidéos générées pour ce mémorial. Les clips
-          validés apparaissent dans le diaporama public (déclenché par le
-          bouton lecture sur la photo de couverture). Tu peux regénérer un
-          clip si le résultat ne te plaît pas — chaque regénération coûte un
-          crédit Testimona.
+          {t('intro')}
         </p>
       </header>
 
       {clips.length > 0 && (
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-3">
           <Tile
-            label="Validés"
+            label={t('validated')}
             value={validatedCount}
             tone="ready"
           />
           <Tile
-            label="À valider"
+            label={t('toValidate')}
             value={readyUnvalidatedCount}
             tone={readyUnvalidatedCount > 0 ? 'accent' : 'neutral'}
           />
           <Tile
-            label="En génération"
+            label={t('generating')}
             value={pendingCount}
             tone={pendingCount > 0 ? 'processing' : 'neutral'}
           />
@@ -114,8 +112,9 @@ export async function MemorialClipsSection({
 
       {clips.length === 0 ? null : (
         <p className="rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-xs text-foreground/80">
-          Pour générer un nouveau clip, ouvre le bouton ✨ <strong>Animer les
-          photos (IA)</strong> sur la photo de couverture du mémorial.
+          {t.rich('footer', {
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </p>
       )}
     </section>

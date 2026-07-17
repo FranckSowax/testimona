@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 /**
  * Share control for a single funeral event (PDF p39 "ajouter un bouton
@@ -14,6 +15,7 @@ export function FuneralEventShareButton({
   url: string;
   title: string;
 }) {
+  const t = useTranslations('memorial.funeralSection');
   const [copied, setCopied] = useState(false);
 
   async function onShare() {
@@ -39,7 +41,7 @@ export function FuneralEventShareButton({
     <button
       type="button"
       onClick={onShare}
-      aria-label="Partager cet événement"
+      aria-label={t('shareEventAria')}
       className="inline-flex h-8 items-center gap-1 rounded-md border border-border bg-white px-2.5 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
     >
       <svg
@@ -59,7 +61,7 @@ export function FuneralEventShareButton({
         <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
         <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
       </svg>
-      {copied ? 'Lien copié' : 'Partager'}
+      {copied ? t('linkCopied') : t('shareEvent')}
     </button>
   );
 }

@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslations } from 'next-intl';
 
 export interface StoryPhoto {
   id: string;
@@ -87,6 +88,7 @@ export function PhotoStoryViewer({
   durationMs,
   labels,
 }: Props) {
+  const t = useTranslations('memorial.coverSidebar.story');
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [filter, setFilter] = useState<Filter>('none');
@@ -405,7 +407,7 @@ export function PhotoStoryViewer({
             onClick={() => setSettingsOpen(true)}
             aria-haspopup="dialog"
             aria-expanded={settingsOpen}
-            aria-label="Réglages"
+            aria-label={t('settings')}
             className="flex flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 font-display text-[11px] font-bold uppercase tracking-wider text-white/90 transition-colors hover:bg-white/10"
           >
             <span className="truncate">
@@ -428,7 +430,7 @@ export function PhotoStoryViewer({
           <button
             type="button"
             onClick={() => setSettingsOpen(true)}
-            aria-label="Réglages"
+            aria-label={t('settings')}
             className="press-scale inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -444,12 +446,12 @@ export function PhotoStoryViewer({
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Réglages du diaporama"
+          aria-label={t('settingsDialog')}
           className="absolute inset-0 z-30 flex items-end"
         >
           <button
             type="button"
-            aria-label="Fermer les réglages"
+            aria-label={t('closeSettings')}
             onClick={() => setSettingsOpen(false)}
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
           />
@@ -458,7 +460,7 @@ export function PhotoStoryViewer({
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/30" aria-hidden="true" />
 
             <div className="space-y-5">
-              <Section title={labels.filterNone === 'Original' ? 'Filtre' : 'Filter'}>
+              <Section title={t('filterTitle')}>
                 <SegPill
                   label={labels.filterNone}
                   active={filter === 'none'}
@@ -476,7 +478,7 @@ export function PhotoStoryViewer({
                 />
               </Section>
 
-              <Section title="Effets">
+              <Section title={t('effectsTitle')}>
                 <ToggleChip
                   label={labels.kenBurns}
                   active={kenBurns}
@@ -494,7 +496,7 @@ export function PhotoStoryViewer({
                 />
               </Section>
 
-              <Section title="Transition">
+              <Section title={t('transitionTitle')}>
                 <SegPill
                   label={labels.swipe}
                   active={transition === 'swipe'}

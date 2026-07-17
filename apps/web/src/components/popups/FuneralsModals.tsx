@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ButtonOutlined } from '@/components/ui/ButtonOutlined';
 import { parseLocation, mapsEmbedSrc } from '@/lib/geo/maps';
 import { PopupCard, PopupHeader } from './PopupCard';
@@ -115,6 +116,7 @@ export function FuneralEventCreatePopup({
   initial,
   mode = 'create',
 }: FuneralEventCreatePopupProps) {
+  const t = useTranslations('popups.funeralEvent');
   const [v, setV] = useState<FuneralEventValues>({
     title: initial?.title ?? '',
     date: initial?.date ?? '',
@@ -184,12 +186,12 @@ export function FuneralEventCreatePopup({
           </label>
 
           <Field
-            label="Lieu — nom du lieu"
+            label={t('locationName')}
             value={v.location ?? ''}
             onChange={(val) => set('location', val)}
           />
           <Field
-            label="Adresse complète ou lien Google Maps"
+            label={t('address')}
             value={v.address ?? ''}
             onChange={(val) => set('address', val)}
           />
@@ -214,15 +216,15 @@ export function FuneralEventCreatePopup({
                 >
                   {recognised
                     ? loc.kind === 'coords'
-                      ? '✓ Localisation reconnue (coordonnées)'
-                      : '✓ Lien Google Maps reconnu'
-                    : 'Aperçu indicatif — l’adresse n’est pas vérifiée. Pour une position exacte, colle un lien Google Maps ou des coordonnées.'}
+                      ? t('previewCoords')
+                      : t('previewMaps')
+                    : t('previewUnverified')}
                 </p>
                 {embed && (
                   <div className="rounded-lg overflow-hidden border border-border">
                     <iframe
                       src={embed}
-                      title="Aperçu carte"
+                      title={t('mapPreviewTitle')}
                       className="h-48 w-full"
                       loading="lazy"
                       referrerPolicy="no-referrer-when-downgrade"

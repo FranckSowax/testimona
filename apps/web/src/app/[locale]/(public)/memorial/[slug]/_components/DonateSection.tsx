@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { unsplashAvatarFor } from '@/lib/avatars';
 import { DonateModalShell } from './DonateModalShell';
@@ -44,7 +45,11 @@ export async function DonateSection({
   slug: string;
   isOwner?: boolean;
 }) {
-  const [user, meta] = await Promise.all([getCurrentUser(), getMemorialMeta(memorialId)]);
+  const [user, meta, t] = await Promise.all([
+    getCurrentUser(),
+    getMemorialMeta(memorialId),
+    getTranslations('memorial.donateSection'),
+  ]);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
   const shareUrl = `${siteUrl}/memorial/${slug}#donate`;
   const userMeta = (user?.user_metadata ?? null) as
@@ -58,7 +63,7 @@ export async function DonateSection({
   return (
     <section aria-labelledby="donate-heading" className="space-y-6">
       <h2 id="donate-heading" className="sr-only">
-        Faire un don en hommage
+        {t('heading')}
       </h2>
 
       {/* PDF p29 — bouton de don placé en haut du carré fundraising goal. */}

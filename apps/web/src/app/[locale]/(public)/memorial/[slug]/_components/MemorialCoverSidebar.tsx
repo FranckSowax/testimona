@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { ButtonIcon } from '@/components/ui/ButtonIcon';
 import { PhotoStoryViewer, type StoryPhoto } from './PhotoStoryViewer';
 import { MemorialShareDialog } from './MemorialShareDialog';
@@ -85,6 +86,7 @@ export function MemorialCoverSidebar({
   isFavoriteInitial,
   labels,
 }: Props) {
+  const t = useTranslations('memorial.coverSidebar');
   const [storyOpen, setStoryOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(isFavoriteInitial);
@@ -171,7 +173,7 @@ export function MemorialCoverSidebar({
       {/* Animate photos (owner only) — sparkles icon, universal AI affordance */}
       {isOwner && (
         <ButtonIcon
-          label="Animer les photos (IA)"
+          label={t('animatePhotos')}
           tone="default"
           size="sm"
           onClick={openAnimate}
@@ -249,7 +251,7 @@ export function MemorialCoverSidebar({
         open={shareOpen}
         onClose={() => setShareOpen(false)}
         url={shareUrl}
-        title={`En mémoire de ${fullName}`}
+        title={t('shareTitle', { name: fullName })}
         labels={labels.shareDialog}
       />
     </>

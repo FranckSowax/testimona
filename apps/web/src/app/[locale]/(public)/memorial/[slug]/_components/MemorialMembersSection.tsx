@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { InviteCoOwnerForm } from './InviteCoOwnerForm';
 import { MemberRemoveButton } from './MemberRemoveButton';
@@ -21,6 +22,7 @@ export async function MemorialMembersSection({
   memorialId: string;
   slug: string;
 }) {
+  const t = await getTranslations('memorial.membersSection');
   const adminDb = getSupabaseAdminClient();
   const { data: rows } = await adminDb
     .from('MemorialMember')
@@ -48,11 +50,10 @@ export async function MemorialMembersSection({
     <section className="mt-8 rounded-lg border border-border bg-white p-5 shadow-sm">
       <header className="mb-3">
         <h3 className="font-display text-base font-bold text-foreground">
-          Co-administrateurs
+          {t('title')}
         </h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          Invitez d&apos;autres proches à gérer cette page. Ils recevront un
-          e-mail et pourront accepter ou refuser.
+          {t('subtitle')}
         </p>
       </header>
 
@@ -74,7 +75,7 @@ export async function MemorialMembersSection({
                       : 'bg-accent/15 text-accent',
                   ].join(' ')}
                 >
-                  {m.status === 'accepted' ? 'Administrateur' : 'Invitation en attente'}
+                  {m.status === 'accepted' ? t('admin') : t('pendingInvite')}
                 </span>
               </span>
               <MemberRemoveButton memberId={m.id} slug={slug} />

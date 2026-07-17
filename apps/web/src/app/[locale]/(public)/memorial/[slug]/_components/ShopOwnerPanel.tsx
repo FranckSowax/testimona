@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   generateMemorialVisualAction,
   addShopItemAction,
@@ -52,6 +53,7 @@ export function ShopOwnerPanel({
   existingProductIds,
   mockupsInProgress = false,
 }: ShopOwnerPanelProps) {
+  const t = useTranslations('memorial.shopOwner');
   const router = useRouter();
   const [, startTransition] = useTransition();
   const hasProcessing = processingVisuals.length > 0;
@@ -87,7 +89,7 @@ export function ShopOwnerPanel({
       className="rounded-xl border border-dashed border-primary/40 bg-primary/5 p-5"
     >
       <summary className="cursor-pointer font-display text-sm font-bold uppercase tracking-wider text-primary">
-        Gestion boutique (propriétaire)
+        {t('title')}
       </summary>
 
       <div className="mt-5 space-y-6">
@@ -122,6 +124,7 @@ function GenerateVisualBlock({
   hasProcessing: boolean;
   readyVisuals: VisualMin[];
 }) {
+  const t = useTranslations('memorial.shopOwner');
   const [state, formAction, isPending] = useActionState<
     ShopActionState | null,
     FormData
@@ -133,16 +136,15 @@ function GenerateVisualBlock({
   return (
     <div className="rounded-lg bg-white p-4">
       <h3 className="font-display text-base font-bold text-foreground">
-        1. Générer le visuel commémoratif
+        {t('step1Title')}
       </h3>
       <p className="mt-1 text-xs text-muted-foreground">
-        Choisis une photo du défunt — notre IA en tire un portrait sublimé,
-        sobre et digne, qui sera appliqué sur les objets de la boutique.
+        {t('step1Desc')}
       </p>
 
       {photos.length === 0 ? (
         <p className="mt-3 rounded-md border border-dashed border-border bg-surface px-3 py-2 text-xs italic text-muted-foreground">
-          Ajoute d'abord des photos dans l'onglet Photos.
+          {t('noPhotos')}
         </p>
       ) : (
         <form action={formAction} className="mt-3 space-y-3">
@@ -183,30 +185,28 @@ function GenerateVisualBlock({
 
           <label className="block">
             <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Précision (optionnel)
+              {t('precision')}
             </span>
             <input
               type="text"
               name="extraPrompt"
               maxLength={200}
-              placeholder="Ex: en costume traditionnel, lumière de coucher de soleil…"
+              placeholder={t('precisionPlaceholder')}
               className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
             />
           </label>
 
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-xs text-muted-foreground">
-              {readyVisuals.length} visuel{readyVisuals.length > 1 ? 's' : ''}{' '}
-              prêt{readyVisuals.length > 1 ? 's' : ''}
-              {hasProcessing &&
-                ` · ${hasProcessing ? 'génération en cours' : ''}`}
+              {t('visualsReady', { count: readyVisuals.length })}
+              {hasProcessing && ` · ${t('generating')}`}
             </p>
             <button
               type="submit"
               disabled={isPending || !selectedPhotoId}
               className="press-scale rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
             >
-              {isPending ? 'Envoi…' : 'Générer un nouveau visuel'}
+              {isPending ? t('sending') : t('generateNew')}
             </button>
           </div>
 
@@ -221,7 +221,7 @@ function GenerateVisualBlock({
       {readyVisuals.length > 0 && (
         <div className="mt-4">
           <p className="mb-2 font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Visuels disponibles
+            {t('availableVisuals')}
           </p>
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {readyVisuals.map((v) => (
@@ -243,10 +243,7 @@ function GenerateVisualBlock({
             ))}
           </ul>
           <p className="mt-2 text-[11px] italic text-muted-foreground">
-            Le visuel à appliquer sur les objets de la boutique se choisit
-            ci-dessous, dans le menu déroulant « Visuel associé » à l'ajout
-            d'un article. Tu peux regénérer ou supprimer un visuel à tout
-            moment.
+            {t('visualsHelp')}
           </p>
         </div>
       )}
@@ -263,6 +260,7 @@ function AddShopItemBlock({
   readyVisuals: VisualMin[];
   existingProductIds: string[];
 }) {
+  const t = useTranslations('memorial.shopOwner');
   const [state, formAction, isPending] = useActionState<
     ShopActionState | null,
     FormData
@@ -281,11 +279,10 @@ function AddShopItemBlock({
   return (
     <div className="rounded-lg bg-white p-4">
       <h3 className="font-display text-base font-bold text-foreground">
-        2. Ajouter un objet à la boutique
+        {t('step2Title')}
       </h3>
       <p className="mt-1 text-xs text-muted-foreground">
-        Définis la quantité ciblée et le prix unitaire. Les donateurs pourront
-        contribuer pour financer chaque article.
+        {t('step2Desc')}
       </p>
 
       <form action={formAction} className="mt-3 space-y-3">
@@ -293,7 +290,7 @@ function AddShopItemBlock({
 
         <label className="block">
           <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Produit
+            {t('product')}
           </span>
           <select
             name="productId"
@@ -318,7 +315,7 @@ function AddShopItemBlock({
             {product.description}
             {inUse && (
               <span className="ml-2 inline-flex rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
-                déjà dans la boutique
+                {t('alreadyInShop')}
               </span>
             )}
           </p>
@@ -327,7 +324,7 @@ function AddShopItemBlock({
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
             <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Quantité visée
+              {t('targetQuantity')}
             </span>
             <input
               type="number"
@@ -340,7 +337,7 @@ function AddShopItemBlock({
           </label>
           <label className="block">
             <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Prix unitaire (€)
+              {t('unitPrice')}
             </span>
             <select
               key={productId}
@@ -370,17 +367,17 @@ function AddShopItemBlock({
         {readyVisuals.length > 0 && (
           <label className="block">
             <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Visuel associé (optionnel)
+              {t('associatedVisual')}
             </span>
             <select
               name="visualId"
               defaultValue={readyVisuals[0]?.id ?? ''}
               className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
             >
-              <option value="">— Aucun —</option>
+              <option value="">{t('none')}</option>
               {readyVisuals.map((v, i) => (
                 <option key={v.id} value={v.id}>
-                  Visuel #{i + 1}
+                  {t('visualNumber', { number: i + 1 })}
                 </option>
               ))}
             </select>
@@ -389,13 +386,13 @@ function AddShopItemBlock({
 
         <label className="block">
           <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Notes (optionnel)
+            {t('notes')}
           </span>
           <input
             type="text"
             name="notes"
             maxLength={200}
-            placeholder="Ex: couleurs noires et blanches, tailles M/L/XL…"
+            placeholder={t('notesPlaceholder')}
             className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
           />
         </label>
@@ -406,7 +403,7 @@ function AddShopItemBlock({
             disabled={isPending || inUse}
             className="press-scale rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {isPending ? 'Ajout…' : inUse ? 'Déjà dans la boutique' : 'Ajouter à la boutique'}
+            {isPending ? t('adding') : inUse ? t('alreadyInShopBtn') : t('addToShop')}
           </button>
         </div>
 

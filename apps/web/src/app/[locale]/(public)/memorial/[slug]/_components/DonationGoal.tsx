@@ -114,8 +114,7 @@ export async function DonationGoal({
         </p>
       ) : isOwner ? (
         <p className="mt-2 text-sm italic text-muted-foreground">
-          Ajoutez un mot à l&apos;attention des donateurs et un objectif de
-          collecte via le bouton ✎.
+          {t('ownerAboutHint')}
         </p>
       ) : null}
 

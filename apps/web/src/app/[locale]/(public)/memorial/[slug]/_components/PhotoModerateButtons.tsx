@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   moderatePhotoAction,
   type PhotoActionState,
@@ -17,6 +18,7 @@ export function PhotoModerateButtons({
   photoId: string;
   slug: string;
 }) {
+  const t = useTranslations('memorial.moderate');
   const [state, formAction, isPending] = useActionState<
     PhotoActionState | null,
     FormData
@@ -46,7 +48,7 @@ export function PhotoModerateButtons({
             >
               <path d="M20 6 9 17l-5-5" />
             </svg>
-            Publier
+            {t('approve')}
           </button>
         </form>
         <form action={formAction} className="flex-1">
@@ -71,7 +73,7 @@ export function PhotoModerateButtons({
             >
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
-            Refuser
+            {t('reject')}
           </button>
         </form>
       </div>

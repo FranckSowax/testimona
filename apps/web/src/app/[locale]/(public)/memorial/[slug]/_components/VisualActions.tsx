@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   regenerateMemorialVisualAction,
   deleteMemorialVisualAction,
@@ -14,6 +15,7 @@ import {
  * item using it loses its visualId via FK cascade).
  */
 export function VisualActions({ visualId }: { visualId: string }) {
+  const t = useTranslations('memorial.shopOwner');
   const [regenState, regenAction, regenPending] = useActionState<
     ShopActionState | null,
     FormData
@@ -30,7 +32,7 @@ export function VisualActions({ visualId }: { visualId: string }) {
         <button
           type="submit"
           disabled={regenPending}
-          aria-label="Regénérer un nouveau visuel à partir de la même photo"
+          aria-label={t('regenAria')}
           className="press-scale flex w-full items-center justify-center gap-1 rounded-md border border-accent/40 bg-white px-2 py-1 font-display text-[10px] font-bold uppercase tracking-wider text-accent transition-colors hover:bg-accent/5 disabled:opacity-50"
         >
           <svg
@@ -47,7 +49,7 @@ export function VisualActions({ visualId }: { visualId: string }) {
             <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
             <polyline points="3 3 3 8 8 8" />
           </svg>
-          Regen
+          {t('regenLabel')}
         </button>
       </form>
       <form action={delAction}>
@@ -55,7 +57,7 @@ export function VisualActions({ visualId }: { visualId: string }) {
         <button
           type="submit"
           disabled={delPending}
-          aria-label="Supprimer ce visuel"
+          aria-label={t('deleteVisualAria')}
           className="press-scale inline-flex h-6 w-6 items-center justify-center rounded-md border border-border bg-white text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive disabled:opacity-50"
         >
           <svg

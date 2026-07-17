@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ShareLinkButton } from '@/components/ui/ShareLinkButton';
 import {
   togglePhotoLikeAction,
@@ -39,6 +40,7 @@ export function PhotoActions({
   initialComments,
   isLoggedIn,
 }: Props) {
+  const t = useTranslations('memorial.photoActions');
   const [likes, setLikes] = useState(initialLikes);
   const [liked, setLiked] = useState(initiallyLiked);
   const [pending, startTransition] = useTransition();
@@ -68,7 +70,7 @@ export function PhotoActions({
       // Optimistic append (server revalidates the page too).
       setComments((list) => [
         ...list,
-        { id: `tmp-${list.length}`, authorName: 'Vous', message, createdAt: '' },
+        { id: `tmp-${list.length}`, authorName: t('you'), message, createdAt: '' },
       ]);
       setDraft('');
       router.refresh();
@@ -126,7 +128,7 @@ export function PhotoActions({
           onClick={toggleLike}
           disabled={pending}
           aria-pressed={liked}
-          aria-label={liked ? "Je n'aime plus" : "J'aime"}
+          aria-label={liked ? t('unlike') : t('like')}
           className={[
             'inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold transition-colors',
             liked ? 'text-accent' : 'hover:text-accent',
@@ -142,7 +144,7 @@ export function PhotoActions({
           type="button"
           onClick={() => setCommentsOpen((v) => !v)}
           aria-expanded={commentsOpen}
-          aria-label="Commentaires"
+          aria-label={t('comments')}
           className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold transition-colors hover:text-primary"
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -153,7 +155,7 @@ export function PhotoActions({
 
         <ShareLinkButton
           url={shareUrl}
-          title="Photo souvenir"
+          title={t('shareTitle')}
           className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:text-foreground"
         />
 
@@ -166,14 +168,14 @@ export function PhotoActions({
             }
             setReportOpen((v) => !v);
           }}
-          aria-label="Signaler"
+          aria-label={t('report')}
           className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold transition-colors hover:text-destructive"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
             <line x1="4" y1="22" x2="4" y2="15" />
           </svg>
-          {reportDone ? 'Signalé' : 'Signaler'}
+          {reportDone ? t('reported') : t('report')}
         </button>
       </div>
 
@@ -184,7 +186,7 @@ export function PhotoActions({
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             maxLength={500}
-            placeholder="Motif du signalement"
+            placeholder={t('reportPlaceholder')}
             className="h-8 min-w-0 flex-1 rounded-md border border-border bg-white px-2 text-xs text-foreground focus:border-primary focus:outline-none"
           />
           <button
@@ -192,7 +194,7 @@ export function PhotoActions({
             disabled={pending || !reason.trim()}
             className="h-8 shrink-0 rounded-md bg-destructive px-2.5 text-xs font-bold text-white disabled:opacity-50"
           >
-            Envoyer
+            {t('send')}
           </button>
         </form>
       )}
@@ -201,7 +203,7 @@ export function PhotoActions({
         <div className="mt-2 space-y-2 border-t border-border pt-2">
           {comments.length === 0 ? (
             <p className="text-[11px] italic text-muted-foreground">
-              Aucun commentaire. Soyez le premier.
+              {t('noComments')}
             </p>
           ) : (
             <ul className="space-y-1.5">
@@ -232,7 +234,7 @@ export function PhotoActions({
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 maxLength={2000}
-                placeholder="Écrire un commentaire…"
+                placeholder={t('commentPlaceholder')}
                 className="h-8 min-w-0 flex-1 rounded-md border border-border bg-white px-2 text-xs text-foreground focus:border-primary focus:outline-none"
               />
               <button
@@ -240,7 +242,7 @@ export function PhotoActions({
                 disabled={pending || !draft.trim()}
                 className="h-8 shrink-0 rounded-md bg-primary px-2.5 text-xs font-bold text-primary-foreground disabled:opacity-50"
               >
-                Publier
+                {t('publish')}
               </button>
             </form>
           ) : (
@@ -248,7 +250,7 @@ export function PhotoActions({
               href={`/login?next=/memorial/${slug}`}
               className="inline-block text-[11px] font-bold text-primary hover:underline"
             >
-              Connecte-toi pour commenter
+              {t('loginToComment')}
             </a>
           )}
         </div>

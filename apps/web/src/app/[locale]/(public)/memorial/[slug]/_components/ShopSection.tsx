@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { getTranslations } from 'next-intl/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { findProduct, CATEGORY_LABEL } from '@/lib/shop/catalog';
 import { ShopProductIcon } from './ShopProductIcon';
@@ -54,6 +55,7 @@ export async function ShopSection({
   slug: string;
   isOwner: boolean;
 }) {
+  const t = await getTranslations('memorial.shopSection');
   const supabase = getSupabaseAdminClient();
   const [photosRes, visualsRes, itemsRes] = await Promise.all([
     supabase
@@ -107,13 +109,10 @@ export async function ShopSection({
           id="shop-heading"
           className="font-display text-2xl font-bold text-foreground"
         >
-          Boutique du mémorial
+          {t('heading')}
         </h2>
         <p className="text-sm text-muted-foreground">
-          Participez aux préparatifs en contribuant à l'achat d'objets pour la
-          veille, la cérémonie ou un hommage durable. Chaque don alimente une
-          liste choisie par la famille — t-shirts, éventails, banderoles, ou
-          accessoires partenaires.
+          {t('intro')}
         </p>
       </header>
 
@@ -126,7 +125,7 @@ export async function ShopSection({
         <div className="rounded-xl border border-border bg-white p-5 shadow-[var(--shadow-card)]">
           <div className="mb-2 flex items-baseline justify-between gap-3">
             <p className="font-display text-sm font-bold uppercase tracking-wider text-muted-foreground">
-              Avancement global
+              {t('overallProgress')}
             </p>
             <p className="font-display text-sm font-bold text-foreground">
               {eurFmt.format(totalFundedCents / 100)}{' '}
@@ -146,9 +145,7 @@ export async function ShopSection({
 
       {items.length === 0 ? (
         <p className="rounded-md border border-dashed border-border bg-surface/60 px-6 py-12 text-center text-sm italic text-muted-foreground">
-          {isOwner
-            ? 'Aucun objet ajouté à la boutique. Génère d\'abord un visuel puis ajoute les articles que tu veux financer.'
-            : 'La famille n\'a pas encore ouvert de boutique pour ce mémorial.'}
+          {isOwner ? t('emptyOwner') : t('emptyPublic')}
         </p>
       ) : (
         <ul className="space-y-3">
@@ -169,7 +166,7 @@ export async function ShopSection({
                     {item.mockupImageUrl ? (
                       <Image
                         src={item.mockupImageUrl}
-                        alt={`Mockup ${product.name} avec visuel commémoratif`}
+                        alt={t('mockupAlt', { name: product.name })}
                         fill
                         sizes="160px"
                         className="object-cover"
@@ -179,7 +176,7 @@ export async function ShopSection({
                       <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-3 text-center">
                         <span className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                         <p className="font-display text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                          Mockup en cours
+                          {t('mockupInProgress')}
                         </p>
                       </div>
                     ) : visual?.imageUrl ? (
@@ -222,12 +219,14 @@ export async function ShopSection({
                       <span className="font-display font-bold text-foreground">
                         {eurFmt.format(item.unitPriceCents / 100)}
                         <span className="ml-1 text-xs font-medium text-muted-foreground">
-                          / unité
+                          {t('perUnit')}
                         </span>
                       </span>
                       <span className="text-muted-foreground">
-                        Objectif : {item.targetQuantity} unités ·{' '}
-                        {eurFmt.format(totalCents / 100)} total
+                        {t('target', {
+                          quantity: item.targetQuantity,
+                          total: eurFmt.format(totalCents / 100),
+                        })}
                       </span>
                     </div>
                     <div>
@@ -236,7 +235,7 @@ export async function ShopSection({
                           <span className="font-display font-bold tabular">
                             {fundedUnits}
                           </span>{' '}
-                          / {item.targetQuantity} unités financées
+                          {t('unitsFunded', { quantity: item.targetQuantity })}
                         </span>
                         <span className="font-display font-bold tabular text-primary">
                           {progress.toFixed(0)}%
@@ -251,8 +250,7 @@ export async function ShopSection({
                     </div>
                     {product.partner && (
                       <p className="rounded-md border border-accent/30 bg-accent/5 px-2.5 py-1.5 text-xs text-foreground/80">
-                        Produit partenaire — coordonné par notre réseau de
-                        fournisseurs après collecte complète.
+                        {t('partnerNote')}
                       </p>
                     )}
                   </div>

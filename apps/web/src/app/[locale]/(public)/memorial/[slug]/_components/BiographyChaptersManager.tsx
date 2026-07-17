@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   reorderChaptersAction,
   updateChapterAction,
@@ -35,6 +36,7 @@ export function BiographyChaptersManager({
   slug,
   initialChapters,
 }: Props) {
+  const t = useTranslations('memorial.chaptersManager');
   const router = useRouter();
   const [chapters, setChapters] = useState<ChapterDraft[]>(initialChapters);
   const [draggedId, setDraggedId] = useState<string | null>(null);
@@ -135,7 +137,7 @@ export function BiographyChaptersManager({
           router.refresh();
           return;
         }
-        setFeedback({ kind: 'ok', text: 'Ordre enregistré.' });
+        setFeedback({ kind: 'ok', text: t('orderSaved') });
         router.refresh();
         setTimeout(() => setFeedback(null), 2200);
       } catch (err) {
@@ -145,7 +147,7 @@ export function BiographyChaptersManager({
         }
         setFeedback({
           kind: 'error',
-          text: 'Échec enregistrement. Réessaie.',
+          text: t('saveFailed'),
         });
       }
     });
@@ -176,7 +178,7 @@ export function BiographyChaptersManager({
         window.location.reload();
         return false;
       }
-      setFeedback({ kind: 'error', text: 'Échec édition. Réessaie.' });
+      setFeedback({ kind: 'error', text: t('editFailed') });
       return false;
     }
   }
@@ -200,7 +202,7 @@ export function BiographyChaptersManager({
         window.location.reload();
         return;
       }
-      setFeedback({ kind: 'error', text: 'Échec suppression. Réessaie.' });
+      setFeedback({ kind: 'error', text: t('deleteFailed') });
     }
   }
 
@@ -210,10 +212,10 @@ export function BiographyChaptersManager({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <p className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          Gestion des chapitres
+          {t('title')}
         </p>
         <p className="text-[11px] italic text-muted-foreground">
-          Glisse-dépose pour réordonner · clique sur un chapitre pour le modifier
+          {t('hint')}
         </p>
       </div>
 
@@ -255,7 +257,7 @@ export function BiographyChaptersManager({
                   <span
                     aria-hidden="true"
                     className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center text-muted-foreground"
-                    title="Faire glisser pour réordonner"
+                    title={t('dragHandle')}
                   >
                     <svg
                       width="16"
@@ -288,14 +290,14 @@ export function BiographyChaptersManager({
                     )}
                     {c.media && c.media.length > 0 && (
                       <p className="mt-1 text-xs text-muted-foreground">
-                        📎 {c.media.length} média{c.media.length > 1 ? 's' : ''}
+                        📎 {t('mediaCount', { count: c.media.length })}
                       </p>
                     )}
                   </div>
                   <div className="flex shrink-0 items-center gap-0.5 opacity-60 group-hover:opacity-100">
                     <button
                       type="button"
-                      aria-label="Monter d'un cran"
+                      aria-label={t('moveUp')}
                       disabled={index === 0 || isPending}
                       onClick={() => move(c.id, -1)}
                       className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
@@ -306,7 +308,7 @@ export function BiographyChaptersManager({
                     </button>
                     <button
                       type="button"
-                      aria-label="Descendre d'un cran"
+                      aria-label={t('moveDown')}
                       disabled={index === chapters.length - 1 || isPending}
                       onClick={() => move(c.id, 1)}
                       className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
@@ -317,7 +319,7 @@ export function BiographyChaptersManager({
                     </button>
                     <button
                       type="button"
-                      aria-label="Modifier ce chapitre"
+                      aria-label={t('editChapter')}
                       onClick={() => setEditingId(c.id)}
                       className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
                     >
@@ -328,11 +330,11 @@ export function BiographyChaptersManager({
                     </button>
                     <button
                       type="button"
-                      aria-label="Supprimer ce chapitre"
+                      aria-label={t('deleteChapter')}
                       onClick={() => {
                         if (
                           window.confirm(
-                            `Supprimer le chapitre « ${c.title} » ? Cette action est irréversible.`,
+                            t('confirmDelete', { title: c.title }),
                           )
                         ) {
                           void submitDelete(c.id);
@@ -378,6 +380,7 @@ function ChapterEditForm({
   onCancel: () => void;
   onSubmit: (title: string, content: string) => Promise<boolean>;
 }) {
+  const t = useTranslations('memorial.chaptersManager');
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
   const [isPending, startTransition] = useTransition();
@@ -395,7 +398,7 @@ function ChapterEditForm({
     <form onSubmit={handleSubmit} className="space-y-2 p-3 sm:p-4">
       <label className="block">
         <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          Titre
+          {t('fieldTitle')}
         </span>
         <input
           type="text"
@@ -408,7 +411,7 @@ function ChapterEditForm({
       </label>
       <label className="block">
         <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          Contenu
+          {t('fieldContent')}
         </span>
         <textarea
           value={content}
@@ -425,14 +428,14 @@ function ChapterEditForm({
           disabled={isPending}
           className="press-scale rounded-md border border-border bg-white px-3 py-1.5 font-display text-xs font-bold text-foreground transition-colors hover:bg-muted disabled:opacity-50"
         >
-          Annuler
+          {t('cancel')}
         </button>
         <button
           type="submit"
           disabled={isPending || !title.trim()}
           className="press-scale rounded-md bg-primary px-4 py-1.5 font-display text-xs font-bold uppercase tracking-wider text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
         >
-          {isPending ? 'Enregistrement…' : 'Enregistrer'}
+          {isPending ? t('saving') : t('save')}
         </button>
       </div>
     </form>

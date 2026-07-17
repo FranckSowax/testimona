@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { canManageMemorial } from '@/lib/memorial/access';
@@ -103,6 +104,7 @@ export async function TestimonialsSection({
     getMemorialMeta(memorialId),
   ]);
   const isOwner = await canManageMemorial(memorialId, user?.id);
+  const t = await getTranslations('memorial.testimonialsSection');
   const memorialName = `${meta.firstname} ${meta.lastname}`.trim();
 
   // Public visitors see only approved entries. Owner sees pending too,
@@ -164,22 +166,21 @@ export async function TestimonialsSection({
   return (
     <section aria-labelledby="testimonials-heading">
       <h2 id="testimonials-heading" className="sr-only">
-        Témoignages
+        {t('heading')}
       </h2>
 
       {isOwner && pendingCount > 0 && (
         <p className="mb-4 rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-sm text-foreground/80">
           <span className="font-display font-bold text-foreground">
-            {pendingCount} témoignage{pendingCount > 1 ? 's' : ''}
+            {t('pendingCount', { count: pendingCount })}
           </span>{' '}
-          en attente de votre validation.
+          {t('pendingAwaiting')}
         </p>
       )}
 
       {visible.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Aucun témoignage pour le moment. Soyez le premier à partager un
-          souvenir.
+          {t('empty')}
         </p>
       ) : (
         <Reveal as="ul" className="space-y-6">
@@ -190,7 +191,7 @@ export async function TestimonialsSection({
                 {isPending && (
                   <div className="flex items-center justify-between gap-3 rounded-t-lg border border-b-0 border-accent/40 bg-accent/10 px-3 py-1.5">
                     <span className="font-display text-[11px] font-bold uppercase tracking-wider text-accent">
-                      À valider
+                      {t('toValidate')}
                     </span>
                     <TestimonialModerateButtons
                       testimonialId={t.id}
