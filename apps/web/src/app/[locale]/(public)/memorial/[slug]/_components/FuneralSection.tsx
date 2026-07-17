@@ -63,15 +63,19 @@ async function getFuneralEvents(memorialId: string): Promise<FuneralEventRow[]> 
 function formatDate(date: string | null): string | null {
   if (!date) return null;
   // Accept both "YYYY-MM-DD" and free-form strings.
-  const ymd = /^\d{4}-\d{2}-\d{2}$/;
-  if (!ymd.test(date)) return date;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (!m) return date;
+  // Build the date from its calendar components (local) rather than parsing
+  // the ISO string as UTC midnight — the latter, combined with a fixed
+  // timezone, shifted the displayed day by one for some viewers. This keeps
+  // the shown day exactly equal to the entered day.
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
   try {
-    return new Date(date).toLocaleDateString('fr-FR', {
+    return d.toLocaleDateString('fr-FR', {
       weekday: 'long',
       day: '2-digit',
       month: 'long',
       year: 'numeric',
-      timeZone: 'Europe/Paris',
     });
   } catch {
     return date;

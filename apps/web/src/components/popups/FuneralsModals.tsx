@@ -198,19 +198,25 @@ export function FuneralEventCreatePopup({
             if (!raw) return null;
             const loc = parseLocation(raw);
             const embed = mapsEmbedSrc(raw);
+            const isUrl = /^https?:\/\//i.test(raw);
+            // We only truly "recognise" a location we can pin exactly:
+            // coordinates, or a Google Maps link. A free-typed address is NOT
+            // geocoded, so we must not claim it's validated — just show an
+            // indicative preview.
+            const recognised = loc.valid && (loc.kind === 'coords' || isUrl);
             return (
               <>
                 <p
                   className={[
                     'text-xs',
-                    loc.valid ? 'text-emerald-600' : 'text-muted-foreground',
+                    recognised ? 'text-emerald-600' : 'text-muted-foreground',
                   ].join(' ')}
                 >
-                  {loc.valid
+                  {recognised
                     ? loc.kind === 'coords'
                       ? '✓ Localisation reconnue (coordonnées)'
-                      : '✓ Localisation reconnue'
-                    : 'Saisis une adresse complète ou colle un lien Google Maps.'}
+                      : '✓ Lien Google Maps reconnu'
+                    : 'Aperçu indicatif — l’adresse n’est pas vérifiée. Pour une position exacte, colle un lien Google Maps ou des coordonnées.'}
                 </p>
                 {embed && (
                   <div className="rounded-lg overflow-hidden border border-border">
