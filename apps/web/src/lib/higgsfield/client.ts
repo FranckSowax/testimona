@@ -255,10 +255,15 @@ export async function getJobStatus(jobId: string): Promise<JobStatus> {
     return { status: 'ready', videoUrl: DEMO_CLIP_URL };
   }
 
-  // fal-prefixed jobs route to fal.ai's queue status endpoint. The
-  // new format is `falurl:<status_url>`; the legacy `fal_<request_id>`
-  // is still supported by falGetJobStatus for in-flight jobs.
-  if (jobId.startsWith('falurl:') || jobId.startsWith('fal_')) {
+  // fal-prefixed jobs route to fal.ai's queue status endpoint. Current format
+  // is `falurl2:<status_url>||<response_url>`; the older `falurl:<status_url>`
+  // and legacy `fal_<request_id>` are still supported by falGetJobStatus for
+  // in-flight jobs.
+  if (
+    jobId.startsWith('falurl2:') ||
+    jobId.startsWith('falurl:') ||
+    jobId.startsWith('fal_')
+  ) {
     const realId = jobId.startsWith('fal_') ? jobId.slice(4) : jobId;
     return falGetJobStatus(realId);
   }

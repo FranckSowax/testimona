@@ -101,7 +101,13 @@ export async function falSubmitImageToVideo(
         ? `${FAL_BASE}/${SEEDANCE_PATH}/requests/${json.request_id}/status`
         : null);
     if (!statusUrl) return { error: 'fal: missing status_url & request_id' };
-    return { jobId: `falurl:${statusUrl}` };
+    // Package the response_url too (new `falurl2:` format). fal serves the
+    // result at `<status_url without /status>/response`, NOT at the bare
+    // `.../requests/<id>` — fetching the latter returns 422. Mirrors the
+    // working image client. Legacy `falurl:` jobs still poll (candidates
+    // below cover them).
+    const responseUrl = json.response_url ?? '';
+    return { jobId: `falurl2:${statusUrl}||${responseUrl}` };
   } catch (err) {
     return { error: err instanceof Error ? err.message : String(err) };
   }
@@ -113,15 +119,28 @@ export async function falSubmitImageToVideo(
  * URL is derived by removing the trailing /status segment.
  */
 export async function falGetJobStatus(jobId: string): Promise<FalJobStatus> {
-  // Support both the new packaged jobId (`falurl:<url>`) and the legacy
-  // bare request_id form so clips submitted before the fix still poll.
-  let statusUrl: string;
-  if (jobId.startsWith('falurl:')) {
+  // Support the new packaged form (`falurl2:<status_url>||<response_url>`),
+  // the previous `falurl:<status_url>` form, and the legacy bare request_id
+  // so clips submitted before each fix still poll.
+  let statusUrl = '';
+  let savedResponseUrl = '';
+  if (jobId.startsWith('falurl2:')) {
+    const [s, r] = jobId.slice('falurl2:'.length).split('||');
+    statusUrl = s ?? '';
+    savedResponseUrl = r ?? '';
+  } else if (jobId.startsWith('falurl:')) {
     statusUrl = jobId.slice('falurl:'.length);
   } else {
     statusUrl = `${FAL_BASE}/${SEEDANCE_PATH}/requests/${jobId}/status`;
   }
-  const resultUrl = statusUrl.replace(/\/status\b.*$/, '');
+  if (!statusUrl) return { status: 'failed', error: 'fal: no statusUrl' };
+
+  // fal serves the result at `<status_url without /status>/response`. The bare
+  // `.../requests/<id>` returns 422, which was the cause of "fal result 422".
+  // Try the exact response_url first, then the `/response` convention, then
+  // the bare URL as a last resort. Same strategy as the image client.
+  const stripped = statusUrl.replace(/\/status\b.*$/, '');
+  const resultCandidates = [savedResponseUrl, `${stripped}/response`, stripped];
 
   try {
     const statusRes = await fetch(statusUrl, {
@@ -133,18 +152,24 @@ export async function falGetJobStatus(jobId: string): Promise<FalJobStatus> {
     const status = (await statusRes.json()) as { status?: string };
 
     if (status.status === 'COMPLETED') {
-      const resultRes = await fetch(resultUrl, {
-        headers: baseHeaders(),
-      });
-      if (!resultRes.ok) {
-        return { status: 'failed', error: `fal result ${resultRes.status}` };
+      let lastStatus = 0;
+      for (const url of resultCandidates) {
+        if (!url) continue;
+        const resultRes = await fetch(url, { headers: baseHeaders() });
+        if (!resultRes.ok) {
+          lastStatus = resultRes.status;
+          continue;
+        }
+        const result = (await resultRes.json().catch(() => null)) as
+          | { video?: { url?: string }; videos?: { url?: string }[] }
+          | null;
+        const videoUrl = result?.video?.url ?? result?.videos?.[0]?.url;
+        if (videoUrl) return { status: 'ready', videoUrl };
       }
-      const result = (await resultRes.json()) as {
-        video?: { url?: string };
+      return {
+        status: 'failed',
+        error: lastStatus ? `fal result ${lastStatus}` : 'fal: no video url',
       };
-      const url = result.video?.url;
-      if (!url) return { status: 'failed', error: 'fal: no video url' };
-      return { status: 'ready', videoUrl: url };
     }
     if (
       status.status === 'IN_QUEUE' ||
