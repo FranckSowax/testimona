@@ -46,7 +46,14 @@ export async function getSupabaseServer() {
  */
 export const getCurrentUser = cache(async () => {
   const supabase = await getSupabaseServer();
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) return null;
-  return data.user;
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) return null;
+    return data.user;
+  } catch {
+    // A stale/invalid refresh token makes getUser() throw
+    // (AuthApiError: refresh_token_not_found). Treat as logged out; the
+    // middleware clears the bad cookies on the next request.
+    return null;
+  }
 });

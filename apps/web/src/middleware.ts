@@ -66,15 +66,34 @@ export async function middleware(req: NextRequest) {
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getUser() refreshes the access token when it's expired. If the stored
+  // refresh token is stale/invalid (e.g. after a Supabase session reset), the
+  // refresh throws `AuthApiError: refresh_token_not_found`. Treat that as a
+  // logged-out request and purge the stale `sb-*` cookies so the browser stops
+  // replaying the bad token on every subsequent request.
+  let user: Awaited<ReturnType<typeof supabase.auth.getUser>>['data']['user'] = null;
+  let staleAuth = false;
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch {
+    staleAuth = true;
+  }
+
+  function withAuthCleanup(res: NextResponse): NextResponse {
+    if (staleAuth) {
+      for (const cookie of req.cookies.getAll()) {
+        if (cookie.name.startsWith('sb-')) res.cookies.delete(cookie.name);
+      }
+    }
+    return res;
+  }
 
   if (!user && isProtected(pathname)) {
     const url = req.nextUrl.clone();
     url.pathname = '/login';
     url.searchParams.set('next', pathname);
-    return NextResponse.redirect(url);
+    return withAuthCleanup(NextResponse.redirect(url));
   }
 
   if (isAdmin(pathname) && user) {
@@ -86,7 +105,7 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  return response;
+  return withAuthCleanup(response);
 }
 
 export const config = {
