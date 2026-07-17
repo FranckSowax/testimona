@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
@@ -26,6 +27,7 @@ export default async function ClipsPage() {
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/dashboard/clips');
 
+  const t = await getTranslations('dashboard.clips');
   const supabase = getSupabaseAdminClient();
   const { data } = await supabase
     .from('MemorialClip')
@@ -62,22 +64,17 @@ export default async function ClipsPage() {
   ).length;
 
   return (
-    <DashboardShell title="Mes clips">
+    <DashboardShell title={t('title')}>
       <div className="space-y-6">
-        <p className="-mt-4 text-sm text-muted-foreground">
-          Les clips se génèrent en 1-3 min. Valide-les pour qu'ils apparaissent
-          dans le diaporama public du mémorial, ou regénère-les si le résultat
-          ne te plaît pas (1 crédit par regénération). Tant qu'un clip n'a pas
-          été validé ou refusé, il reste en attente ici.
-        </p>
+        <p className="-mt-4 text-sm text-muted-foreground">{t('intro')}</p>
 
         {awaitingCount > 0 && (
           <p className="rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-sm text-foreground/80">
             <span className="font-display font-bold text-foreground">
-              {awaitingCount} clip{awaitingCount > 1 ? 's' : ''}
+              {t('awaitingCountBadge', { count: awaitingCount })}
             </span>{' '}
-            en attente de validation. Clique sur <strong>Valider</strong> pour
-            chaque clip que tu veux publier dans le diaporama du mémorial.
+            {t('awaitingBefore')} <strong>{t('validate')}</strong>{' '}
+            {t('awaitingAfter')}
           </p>
         )}
 

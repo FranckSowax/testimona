@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ClipActions } from './ClipActions';
 
 export interface ClipRowDto {
@@ -21,14 +22,20 @@ export interface ClipRowDto {
   validatedAt: string | null;
 }
 
-const STATUS: Record<
-  string,
-  { label: string; tone: 'pending' | 'processing' | 'ready' | 'failed' }
-> = {
-  pending: { label: 'En attente', tone: 'pending' },
-  processing: { label: 'Génération…', tone: 'processing' },
-  ready: { label: 'Prêt', tone: 'ready' },
-  failed: { label: 'Échoué', tone: 'failed' },
+type StatusTone = 'pending' | 'processing' | 'ready' | 'failed';
+
+const STATUS_TONE: Record<string, StatusTone> = {
+  pending: 'pending',
+  processing: 'processing',
+  ready: 'ready',
+  failed: 'failed',
+};
+
+const STATUS_LABEL_KEY: Record<string, string> = {
+  pending: 'statusPending',
+  processing: 'statusProcessing',
+  ready: 'statusReady',
+  failed: 'statusFailed',
 };
 
 const TONE_CLS: Record<string, string> = {
@@ -39,6 +46,7 @@ const TONE_CLS: Record<string, string> = {
 };
 
 export function ClipsList({ clips }: { clips: ClipRowDto[] }) {
+  const t = useTranslations('dashboard.clips');
   const router = useRouter();
   const [, startTransition] = useTransition();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -77,8 +85,7 @@ export function ClipsList({ clips }: { clips: ClipRowDto[] }) {
   if (clips.length === 0) {
     return (
       <p className="rounded-md border border-dashed border-border bg-muted/50 px-4 py-12 text-center text-sm italic text-muted-foreground">
-        Tu n'as pas encore généré de clip. Ouvre un mémorial et clique sur le
-        bouton « + » dans la barre du cover pour démarrer.
+        {t('empty')}
       </p>
     );
   }
@@ -95,10 +102,10 @@ export function ClipsList({ clips }: { clips: ClipRowDto[] }) {
   return (
     <ul className="grid gap-3 sm:grid-cols-2">
       {sorted.map((clip) => {
-        const status = STATUS[clip.status] ?? {
-          label: clip.status,
-          tone: 'pending' as const,
-        };
+        const tone: StatusTone = STATUS_TONE[clip.status] ?? 'pending';
+        const statusLabel = STATUS_LABEL_KEY[clip.status]
+          ? t(STATUS_LABEL_KEY[clip.status])
+          : clip.status;
         const validated = !!clip.validatedAt;
         const awaitingValidation = clip.status === 'ready' && !validated;
         return (
@@ -157,7 +164,7 @@ export function ClipsList({ clips }: { clips: ClipRowDto[] }) {
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
                     <path d="M20 6 9 17l-5-5" />
                   </svg>
-                  Validé
+                  {t('badgeValidated')}
                 </span>
               )}
               {awaitingValidation && (
@@ -166,7 +173,7 @@ export function ClipsList({ clips }: { clips: ClipRowDto[] }) {
                     <circle cx="12" cy="12" r="9" />
                     <path d="M12 8v4M12 16h.01" />
                   </svg>
-                  À valider
+                  {t('badgeToValidate')}
                 </span>
               )}
             </div>
@@ -181,10 +188,10 @@ export function ClipsList({ clips }: { clips: ClipRowDto[] }) {
                 <span
                   className={[
                     'inline-flex shrink-0 rounded-full px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wider',
-                    TONE_CLS[status.tone] ?? '',
+                    TONE_CLS[tone] ?? '',
                   ].join(' ')}
                 >
-                  {status.label}
+                  {statusLabel}
                 </span>
               </div>
               {clip.caption && (

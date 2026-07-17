@@ -401,7 +401,7 @@ export default async function NotificationsPage() {
       {summaryCards.length > 0 && (
         <section className="mb-8 space-y-4">
           <h2 className="font-display text-base font-bold text-foreground">
-            Contributions par mémorial
+            {t('sectionContributions')}
           </h2>
           <div className="space-y-4">
             {summaryCards.map(({ memorial, summary }) => {
@@ -423,7 +423,7 @@ export default async function NotificationsPage() {
                   </div>
                   <div className="space-y-2">
                     <ContributionGroup
-                      label="Dons"
+                      label={t('contribDonations')}
                       icon="donation"
                       totalCents={summary.donationTotal}
                       currency={summary.donationCurrency}
@@ -431,7 +431,7 @@ export default async function NotificationsPage() {
                       contributors={summary.donors}
                     />
                     <ContributionGroup
-                      label="Boutique"
+                      label={t('contribShop')}
                       icon="shop"
                       totalCents={summary.shopTotal}
                       currency="EUR"
@@ -449,11 +449,10 @@ export default async function NotificationsPage() {
       {networkTop.length > 0 && (
         <section className="mb-8 space-y-3">
           <h2 className="font-display text-base font-bold text-foreground">
-            Votre réseau
+            {t('networkTitle')}
           </h2>
           <p className="-mt-1 text-xs text-muted-foreground">
-            Des personnes ayant témoigné sur vos mémoriaux ont aussi écrit
-            ailleurs.
+            {t('networkSubtitle')}
           </p>
           <ul className="space-y-2">
             {networkTop.map((ev, i) => {
@@ -467,7 +466,7 @@ export default async function NotificationsPage() {
                 >
                   <p className="min-w-0 text-sm leading-relaxed text-foreground">
                     <span className="font-display font-bold">{ev.authorName}</span>{' '}
-                    a témoigné sur{' '}
+                    {t('networkPostedOn')}{' '}
                     <Link
                       href={`/memorial/${ev.memorial.slug}`}
                       className="font-display font-bold text-foreground hover:text-primary"

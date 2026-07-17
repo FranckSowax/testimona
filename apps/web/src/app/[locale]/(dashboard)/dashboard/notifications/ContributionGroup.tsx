@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export interface Contributor {
   name: string;
@@ -40,6 +41,7 @@ export function ContributionGroup({
   count,
   contributors,
 }: Props) {
+  const t = useTranslations('dashboard.notifications');
   const [open, setOpen] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const visible = showAll ? contributors : contributors.slice(0, INITIAL);
@@ -101,7 +103,7 @@ export function ContributionGroup({
         <div className="border-t border-border px-4 py-2">
           {contributors.length === 0 ? (
             <p className="py-2 text-xs italic text-muted-foreground">
-              Aucune contribution pour le moment.
+              {t('contribEmpty')}
             </p>
           ) : (
             <>
@@ -132,7 +134,7 @@ export function ContributionGroup({
                   onClick={() => setShowAll((v) => !v)}
                   className="mt-1 w-full rounded-md py-1.5 text-center font-display text-xs font-bold text-primary hover:underline"
                 >
-                  {showAll ? 'Réduire' : `Voir tout (${count})`}
+                  {showAll ? t('collapse') : t('seeAll', { count })}
                 </button>
               )}
             </>

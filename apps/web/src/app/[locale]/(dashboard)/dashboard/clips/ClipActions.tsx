@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useActionState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   validateClipAction,
   unvalidateClipAction,
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export function ClipActions({ clipId, validated, failed }: Props) {
+  const t = useTranslations('dashboard.clips');
   const [valState, valAction, valPending] = useActionState<
     ClipActionState | null,
     FormData
@@ -53,8 +55,8 @@ export function ClipActions({ clipId, validated, failed }: Props) {
               {valPending
                 ? '…'
                 : validated
-                ? 'Annuler'
-                : 'Valider'}
+                ? t('cancel')
+                : t('validate')}
             </button>
           </form>
         )}
@@ -64,14 +66,14 @@ export function ClipActions({ clipId, validated, failed }: Props) {
           <button
             type="submit"
             disabled={regenPending}
-            aria-label="Regénérer (coûte 1 crédit)"
+            aria-label={t('regenAria')}
             className="press-scale flex w-full items-center justify-center gap-1 rounded-md border border-accent/40 bg-accent/5 px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wide text-accent transition-colors hover:bg-accent/10 disabled:opacity-50"
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
               <polyline points="3 3 3 8 8 8" />
             </svg>
-            {regenPending ? '…' : 'Regen (1)'}
+            {regenPending ? '…' : t('regenLabel')}
           </button>
         </form>
 
@@ -80,7 +82,7 @@ export function ClipActions({ clipId, validated, failed }: Props) {
           <button
             type="submit"
             disabled={delPending}
-            aria-label="Supprimer ce clip"
+            aria-label={t('deleteAria')}
             className="press-scale inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive disabled:opacity-50"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -94,7 +96,7 @@ export function ClipActions({ clipId, validated, failed }: Props) {
           href="/dashboard/profile/credits"
           className="block rounded-md border border-accent/40 bg-accent/10 px-2.5 py-1.5 text-center text-[11px] font-bold uppercase tracking-wide text-accent hover:bg-accent/20"
         >
-          Solde insuffisant — acheter
+          {t('insufficientBalance')}
         </Link>
       )}
       {showError && (
