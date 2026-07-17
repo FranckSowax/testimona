@@ -8,6 +8,8 @@ export interface Contributor {
   amountCents: number;
   currency: string;
   createdAt: string;
+  /** Optional detail line, e.g. the shop item purchased. */
+  detail?: string;
 }
 
 interface Props {
@@ -46,6 +48,19 @@ export function ContributionGroup({
   const [showAll, setShowAll] = useState(false);
   const visible = showAll ? contributors : contributors.slice(0, INITIAL);
 
+  // Show one total per currency instead of summing across currencies (which
+  // would be wrong — 100 CAD + 50 EUR is not "150 EUR"). Falls back to the
+  // passed total/currency when there are no itemised contributors.
+  const totalsByCurrency = contributors.reduce<Record<string, number>>((acc, c) => {
+    acc[c.currency] = (acc[c.currency] ?? 0) + c.amountCents;
+    return acc;
+  }, {});
+  const totalEntries = Object.entries(totalsByCurrency);
+  const totalDisplay =
+    totalEntries.length > 0
+      ? totalEntries.map(([cur, cents]) => fmt(cents, cur)).join(' · ')
+      : fmt(totalCents, currency);
+
   return (
     <div className="rounded-lg border border-border bg-surface/40">
       <button
@@ -77,7 +92,7 @@ export function ContributionGroup({
         </span>
         <span className="flex items-center gap-2">
           <span className="font-display text-sm font-bold text-foreground tabular">
-            {fmt(totalCents, currency)}
+            {totalDisplay}
           </span>
           <span className="rounded-full bg-white px-2 py-0.5 font-display text-[10px] font-bold tabular text-muted-foreground ring-1 ring-border">
             {count}
@@ -110,8 +125,13 @@ export function ContributionGroup({
               <ul className="divide-y divide-border/60">
                 {visible.map((c, i) => (
                   <li key={`${c.createdAt}-${i}`} className="flex items-center justify-between gap-2 py-2">
-                    <span className="min-w-0 truncate text-sm text-foreground">
-                      {c.name}
+                    <span className="flex min-w-0 flex-col">
+                      <span className="truncate text-sm text-foreground">{c.name}</span>
+                      {c.detail && (
+                        <span className="truncate text-xs text-muted-foreground">
+                          {c.detail}
+                        </span>
+                      )}
                     </span>
                     <span className="flex shrink-0 items-center gap-2">
                       <span className="font-display text-sm font-bold text-foreground tabular">

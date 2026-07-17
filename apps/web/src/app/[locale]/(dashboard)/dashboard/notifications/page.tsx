@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation';
 import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { EmptyState } from '@/components/EmptyState';
+import { findProduct } from '@/lib/shop/catalog';
 import { ContributionGroup, type Contributor } from './ContributionGroup';
 
 interface MemorialSummary {
@@ -272,9 +273,9 @@ export default async function NotificationsPage() {
         >(),
       supabase
         .from('MemorialShopItem')
-        .select('id, memorialId')
+        .select('id, memorialId, productId')
         .in('memorialId', ownedIds)
-        .returns<{ id: string; memorialId: string }[]>(),
+        .returns<{ id: string; memorialId: string; productId: string }[]>(),
     ]);
 
     for (const d of allDonationsRes.data ?? []) {
@@ -292,6 +293,9 @@ export default async function NotificationsPage() {
 
     const shopItems = shopItemsRes.data ?? [];
     const shopItemMemorial = new Map(shopItems.map((it) => [it.id, it.memorialId]));
+    const shopItemName = new Map(
+      shopItems.map((it) => [it.id, findProduct(it.productId)?.name ?? it.productId]),
+    );
     if (shopItems.length > 0) {
       const { data: contribs } = await supabase
         .from('ShopContribution')
@@ -322,6 +326,7 @@ export default async function NotificationsPage() {
           amountCents: c.amountCents ?? 0,
           currency: 'EUR',
           createdAt: c.createdAt,
+          detail: shopItemName.get(c.shopItemId),
         });
       }
     }
