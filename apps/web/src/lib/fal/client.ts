@@ -153,11 +153,16 @@ export async function falGetJobStatus(jobId: string): Promise<FalJobStatus> {
 
     if (status.status === 'COMPLETED') {
       let lastStatus = 0;
+      let lastBody = '';
       for (const url of resultCandidates) {
         if (!url) continue;
         const resultRes = await fetch(url, { headers: baseHeaders() });
         if (!resultRes.ok) {
           lastStatus = resultRes.status;
+          // Capture the body: on a COMPLETED job a 4xx here is fal reporting
+          // *why the generation failed* (bad param, content policy, etc.), not
+          // a wrong URL. Surfacing it is the only way to see the real cause.
+          lastBody = (await resultRes.text().catch(() => '')).slice(0, 300);
           continue;
         }
         const result = (await resultRes.json().catch(() => null)) as
@@ -168,7 +173,9 @@ export async function falGetJobStatus(jobId: string): Promise<FalJobStatus> {
       }
       return {
         status: 'failed',
-        error: lastStatus ? `fal result ${lastStatus}` : 'fal: no video url',
+        error: lastStatus
+          ? `fal result ${lastStatus}: ${lastBody || '(empty body)'}`
+          : 'fal: no video url',
       };
     }
     if (
