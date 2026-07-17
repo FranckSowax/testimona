@@ -55,10 +55,35 @@ async function getMemorial(slug: string): Promise<MemorialRow | null> {
 
 async function getCoverPhotoUrl(memorialId: string): Promise<string | null> {
   const supabase = await getSupabaseServer();
+
+  // Owner-chosen cover (Memorial.coverPhotoId). Tolerate the column not
+  // existing yet (migration v18 not applied) — supabase-js returns an error,
+  // not a throw, so `data` is null and we fall back to the first photo.
+  const { data: mem } = await supabase
+    .from('Memorial')
+    .select('coverPhotoId')
+    .eq('id', memorialId)
+    .maybeSingle<{ coverPhotoId: string | null }>();
+  const coverPhotoId = mem?.coverPhotoId ?? null;
+
+  // Owner-chosen cover wins, as long as it still exists and is approved.
+  if (coverPhotoId) {
+    const { data: chosen } = await supabase
+      .from('Photo')
+      .select('url')
+      .eq('id', coverPhotoId)
+      .eq('memorialId', memorialId)
+      .eq('status', 'approved')
+      .maybeSingle<{ url: string }>();
+    if (chosen?.url) return chosen.url;
+  }
+
+  // Fallback: first approved photo by position.
   const { data } = await supabase
     .from('Photo')
     .select('url')
     .eq('memorialId', memorialId)
+    .eq('status', 'approved')
     .order('position', { ascending: true })
     .limit(1)
     .maybeSingle<{ url: string }>();

@@ -273,6 +273,47 @@ export async function moderatePhotoAction(
 }
 
 // ---------------------------------------------------------------------------
+// Cover photo — owner picks which approved photo is the memorial's cover /
+// portrait (banner background + round avatar both read Memorial.coverPhotoId,
+// falling back to the first photo by position when it's null).
+// ---------------------------------------------------------------------------
+export async function setCoverPhotoAction(
+  _prev: PhotoActionState | null,
+  formData: FormData,
+): Promise<PhotoActionState> {
+  const memorialId = String(formData.get('memorialId') ?? '').trim();
+  const photoId = String(formData.get('photoId') ?? '').trim();
+  const slug = String(formData.get('slug') ?? '').trim();
+  if (!memorialId || !photoId) return { error: 'memorialId et photoId requis.' };
+
+  const supabase = await getSupabaseServer();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) return { error: 'Non connecté.' };
+  if (!(await canManageMemorial(memorialId, userData.user.id)))
+    return { error: 'Réservé aux administrateurs du mémorial.' };
+
+  const adminDb = getSupabaseAdminClient();
+  const { data: photo } = await adminDb
+    .from('Photo')
+    .select('id, memorialId, status')
+    .eq('id', photoId)
+    .maybeSingle<{ id: string; memorialId: string; status: string }>();
+  if (!photo || photo.memorialId !== memorialId)
+    return { error: 'Photo invalide.' };
+  if (photo.status !== 'approved')
+    return { error: 'La photo doit être publiée avant de devenir la couverture.' };
+
+  const { error } = await adminDb
+    .from('Memorial')
+    .update({ coverPhotoId: photoId, updatedAt: new Date().toISOString() })
+    .eq('id', memorialId);
+  if (error) return { error: error.message };
+
+  if (slug) revalidatePath(`/memorial/${slug}`);
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
 // Photo engagement — like + report (PDF p26). Comments deferred.
 // ---------------------------------------------------------------------------
 

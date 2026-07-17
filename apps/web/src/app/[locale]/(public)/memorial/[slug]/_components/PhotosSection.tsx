@@ -5,6 +5,7 @@ import { PhotoUploader } from './PhotoUploader';
 import { PhotoPublicSubmitModal } from './PhotoPublicSubmitModal';
 import { PhotoModerateButtons } from './PhotoModerateButtons';
 import { PhotoActions, type PhotoComment } from './PhotoActions';
+import { SetCoverButton } from './SetCoverButton';
 
 async function getPhotoComments(
   photoIds: string[],
@@ -93,6 +94,21 @@ async function getMemorialLite(memorialId: string): Promise<MemorialLite> {
   return data ?? { ownerId: '', firstname: '', lastname: '' };
 }
 
+/**
+ * Fetched separately (and tolerantly) from the memorial: if migration v18
+ * hasn't run yet the column doesn't exist, supabase-js returns an error and we
+ * simply treat the cover as "not explicitly set" rather than breaking the grid.
+ */
+async function getCoverPhotoId(memorialId: string): Promise<string | null> {
+  const supabase = getSupabaseAdminClient();
+  const { data } = await supabase
+    .from('Memorial')
+    .select('coverPhotoId')
+    .eq('id', memorialId)
+    .maybeSingle<{ coverPhotoId: string | null }>();
+  return data?.coverPhotoId ?? null;
+}
+
 export async function PhotosSection({
   memorialId,
   slug,
@@ -102,10 +118,11 @@ export async function PhotosSection({
   slug: string;
   isOwner: boolean;
 }) {
-  const [photos, user, memorial] = await Promise.all([
+  const [photos, user, memorial, coverPhotoId] = await Promise.all([
     getPhotos(memorialId),
     getCurrentUser(),
     getMemorialLite(memorialId),
+    getCoverPhotoId(memorialId),
   ]);
 
   // Public sees approved only; owner sees pending too.
@@ -119,6 +136,12 @@ export async function PhotosSection({
 
   const pendingCount = photos.filter((p) => p.status === 'pending').length;
   const memorialName = `${memorial.firstname} ${memorial.lastname}`.trim();
+
+  // Which photo is the cover: explicit coverPhotoId, else the first approved
+  // photo by position (matches getCoverPhotoUrl on the memorial page).
+  const firstApprovedId =
+    photos.find((p) => p.status === 'approved')?.id ?? null;
+  const effectiveCoverId = coverPhotoId ?? firstApprovedId;
 
   const approvedIds = visible.filter((p) => p.status === 'approved').map((p) => p.id);
   const [{ counts: likeCounts, liked: likedSet }, commentsByPhoto] = await Promise.all([
@@ -215,6 +238,16 @@ export async function PhotosSection({
                 )}
                 {!isPending && (
                   <div className="border-t border-border">
+                    {isOwner && (
+                      <div className="border-b border-border/60">
+                        <SetCoverButton
+                          memorialId={memorialId}
+                          photoId={p.id}
+                          slug={slug}
+                          isCover={p.id === effectiveCoverId}
+                        />
+                      </div>
+                    )}
                     <PhotoActions
                       photoId={p.id}
                       slug={slug}
