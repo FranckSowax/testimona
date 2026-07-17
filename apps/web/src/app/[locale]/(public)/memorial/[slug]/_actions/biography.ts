@@ -12,6 +12,50 @@ export interface ChapterActionState {
   fieldErrors?: Record<string, string>;
 }
 
+export interface ChapterMedia {
+  url: string;
+  type: 'image' | 'video';
+}
+
+const MAX_CHAPTER_MEDIA = 10;
+const IMAGE_MIME = ['image/jpeg', 'image/png', 'image/webp'];
+const VIDEO_MIME = ['video/mp4', 'video/webm', 'video/quicktime'];
+const MAX_MEDIA_BYTES = 60 * 1024 * 1024; // 60 MB (covers short clips)
+
+/**
+ * Upload chapter photos/videos to the memorial-photos bucket under a
+ * chapters/<chapterId>/ prefix and return the persisted { url, type } list.
+ * Invalid or oversized files are skipped rather than failing the whole submit.
+ */
+async function uploadChapterMedia(
+  chapterId: string,
+  files: File[],
+): Promise<ChapterMedia[]> {
+  const adminDb = getSupabaseAdminClient();
+  const out: ChapterMedia[] = [];
+  for (const file of files.slice(0, MAX_CHAPTER_MEDIA)) {
+    if (!(file instanceof File) || file.size === 0 || file.size > MAX_MEDIA_BYTES) continue;
+    const isImage = IMAGE_MIME.includes(file.type);
+    const isVideo = VIDEO_MIME.includes(file.type);
+    if (!isImage && !isVideo) continue;
+    const ext =
+      file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') ||
+      (isImage ? 'jpg' : 'mp4');
+    const path = `chapters/${chapterId}/${randomUUID()}.${ext}`;
+    const { error } = await adminDb.storage
+      .from('memorial-photos')
+      .upload(path, file, { contentType: file.type, upsert: true });
+    if (error) continue;
+    const { data } = adminDb.storage.from('memorial-photos').getPublicUrl(path);
+    out.push({ url: data.publicUrl, type: isImage ? 'image' : 'video' });
+  }
+  return out;
+}
+
+function readMediaFiles(formData: FormData): File[] {
+  return formData.getAll('media').filter((f): f is File => f instanceof File);
+}
+
 interface BiographyRow {
   id: string;
 }
@@ -84,12 +128,16 @@ export async function createChapterAction(
     .maybeSingle<ChapterPositionRow>();
   const nextPosition = (lastPos?.position ?? -1) + 1;
 
+  const chapterId = randomUUID();
+  const media = await uploadChapterMedia(chapterId, readMediaFiles(formData));
+
   const { error } = await adminDb.from('Chapter').insert({
-    id: randomUUID(),
+    id: chapterId,
     biographyId,
     title,
     content,
     position: nextPosition,
+    media,
   });
   if (error) return { error: error.message };
 
@@ -119,10 +167,24 @@ export async function updateChapterAction(
   if (!userId) return { error: 'Action réservée au propriétaire du mémorial.' };
 
   const adminDb = getSupabaseAdminClient();
-  const { error } = await adminDb
-    .from('Chapter')
-    .update({ title, content })
-    .eq('id', id);
+
+  // Append any newly-uploaded media to what the chapter already has.
+  const newFiles = readMediaFiles(formData);
+  const update: { title: string; content: string; media?: ChapterMedia[] } = {
+    title,
+    content,
+  };
+  if (newFiles.length > 0) {
+    const { data: existing } = await adminDb
+      .from('Chapter')
+      .select('media')
+      .eq('id', id)
+      .maybeSingle<{ media: ChapterMedia[] | null }>();
+    const uploaded = await uploadChapterMedia(id, newFiles);
+    update.media = [...(existing?.media ?? []), ...uploaded].slice(0, MAX_CHAPTER_MEDIA);
+  }
+
+  const { error } = await adminDb.from('Chapter').update(update).eq('id', id);
   if (error) return { error: error.message };
 
   if (slug) revalidatePath(`/memorial/${slug}`);

@@ -7,12 +7,14 @@ import {
   updateChapterAction,
   deleteChapterAction,
 } from '../_actions/biography';
+import { ChapterMediaGrid, type ChapterMedia } from './ChapterMediaGrid';
 
 interface ChapterDraft {
   id: string;
   title: string;
   content: string;
   position: number;
+  media: ChapterMedia[];
 }
 
 interface Props {
@@ -282,6 +284,11 @@ export function BiographyChaptersManager({
                     {c.content && (
                       <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                         {c.content}
+                      </p>
+                    )}
+                    {c.media && c.media.length > 0 && (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        📎 {c.media.length} média{c.media.length > 1 ? 's' : ''}
                       </p>
                     )}
                   </div>

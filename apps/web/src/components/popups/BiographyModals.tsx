@@ -1,10 +1,77 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ButtonOutlined } from '@/components/ui/ButtonOutlined';
 import { ButtonText } from '@/components/ui/ButtonText';
 import { PopupCard, PopupHeader } from './PopupCard';
+
+const MEDIA_ACCEPT = 'image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime';
+
+/** Real file picker for chapter photos/videos (replaces the old fake counter). */
+function ChapterMediaPicker({
+  files,
+  onChange,
+  countLabel,
+  addLabel,
+}: {
+  files: File[];
+  onChange: (files: File[]) => void;
+  countLabel: string;
+  addLabel: string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  return (
+    <div className="rounded-md border border-dashed border-border bg-surface p-3">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs italic text-muted-foreground">{countLabel}</span>
+        <ButtonText
+          variant="action"
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={files.length >= MAX_CHAPTER_MEDIA}
+        >
+          {addLabel}
+        </ButtonText>
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={MEDIA_ACCEPT}
+        multiple
+        className="hidden"
+        onChange={(e) => {
+          const picked = Array.from(e.target.files ?? []);
+          onChange([...files, ...picked].slice(0, MAX_CHAPTER_MEDIA));
+          // Reset so re-picking the same file fires onChange again.
+          e.target.value = '';
+        }}
+      />
+      {files.length > 0 && (
+        <ul className="mt-2 space-y-1">
+          {files.map((f, i) => (
+            <li
+              key={`${f.name}-${i}`}
+              className="flex items-center justify-between gap-2 text-xs text-foreground"
+            >
+              <span className="truncate">
+                {f.type.startsWith('video') ? '🎬' : '🖼️'} {f.name}
+              </span>
+              <button
+                type="button"
+                onClick={() => onChange(files.filter((_, j) => j !== i))}
+                className="shrink-0 text-muted-foreground hover:text-destructive"
+                aria-label="Remove"
+              >
+                ✕
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 /** Max photos/videos per life chapter (PDF p36 — previously capped at 2). */
 const MAX_CHAPTER_MEDIA = 10;
@@ -25,7 +92,7 @@ export interface BiographyInfoValues {
 export interface ChapterFormValues {
   title: string;
   content: string;
-  photoCount: number;
+  files: File[];
 }
 
 interface BiographyEditPopupProps {
@@ -135,12 +202,12 @@ export function BiographyChapterCreatePopup({
   const tCommon = useTranslations('popups.common');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [photoCount, setPhotoCount] = useState(0);
+  const [files, setFiles] = useState<File[]>([]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (submitting || !title.trim()) return;
-    await onSubmit({ title: title.trim(), content: content.trim(), photoCount });
+    await onSubmit({ title: title.trim(), content: content.trim(), files });
   }
 
   return (
@@ -163,20 +230,7 @@ export function BiographyChapterCreatePopup({
             />
           </label>
 
-          <div className="flex items-center justify-between rounded-md border border-dashed border-border bg-surface p-3">
-            <span className="text-xs italic text-muted-foreground">
-              {t('photosCount', { count: photoCount })}
-            </span>
-            <ButtonText
-              variant="action"
-              type="button"
-              // PDF p36 — ne pas limiter à 2 photos/vidéos par chapitre de vie.
-              onClick={() => setPhotoCount((c) => Math.min(MAX_CHAPTER_MEDIA, c + 1))}
-              disabled={photoCount >= MAX_CHAPTER_MEDIA}
-            >
-              {t('addPhoto')}
-            </ButtonText>
-          </div>
+          <ChapterMediaPicker files={files} onChange={setFiles} countLabel={t('photosCount', { count: files.length })} addLabel={t('addPhoto')} />
 
           <div className="flex justify-center gap-3 pt-2">
             <ButtonOutlined type="button" variant="thankyou-gray" size="md" onClick={onClose}>

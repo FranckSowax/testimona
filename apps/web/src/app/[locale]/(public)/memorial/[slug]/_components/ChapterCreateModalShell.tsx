@@ -37,6 +37,7 @@ export function ChapterCreateModalShell({
         fd.set('slug', slug);
         fd.set('title', values.title);
         fd.set('content', values.content);
+        for (const file of values.files) fd.append('media', file);
 
         const result = await createChapterAction(null, fd);
         if (result?.error) {

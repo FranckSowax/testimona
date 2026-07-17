@@ -127,12 +127,14 @@ model Biography {
   chapters Chapter[]
 }
 
+/// media: Json array of { url, type: 'image' | 'video' } — see migration v20.
 model Chapter {
   id          String   @id @default(uuid()) @db.Uuid
   biographyId String   @db.Uuid
   title       String
   content     String
   position    Int      @default(0)
+  media       Json     @default("[]")
   createdAt   DateTime @default(now()) @db.Timestamptz(6)
 
   biography Biography @relation(fields: [biographyId], references: [id], onDelete: Cascade)

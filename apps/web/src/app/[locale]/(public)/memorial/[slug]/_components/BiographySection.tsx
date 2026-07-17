@@ -3,12 +3,14 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import { ChapterCreateModalShell } from './ChapterCreateModalShell';
 import { BiographyInfoCard, type BiographyInfo } from './BiographyInfoCard';
 import { BiographyChaptersManager } from './BiographyChaptersManager';
+import { ChapterMediaGrid, type ChapterMedia } from './ChapterMediaGrid';
 
 interface ChapterRow {
   id: string;
   title: string;
   content: string;
   position: number;
+  media: ChapterMedia[];
 }
 
 interface BiographyRow extends BiographyInfo {
@@ -28,15 +30,30 @@ async function getBiographyData(
     .maybeSingle<BiographyRow>();
   if (!bio) return { bio: null, chapters: [] };
 
-  const { data: chapters } = await supabase
+  // Try to include media; if migration v20 hasn't run the column doesn't exist
+  // and supabase-js returns an error — fall back to the media-less select so the
+  // chapters still render.
+  const withMedia = await supabase
     .from('Chapter')
-    .select('id, title, content, position')
+    .select('id, title, content, position, media')
     .eq('biographyId', bio.id)
     .order('position', { ascending: true })
     .returns<ChapterRow[]>();
+  let chapters: ChapterRow[];
+  if (withMedia.error) {
+    const { data } = await supabase
+      .from('Chapter')
+      .select('id, title, content, position')
+      .eq('biographyId', bio.id)
+      .order('position', { ascending: true })
+      .returns<Omit<ChapterRow, 'media'>[]>();
+    chapters = (data ?? []).map((c) => ({ ...c, media: [] }));
+  } else {
+    chapters = (withMedia.data ?? []).map((c) => ({ ...c, media: c.media ?? [] }));
+  }
 
   const { id: _id, ...info } = bio;
-  return { bio: info, chapters: chapters ?? [] };
+  return { bio: info, chapters };
 }
 
 export async function BiographySection({
@@ -98,6 +115,7 @@ export async function BiographySection({
               <div className="mt-2 whitespace-pre-line text-base leading-relaxed text-foreground/90">
                 {c.content}
               </div>
+              <ChapterMediaGrid media={c.media} />
             </article>
           ))}
         </div>
