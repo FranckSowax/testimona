@@ -1,17 +1,22 @@
 import 'server-only';
 
 /**
- * fal.ai client for Seedance 2.0 image-to-video. Used as a parallel
- * provider to Higgsfield — when FAL_KEY is set the rest of the stack
- * routes generation through here instead. Cheaper per second than
- * Higgsfield DOP, hosts Seedance 2.0 directly from Bytedance.
+ * fal.ai client for Kling image-to-video. Used as a parallel provider to
+ * Higgsfield — when FAL_KEY is set the rest of the stack routes generation
+ * through here instead.
+ *
+ * Model: Kling 2.1 Master. We deliberately do NOT use Bytedance Seedance:
+ * Seedance's content policy rejects "likenesses of real people"
+ * (content_policy_violation), which is exactly Testimona's use case —
+ * animating portraits of the deceased. Kling permits real-person portrait
+ * animation.
  *
  * Auth: `Authorization: Key <FAL_KEY>` (NOT Bearer).
  * Queue API base: https://queue.fal.run/<model_path>
  */
 
 const FAL_BASE = 'https://queue.fal.run';
-const SEEDANCE_PATH = 'bytedance/seedance-2.0/image-to-video';
+const KLING_PATH = 'fal-ai/kling-video/v2.1/master/image-to-video';
 
 export interface FalSubmitParams {
   imageUrl: string;
@@ -54,7 +59,7 @@ function baseHeaders(): Record<string, string> {
 }
 
 /**
- * Submit a Seedance 2.0 image-to-video job to fal.ai's queue.
+ * Submit a Kling image-to-video job to fal.ai's queue.
  *
  * Returns the queue status_url packaged as the job id (prefixed `falurl:`).
  * Storing the URL directly side-steps fal's per-region queue routing:
@@ -67,7 +72,7 @@ export async function falSubmitImageToVideo(
   params: FalSubmitParams,
 ): Promise<{ jobId: string } | { error: string }> {
   try {
-    const res = await fetch(`${FAL_BASE}/${SEEDANCE_PATH}`, {
+    const res = await fetch(`${FAL_BASE}/${KLING_PATH}`, {
       method: 'POST',
       headers: {
         ...baseHeaders(),
@@ -76,10 +81,9 @@ export async function falSubmitImageToVideo(
       body: JSON.stringify({
         image_url: params.imageUrl,
         prompt: params.prompt,
-        resolution: '720p',
-        duration: String(params.durationSec),
-        aspect_ratio: 'auto',
-        generate_audio: false,
+        // Kling only accepts "5" or "10" seconds. Aspect ratio and resolution
+        // are inferred from the input image (no such params on this model).
+        duration: params.durationSec >= 10 ? '10' : '5',
       }),
     });
     if (!res.ok) {
@@ -98,7 +102,7 @@ export async function falSubmitImageToVideo(
     const statusUrl =
       json.status_url ??
       (json.request_id
-        ? `${FAL_BASE}/${SEEDANCE_PATH}/requests/${json.request_id}/status`
+        ? `${FAL_BASE}/${KLING_PATH}/requests/${json.request_id}/status`
         : null);
     if (!statusUrl) return { error: 'fal: missing status_url & request_id' };
     // Package the response_url too (new `falurl2:` format). fal serves the
@@ -131,7 +135,7 @@ export async function falGetJobStatus(jobId: string): Promise<FalJobStatus> {
   } else if (jobId.startsWith('falurl:')) {
     statusUrl = jobId.slice('falurl:'.length);
   } else {
-    statusUrl = `${FAL_BASE}/${SEEDANCE_PATH}/requests/${jobId}/status`;
+    statusUrl = `${FAL_BASE}/${KLING_PATH}/requests/${jobId}/status`;
   }
   if (!statusUrl) return { status: 'failed', error: 'fal: no statusUrl' };
 
@@ -203,7 +207,7 @@ export async function pingFal(): Promise<
   | { ok: false; status: number; body: string; verdict: string }
 > {
   try {
-    const res = await fetch(`${FAL_BASE}/${SEEDANCE_PATH}`, {
+    const res = await fetch(`${FAL_BASE}/${KLING_PATH}`, {
       method: 'POST',
       headers: {
         ...baseHeaders(),

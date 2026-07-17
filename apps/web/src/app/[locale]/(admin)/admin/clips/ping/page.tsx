@@ -7,7 +7,7 @@ import Link from 'next/link';
 export const dynamic = 'force-dynamic';
 
 const PROVIDER_LABEL: Record<'fal' | 'higgsfield' | 'demo', string> = {
-  fal: 'fal.ai (Seedance 2.0)',
+  fal: 'fal.ai (Kling 2.1)',
   higgsfield: 'Higgsfield (DOP)',
   demo: 'Mode demo',
 };
@@ -39,7 +39,7 @@ export default async function ProviderPingPage() {
                 <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
                   FAL_KEY
                 </code>{' '}
-                pour passer par fal.ai / Seedance 2.0 (recommandé)
+                pour passer par fal.ai / Kling 2.1 (recommandé)
               </li>
               <li>
                 <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">

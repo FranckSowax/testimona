@@ -9,7 +9,7 @@ import {
  * Video provider abstraction. Routes the request based on which provider
  * is configured in env:
  *
- *   FAL_KEY                                  → fal.ai (Seedance 2.0)
+ *   FAL_KEY                                  → fal.ai (Kling 2.1)
  *   HIGGSFIELD_API_ID + HIGGSFIELD_API_KEY   → Higgsfield (DOP)
  *   none of the above                        → deterministic demo
  *
