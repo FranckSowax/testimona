@@ -3,6 +3,7 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import { ShareLinkButton } from '@/components/ui/ShareLinkButton';
 import { DonationBar } from '@/components/motion/DonationBar';
 import { DonationSettingsModalShell } from './DonationSettingsModalShell';
+import { SimulateDonationButton } from './SimulateDonationButton';
 
 interface DonationRow {
   amount: number;
@@ -125,6 +126,12 @@ export async function DonationGoal({
       <p className="mt-2 text-xs text-muted-foreground">
         {t('goalSupporters', { count: stats.count })}
       </p>
+
+      {isOwner && slug && (
+        <div className="mt-3 flex flex-col items-start border-t border-dashed border-border pt-3">
+          <SimulateDonationButton memorialId={memorialId} slug={slug} />
+        </div>
+      )}
     </div>
   );
 }

@@ -4,8 +4,10 @@ import { randomUUID } from 'node:crypto';
 import { DonationCheckoutInputSchema } from '@testimona/shared';
 import { redirect } from 'next/navigation';
 import Stripe from 'stripe';
+import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
+import { canManageMemorial } from '@/lib/memorial/access';
 
 export interface DonationActionState {
   error?: string;
@@ -116,4 +118,52 @@ export async function createDonationCheckoutAction(
 
   if (!session.url) return { error: "Stripe n'a pas retourné d'URL." };
   redirect(session.url);
+}
+
+// ---------------------------------------------------------------------------
+// Test donation — owner/admin only. Inserts a Succeeded donation directly,
+// bypassing Stripe, so the memorial owner can see how the pot credits and how
+// different currencies behave (there is currently NO FX conversion: the pot
+// sums raw amounts across currencies — see DonationGoal). For testing only.
+// ---------------------------------------------------------------------------
+export interface SimulateDonationState {
+  ok?: boolean;
+  error?: string;
+}
+
+export async function simulateDonationAction(
+  _prev: SimulateDonationState | null,
+  formData: FormData,
+): Promise<SimulateDonationState> {
+  const memorialId = String(formData.get('memorialId') ?? '').trim();
+  const slug = String(formData.get('slug') ?? '').trim();
+  const amountUnits = Number(formData.get('amount') ?? 0);
+  const currency = String(formData.get('currency') ?? 'EUR').trim().toUpperCase();
+  const donorName = String(formData.get('donorName') ?? '').trim() || 'Donateur test';
+  if (!memorialId) return { error: 'memorialId requis.' };
+  if (!Number.isFinite(amountUnits) || amountUnits <= 0)
+    return { error: 'Montant invalide.' };
+  if (!/^[A-Z]{3}$/.test(currency)) return { error: 'Devise invalide.' };
+
+  const supabase = await getSupabaseServer();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) return { error: 'Non connecté.' };
+  if (!(await canManageMemorial(memorialId, userData.user.id)))
+    return { error: 'Réservé aux administrateurs du mémorial.' };
+
+  const adminDb = getSupabaseAdminClient();
+  const { error } = await adminDb.from('Donation').insert({
+    id: randomUUID(),
+    memorialId,
+    amount: Math.round(amountUnits * 100),
+    currency,
+    status: 'Succeeded',
+    donorId: userData.user.id,
+    donorName: `${donorName} (test)`,
+    message: 'Don de test — simulation sans paiement.',
+  });
+  if (error) return { error: error.message };
+
+  if (slug) revalidatePath(`/memorial/${slug}`);
+  return { ok: true };
 }
