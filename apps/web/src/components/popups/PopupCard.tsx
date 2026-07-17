@@ -99,22 +99,27 @@ export function PopupCard({
         .join(' ')}
     >
       <div ref={contentRef} className="relative p-4 sm:p-6">
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close"
-          className="absolute right-2 top-2 inline-flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-[var(--color-bg-hover-gray)] hover:text-foreground sm:right-3 sm:top-3"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="M6 6l12 12M18 6L6 18"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
+        {/* Sticky so the close button stays reachable while a tall modal's
+            content scrolls (previously it scrolled out of view and only
+            Escape could close the dialog). h-0 keeps it from taking layout. */}
+        <div className="pointer-events-none sticky top-0 z-20 flex h-0 justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="pointer-events-auto -mr-1 -mt-1 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/70 text-muted-foreground backdrop-blur-sm transition-colors hover:bg-[var(--color-bg-hover-gray)] hover:text-foreground sm:-mr-2 sm:-mt-2"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M6 6l12 12M18 6L6 18"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        </div>
         {children}
       </div>
     </dialog>

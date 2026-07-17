@@ -60,22 +60,26 @@ export function OverlayModal({
         .join(' ')}
     >
       <div className="relative flex min-h-[100dvh] flex-col">
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close"
-          className="absolute right-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 text-white/80 transition-colors hover:bg-white/10 hover:text-white sm:right-6 sm:top-6"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="M6 6l12 12M18 6L6 18"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
+        {/* Sticky so the close button stays reachable while tall content
+            scrolls (previously scrolled away; only Escape closed it). */}
+        <div className="pointer-events-none sticky top-0 z-10 flex h-0 justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="pointer-events-auto m-3 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 bg-secondary/40 text-white/80 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white sm:m-6"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M6 6l12 12M18 6L6 18"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        </div>
         <div className="flex flex-1 items-center justify-center px-4 py-10 sm:px-6 sm:py-12">
           {children}
         </div>
