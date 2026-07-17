@@ -427,7 +427,8 @@
       "title": "Mes mémoriels",
       "create": "Créer un mémorial",
       "emptyTitle": "Aucun mémorial pour le moment",
-      "emptyBody": "Créez votre premier mémorial pour rassembler témoignages, photos et dons en hommage."
+      "emptyBody": "Créez votre premier mémorial pour rassembler témoignages, photos et dons en hommage.",
+      "favoritesTitle": "Mes favoris"
     },
     "testimonials": {
       "title": "Mes témoignages",

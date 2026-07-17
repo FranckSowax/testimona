@@ -427,7 +427,8 @@
       "title": "My memorials",
       "create": "Create a memorial",
       "emptyTitle": "No memorials yet",
-      "emptyBody": "Create your first memorial to gather testimonials, photos and tribute donations."
+      "emptyBody": "Create your first memorial to gather testimonials, photos and tribute donations.",
+      "favoritesTitle": "My favorites"
     },
     "testimonials": {
       "title": "My testimonials",

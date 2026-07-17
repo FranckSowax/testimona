@@ -216,6 +216,23 @@ async function getMemorialPlaces(memorialId: string): Promise<{
   );
 }
 
+async function getIsFavorite(
+  memorialId: string,
+  userId: string | undefined,
+): Promise<boolean> {
+  if (!userId) return false;
+  const supabase = await getSupabaseServer();
+  // Tolerant: if migration v21 hasn't run the table doesn't exist and
+  // supabase-js returns an error (not a throw) → treat as not favorited.
+  const { data } = await supabase
+    .from('MemorialFavorite')
+    .select('id')
+    .eq('memorialId', memorialId)
+    .eq('userId', userId)
+    .maybeSingle<{ id: string }>();
+  return !!data;
+}
+
 export default async function MemorialPage({
   params,
 }: {
@@ -316,7 +333,10 @@ export default async function MemorialPage({
   };
   const isOwner = isOwnerEarly;
 
-  const places = await getMemorialPlaces(memorial.id);
+  const [places, isFavoriteInitial] = await Promise.all([
+    getMemorialPlaces(memorial.id),
+    getIsFavorite(memorial.id, currentUser?.id),
+  ]);
   const dateLocale = locale === 'en' ? 'en-US' : 'fr-FR';
   const birthPlace = [places.birthCity, places.birthCountry].filter(Boolean).join(', ');
   const deathPlace = [places.deathCity, places.deathCountry].filter(Boolean).join(', ');
@@ -396,12 +416,14 @@ export default async function MemorialPage({
         sideActions={
           <MemorialCoverSidebar
             slug={memorial.slug}
+            memorialId={memorial.id}
             fullName={fullName}
             shareUrl={shareUrl}
             photos={storyPhotos}
             musicUrl={memorial.musicUrl}
             isOwner={isOwner}
             isLoggedIn={!!currentUser}
+            isFavoriteInitial={isFavoriteInitial}
             labels={coverLabels}
           />
         }

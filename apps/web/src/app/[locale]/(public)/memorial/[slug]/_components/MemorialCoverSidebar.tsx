@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { useMemorialFavorite } from '@/lib/favorites';
+import { useState, useTransition } from 'react';
 import { ButtonIcon } from '@/components/ui/ButtonIcon';
 import { PhotoStoryViewer, type StoryPhoto } from './PhotoStoryViewer';
 import { MemorialShareDialog } from './MemorialShareDialog';
+import { toggleFavoriteAction } from '../_actions/favorite';
 
 interface Labels {
   play: string;
@@ -54,12 +54,14 @@ interface Labels {
 
 interface Props {
   slug: string;
+  memorialId: string;
   fullName: string;
   shareUrl: string;
   photos: StoryPhoto[];
   musicUrl?: string | null;
   isOwner: boolean;
   isLoggedIn: boolean;
+  isFavoriteInitial: boolean;
   labels: Labels;
 }
 
@@ -73,17 +75,38 @@ interface Props {
  */
 export function MemorialCoverSidebar({
   slug,
+  memorialId,
   fullName,
   shareUrl,
   photos,
   musicUrl,
   isOwner,
   isLoggedIn,
+  isFavoriteInitial,
   labels,
 }: Props) {
   const [storyOpen, setStoryOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const { isFavorite, toggle: toggleFav, hydrated } = useMemorialFavorite(slug);
+  const [isFavorite, setIsFavorite] = useState(isFavoriteInitial);
+  const [, startFavTransition] = useTransition();
+
+  function toggleFav() {
+    if (!isLoggedIn) {
+      window.location.href = `/login?next=/memorial/${slug}`;
+      return;
+    }
+    const optimistic = !isFavorite;
+    setIsFavorite(optimistic); // optimistic
+    startFavTransition(async () => {
+      const res = await toggleFavoriteAction(memorialId, slug);
+      if (res.needsAuth) {
+        window.location.href = `/login?next=/memorial/${slug}`;
+        return;
+      }
+      if (typeof res.favorite === 'boolean') setIsFavorite(res.favorite);
+      else setIsFavorite(!optimistic); // revert on error
+    });
+  }
 
   function openTestimonial() {
     if (!isLoggedIn) {
@@ -178,7 +201,7 @@ export function MemorialCoverSidebar({
         tone="default"
         size="sm"
         onClick={toggleFav}
-        aria-pressed={hydrated ? isFavorite : undefined}
+        aria-pressed={isFavorite}
         className={[
           '!text-white hover:!bg-white/30',
           isFavorite ? '!bg-white/40' : '!bg-white/20',

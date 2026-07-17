@@ -45,6 +45,34 @@ async function getOwnedMemorialsWithCover(ownerId: string): Promise<OwnedMemoria
   return data ?? [];
 }
 
+/**
+ * Memorials the user has favorited (heart). Tolerant: if migration v21 hasn't
+ * run the table doesn't exist and supabase-js returns an error → empty list.
+ * Only public memorials are listed (favorites are of public pages).
+ */
+async function getFavoriteMemorials(userId: string): Promise<OwnedMemorialRow[]> {
+  const supabase = await getSupabaseServer();
+  const { data: favs } = await supabase
+    .from('MemorialFavorite')
+    .select('memorialId, createdAt')
+    .eq('userId', userId)
+    .order('createdAt', { ascending: false })
+    .returns<{ memorialId: string; createdAt: string }[]>();
+  const ids = (favs ?? []).map((f) => f.memorialId);
+  if (ids.length === 0) return [];
+  const { data } = await supabase
+    .from('Memorial')
+    .select(
+      `id, slug, firstname, lastname, birthDate, deathDate, isPublic, createdAt,
+       Photo:Photo!Photo_memorialId_fkey(url, position)`,
+    )
+    .in('id', ids)
+    .eq('isPublic', true)
+    .returns<OwnedMemorialRow[]>();
+  const byId = new Map((data ?? []).map((m) => [m.id, m]));
+  return ids.map((id) => byId.get(id)).filter((m): m is OwnedMemorialRow => !!m);
+}
+
 function coverUrl(memorial: OwnedMemorialRow): string | null {
   if (!memorial.Photo || memorial.Photo.length === 0) return null;
   const sorted = [...memorial.Photo].sort((a, b) => a.position - b.position);
@@ -55,8 +83,9 @@ export default async function DashboardPage() {
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/dashboard');
 
-  const [memorials, t] = await Promise.all([
+  const [memorials, favorites, t] = await Promise.all([
     getOwnedMemorialsWithCover(user.id),
+    getFavoriteMemorials(user.id),
     getTranslations('dashboard.memorials'),
   ]);
 
@@ -102,6 +131,30 @@ export default async function DashboardPage() {
             );
           })}
         </ul>
+      )}
+      {favorites.length > 0 && (
+        <section className="mt-10">
+          <h2 className="mb-4 font-display text-lg font-bold text-foreground">
+            {t('favoritesTitle')}
+          </h2>
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {favorites.map((m) => {
+              const fullName = [m.firstname, m.lastname].filter(Boolean).join(' ');
+              return (
+                <li key={m.id}>
+                  <MemorialCard
+                    slug={m.slug}
+                    fullName={fullName}
+                    birthDate={m.birthDate}
+                    deathDate={m.deathDate}
+                    coverUrl={coverUrl(m)}
+                    badge={null}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       )}
       <WelcomeOverlayTrigger />
     </DashboardShell>

@@ -42,6 +42,7 @@ model Memorial {
   biography    Biography?
   donations    Donation[]
   funeral      Funeral?
+  favorites    MemorialFavorite[]
 
   @@index([ownerId])
   @@index([isPublic])
@@ -125,6 +126,19 @@ model Biography {
 
   memorial Memorial  @relation(fields: [memorialId], references: [id], onDelete: Cascade)
   chapters Chapter[]
+}
+
+/// Per-account memorial favorites (heart) — see migration v21.
+model MemorialFavorite {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @db.Uuid
+  memorialId String   @db.Uuid
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+
+  memorial Memorial @relation(fields: [memorialId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, memorialId])
+  @@index([userId, createdAt])
 }
 
 /// media: Json array of { url, type: 'image' | 'video' } — see migration v20.
