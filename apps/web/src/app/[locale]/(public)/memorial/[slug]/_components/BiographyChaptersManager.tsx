@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -8,7 +8,7 @@ import {
   updateChapterAction,
   deleteChapterAction,
 } from '../_actions/biography';
-import { ChapterMediaGrid, type ChapterMedia } from './ChapterMediaGrid';
+import { type ChapterMedia } from './ChapterMediaGrid';
 
 interface ChapterDraft {
   id: string;
@@ -153,7 +153,13 @@ export function BiographyChaptersManager({
     });
   }
 
-  async function submitEdit(id: string, title: string, content: string) {
+  async function submitEdit(
+    id: string,
+    title: string,
+    content: string,
+    keptMedia: ChapterMedia[],
+    newFiles: File[],
+  ) {
     setFeedback(null);
     const fd = new FormData();
     fd.set('id', id);
@@ -161,12 +167,16 @@ export function BiographyChaptersManager({
     fd.set('slug', slug);
     fd.set('title', title);
     fd.set('content', content);
+    fd.set('existingMedia', JSON.stringify(keptMedia));
+    for (const file of newFiles) fd.append('media', file);
     try {
       const result = await updateChapterAction(null, fd);
       if (result?.error) {
         setFeedback({ kind: 'error', text: result.error });
         return false;
       }
+      // Title/content update optimistically; media (new upload URLs) comes back
+      // via the refresh below.
       setChapters((prev) =>
         prev.map((c) => (c.id === id ? { ...c, title, content } : c)),
       );
@@ -249,8 +259,11 @@ export function BiographyChaptersManager({
                 <ChapterEditForm
                   initialTitle={c.title}
                   initialContent={c.content}
+                  initialMedia={c.media ?? []}
                   onCancel={() => setEditingId(null)}
-                  onSubmit={(title, content) => submitEdit(c.id, title, content)}
+                  onSubmit={(title, content, keptMedia, newFiles) =>
+                    submitEdit(c.id, title, content, keptMedia, newFiles)
+                  }
                 />
               ) : (
                 <div className="flex items-start gap-2 p-3 sm:p-4">
@@ -369,28 +382,43 @@ export function BiographyChaptersManager({
   );
 }
 
+const MAX_CHAPTER_MEDIA = 10;
+const MEDIA_ACCEPT =
+  'image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime';
+
 function ChapterEditForm({
   initialTitle,
   initialContent,
+  initialMedia,
   onCancel,
   onSubmit,
 }: {
   initialTitle: string;
   initialContent: string;
+  initialMedia: ChapterMedia[];
   onCancel: () => void;
-  onSubmit: (title: string, content: string) => Promise<boolean>;
+  onSubmit: (
+    title: string,
+    content: string,
+    keptMedia: ChapterMedia[],
+    newFiles: File[],
+  ) => Promise<boolean>;
 }) {
   const t = useTranslations('memorial.chaptersManager');
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
+  const [kept, setKept] = useState<ChapterMedia[]>(initialMedia);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const fileRef = useRef<HTMLInputElement>(null);
   const [isPending, startTransition] = useTransition();
+  const totalMedia = kept.length + newFiles.length;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const t = title.trim();
-    if (!t) return;
+    const tt = title.trim();
+    if (!tt) return;
     startTransition(async () => {
-      await onSubmit(t, content.trim());
+      await onSubmit(tt, content.trim(), kept, newFiles);
     });
   }
 
@@ -421,6 +449,81 @@ function ChapterEditForm({
           className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
         />
       </label>
+
+      {/* Media: view/remove existing, add new. */}
+      <div className="rounded-md border border-dashed border-border bg-surface p-2">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs italic text-muted-foreground">
+            {t('mediaCount', { count: totalMedia })}
+          </span>
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={totalMedia >= MAX_CHAPTER_MEDIA}
+            className="press-scale rounded-md border border-border bg-white px-2 py-1 font-display text-[11px] font-bold text-primary transition-colors hover:bg-primary/5 disabled:opacity-40"
+          >
+            {t('addMedia')}
+          </button>
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept={MEDIA_ACCEPT}
+          multiple
+          className="hidden"
+          onChange={(e) => {
+            const picked = Array.from(e.target.files ?? []);
+            setNewFiles((prev) =>
+              [...prev, ...picked].slice(0, MAX_CHAPTER_MEDIA - kept.length),
+            );
+            e.target.value = '';
+          }}
+        />
+        {(kept.length > 0 || newFiles.length > 0) && (
+          <ul className="mt-2 space-y-1">
+            {kept.map((m, i) => (
+              <li
+                key={`${m.url}-${i}`}
+                className="flex items-center justify-between gap-2 text-xs text-foreground"
+              >
+                <span className="truncate">
+                  {m.type === 'video' ? '🎬' : '🖼️'}{' '}
+                  {m.url.split('/').pop()}
+                </span>
+                <button
+                  type="button"
+                  aria-label={t('removeMedia')}
+                  onClick={() => setKept((prev) => prev.filter((_, j) => j !== i))}
+                  className="shrink-0 text-muted-foreground hover:text-destructive"
+                >
+                  ✕
+                </button>
+              </li>
+            ))}
+            {newFiles.map((f, i) => (
+              <li
+                key={`new-${f.name}-${i}`}
+                className="flex items-center justify-between gap-2 text-xs text-foreground"
+              >
+                <span className="truncate">
+                  {f.type.startsWith('video') ? '🎬' : '🖼️'} {f.name}
+                </span>
+                <button
+                  type="button"
+                  aria-label={t('removeMedia')}
+                  onClick={() =>
+                    setNewFiles((prev) => prev.filter((_, j) => j !== i))
+                  }
+                  className="shrink-0 text-muted-foreground hover:text-destructive"
+                >
+                  ✕
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
       <div className="flex items-center justify-end gap-2">
         <button
           type="button"

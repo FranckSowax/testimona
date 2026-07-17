@@ -168,20 +168,50 @@ export async function updateChapterAction(
 
   const adminDb = getSupabaseAdminClient();
 
-  // Append any newly-uploaded media to what the chapter already has.
   const newFiles = readMediaFiles(formData);
   const update: { title: string; content: string; media?: ChapterMedia[] } = {
     title,
     content,
   };
-  if (newFiles.length > 0) {
-    const { data: existing } = await adminDb
-      .from('Chapter')
-      .select('media')
-      .eq('id', id)
-      .maybeSingle<{ media: ChapterMedia[] | null }>();
-    const uploaded = await uploadChapterMedia(id, newFiles);
-    update.media = [...(existing?.media ?? []), ...uploaded].slice(0, MAX_CHAPTER_MEDIA);
+
+  // `existingMedia` (JSON) is the set of already-uploaded items the editor
+  // chose to KEEP — its presence means the client is managing the full media
+  // list (view/remove existing + add new). Without it, we fall back to
+  // appending new uploads to whatever the chapter already has.
+  const existingRaw = formData.get('existingMedia');
+  let kept: ChapterMedia[] | null = null;
+  if (typeof existingRaw === 'string') {
+    try {
+      const parsed = JSON.parse(existingRaw) as unknown;
+      if (Array.isArray(parsed)) {
+        kept = parsed
+          .filter(
+            (m): m is ChapterMedia =>
+              !!m &&
+              typeof (m as ChapterMedia).url === 'string' &&
+              ((m as ChapterMedia).type === 'image' ||
+                (m as ChapterMedia).type === 'video'),
+          )
+          .map((m) => ({ url: m.url, type: m.type }));
+      }
+    } catch {
+      kept = null;
+    }
+  }
+
+  if (kept !== null || newFiles.length > 0) {
+    const base =
+      kept ??
+      (
+        await adminDb
+          .from('Chapter')
+          .select('media')
+          .eq('id', id)
+          .maybeSingle<{ media: ChapterMedia[] | null }>()
+      ).data?.media ??
+      [];
+    const uploaded = newFiles.length > 0 ? await uploadChapterMedia(id, newFiles) : [];
+    update.media = [...base, ...uploaded].slice(0, MAX_CHAPTER_MEDIA);
   }
 
   const { error } = await adminDb.from('Chapter').update(update).eq('id', id);

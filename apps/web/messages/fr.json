@@ -637,7 +637,9 @@
       "fieldContent": "Contenu",
       "cancel": "Annuler",
       "saving": "Enregistrement…",
-      "save": "Enregistrer"
+      "save": "Enregistrer",
+      "addMedia": "Ajouter un média",
+      "removeMedia": "Retirer"
     },
     "animate": {
       "ariaLabel": "Animer le mémorial",

@@ -646,7 +646,9 @@
       "fieldContent": "Content",
       "cancel": "Cancel",
       "saving": "Saving…",
-      "save": "Save"
+      "save": "Save",
+      "addMedia": "Add media",
+      "removeMedia": "Remove"
     },
     "animate": {
       "ariaLabel": "Animate the memorial",
