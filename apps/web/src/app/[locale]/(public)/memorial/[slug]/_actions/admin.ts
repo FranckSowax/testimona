@@ -1,5 +1,6 @@
 'use server';
 
+import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
@@ -99,7 +100,9 @@ export async function updateBiographyInfoAction(
     const { error } = await supabase.from('Biography').update(payload).eq('id', bio.id);
     if (error) return { error: error.message };
   } else {
-    const { error } = await supabase.from('Biography').insert({ memorialId, ...payload });
+    const { error } = await supabase
+      .from('Biography')
+      .insert({ id: randomUUID(), memorialId, ...payload });
     if (error) return { error: error.message };
   }
 
@@ -180,7 +183,9 @@ export async function updateFuneralInfoAction(
       .eq('id', funeral.id);
     if (error) return { error: error.message };
   } else {
-    const { error } = await supabase.from('Funeral').insert({ memorialId, description });
+    const { error } = await supabase
+      .from('Funeral')
+      .insert({ id: randomUUID(), memorialId, description });
     if (error) return { error: error.message };
   }
 

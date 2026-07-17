@@ -1,5 +1,6 @@
 'use server';
 
+import { randomUUID } from 'node:crypto';
 import { DonationCheckoutInputSchema } from '@testimona/shared';
 import { redirect } from 'next/navigation';
 import Stripe from 'stripe';
@@ -59,6 +60,7 @@ export async function createDonationCheckoutAction(
   // even though RLS would otherwise block them.
   const adminDb = getSupabaseAdminClient();
   const insertPayload: Record<string, unknown> = {
+    id: randomUUID(),
     memorialId: parsed.data.memorialId,
     amount: parsed.data.amount,
     currency: parsed.data.currency.toUpperCase(),

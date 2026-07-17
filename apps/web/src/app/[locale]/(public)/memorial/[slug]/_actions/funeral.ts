@@ -1,5 +1,6 @@
 'use server';
 
+import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { canManageMemorial } from '@/lib/memorial/access';
@@ -59,7 +60,7 @@ export async function createFuneralEventAction(
   if (!funeral) {
     const { data: created, error: createErr } = await supabase
       .from('Funeral')
-      .insert({ memorialId })
+      .insert({ id: randomUUID(), memorialId })
       .select('id')
       .maybeSingle<FuneralRow>();
     if (createErr || !created) {
@@ -81,6 +82,7 @@ export async function createFuneralEventAction(
   const hour = endsAt ? `${startsAt} – ${endsAt}` : startsAt;
 
   const { error } = await supabase.from('FuneralEvent').insert({
+    id: randomUUID(),
     funeralId: funeral.id,
     title,
     date,

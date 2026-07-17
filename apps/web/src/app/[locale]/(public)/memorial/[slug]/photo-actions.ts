@@ -1,5 +1,6 @@
 'use server';
 
+import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
@@ -63,6 +64,7 @@ export async function uploadMemorialPhotoAction(
     .eq('memorialId', memorialId);
 
   const { error: insertError } = await supabase.from('Photo').insert({
+    id: randomUUID(),
     memorialId,
     url,
     caption,
@@ -200,6 +202,7 @@ export async function submitPublicPhotoAction(
     .eq('status', 'approved');
 
   const { error: insertError } = await adminDb.from('Photo').insert({
+    id: randomUUID(),
     memorialId,
     url,
     caption,

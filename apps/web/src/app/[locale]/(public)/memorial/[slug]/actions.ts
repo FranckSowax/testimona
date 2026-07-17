@@ -1,5 +1,6 @@
 'use server';
 
+import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
@@ -62,6 +63,7 @@ export async function submitTestimonialAction(
   const status = isOwner ? 'approved' : 'pending';
 
   const { error } = await adminDb.from('Testimonial').insert({
+    id: randomUUID(),
     memorialId,
     authorId: userId,
     authorName: displayName,
@@ -252,6 +254,7 @@ export async function submitCommentAction(
   const authorName = meta?.full_name ?? meta?.nickname ?? userData.user.email ?? 'Anonyme';
 
   const { error } = await supabase.from('TestimonialComment').insert({
+    id: randomUUID(),
     testimonialId,
     authorId: userData.user.id,
     authorName,
@@ -285,6 +288,7 @@ export async function reportTestimonialAction(
   if (!userData.user) return { error: 'auth required' };
 
   const { error } = await supabase.from('TestimonialReport').insert({
+    id: randomUUID(),
     testimonialId,
     reporterId: userData.user.id,
     reason: trimmed,
