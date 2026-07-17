@@ -47,6 +47,11 @@ export function NewMemorialModalShell() {
           fd.set('isPublic', 'on');
           if (values.bio) fd.set('description', values.bio);
           if (values.musicUrl) fd.set('musicUrl', values.musicUrl);
+          if (values.birthCountry) fd.set('birthCountry', values.birthCountry);
+          if (values.birthCity) fd.set('birthCity', values.birthCity);
+          if (values.deathCountry) fd.set('deathCountry', values.deathCountry);
+          if (values.deathCity) fd.set('deathCity', values.deathCity);
+          if (values.relationship) fd.set('relationship', values.relationship);
 
           const result = await createMemorialAction(null, fd);
 

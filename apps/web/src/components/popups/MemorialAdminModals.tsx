@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ButtonOutlined } from '@/components/ui/ButtonOutlined';
+import { COUNTRIES, RELATIONSHIP_OPTIONS } from '@/lib/countries';
 import { PopupCard, PopupHeader } from './PopupCard';
 
 export interface MemorialFormValues {
@@ -63,15 +64,48 @@ export function MemorialFormPopup({
     setV((p) => ({ ...p, [k]: val }));
   const [localError, setLocalError] = useState<string | null>(null);
 
+  function badDateTriplet(y?: string, m?: string, d?: string): boolean {
+    const yy = Number(y);
+    const mm = Number(m);
+    const dd = Number(d);
+    const currentYear = new Date().getFullYear();
+    if (!(yy >= 1900 && yy <= currentYear)) return true;
+    if (!(mm >= 1 && mm <= 12)) return true;
+    if (!(dd >= 1 && dd <= 31)) return true;
+    return false;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (submitting) return;
+
     // Surface the reason instead of silently swallowing the click — otherwise
     // the popup just "stays open" with no feedback (recette PDF p8).
-    if (!v.firstname || !v.lastname || !v.deathYear || !v.deathCountry) {
-      setLocalError('Renseigne au minimum le prénom, le nom, l’année et le pays de décès.');
+    if (mode === 'create') {
+      const missing =
+        !v.firstname ||
+        !v.lastname ||
+        !v.birthYear || !v.birthMonth || !v.birthDay || !v.birthCountry ||
+        !v.deathYear || !v.deathMonth || !v.deathDay || !v.deathCountry ||
+        !v.relationship;
+      if (missing) {
+        setLocalError('Tous les champs marqués * sont obligatoires, dates complètes (année, mois, jour) incluses.');
+        return;
+      }
+      if (
+        badDateTriplet(v.birthYear, v.birthMonth, v.birthDay) ||
+        badDateTriplet(v.deathYear, v.deathMonth, v.deathDay)
+      ) {
+        setLocalError(
+          `Vérifie les dates : année entre 1900 et ${new Date().getFullYear()}, mois 1–12, jour 1–31.`,
+        );
+        return;
+      }
+    } else if (!v.firstname || !v.lastname || !v.deathYear) {
+      setLocalError('Renseigne au minimum le prénom, le nom et l’année de décès.');
       return;
     }
+
     setLocalError(null);
     await onSubmit(v);
   }
@@ -112,30 +146,40 @@ export function MemorialFormPopup({
             <div className="grid grid-cols-3 gap-2">
               <input
                 placeholder="YYYY"
+                inputMode="numeric"
+                maxLength={4}
+                required={mode === 'create'}
                 value={v.birthYear}
-                onChange={(e) => set('birthYear', e.target.value)}
+                onChange={(e) => set('birthYear', e.target.value.replace(/\D/g, ''))}
                 className="rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
               />
               <input
                 placeholder="MM"
+                inputMode="numeric"
+                maxLength={2}
+                required={mode === 'create'}
                 value={v.birthMonth}
-                onChange={(e) => set('birthMonth', e.target.value)}
+                onChange={(e) => set('birthMonth', e.target.value.replace(/\D/g, ''))}
                 className="rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
               />
               <input
                 placeholder="DD"
+                inputMode="numeric"
+                maxLength={2}
+                required={mode === 'create'}
                 value={v.birthDay}
-                onChange={(e) => set('birthDay', e.target.value)}
+                onChange={(e) => set('birthDay', e.target.value.replace(/\D/g, ''))}
                 className="rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
               />
             </div>
           </fieldset>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <Input
+            <CountrySelect
               label={mode === 'create' ? 'Country of birth*' : 'Country of birth'}
               value={v.birthCountry ?? ''}
               onChange={(val) => set('birthCountry', val)}
+              required={mode === 'create'}
             />
             <Input
               label="Birth city"
@@ -151,28 +195,36 @@ export function MemorialFormPopup({
             <div className="grid grid-cols-3 gap-2">
               <input
                 placeholder="YYYY*"
+                inputMode="numeric"
+                maxLength={4}
                 value={v.deathYear}
-                onChange={(e) => set('deathYear', e.target.value)}
+                onChange={(e) => set('deathYear', e.target.value.replace(/\D/g, ''))}
                 required
                 className="rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
               />
               <input
                 placeholder="MM"
+                inputMode="numeric"
+                maxLength={2}
+                required={mode === 'create'}
                 value={v.deathMonth}
-                onChange={(e) => set('deathMonth', e.target.value)}
+                onChange={(e) => set('deathMonth', e.target.value.replace(/\D/g, ''))}
                 className="rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
               />
               <input
                 placeholder="DD"
+                inputMode="numeric"
+                maxLength={2}
+                required={mode === 'create'}
                 value={v.deathDay}
-                onChange={(e) => set('deathDay', e.target.value)}
+                onChange={(e) => set('deathDay', e.target.value.replace(/\D/g, ''))}
                 className="rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
               />
             </div>
           </fieldset>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <Input
+            <CountrySelect
               label="Country of death*"
               value={v.deathCountry}
               onChange={(val) => set('deathCountry', val)}
@@ -185,12 +237,24 @@ export function MemorialFormPopup({
             />
           </div>
 
-          <Input
-            label="Relationship with the deceased*"
-            value={v.relationship}
-            onChange={(val) => set('relationship', val)}
-            required
-          />
+          <label className="block">
+            <span className="block font-display text-sm font-medium text-muted-foreground">
+              Relationship with the deceased*
+            </span>
+            <select
+              value={v.relationship}
+              onChange={(e) => set('relationship', e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+            >
+              <option value="">— Select —</option>
+              {RELATIONSHIP_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
           <label className="block">
             <span className="block font-display text-sm font-medium text-muted-foreground">
@@ -349,6 +413,27 @@ function Input({ label, value, onChange, required }: InputProps) {
         required={required}
         className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
       />
+    </label>
+  );
+}
+
+function CountrySelect({ label, value, onChange, required }: InputProps) {
+  return (
+    <label className="block">
+      <span className="block font-display text-sm font-medium text-muted-foreground">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        required={required}
+        className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+      >
+        <option value="">— Select —</option>
+        {COUNTRIES.map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
+        ))}
+      </select>
     </label>
   );
 }

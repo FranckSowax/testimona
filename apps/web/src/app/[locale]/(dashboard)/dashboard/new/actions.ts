@@ -62,6 +62,16 @@ export async function createMemorialAction(
   const musicUrl =
     String(formData.get('musicUrl') ?? '').trim().slice(0, 500) || null;
 
+  // Extra fields collected by the form but not part of MemorialCreateSchema
+  // (zod strips unknown keys), read straight from the FormData like musicUrl.
+  const str = (k: string, max = 120) =>
+    String(formData.get(k) ?? '').trim().slice(0, max) || null;
+  const birthCountry = str('birthCountry');
+  const birthCity = str('birthCity');
+  const deathCountry = str('deathCountry');
+  const deathCity = str('deathCity');
+  const relationship = str('relationship', 40);
+
   // The base "Memorial" table was created by Prisma `db push`. Prisma turns
   // literal/`now()` defaults into Postgres column defaults, but NOT its
   // *functional* defaults: `@default(uuid())` (id) and the `@updatedAt`
@@ -85,6 +95,11 @@ export async function createMemorialAction(
     isPublic: parsed.data.isPublic,
     description: parsed.data.description ?? null,
     musicUrl,
+    birthCountry,
+    birthCity,
+    deathCountry,
+    deathCity,
+    relationship,
     donationGoalCents: 0,
     createdAt: now,
     updatedAt: now,

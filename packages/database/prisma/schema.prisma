@@ -28,6 +28,11 @@ model Memorial {
   isPublic          Boolean       @default(true)
   description       String?
   coverPhotoId      String?       @db.Uuid
+  birthCountry      String?
+  birthCity         String?
+  deathCountry      String?
+  deathCity         String?
+  relationship      String?
   donationGoalCents Int           @default(0)
   createdAt         DateTime      @default(now()) @db.Timestamptz(6)
   updatedAt         DateTime      @updatedAt @db.Timestamptz(6)

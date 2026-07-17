@@ -187,12 +187,41 @@ export async function generateMetadata({
   };
 }
 
+async function getMemorialPlaces(memorialId: string): Promise<{
+  birthCountry: string | null;
+  birthCity: string | null;
+  deathCountry: string | null;
+  deathCity: string | null;
+}> {
+  const supabase = await getSupabaseServer();
+  // Tolerant: if migration v19 hasn't run, the columns don't exist and
+  // supabase-js returns an error (not a throw) → data is null → no places.
+  const { data } = await supabase
+    .from('Memorial')
+    .select('birthCountry, birthCity, deathCountry, deathCity')
+    .eq('id', memorialId)
+    .maybeSingle<{
+      birthCountry: string | null;
+      birthCity: string | null;
+      deathCountry: string | null;
+      deathCity: string | null;
+    }>();
+  return (
+    data ?? {
+      birthCountry: null,
+      birthCity: null,
+      deathCountry: null,
+      deathCity: null,
+    }
+  );
+}
+
 export default async function MemorialPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; locale: string }>;
 }) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   const memorial = await getMemorial(slug);
   if (!memorial) notFound();
 
@@ -287,13 +316,30 @@ export default async function MemorialPage({
   };
   const isOwner = isOwnerEarly;
 
+  const places = await getMemorialPlaces(memorial.id);
+  const dateLocale = locale === 'en' ? 'en-US' : 'fr-FR';
+  const birthPlace = [places.birthCity, places.birthCountry].filter(Boolean).join(', ');
+  const deathPlace = [places.deathCity, places.deathCountry].filter(Boolean).join(', ');
+
   const yearLine = formatYearLine(memorial.birthDate, memorial.deathDate);
-  const birthLine = memorial.birthDate
-    ? new Date(memorial.birthDate).toLocaleDateString('fr-FR')
-    : undefined;
-  const deathLine = memorial.deathDate
-    ? new Date(memorial.deathDate).toLocaleDateString('fr-FR')
-    : undefined;
+  const birthLine =
+    [
+      memorial.birthDate
+        ? new Date(memorial.birthDate).toLocaleDateString(dateLocale)
+        : '',
+      birthPlace,
+    ]
+      .filter(Boolean)
+      .join(' · ') || undefined;
+  const deathLine =
+    [
+      memorial.deathDate
+        ? new Date(memorial.deathDate).toLocaleDateString(dateLocale)
+        : '',
+      deathPlace,
+    ]
+      .filter(Boolean)
+      .join(' · ') || undefined;
 
   const memorialContent = (
     <>
