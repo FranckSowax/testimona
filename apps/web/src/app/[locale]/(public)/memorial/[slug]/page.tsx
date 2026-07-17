@@ -321,7 +321,7 @@ export default async function MemorialPage({
   const birthPlace = [places.birthCity, places.birthCountry].filter(Boolean).join(', ');
   const deathPlace = [places.deathCity, places.deathCountry].filter(Boolean).join(', ');
 
-  const yearLine = formatYearLine(memorial.birthDate, memorial.deathDate);
+  const yearLine = formatYearLine(memorial.birthDate, memorial.deathDate, locale);
   const birthLine =
     [
       memorial.birthDate
@@ -531,14 +531,21 @@ export default async function MemorialPage({
   );
 }
 
-function formatYearLine(birth: string | null, death: string | null): string {
+function formatYearLine(
+  birth: string | null,
+  death: string | null,
+  locale: string,
+): string {
   const year = (d: string | null) => (d ? new Date(d).getFullYear().toString() : '?');
   if (!birth && !death) return '';
   const base = `${year(birth)} – ${year(death)}`;
   // PDF p19 — show the age at death so the right person is identified even
   // when there is no photo.
   const age = computeAge(birth, death);
-  return age != null ? `${base} · à l'âge de ${age} ans` : base;
+  if (age == null) return base;
+  const ageStr =
+    locale === 'en' ? `at the age of ${age}` : `à l'âge de ${age} ans`;
+  return `${base} · ${ageStr}`;
 }
 
 /** Age in full years between birth and death dates (null if either is missing). */
