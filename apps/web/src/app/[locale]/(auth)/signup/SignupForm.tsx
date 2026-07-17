@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
@@ -9,6 +10,7 @@ import { signupAction, type SignupActionState } from './actions';
 
 export function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [state, formAction, isPending] = useActionState<SignupActionState | null, FormData>(
     signupAction,
     null,
@@ -19,12 +21,18 @@ export function SignupForm() {
     // confirmation disabled). When confirmation is required (G2) we keep the
     // user on the page and show the "check your inbox" panel below.
     if (state?.success && !state.confirmEmail) {
-      // welcome flag is forwarded by LoginForm to /dashboard?welcome=1 on
-      // first sign-in, where WelcomeOverlayTrigger picks it up.
-      router.replace('/login?signup=ok&welcome=1');
+      // Forward the caller's `next` intent (e.g. /dashboard/new when the user
+      // clicked "Create memorial" while logged out) so login lands them on the
+      // page they actually wanted instead of dropping them on /dashboard.
+      // welcome=1 is forwarded by LoginForm to <next>?welcome=1 on first
+      // sign-in, where WelcomeOverlayTrigger picks it up.
+      const next = searchParams.get('next');
+      const params = new URLSearchParams({ signup: 'ok', welcome: '1' });
+      if (next && next.startsWith('/')) params.set('next', next);
+      router.replace(`/login?${params.toString()}`);
       router.refresh();
     }
-  }, [state, router]);
+  }, [state, router, searchParams]);
 
   if (state?.success && state.confirmEmail) {
     return (
@@ -40,7 +48,11 @@ export function SignupForm() {
           qu&apos;il contient pour activer ton compte, puis connecte-toi.
         </p>
         <a
-          href="/login"
+          href={
+            searchParams.get('next')?.startsWith('/')
+              ? `/login?next=${encodeURIComponent(searchParams.get('next')!)}`
+              : '/login'
+          }
           className="press-scale inline-block rounded-md border-2 border-emerald-600 px-4 py-2 font-display text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-600 hover:text-white"
         >
           Aller à la connexion
