@@ -62,12 +62,17 @@ export async function createMemorialAction(
   const musicUrl =
     String(formData.get('musicUrl') ?? '').trim().slice(0, 500) || null;
 
+  // The base "Memorial" table was created by Prisma `db push`. Prisma turns
+  // literal/`now()` defaults into Postgres column defaults, but NOT its
+  // *functional* defaults: `@default(uuid())` (id) and the `@updatedAt`
+  // attribute have no DB default at all. Inserting via supabase-js (which
+  // bypasses Prisma Client, so those app-side values are never filled) fails
+  // with `null value in column "id"/"updatedAt"`. We therefore supply id and
+  // both timestamps ourselves. createdAt/donationGoalCents normally DO have DB
+  // defaults, but we set them too so a partially-migrated DB can't surprise us.
+  const now = new Date().toISOString();
+
   const { error } = await supabase.from('Memorial').insert({
-    // Explicit id: the base "Memorial" table was created by Prisma db push,
-    // whose @default(uuid()) is generated client-side only — Postgres has no
-    // column default. Inserting via supabase-js (not Prisma) without an id
-    // fails with `null value in column "id"`. Same defensive pattern as the
-    // Biography insert.
     id: randomUUID(),
     ownerId: userData.user.id,
     slug,
@@ -80,6 +85,9 @@ export async function createMemorialAction(
     isPublic: parsed.data.isPublic,
     description: parsed.data.description ?? null,
     musicUrl,
+    donationGoalCents: 0,
+    createdAt: now,
+    updatedAt: now,
   });
 
   if (error) return { error: error.message };
