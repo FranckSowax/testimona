@@ -21,6 +21,32 @@ export function MemorialTabs({ tabs }: { tabs: TabItem[] }) {
     return () => cancelAnimationFrame(raf);
   }, [activeId]);
 
+  // Deep-link support: when arriving with a #hash (e.g. "open memorial" from a
+  // testimonial in the dashboard → #testimonial-<id>), the target may live in a
+  // non-default, hidden tab where native hash scrolling never fires. Find the
+  // panel that contains the anchor, activate its tab, then scroll to it.
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    const target = tabs.find((t) => {
+      const panel = document.getElementById(`${baseId}-panel-${t.id}`);
+      return panel?.querySelector(`#${CSS.escape(hash)}`) != null;
+    });
+    if (!target) return;
+    setActiveId(target.id);
+    // Let the panel unhide and lay out before scrolling.
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const el = document.getElementById(hash);
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el?.classList.add('ring-2', 'ring-primary/50', 'rounded-lg');
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+    // Run once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (tabs.length === 0) return null;
 
   function onKeyDown(e: KeyboardEvent<HTMLButtonElement>, index: number) {

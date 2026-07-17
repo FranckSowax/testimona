@@ -38,6 +38,8 @@ interface TestimonialItemProps {
   isLogged: boolean;
   isOwner: boolean;
   shareUrl: string;
+  currentUserName?: string;
+  currentUserAvatarUrl?: string | null;
 }
 
 export function TestimonialItem({
@@ -55,6 +57,8 @@ export function TestimonialItem({
   isLogged,
   isOwner,
   shareUrl,
+  currentUserName,
+  currentUserAvatarUrl,
 }: TestimonialItemProps) {
   const t = useTranslations('testimonial');
   const router = useRouter();
@@ -235,7 +239,14 @@ export function TestimonialItem({
                   </ButtonText>
                 </div>
               )}
-              {isLogged && <CommentForm testimonialId={testimonialId} slug={slug} />}
+              {isLogged && (
+                <CommentForm
+                  testimonialId={testimonialId}
+                  slug={slug}
+                  authorName={currentUserName}
+                  authorAvatarUrl={currentUserAvatarUrl}
+                />
+              )}
             </div>
           )}
         </>

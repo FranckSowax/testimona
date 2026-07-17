@@ -150,11 +150,16 @@ export async function TestimonialsSection({
 
   const pendingCount = testimonials.filter((t) => t.status === 'pending').length;
   const meta_user = user?.user_metadata as
-    | { full_name?: string; nickname?: string }
+    | { full_name?: string; nickname?: string; avatar_url?: string }
     | null;
   const userFirstname = meta_user?.nickname?.split(' ')[0] ?? '';
   const userLastname =
     meta_user?.full_name?.split(' ').slice(1).join(' ') ?? '';
+  // Current user's identity for the reply composer avatar (removes the "?"
+  // placeholder shown when no name/avatar is passed).
+  const currentUserName =
+    meta_user?.full_name || meta_user?.nickname || user?.email?.split('@')[0] || undefined;
+  const currentUserAvatarUrl = meta_user?.avatar_url ?? null;
 
   return (
     <section aria-labelledby="testimonials-heading">
@@ -211,6 +216,8 @@ export async function TestimonialsSection({
                     isLogged={!!user}
                     isOwner={!!user && user.id === t.authorId}
                     shareUrl={`${memorialShareUrl}#testimonial-${t.id}`}
+                    currentUserName={currentUserName}
+                    currentUserAvatarUrl={currentUserAvatarUrl}
                   />
                 </div>
               </li>
