@@ -110,7 +110,7 @@ export async function TestimonialsSection({
   // Public visitors see only approved entries. Owner sees pending too,
   // sorted with pending first so they hit the moderation queue.
   const visible = testimonials.filter(
-    (t) => t.status === 'approved' || (isOwner && t.status === 'pending'),
+    (row) => row.status === 'approved' || (isOwner && row.status === 'pending'),
   );
   visible.sort((a, b) => {
     if (a.status !== b.status) return a.status === 'pending' ? -1 : 1;
@@ -118,8 +118,8 @@ export async function TestimonialsSection({
   });
 
   const approvedIds = testimonials
-    .filter((t) => t.status === 'approved')
-    .map((t) => t.id);
+    .filter((row) => row.status === 'approved')
+    .map((row) => row.id);
   const [likes, comments] = await Promise.all([
     getLikes(approvedIds),
     getComments(approvedIds),
@@ -150,7 +150,7 @@ export async function TestimonialsSection({
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
   const memorialShareUrl = `${siteUrl}/memorial/${slug}`;
 
-  const pendingCount = testimonials.filter((t) => t.status === 'pending').length;
+  const pendingCount = testimonials.filter((row) => row.status === 'pending').length;
   const meta_user = user?.user_metadata as
     | { full_name?: string; nickname?: string; avatar_url?: string }
     | null;
@@ -184,17 +184,17 @@ export async function TestimonialsSection({
         </p>
       ) : (
         <Reveal as="ul" className="space-y-6">
-          {visible.map((t) => {
-            const isPending = t.status === 'pending';
+          {visible.map((row) => {
+            const isPending = row.status === 'pending';
             return (
-              <li key={t.id} className="space-y-2">
+              <li key={row.id} className="space-y-2">
                 {isPending && (
                   <div className="flex items-center justify-between gap-3 rounded-t-lg border border-b-0 border-accent/40 bg-accent/10 px-3 py-1.5">
                     <span className="font-display text-[11px] font-bold uppercase tracking-wider text-accent">
                       {t('toValidate')}
                     </span>
                     <TestimonialModerateButtons
-                      testimonialId={t.id}
+                      testimonialId={row.id}
                       slug={slug}
                     />
                   </div>
@@ -203,20 +203,20 @@ export async function TestimonialsSection({
                   className={isPending ? 'opacity-90 ring-2 ring-accent/30' : ''}
                 >
                   <TestimonialItem
-                    testimonialId={t.id}
+                    testimonialId={row.id}
                     slug={slug}
                     memorialName={memorialName}
-                    authorName={t.authorName}
-                    authorRelation={t.relationship ?? undefined}
-                    authorAvatarUrl={unsplashAvatarFor(t.authorName)}
-                    message={t.message}
-                    createdAt={t.createdAt}
-                    likesCount={likesByTestimonial.get(t.id) ?? 0}
-                    hasLiked={userLikeSet.has(t.id)}
-                    comments={commentsByTestimonial.get(t.id) ?? []}
+                    authorName={row.authorName}
+                    authorRelation={row.relationship ?? undefined}
+                    authorAvatarUrl={unsplashAvatarFor(row.authorName)}
+                    message={row.message}
+                    createdAt={row.createdAt}
+                    likesCount={likesByTestimonial.get(row.id) ?? 0}
+                    hasLiked={userLikeSet.has(row.id)}
+                    comments={commentsByTestimonial.get(row.id) ?? []}
                     isLogged={!!user}
-                    isOwner={!!user && user.id === t.authorId}
-                    shareUrl={`${memorialShareUrl}#testimonial-${t.id}`}
+                    isOwner={!!user && user.id === row.authorId}
+                    shareUrl={`${memorialShareUrl}#testimonial-${row.id}`}
                     currentUserName={currentUserName}
                     currentUserAvatarUrl={currentUserAvatarUrl}
                   />
