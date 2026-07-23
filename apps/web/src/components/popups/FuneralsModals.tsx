@@ -149,7 +149,7 @@ export function FuneralEventCreatePopup({
         <form onSubmit={handleSubmit} className="space-y-3">
           <Field label="Event title*" value={v.title} onChange={(val) => set('title', val)} required />
           <Field
-            label="Date* (YYYY-MM-DD)"
+            label="Date*"
             value={v.date}
             onChange={(val) => set('date', val)}
             required

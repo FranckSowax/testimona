@@ -296,7 +296,7 @@
       "scriptTitle": "Funerals",
       "subtitle": "Create a new",
       "title": "Event title*",
-      "date": "Date* (YYYY-MM-DD)",
+      "date": "Date*",
       "starts": "Starts*",
       "ends": "Ends",
       "url": "URL",

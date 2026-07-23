@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ButtonOutlined } from '@/components/ui/ButtonOutlined';
 import { COUNTRIES, RELATIONSHIP_OPTIONS } from '@/lib/countries';
@@ -173,25 +173,14 @@ export function MemorialFormPopup({
             />
           </div>
 
-          <DateTriplet
-            legend={
-              mode === 'create'
-                ? 'Date of birth*'
-                : 'Date of birth (Year required for memorial creation)'
-            }
+          <DateField
+            label={mode === 'create' ? 'Date of birth*' : 'Date of birth'}
             year={v.birthYear ?? ''}
             month={v.birthMonth ?? ''}
             day={v.birthDay ?? ''}
             required={mode === 'create'}
             error={birthDateError}
-            pickerLabel={t('pickDate')}
-            onChange={(part, val) =>
-              set(
-                part === 'y' ? 'birthYear' : part === 'm' ? 'birthMonth' : 'birthDay',
-                val,
-              )
-            }
-            onPick={(y, m, d) =>
+            onChange={(y, m, d) =>
               setV((p) => ({ ...p, birthYear: y, birthMonth: m, birthDay: d }))
             }
           />
@@ -210,22 +199,14 @@ export function MemorialFormPopup({
             />
           </div>
 
-          <DateTriplet
-            legend="Date of death*"
+          <DateField
+            label="Date of death*"
             year={v.deathYear}
             month={v.deathMonth ?? ''}
             day={v.deathDay ?? ''}
-            required={mode === 'create'}
-            yearAlwaysRequired
+            required
             error={deathDateError}
-            pickerLabel={t('pickDate')}
-            onChange={(part, val) =>
-              set(
-                part === 'y' ? 'deathYear' : part === 'm' ? 'deathMonth' : 'deathDay',
-                val,
-              )
-            }
-            onPick={(y, m, d) =>
+            onChange={(y, m, d) =>
               setV((p) => ({ ...p, deathYear: y, deathMonth: m, deathDay: d }))
             }
           />
@@ -424,147 +405,64 @@ function Input({ label, value, onChange, required }: InputProps) {
   );
 }
 
-const DATE_FIELD_CLS =
-  'w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]';
-
-interface DateTripletProps {
-  legend: string;
+interface DateFieldProps {
+  label: string;
   year: string;
   month: string;
   day: string;
   required: boolean;
-  /** Death year stays required even in edit mode. */
-  yearAlwaysRequired?: boolean;
-  /** Inline error shown right under the fields (not at the modal bottom). */
+  /** Inline error shown right under the field (not at the modal bottom). */
   error: string | null;
-  pickerLabel: string;
-  onChange: (part: 'y' | 'm' | 'd', value: string) => void;
-  onPick: (year: string, month: string, day: string) => void;
+  onChange: (year: string, month: string, day: string) => void;
 }
 
 /**
- * Year/Month/Day fields plus a native calendar picker button: the button opens
- * a hidden <input type="date"> (showPicker) and fills the three fields at once.
- * Validation errors render directly under this group so the user sees them at
- * the field, not after scrolling to the bottom of the modal.
+ * Single native date field (same UX as the Funerals modal) mapped to the
+ * year/month/day triplet the rest of the form still stores. The browser's own
+ * calendar picker and locale-specific display are used — no format hint in the
+ * label, so what the label says and what the field shows can't disagree.
+ * Validation errors render directly under the field.
  */
-function DateTriplet({
-  legend,
+function DateField({
+  label,
   year,
   month,
   day,
   required,
-  yearAlwaysRequired = false,
   error,
-  pickerLabel,
   onChange,
-  onPick,
-}: DateTripletProps) {
-  const pickerRef = useRef<HTMLInputElement>(null);
+}: DateFieldProps) {
   const today = new Date().toISOString().slice(0, 10);
-  const pickerValue =
+  const value =
     year && month && day
       ? `${year.padStart(4, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
       : '';
 
-  function openPicker() {
-    const el = pickerRef.current;
-    if (!el) return;
-    try {
-      el.showPicker();
-    } catch {
-      el.click(); // older browsers without showPicker()
-    }
-  }
-
   return (
-    <fieldset className="space-y-2">
-      <legend className="block font-display text-sm font-medium text-muted-foreground">
-        {legend}
-      </legend>
-      <div className="flex items-start gap-2">
-        <div className="grid flex-1 grid-cols-3 gap-2">
-          <input
-            placeholder="YYYY"
-            inputMode="numeric"
-            maxLength={4}
-            required={required || yearAlwaysRequired}
-            value={year}
-            onChange={(e) => onChange('y', e.target.value.replace(/\D/g, ''))}
-            aria-invalid={!!error}
-            className={DATE_FIELD_CLS}
-          />
-          <input
-            placeholder="MM"
-            inputMode="numeric"
-            maxLength={2}
-            required={required}
-            value={month}
-            onChange={(e) => onChange('m', e.target.value.replace(/\D/g, ''))}
-            aria-invalid={!!error}
-            className={DATE_FIELD_CLS}
-          />
-          <input
-            placeholder="DD"
-            inputMode="numeric"
-            maxLength={2}
-            required={required}
-            value={day}
-            onChange={(e) => onChange('d', e.target.value.replace(/\D/g, ''))}
-            aria-invalid={!!error}
-            className={DATE_FIELD_CLS}
-          />
-        </div>
-
-        {/* Calendar picker button — fills the 3 fields from a native date input */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={openPicker}
-            aria-label={pickerLabel}
-            title={pickerLabel}
-            className="press-scale inline-flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-md border border-border bg-white text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-          </button>
-          <input
-            ref={pickerRef}
-            type="date"
-            tabIndex={-1}
-            aria-hidden="true"
-            min="1900-01-01"
-            max={today}
-            value={pickerValue}
-            onChange={(e) => {
-              const [y, m, d] = e.target.value.split('-');
-              if (y && m && d) onPick(y, m, d);
-            }}
-            className="pointer-events-none absolute inset-0 h-full w-full opacity-0"
-          />
-        </div>
-      </div>
-
+    <label className="block">
+      <span className="block font-display text-sm font-medium text-muted-foreground">
+        {label}
+      </span>
+      <input
+        type="date"
+        value={value}
+        min="1900-01-01"
+        max={today}
+        required={required}
+        aria-invalid={!!error}
+        onChange={(e) => {
+          const [y, m, d] = e.target.value.split('-');
+          if (y && m && d) onChange(y, m, d);
+          else onChange('', '', '');
+        }}
+        className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+      />
       {error && (
-        <p role="alert" className="text-xs text-destructive">
+        <p role="alert" className="mt-1 text-xs text-destructive">
           {error}
         </p>
       )}
-    </fieldset>
+    </label>
   );
 }
 

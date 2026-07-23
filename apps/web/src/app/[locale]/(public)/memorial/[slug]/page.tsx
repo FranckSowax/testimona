@@ -417,12 +417,20 @@ export default async function MemorialPage({
               initial={{
                 firstname: memorial.firstname,
                 lastname: memorial.lastname,
-                birthYear: memorial.birthDate
-                  ? String(new Date(memorial.birthDate).getFullYear())
-                  : '',
-                deathYear: memorial.deathDate
-                  ? String(new Date(memorial.deathDate).getFullYear())
-                  : '',
+                // Full date parts so the single native date field can prefill
+                // ("YYYY-MM-DD" split on '-' avoids timezone shifts).
+                ...(memorial.birthDate
+                  ? (() => {
+                      const [y, m, d] = memorial.birthDate.slice(0, 10).split('-');
+                      return { birthYear: y, birthMonth: m, birthDay: d };
+                    })()
+                  : { birthYear: '' }),
+                ...(memorial.deathDate
+                  ? (() => {
+                      const [y, m, d] = memorial.deathDate.slice(0, 10).split('-');
+                      return { deathYear: y, deathMonth: m, deathDay: d };
+                    })()
+                  : { deathYear: '' }),
                 deathCountry: '',
                 relationship: '',
                 bio: memorial.description ?? '',

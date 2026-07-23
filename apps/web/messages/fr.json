@@ -296,7 +296,7 @@
       "scriptTitle": "Funérailles",
       "subtitle": "Créer un nouveau",
       "title": "Titre de l'événement*",
-      "date": "Date* (AAAA-MM-JJ)",
+      "date": "Date*",
       "starts": "Début*",
       "ends": "Fin",
       "url": "URL",
