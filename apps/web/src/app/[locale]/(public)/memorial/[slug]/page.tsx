@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
+import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { canManageMemorial } from '@/lib/memorial/access';
 import { TestimonialsSection } from './_components/TestimonialsSection';
 import { PhotosSection } from './_components/PhotosSection';
@@ -271,6 +272,20 @@ async function getIsFavorite(
   return !!data;
 }
 
+/**
+ * Public hearts counter shown next to the favorite button. Admin client:
+ * the RLS policy only lets users read their OWN favorite rows, so a
+ * user-scoped count would always be 0 or 1. Tolerant of missing v21.
+ */
+async function getFavoritesCount(memorialId: string): Promise<number> {
+  const supabase = getSupabaseAdminClient();
+  const { count } = await supabase
+    .from('MemorialFavorite')
+    .select('id', { count: 'exact', head: true })
+    .eq('memorialId', memorialId);
+  return count ?? 0;
+}
+
 export default async function MemorialPage({
   params,
 }: {
@@ -371,9 +386,10 @@ export default async function MemorialPage({
   };
   const isOwner = isOwnerEarly;
 
-  const [places, isFavoriteInitial] = await Promise.all([
+  const [places, isFavoriteInitial, favoritesCount] = await Promise.all([
     getMemorialPlaces(memorial.id),
     getIsFavorite(memorial.id, currentUser?.id),
+    getFavoritesCount(memorial.id),
   ]);
   const dateLocale = locale === 'en' ? 'en-US' : 'fr-FR';
   const birthPlace = [places.birthCity, places.birthCountry].filter(Boolean).join(', ');
@@ -476,6 +492,7 @@ export default async function MemorialPage({
             isOwner={isOwner}
             isLoggedIn={!!currentUser}
             isFavoriteInitial={isFavoriteInitial}
+            favoritesCountInitial={favoritesCount}
             labels={coverLabels}
           />
         }

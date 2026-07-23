@@ -14,6 +14,8 @@ export interface DonationFormValues {
 }
 
 interface MyDonationCreateModalProps {
+  /** Memorial's currency (admin setting) — preselected for the donor. */
+  defaultCurrency?: string;
   open: boolean;
   onClose: () => void;
   memorialName: string;
@@ -32,6 +34,7 @@ const CURRENCIES = ['EUR', 'USD', 'CAD', 'GBP'];
  * V2 popup "My Donation — Create a new" (PDF p16-18-36).
  */
 export function MyDonationCreateModal({
+  defaultCurrency,
   open,
   onClose,
   memorialName,
@@ -43,7 +46,7 @@ export function MyDonationCreateModal({
   submitting = false,
 }: MyDonationCreateModalProps) {
   const t = useTranslations('popups.donationCreate');
-  const [currency, setCurrency] = useState('EUR');
+  const [currency, setCurrency] = useState(defaultCurrency ?? 'EUR');
   const [presetAmount, setPresetAmount] = useState<number | 'other' | null>(20);
   const [otherAmount, setOtherAmount] = useState('');
   const [message, setMessage] = useState('');

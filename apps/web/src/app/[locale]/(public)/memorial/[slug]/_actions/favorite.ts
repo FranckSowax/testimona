@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
+import { revalidateMemorialPages } from '@/lib/revalidate';
 
 export interface FavoriteActionState {
   ok?: boolean;
@@ -54,7 +55,7 @@ export async function toggleFavoriteAction(
       .delete()
       .eq('id', existing.id);
     if (error) return { error: error.message };
-    if (slug) revalidatePath(`/memorial/${slug}`);
+    if (slug) revalidateMemorialPages(slug);
     revalidatePath('/dashboard');
     return { ok: true, favorite: false };
   }
@@ -65,7 +66,7 @@ export async function toggleFavoriteAction(
     memorialId,
   });
   if (error) return { error: error.message };
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   revalidatePath('/dashboard');
   return { ok: true, favorite: true };
 }

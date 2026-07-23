@@ -8,7 +8,7 @@ import {
   updateChapterAction,
   deleteChapterAction,
 } from '../_actions/biography';
-import { type ChapterMedia } from './ChapterMediaGrid';
+import { ChapterMediaGrid, type ChapterMedia } from './ChapterMediaGrid';
 
 interface ChapterDraft {
   id: string;
@@ -302,9 +302,14 @@ export function BiographyChaptersManager({
                       </p>
                     )}
                     {c.media && c.media.length > 0 && (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        📎 {t('mediaCount', { count: c.media.length })}
-                      </p>
+                      <>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          📎 {t('mediaCount', { count: c.media.length })}
+                        </p>
+                        {/* Client recette: owners must SEE the chapter photos in
+                            the admin list too, not just a count. */}
+                        <ChapterMediaGrid media={c.media} />
+                      </>
                     )}
                   </div>
                   <div className="flex shrink-0 items-center gap-0.5 opacity-60 group-hover:opacity-100">

@@ -6,6 +6,7 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { canManageMemorial } from '@/lib/memorial/access';
 import { newTestimonialEmail, sendEmail } from '@/lib/email/resend';
+import { revalidateMemorialPages } from '@/lib/revalidate';
 
 export interface TestimonialActionState {
   ok?: boolean;
@@ -86,7 +87,7 @@ export async function submitTestimonialAction(
     actorId: userId ?? '00000000-0000-0000-0000-000000000000',
   });
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -129,7 +130,7 @@ export async function moderateTestimonialAction(
     .eq('id', id);
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -206,7 +207,7 @@ export async function toggleLikeAction(
       .eq('testimonialId', testimonialId)
       .eq('userId', userData.user.id);
     if (error) return { error: error.message };
-    if (slug) revalidatePath(`/memorial/${slug}`);
+    if (slug) revalidateMemorialPages(slug);
     return { ok: true, liked: false };
   }
 
@@ -215,7 +216,7 @@ export async function toggleLikeAction(
     userId: userData.user.id,
   });
   if (error) return { error: error.message };
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true, liked: true };
 }
 
@@ -262,7 +263,7 @@ export async function submitCommentAction(
   });
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -332,7 +333,7 @@ export async function updateTestimonialAction(
     .eq('id', testimonialId);
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -358,6 +359,6 @@ export async function deleteTestimonialAction(
     .eq('id', testimonialId);
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }

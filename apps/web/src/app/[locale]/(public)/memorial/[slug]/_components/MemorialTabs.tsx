@@ -64,11 +64,16 @@ export function MemorialTabs({ tabs }: { tabs: TabItem[] }) {
 
   return (
     <div className="mt-8">
+      {/* Outer scrolls; inner is w-max + mx-auto: centred when it fits, fully
+          scrollable from the first tab when it overflows. A plain
+          `justify-center` on the scroll container clipped BOTH ends of the
+          overflowing tab row (Testimonials/Boutique unreachable in EN). */}
       <div
         role="tablist"
         aria-label={t('tabsAria')}
-        className="flex flex-nowrap items-center justify-start gap-2 overflow-x-auto border-b border-border [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:justify-center sm:gap-6"
+        className="overflow-x-auto border-b border-border [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
+        <div className="mx-auto flex w-max min-w-full flex-nowrap items-center justify-center gap-2 sm:gap-6">
         {tabs.map((t, i) => {
           const selected = t.id === activeId;
           return (
@@ -93,6 +98,7 @@ export function MemorialTabs({ tabs }: { tabs: TabItem[] }) {
             </button>
           );
         })}
+        </div>
       </div>
       {tabs.map((t) => (
         <div

@@ -9,14 +9,19 @@ interface Props {
   shopItemId: string;
   productName: string;
   unitPriceCents: number;
+  /** Memorial's currency (admin setting) — replaces the hardcoded €. */
+  currency: string;
 }
 
 export function ShopContributeButton({
   shopItemId,
   productName,
   unitPriceCents,
+  currency,
 }: Props) {
   const t = useTranslations('memorial.shopContribute');
+  const fmt = (n: number) =>
+    new Intl.NumberFormat('fr-FR', { style: 'currency', currency }).format(n);
   const unitPriceEur = unitPriceCents / 100;
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -94,7 +99,7 @@ export function ShopContributeButton({
                   {productName}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  {t('unitPrice', { price: `${(unitPriceCents / 100).toFixed(2)}€` })}
+                  {t('unitPrice', { price: fmt(unitPriceCents / 100) })}
                 </p>
               </header>
 
@@ -133,10 +138,10 @@ export function ShopContributeButton({
                     </button>
                     <span className="ml-auto text-right">
                       <span className="block font-display text-xl font-bold text-foreground tabular">
-                        {amount.toFixed(2)}€
+                        {fmt(amount)}
                       </span>
                       <span className="block text-[11px] text-muted-foreground">
-                        {quantity} × {unitPriceEur.toFixed(2)}€
+                        {quantity} × {fmt(unitPriceEur)}
                       </span>
                     </span>
                   </div>
@@ -195,7 +200,7 @@ export function ShopContributeButton({
                 >
                   {isPending
                     ? t('sending')
-                    : t('contributeAmount', { amount: `${amount.toFixed(2)}€` })}
+                    : t('contributeAmount', { amount: `${fmt(amount)}` })}
                 </button>
               </div>
 

@@ -11,7 +11,7 @@ interface Suggestion {
 
 /**
  * Header search box with name autocomplete (PDF p7). Fetches suggestions from
- * /api/search/suggest once the user has typed ≥3 characters (debounced).
+ * /api/search/suggest once the user has typed ≥2 characters (debounced).
  * Submitting (Enter / search button) navigates to the full /search page.
  */
 export function HeaderSearch({ placeholder }: { placeholder: string }) {
@@ -26,7 +26,7 @@ export function HeaderSearch({ placeholder }: { placeholder: string }) {
   // Debounced fetch on ≥3 chars.
   useEffect(() => {
     const term = q.trim();
-    if (term.length < 3) {
+    if (term.length < 2) {
       setItems([]);
       setOpen(false);
       return;

@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { revalidateMemorialPages } from '@/lib/revalidate';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getBalance, spendCredits } from '@/lib/credits/balance';
@@ -106,7 +107,7 @@ export async function validateClipAction(
 
   revalidatePath('/dashboard/clips');
   if (clip.memorialSlug)
-    revalidatePath(`/memorial/${clip.memorialSlug}`);
+    revalidateMemorialPages(clip.memorialSlug);
   return { ok: true };
 }
 
@@ -138,7 +139,7 @@ export async function unvalidateClipAction(
 
   revalidatePath('/dashboard/clips');
   if (clip.memorialSlug)
-    revalidatePath(`/memorial/${clip.memorialSlug}`);
+    revalidateMemorialPages(clip.memorialSlug);
   return { ok: true };
 }
 
@@ -266,6 +267,6 @@ export async function deleteOwnClipAction(
 
   revalidatePath('/dashboard/clips');
   if (clip.memorialSlug)
-    revalidatePath(`/memorial/${clip.memorialSlug}`);
+    revalidateMemorialPages(clip.memorialSlug);
   return { ok: true };
 }

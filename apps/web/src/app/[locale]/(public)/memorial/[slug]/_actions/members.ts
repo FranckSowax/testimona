@@ -5,6 +5,7 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { canManageMemorial } from '@/lib/memorial/access';
 import { coOwnerInviteEmail, sendEmail } from '@/lib/email/resend';
+import { revalidateMemorialPages } from '@/lib/revalidate';
 
 export interface MemberActionState {
   ok?: boolean;
@@ -91,7 +92,7 @@ export async function inviteCoOwnerAction(
     }),
   );
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   revalidatePath('/dashboard/admin-requests');
   return { ok: true };
 }
@@ -174,6 +175,6 @@ export async function removeMemberAction(
   const { error } = await adminDb.from('MemorialMember').delete().eq('id', memberId);
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }

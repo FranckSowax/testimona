@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { canManageMemorial } from '@/lib/memorial/access';
+import { revalidateMemorialPages } from '@/lib/revalidate';
 
 export interface FuneralEventActionState {
   ok?: boolean;
@@ -98,7 +99,7 @@ export async function createFuneralEventAction(
   });
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -167,7 +168,7 @@ export async function updateFuneralEventAction(
     .eq('id', id);
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -208,6 +209,6 @@ export async function deleteFuneralEventAction(
   const { error } = await supabase.from('FuneralEvent').delete().eq('id', id);
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }

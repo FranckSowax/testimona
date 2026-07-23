@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { unsplashAvatarFor } from '@/lib/avatars';
+import { getMemorialCurrency } from '@/lib/memorial/currency';
 import { DonateModalShell } from './DonateModalShell';
 import { DonationGoal } from './DonationGoal';
 import { DonorsList } from './DonorsList';
@@ -45,10 +46,11 @@ export async function DonateSection({
   slug: string;
   isOwner?: boolean;
 }) {
-  const [user, meta, t] = await Promise.all([
+  const [user, meta, t, memorialCurrency] = await Promise.all([
     getCurrentUser(),
     getMemorialMeta(memorialId),
     getTranslations('memorial.donateSection'),
+    getMemorialCurrency(memorialId),
   ]);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
   const shareUrl = `${siteUrl}/memorial/${slug}#donate`;
@@ -70,6 +72,7 @@ export async function DonateSection({
       <div className="flex justify-center">
         <DonateModalShell
           memorialId={memorialId}
+          defaultCurrency={memorialCurrency}
           slug={slug}
           memorialName={meta.name}
           memorialCoverUrl={meta.coverUrl}

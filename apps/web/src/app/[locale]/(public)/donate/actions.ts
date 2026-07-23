@@ -8,6 +8,7 @@ import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { canManageMemorial } from '@/lib/memorial/access';
+import { revalidateMemorialPages } from '@/lib/revalidate';
 
 export interface DonationActionState {
   error?: string;
@@ -167,6 +168,6 @@ export async function simulateDonationAction(
   });
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }

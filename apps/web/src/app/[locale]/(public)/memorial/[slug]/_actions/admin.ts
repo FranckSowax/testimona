@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { canManageMemorial } from '@/lib/memorial/access';
+import { revalidateMemorialPages } from '@/lib/revalidate';
 
 export interface AdminActionState {
   ok?: boolean;
@@ -58,7 +59,7 @@ export async function updateDonationSettingsAction(
     .eq('id', memorialId);
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -106,7 +107,7 @@ export async function updateBiographyInfoAction(
     if (error) return { error: error.message };
   }
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -150,7 +151,7 @@ export async function deleteBiographyInfoAction(
     if (error) return { error: error.message };
   }
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -189,7 +190,7 @@ export async function updateFuneralInfoAction(
     if (error) return { error: error.message };
   }
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -225,7 +226,7 @@ export async function updateDonationsConfigAction(
     .eq('id', memorialId);
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -257,7 +258,7 @@ export async function requestAdminAction(
   });
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -315,6 +316,6 @@ export async function resolveAdminRequestAction(
     }
   }
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }

@@ -13,6 +13,8 @@ interface DonationRow {
 async function getDonationStats(memorialId: string): Promise<{
   goalCents: number;
   raisedCents: number;
+  /** Totals in currencies other than the memorial's, shown alongside. */
+  otherTotals: [string, number][];
   currency: string;
   count: number;
   about: string | null;
@@ -37,11 +39,23 @@ async function getDonationStats(memorialId: string): Promise<{
     .returns<DonationRow[]>();
 
   const list = donations ?? [];
-  const raisedCents = list.reduce((acc, d) => acc + (d.amount ?? 0), 0);
+  // The memorial's currency (admin setting) drives the goal/progress; other
+  // currencies are NOT summed into it (100 CAD + 50 EUR is not "150 EUR") —
+  // they're totalled separately and shown alongside.
   const currency = memorial?.donationCurrency || list[0]?.currency || 'EUR';
+  const byCurrency = new Map<string, number>();
+  for (const d of list) {
+    const cur = (d.currency || currency).toUpperCase();
+    byCurrency.set(cur, (byCurrency.get(cur) ?? 0) + (d.amount ?? 0));
+  }
+  const raisedCents = byCurrency.get(currency.toUpperCase()) ?? 0;
+  const otherTotals = Array.from(byCurrency.entries()).filter(
+    ([cur]) => cur !== currency.toUpperCase(),
+  );
   return {
     goalCents: memorial?.donationGoalCents ?? 0,
     raisedCents,
+    otherTotals,
     currency,
     count: list.length,
     about: memorial?.donationAbout ?? null,
@@ -84,7 +98,13 @@ export async function DonationGoal({
       ? Math.min(100, Math.round((stats.raisedCents / stats.goalCents) * 100))
       : 0;
 
-  const raised = format(stats.raisedCents, stats.currency);
+  const raisedMain = format(stats.raisedCents, stats.currency);
+  const raised =
+    stats.otherTotals.length > 0
+      ? `${raisedMain} · ${stats.otherTotals
+          .map(([cur, cents]) => format(cents, cur))
+          .join(' · ')}`
+      : raisedMain;
   const goal = stats.goalCents > 0 ? format(stats.goalCents, stats.currency) : null;
 
   return (

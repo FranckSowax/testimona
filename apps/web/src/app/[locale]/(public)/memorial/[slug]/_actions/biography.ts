@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { canManageMemorial } from '@/lib/memorial/access';
+import { revalidateMemorialPages } from '@/lib/revalidate';
 
 export interface ChapterActionState {
   ok?: boolean;
@@ -168,7 +169,7 @@ export async function createChapterAction(
   });
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -250,7 +251,7 @@ export async function updateChapterAction(
   const { error } = await adminDb.from('Chapter').update(update).eq('id', id);
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -278,7 +279,7 @@ export async function deleteChapterAction(
   const { error } = await adminDb.from('Chapter').delete().eq('id', id);
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -329,6 +330,6 @@ export async function reorderChaptersAction(
     if (error) return { error: error.message };
   }
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }

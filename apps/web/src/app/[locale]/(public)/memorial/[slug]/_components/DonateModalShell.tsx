@@ -11,6 +11,8 @@ import { createDonationCheckoutAction } from '@/app/[locale]/(public)/donate/act
 
 interface DonateModalShellProps {
   memorialId: string;
+  /** Memorial's currency — preselected in the donation popup. */
+  defaultCurrency?: string;
   slug: string;
   memorialName: string;
   memorialCoverUrl?: string | null;
@@ -28,6 +30,7 @@ interface DonateModalShellProps {
  */
 export function DonateModalShell({
   memorialId,
+  defaultCurrency,
   slug,
   memorialName,
   memorialCoverUrl,
@@ -80,6 +83,7 @@ export function DonateModalShell({
         {label}
       </ButtonOutlined>
       <MyDonationCreateModal
+        defaultCurrency={defaultCurrency}
         open={open}
         onClose={() => setOpen(false)}
         memorialName={memorialName}

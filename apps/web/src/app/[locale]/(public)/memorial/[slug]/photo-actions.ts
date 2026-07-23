@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { canManageMemorial } from '@/lib/memorial/access';
+import { revalidateMemorialPages } from '@/lib/revalidate';
 
 const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp'] as const;
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -72,7 +73,7 @@ export async function uploadMemorialPhotoAction(
   });
   if (insertError) return { error: insertError.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true, url };
 }
 
@@ -105,7 +106,7 @@ export async function deleteMemorialPhotoAction(
   const { error: delError } = await supabase.from('Photo').delete().eq('id', photoId);
   if (delError) return { error: delError.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -214,7 +215,7 @@ export async function submitPublicPhotoAction(
   });
   if (insertError) return { error: insertError.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true, url };
 }
 
@@ -268,7 +269,7 @@ export async function moderatePhotoAction(
       .eq('id', id);
   }
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -309,7 +310,7 @@ export async function setCoverPhotoAction(
     .eq('id', memorialId);
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }
 
@@ -360,7 +361,7 @@ export async function togglePhotoLikeAction(
     .select('id', { count: 'exact', head: true })
     .eq('photoId', photoId);
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true, liked: !existing, count: count ?? 0 };
 }
 
@@ -428,6 +429,6 @@ export async function addPhotoCommentAction(
   });
   if (error) return { error: error.message };
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   return { ok: true };
 }

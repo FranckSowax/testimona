@@ -5,6 +5,7 @@ import { findProduct, CATEGORY_LABEL } from '@/lib/shop/catalog';
 import { ShopProductIcon } from './ShopProductIcon';
 import { ShopOwnerPanel } from './ShopOwnerPanel';
 import { ShopContributeButton } from './ShopContributeButton';
+import { getMemorialCurrency } from '@/lib/memorial/currency';
 import { ShopItemRemoveButton } from './ShopItemRemoveButton';
 
 export const dynamic = 'force-dynamic';
@@ -38,11 +39,13 @@ interface ShopItemRow {
   mockupErrorMessage: string | null;
 }
 
-const eurFmt = new Intl.NumberFormat('fr-FR', {
-  style: 'currency',
-  currency: 'EUR',
-  maximumFractionDigits: 0,
-});
+// Formatter in the memorial's own currency (admin donation setting).
+const moneyFmt = (currency: string) =>
+  new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 0,
+  });
 
 export async function ShopSection({
   memorialId,
@@ -56,6 +59,8 @@ export async function ShopSection({
   isOwner: boolean;
 }) {
   const t = await getTranslations('memorial.shopSection');
+  const currency = await getMemorialCurrency(memorialId);
+  const eurFmt = moneyFmt(currency); // name kept — now memorial-currency aware
   const supabase = getSupabaseAdminClient();
   const [photosRes, visualsRes, itemsRes] = await Promise.all([
     supabase
@@ -257,6 +262,7 @@ export async function ShopSection({
 
                   <div className="flex shrink-0 flex-col gap-2 sm:items-end">
                     <ShopContributeButton
+                      currency={currency}
                       shopItemId={item.id}
                       productName={product.name}
                       unitPriceCents={item.unitPriceCents}

@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { canManageMemorial } from '@/lib/memorial/access';
 import { uploadMemorialImage } from '@/lib/memorial/images';
+import { revalidateMemorialPages } from '@/lib/revalidate';
 
 export interface MemorialUpdateActionState {
   ok?: boolean;
@@ -109,7 +110,7 @@ export async function updateMemorialAction(
     if (artError) return { error: artError.message };
   }
 
-  if (slug) revalidatePath(`/memorial/${slug}`);
+  if (slug) revalidateMemorialPages(slug);
   revalidatePath('/dashboard');
   return { ok: true };
 }

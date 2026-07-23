@@ -64,6 +64,8 @@ interface Props {
   isOwner: boolean;
   isLoggedIn: boolean;
   isFavoriteInitial: boolean;
+  /** Public hearts count shown as a badge on the favorite button. */
+  favoritesCountInitial: number;
   labels: Labels;
 }
 
@@ -85,6 +87,7 @@ export function MemorialCoverSidebar({
   isOwner,
   isLoggedIn,
   isFavoriteInitial,
+  favoritesCountInitial,
   labels,
 }: Props) {
   const t = useTranslations('memorial.coverSidebar');
@@ -92,6 +95,7 @@ export function MemorialCoverSidebar({
   const [storyOpen, setStoryOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(isFavoriteInitial);
+  const [favCount, setFavCount] = useState(favoritesCountInitial);
   const [, startFavTransition] = useTransition();
 
   function toggleFav() {
@@ -101,14 +105,20 @@ export function MemorialCoverSidebar({
     }
     const optimistic = !isFavorite;
     setIsFavorite(optimistic); // optimistic
+    setFavCount((c) => Math.max(0, c + (optimistic ? 1 : -1)));
     startFavTransition(async () => {
       const res = await toggleFavoriteAction(memorialId, slug);
       if (res.needsAuth) {
         router.push(`/login?next=/memorial/${slug}`);
         return;
       }
-      if (typeof res.favorite === 'boolean') setIsFavorite(res.favorite);
-      else setIsFavorite(!optimistic); // revert on error
+      if (typeof res.favorite === 'boolean') {
+        setIsFavorite(res.favorite);
+      } else {
+        // revert on error
+        setIsFavorite(!optimistic);
+        setFavCount((c) => Math.max(0, c + (optimistic ? -1 : 1)));
+      }
     });
   }
 
@@ -199,29 +209,39 @@ export function MemorialCoverSidebar({
         </ButtonIcon>
       )}
 
-      {/* Favorite */}
-      <ButtonIcon
-        label={isFavorite ? labels.liked : labels.like}
-        tone="default"
-        size="sm"
-        onClick={toggleFav}
-        aria-pressed={isFavorite}
-        className={[
-          '!text-white hover:!bg-white/30',
-          isFavorite ? '!bg-white/40' : '!bg-white/20',
-        ].join(' ')}
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill={isFavorite ? 'currentColor' : 'none'}
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          aria-hidden="true"
+      {/* Favorite — with a public hearts counter so the click visibly counts */}
+      <div className="relative">
+        <ButtonIcon
+          label={isFavorite ? labels.liked : labels.like}
+          tone="default"
+          size="sm"
+          onClick={toggleFav}
+          aria-pressed={isFavorite}
+          className={[
+            '!text-white hover:!bg-white/30',
+            isFavorite ? '!bg-white/40' : '!bg-white/20',
+          ].join(' ')}
         >
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-        </svg>
-      </ButtonIcon>
+          <svg
+            viewBox="0 0 24 24"
+            fill={isFavorite ? 'currentColor' : 'none'}
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+        </ButtonIcon>
+        {favCount > 0 && (
+          <span
+            aria-label={`${favCount} ♥`}
+            className="pointer-events-none absolute -bottom-1 -right-1 min-w-[18px] rounded-full bg-white px-1 text-center font-display text-[10px] font-bold leading-[18px] text-accent shadow-sm"
+          >
+            {favCount > 99 ? '99+' : favCount}
+          </span>
+        )}
+      </div>
 
       {/* Share */}
       <ButtonIcon
