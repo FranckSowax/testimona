@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { redirect } from 'next/navigation';
 import { Modal } from '@/components/Modal';
 import { getCurrentUser } from '@/lib/supabase/server';

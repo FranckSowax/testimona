@@ -63,7 +63,9 @@ export function NewMemorialModalShell() {
             return;
           }
           if (result.ok && result.slug) {
-            window.location.href = `/memorial/${result.slug}`;
+            // i18n router so the current locale survives the redirect
+            // (window.location dropped the /en prefix and re-detected).
+            router.push(`/memorial/${result.slug}`);
             return;
           }
           resolve();

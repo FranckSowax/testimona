@@ -253,7 +253,9 @@
       "createSubmit": "Create memorial",
       "errorRequired": "All fields marked * are required, including complete dates (year, month, day).",
       "errorBadDate": "Check the dates: year between 1900 and {year}, month 1–12, day 1–31.",
-      "errorMinimum": "Provide at least the first name, last name and year of death."
+      "errorMinimum": "Provide at least the first name, last name and year of death.",
+      "dateIncomplete": "Please complete the date (year, month and day).",
+      "pickDate": "Pick a date from the calendar"
     },
     "memorialAdminRequest": {
       "scriptTitle": "The memorial page",

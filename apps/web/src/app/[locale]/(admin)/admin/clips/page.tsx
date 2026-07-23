@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { requireAdmin, getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { AdminShell } from '@/components/admin/AdminShell';
 import { ClipAdminRow } from './ClipAdminRow';

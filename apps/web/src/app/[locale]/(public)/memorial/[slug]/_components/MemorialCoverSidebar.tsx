@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { ButtonIcon } from '@/components/ui/ButtonIcon';
 import { PhotoStoryViewer, type StoryPhoto } from './PhotoStoryViewer';
@@ -87,6 +88,7 @@ export function MemorialCoverSidebar({
   labels,
 }: Props) {
   const t = useTranslations('memorial.coverSidebar');
+  const router = useRouter();
   const [storyOpen, setStoryOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(isFavoriteInitial);
@@ -94,7 +96,7 @@ export function MemorialCoverSidebar({
 
   function toggleFav() {
     if (!isLoggedIn) {
-      window.location.href = `/login?next=/memorial/${slug}`;
+      router.push(`/login?next=/memorial/${slug}`);
       return;
     }
     const optimistic = !isFavorite;
@@ -102,7 +104,7 @@ export function MemorialCoverSidebar({
     startFavTransition(async () => {
       const res = await toggleFavoriteAction(memorialId, slug);
       if (res.needsAuth) {
-        window.location.href = `/login?next=/memorial/${slug}`;
+        router.push(`/login?next=/memorial/${slug}`);
         return;
       }
       if (typeof res.favorite === 'boolean') setIsFavorite(res.favorite);
@@ -112,7 +114,7 @@ export function MemorialCoverSidebar({
 
   function openTestimonial() {
     if (!isLoggedIn) {
-      window.location.href = `/login?next=/memorial/${slug}`;
+      router.push(`/login?next=/memorial/${slug}`);
       return;
     }
     window.dispatchEvent(new CustomEvent('testimona:open-testimonial'));

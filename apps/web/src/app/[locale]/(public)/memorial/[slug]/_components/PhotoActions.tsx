@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { ShareLinkButton } from '@/components/ui/ShareLinkButton';
 import {
@@ -79,7 +79,7 @@ export function PhotoActions({
 
   function toggleLike() {
     if (!isLoggedIn) {
-      window.location.href = `/login?next=/memorial/${slug}`;
+      router.push(`/login?next=/memorial/${slug}`);
       return;
     }
     // Optimistic.
@@ -163,7 +163,7 @@ export function PhotoActions({
           type="button"
           onClick={() => {
             if (!isLoggedIn) {
-              window.location.href = `/login?next=/memorial/${slug}`;
+              router.push(`/login?next=/memorial/${slug}`);
               return;
             }
             setReportOpen((v) => !v);

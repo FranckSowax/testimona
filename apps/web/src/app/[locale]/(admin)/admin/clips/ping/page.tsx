@@ -2,7 +2,7 @@ import { requireAdmin } from '@/lib/supabase/admin';
 import { pingHiggsfield, getActiveProvider } from '@/lib/higgsfield/client';
 import { pingFal } from '@/lib/fal/client';
 import { AdminShell } from '@/components/admin/AdminShell';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 export const dynamic = 'force-dynamic';
 

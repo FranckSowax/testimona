@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
 import { AdminShell } from '@/components/admin/AdminShell';
 import { TestimonialDeleteButton } from '@/components/admin/ModerationActions';

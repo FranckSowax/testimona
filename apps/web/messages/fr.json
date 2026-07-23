@@ -253,7 +253,9 @@
       "createSubmit": "Créer le mémorial",
       "errorRequired": "Tous les champs marqués * sont obligatoires, dates complètes (année, mois, jour) incluses.",
       "errorBadDate": "Vérifie les dates : année entre 1900 et {year}, mois 1–12, jour 1–31.",
-      "errorMinimum": "Renseigne au minimum le prénom, le nom et l'année de décès."
+      "errorMinimum": "Renseigne au minimum le prénom, le nom et l'année de décès.",
+      "dateIncomplete": "Complète la date (année, mois et jour).",
+      "pickDate": "Choisir une date dans le calendrier"
     },
     "memorialAdminRequest": {
       "scriptTitle": "La page mémoriale",
