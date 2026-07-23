@@ -52,6 +52,8 @@ export function NewMemorialModalShell() {
           if (values.deathCountry) fd.set('deathCountry', values.deathCountry);
           if (values.deathCity) fd.set('deathCity', values.deathCity);
           if (values.relationship) fd.set('relationship', values.relationship);
+          if (values.portraitFile) fd.set('portraitPhoto', values.portraitFile);
+          if (values.coverFile) fd.set('coverPhoto', values.coverFile);
 
           const result = await createMemorialAction(null, fd);
 

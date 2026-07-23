@@ -22,6 +22,10 @@ export interface MemorialFormValues {
   relationship: string;
   bio?: string;
   musicUrl?: string;
+  /** Round miniature shown on the memorial header (client recette). */
+  portraitFile?: File | null;
+  /** Banner background of the memorial header. */
+  coverFile?: File | null;
 }
 
 interface MemorialFormPopupProps {
@@ -61,6 +65,8 @@ export function MemorialFormPopup({
     relationship: initial.relationship ?? '',
     bio: initial.bio ?? '',
     musicUrl: initial.musicUrl ?? '',
+    portraitFile: null,
+    coverFile: null,
   });
   const set = <K extends keyof MemorialFormValues>(k: K, val: MemorialFormValues[K]) =>
     setV((p) => ({ ...p, [k]: val }));
@@ -170,6 +176,23 @@ export function MemorialFormPopup({
               value={v.lastname}
               onChange={(val) => set('lastname', val)}
               required
+            />
+          </div>
+
+          {/* Portrait + cover photos, straight from the modal (client recette). */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <PhotoPickField
+              label="Profile photo (miniature)"
+              hint={mode === 'edit' ? 'Leave empty to keep the current one' : undefined}
+              file={v.portraitFile ?? null}
+              onChange={(f) => set('portraitFile', f)}
+              round
+            />
+            <PhotoPickField
+              label="Cover photo"
+              hint={mode === 'edit' ? 'Leave empty to keep the current one' : undefined}
+              file={v.coverFile ?? null}
+              onChange={(f) => set('coverFile', f)}
             />
           </div>
 
@@ -401,6 +424,89 @@ function Input({ label, value, onChange, required }: InputProps) {
         required={required}
         className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
       />
+    </label>
+  );
+}
+
+interface PhotoPickFieldProps {
+  label: string;
+  hint?: string;
+  file: File | null;
+  onChange: (file: File | null) => void;
+  /** Preview as a circle (portrait) instead of a wide rectangle (cover). */
+  round?: boolean;
+}
+
+/**
+ * Image picker with live preview for the memorial portrait/cover
+ * (client recette: both photos selectable straight from the modal).
+ */
+function PhotoPickField({ label, hint, file, onChange, round = false }: PhotoPickFieldProps) {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  function pick(f: File | null) {
+    setPreviewUrl((old) => {
+      if (old) URL.revokeObjectURL(old);
+      return f ? URL.createObjectURL(f) : null;
+    });
+    onChange(f);
+  }
+
+  return (
+    <label className="block">
+      <span className="block font-display text-sm font-medium text-muted-foreground">
+        {label}
+      </span>
+      <div className="mt-1 flex items-center gap-3 rounded-md border border-dashed border-border bg-[var(--color-bg-active-gray)] p-3">
+        {previewUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={previewUrl}
+            alt=""
+            className={[
+              'shrink-0 object-cover',
+              round ? 'h-12 w-12 rounded-full' : 'h-12 w-20 rounded-md',
+            ].join(' ')}
+          />
+        ) : (
+          <span
+            aria-hidden="true"
+            className={[
+              'flex shrink-0 items-center justify-center bg-white text-muted-foreground',
+              round ? 'h-12 w-12 rounded-full' : 'h-12 w-20 rounded-md',
+            ].join(' ')}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="M21 15l-5-5L5 21" />
+            </svg>
+          </span>
+        )}
+        <div className="min-w-0 flex-1">
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={(e) => {
+              pick(e.target.files?.[0] ?? null);
+              e.target.value = '';
+            }}
+            className="block w-full text-xs text-muted-foreground file:mr-2 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-1.5 file:font-display file:text-xs file:font-bold file:text-primary hover:file:bg-primary/5"
+          />
+          {file && (
+            <button
+              type="button"
+              onClick={() => pick(null)}
+              className="mt-1 text-xs text-muted-foreground hover:text-destructive"
+            >
+              ✕ {file.name.slice(0, 30)}
+            </button>
+          )}
+          {hint && !file && (
+            <p className="mt-1 text-[11px] italic text-muted-foreground">{hint}</p>
+          )}
+        </div>
+      </div>
     </label>
   );
 }

@@ -28,6 +28,8 @@ model Memorial {
   isPublic          Boolean       @default(true)
   description       String?
   coverPhotoId      String?       @db.Uuid
+  portraitUrl       String?
+  coverUrl          String?
   birthCountry      String?
   birthCity         String?
   deathCountry      String?

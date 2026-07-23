@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { MemorialCreateSchema } from '@testimona/shared';
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { uploadMemorialImage } from '@/lib/memorial/images';
 
 export interface NewMemorialActionState {
   ok?: true;
@@ -85,11 +86,31 @@ export async function createMemorialAction(
   // both timestamps ourselves. createdAt/donationGoalCents normally DO have DB
   // defaults, but we set them too so a partially-migrated DB can't surprise us.
   const now = new Date().toISOString();
+  const memorialId = randomUUID();
+
+  // Portrait (round miniature) + cover (banner) uploaded straight from the
+  // creation modal (client recette). Only add the columns when a file was
+  // actually provided, so a DB without migration v23 still accepts photo-less
+  // creations.
+  const portraitUrl = await uploadMemorialImage(
+    memorialId,
+    formData.get('portraitPhoto'),
+    'portrait',
+  );
+  const coverUrl = await uploadMemorialImage(
+    memorialId,
+    formData.get('coverPhoto'),
+    'cover',
+  );
+  const art: Record<string, string> = {};
+  if (portraitUrl) art.portraitUrl = portraitUrl;
+  if (coverUrl) art.coverUrl = coverUrl;
 
   const { error } = await supabase.from('Memorial').insert({
-    id: randomUUID(),
+    id: memorialId,
     ownerId: userData.user.id,
     slug,
+    ...art,
     firstname: parsed.data.firstname,
     lastname: parsed.data.lastname,
     nickname: parsed.data.nickname ?? null,

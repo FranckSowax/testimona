@@ -62,6 +62,8 @@ export function MemorialEditModalShell({
         if (values.bio) fd.set('description', values.bio);
         // Always set musicUrl (including empty) so the action can clear it.
         fd.set('musicUrl', values.musicUrl ?? '');
+        if (values.portraitFile) fd.set('portraitPhoto', values.portraitFile);
+        if (values.coverFile) fd.set('coverPhoto', values.coverFile);
 
         const result = await updateMemorialAction(null, fd);
         if (result?.error) {

@@ -53,20 +53,38 @@ async function getMemorial(slug: string): Promise<MemorialRow | null> {
   return data ?? null;
 }
 
-async function getCoverPhotoUrl(memorialId: string): Promise<string | null> {
+/**
+ * Resolve the memorial header's banner (cover) and round portrait (avatar).
+ * Priority, most-explicit first:
+ *   banner  = star-picked gallery photo (coverPhotoId) → uploaded coverUrl
+ *             (v23, create/edit modal) → first approved gallery photo
+ *   avatar  = uploaded portraitUrl (v23) → banner
+ * Every Memorial column read is tolerant of its migration not being applied.
+ */
+async function getMemorialArt(
+  memorialId: string,
+): Promise<{ bannerUrl: string | null; avatarUrl: string | null }> {
   const supabase = await getSupabaseServer();
 
-  // Owner-chosen cover (Memorial.coverPhotoId). Tolerate the column not
-  // existing yet (migration v18 not applied) — supabase-js returns an error,
-  // not a throw, so `data` is null and we fall back to the first photo.
-  const { data: mem } = await supabase
-    .from('Memorial')
-    .select('coverPhotoId')
-    .eq('id', memorialId)
-    .maybeSingle<{ coverPhotoId: string | null }>();
+  const [{ data: mem }, { data: art }] = await Promise.all([
+    // v18 column — separate query so a missing v23 doesn't break it (and
+    // vice-versa); supabase-js returns an error, not a throw, on unknown cols.
+    supabase
+      .from('Memorial')
+      .select('coverPhotoId')
+      .eq('id', memorialId)
+      .maybeSingle<{ coverPhotoId: string | null }>(),
+    // v23 columns
+    supabase
+      .from('Memorial')
+      .select('portraitUrl, coverUrl')
+      .eq('id', memorialId)
+      .maybeSingle<{ portraitUrl: string | null; coverUrl: string | null }>(),
+  ]);
   const coverPhotoId = mem?.coverPhotoId ?? null;
 
-  // Owner-chosen cover wins, as long as it still exists and is approved.
+  // Star-picked gallery cover wins, as long as it still exists and is approved.
+  let banner: string | null = null;
   if (coverPhotoId) {
     const { data: chosen } = await supabase
       .from('Photo')
@@ -75,19 +93,25 @@ async function getCoverPhotoUrl(memorialId: string): Promise<string | null> {
       .eq('memorialId', memorialId)
       .eq('status', 'approved')
       .maybeSingle<{ url: string }>();
-    if (chosen?.url) return chosen.url;
+    banner = chosen?.url ?? null;
   }
 
-  // Fallback: first approved photo by position.
-  const { data } = await supabase
-    .from('Photo')
-    .select('url')
-    .eq('memorialId', memorialId)
-    .eq('status', 'approved')
-    .order('position', { ascending: true })
-    .limit(1)
-    .maybeSingle<{ url: string }>();
-  return data?.url ?? null;
+  if (!banner) banner = art?.coverUrl ?? null;
+
+  if (!banner) {
+    // Fallback: first approved photo by position.
+    const { data } = await supabase
+      .from('Photo')
+      .select('url')
+      .eq('memorialId', memorialId)
+      .eq('status', 'approved')
+      .order('position', { ascending: true })
+      .limit(1)
+      .maybeSingle<{ url: string }>();
+    banner = data?.url ?? null;
+  }
+
+  return { bannerUrl: banner, avatarUrl: art?.portraitUrl ?? banner };
 }
 
 async function getMemorialPhotos(memorialId: string): Promise<
@@ -257,8 +281,8 @@ export default async function MemorialPage({
   if (!memorial) notFound();
 
   const fullName = [memorial.firstname, memorial.lastname].filter(Boolean).join(' ');
-  const [coverUrl, memorialPhotos, readyClipsByPhoto, tTabs, tBadge, tCover, currentUser] = await Promise.all([
-    getCoverPhotoUrl(memorial.id),
+  const [art, memorialPhotos, readyClipsByPhoto, tTabs, tBadge, tCover, currentUser] = await Promise.all([
+    getMemorialArt(memorial.id),
     getMemorialPhotos(memorial.id),
     getReadyClipsByPhoto(memorial.id),
     getTranslations('tabs'),
@@ -393,8 +417,8 @@ export default async function MemorialPage({
         bio={memorial.description}
         birthLine={birthLine}
         deathLine={deathLine}
-        coverUrl={coverUrl}
-        avatarUrl={coverUrl}
+        coverUrl={art.bannerUrl}
+        avatarUrl={art.avatarUrl}
         adminBadge={
           <span>
             {tBadge('administeredBy')}{' '}

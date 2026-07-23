@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { canManageMemorial } from '@/lib/memorial/access';
+import { uploadMemorialImage } from '@/lib/memorial/images';
 
 export interface MemorialUpdateActionState {
   ok?: boolean;
@@ -78,6 +79,35 @@ export async function updateMemorialAction(
     .eq('id', memorialId);
 
   if (error) return { error: error.message };
+
+  // Portrait / cover replacement (client recette: "modifier la photo de profil
+  // et la cover"). Second, separate update so the base fields above still save
+  // on a DB where migration v23 hasn't run — only this step would then fail.
+  const portraitUrl = await uploadMemorialImage(
+    memorialId,
+    formData.get('portraitPhoto'),
+    'portrait',
+  );
+  const coverUrl = await uploadMemorialImage(
+    memorialId,
+    formData.get('coverPhoto'),
+    'cover',
+  );
+  if (portraitUrl || coverUrl) {
+    const art: Record<string, string | null> = {};
+    if (portraitUrl) art.portraitUrl = portraitUrl;
+    if (coverUrl) {
+      art.coverUrl = coverUrl;
+      // A freshly uploaded cover is the most recent explicit choice — clear the
+      // star-picked gallery cover so the upload actually shows.
+      art.coverPhotoId = null;
+    }
+    const { error: artError } = await supabase
+      .from('Memorial')
+      .update(art)
+      .eq('id', memorialId);
+    if (artError) return { error: artError.message };
+  }
 
   if (slug) revalidatePath(`/memorial/${slug}`);
   revalidatePath('/dashboard');
