@@ -29,6 +29,18 @@ export async function toggleFavoriteAction(
   const userId = userData.user.id;
 
   const adminDb = getSupabaseAdminClient();
+
+  // Only existing, visible memorials can be favorited — blocks blind
+  // enumeration of private memorial ids through the service-role client.
+  const { data: memorial } = await adminDb
+    .from('Memorial')
+    .select('id, isPublic, ownerId')
+    .eq('id', memorialId)
+    .maybeSingle<{ id: string; isPublic: boolean; ownerId: string }>();
+  if (!memorial) return { error: 'Mémorial introuvable.' };
+  if (!memorial.isPublic && memorial.ownerId !== userId)
+    return { error: 'Mémorial introuvable.' };
+
   const { data: existing } = await adminDb
     .from('MemorialFavorite')
     .select('id')

@@ -34,7 +34,10 @@ export async function createFuneralEventAction(
   const date = String(formData.get('date') ?? '').trim();
   const startsAt = String(formData.get('startsAt') ?? '').trim();
   const endsAt = String(formData.get('endsAt') ?? '').trim();
-  const url = String(formData.get('url') ?? '').trim();
+  // Only http(s) links — the value is rendered as <a href> on the public page,
+  // and React does not block javascript: URIs (stored-XSS sink otherwise).
+  const rawUrl = String(formData.get('url') ?? '').trim();
+  const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : '';
   const note = String(formData.get('note') ?? '').trim();
   const location = String(formData.get('location') ?? '').trim();
   const address = String(formData.get('address') ?? '').trim();
@@ -113,7 +116,10 @@ export async function updateFuneralEventAction(
   const date = String(formData.get('date') ?? '').trim();
   const startsAt = String(formData.get('startsAt') ?? '').trim();
   const endsAt = String(formData.get('endsAt') ?? '').trim();
-  const url = String(formData.get('url') ?? '').trim();
+  // Only http(s) links — the value is rendered as <a href> on the public page,
+  // and React does not block javascript: URIs (stored-XSS sink otherwise).
+  const rawUrl = String(formData.get('url') ?? '').trim();
+  const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : '';
   const note = String(formData.get('note') ?? '').trim();
   const location = String(formData.get('location') ?? '').trim();
   const address = String(formData.get('address') ?? '').trim();

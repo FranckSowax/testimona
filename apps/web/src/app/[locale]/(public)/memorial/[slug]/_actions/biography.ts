@@ -77,6 +77,33 @@ async function ensureOwner(memorialId: string): Promise<string | null> {
   return userData.user.id;
 }
 
+/**
+ * IDOR guard: verify that `chapterId` belongs to `memorialId`'s biography.
+ * ensureOwner() only proves the caller owns the memorial they CLAIMED — without
+ * this check, an owner of any memorial could pass their own memorialId together
+ * with a chapter id from someone else's biography and mutate it through the
+ * admin client. Returns the biography id on success, null otherwise.
+ */
+async function ensureChapterInMemorial(
+  memorialId: string,
+  chapterId: string,
+): Promise<string | null> {
+  const adminDb = getSupabaseAdminClient();
+  const { data: bio } = await adminDb
+    .from('Biography')
+    .select('id')
+    .eq('memorialId', memorialId)
+    .maybeSingle<BiographyRow>();
+  if (!bio) return null;
+  const { data: chapter } = await adminDb
+    .from('Chapter')
+    .select('id')
+    .eq('id', chapterId)
+    .eq('biographyId', bio.id)
+    .maybeSingle<{ id: string }>();
+  return chapter ? bio.id : null;
+}
+
 async function ensureBiography(memorialId: string): Promise<string | null> {
   const adminDb = getSupabaseAdminClient();
   const { data: existing } = await adminDb
@@ -166,6 +193,9 @@ export async function updateChapterAction(
   const userId = await ensureOwner(memorialId);
   if (!userId) return { error: 'Action réservée au propriétaire du mémorial.' };
 
+  if (!(await ensureChapterInMemorial(memorialId, id)))
+    return { error: 'Chapitre introuvable dans ce mémorial.' };
+
   const adminDb = getSupabaseAdminClient();
 
   const newFiles = readMediaFiles(formData);
@@ -189,6 +219,9 @@ export async function updateChapterAction(
             (m): m is ChapterMedia =>
               !!m &&
               typeof (m as ChapterMedia).url === 'string' &&
+              // Only http(s) URLs — the kept list feeds <img>/<video> src, so
+              // reject data:/javascript:/other schemes outright.
+              /^https?:\/\//i.test((m as ChapterMedia).url) &&
               ((m as ChapterMedia).type === 'image' ||
                 (m as ChapterMedia).type === 'video'),
           )
@@ -237,6 +270,9 @@ export async function deleteChapterAction(
 
   const userId = await ensureOwner(memorialId);
   if (!userId) return { error: 'Action réservée au propriétaire du mémorial.' };
+
+  if (!(await ensureChapterInMemorial(memorialId, id)))
+    return { error: 'Chapitre introuvable dans ce mémorial.' };
 
   const adminDb = getSupabaseAdminClient();
   const { error } = await adminDb.from('Chapter').delete().eq('id', id);

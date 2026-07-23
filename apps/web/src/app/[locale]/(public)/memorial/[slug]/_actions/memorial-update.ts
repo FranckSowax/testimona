@@ -57,7 +57,12 @@ export async function updateMemorialAction(
     .slice(0, 280);
   const nickname = String(formData.get('nickname') ?? '').trim() || null;
   const musicUrlRaw = String(formData.get('musicUrl') ?? '').trim();
-  const musicUrl = musicUrlRaw ? musicUrlRaw.slice(0, 500) : null;
+  // http(s) only — the value feeds <audio src> / a YouTube iframe on the
+  // public story viewer; reject other schemes.
+  const musicUrl =
+    musicUrlRaw && /^https?:\/\//i.test(musicUrlRaw)
+      ? musicUrlRaw.slice(0, 500)
+      : null;
 
   const { error } = await supabase
     .from('Memorial')

@@ -141,8 +141,11 @@ export async function simulateDonationAction(
   const currency = String(formData.get('currency') ?? 'EUR').trim().toUpperCase();
   const donorName = String(formData.get('donorName') ?? '').trim() || 'Donateur test';
   if (!memorialId) return { error: 'memorialId requis.' };
-  if (!Number.isFinite(amountUnits) || amountUnits <= 0)
-    return { error: 'Montant invalide.' };
+  // Same ceiling as the real Stripe checkout (DonationCheckoutInputSchema caps
+  // at 10 000 in cents) — without it an owner could inflate the public pot
+  // with an arbitrarily huge fake "Succeeded" donation.
+  if (!Number.isFinite(amountUnits) || amountUnits <= 0 || amountUnits > 10_000)
+    return { error: 'Montant invalide (1 à 10 000).' };
   if (!/^[A-Z]{3}$/.test(currency)) return { error: 'Devise invalide.' };
 
   const supabase = await getSupabaseServer();

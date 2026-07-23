@@ -59,8 +59,12 @@ export async function createMemorialAction(
   const suffix = Math.random().toString(36).slice(2, 8);
   const slug = baseSlug ? `${baseSlug}-${suffix}` : suffix;
 
+  // http(s) only — feeds <audio src> / YouTube iframe on the public page.
+  const musicUrlRaw = String(formData.get('musicUrl') ?? '').trim();
   const musicUrl =
-    String(formData.get('musicUrl') ?? '').trim().slice(0, 500) || null;
+    musicUrlRaw && /^https?:\/\//i.test(musicUrlRaw)
+      ? musicUrlRaw.slice(0, 500)
+      : null;
 
   // Extra fields collected by the form but not part of MemorialCreateSchema
   // (zod strips unknown keys), read straight from the FormData like musicUrl.

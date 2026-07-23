@@ -17,3 +17,25 @@ CREATE TABLE IF NOT EXISTS "MemorialFavorite" (
 
 CREATE INDEX IF NOT EXISTS "MemorialFavorite_user_idx"
   ON "MemorialFavorite" ("userId", "createdAt" DESC);
+
+-- RLS — without this the table is wide open to the public anon key via
+-- PostgREST (every other table in this project enables RLS). Favorites are
+-- private: only their owner can read them. Writes go through the service-role
+-- client in toggleFavoriteAction (bypasses RLS); the self policies below are
+-- defense-in-depth should a user-scoped write ever be added.
+ALTER TABLE "MemorialFavorite" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "memorial_favorite_select_self" ON "MemorialFavorite";
+CREATE POLICY "memorial_favorite_select_self" ON "MemorialFavorite"
+  FOR SELECT
+  USING (auth.uid()::text = "userId"::text OR public.is_admin());
+
+DROP POLICY IF EXISTS "memorial_favorite_insert_self" ON "MemorialFavorite";
+CREATE POLICY "memorial_favorite_insert_self" ON "MemorialFavorite"
+  FOR INSERT
+  WITH CHECK (auth.uid()::text = "userId"::text);
+
+DROP POLICY IF EXISTS "memorial_favorite_delete_self" ON "MemorialFavorite";
+CREATE POLICY "memorial_favorite_delete_self" ON "MemorialFavorite"
+  FOR DELETE
+  USING (auth.uid()::text = "userId"::text OR public.is_admin());
