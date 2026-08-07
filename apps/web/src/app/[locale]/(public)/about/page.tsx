@@ -60,7 +60,13 @@ export default async function AboutPage({
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="grid gap-8 md:grid-cols-3">
+          <article className="rounded-xl border border-border bg-white p-8 shadow-sm">
+            <h2 className="font-display text-2xl font-semibold text-foreground">
+              {t('definitionTitle')}
+            </h2>
+            <p className="mt-3 leading-relaxed text-muted-foreground">{t('definitionBody')}</p>
+          </article>
           <article className="rounded-xl border border-border bg-white p-8 shadow-sm">
             <h2 className="font-display text-2xl font-semibold text-foreground">
               {t('visionTitle')}

@@ -112,10 +112,12 @@
   "about": {
     "title": "About Testimona",
     "lead": "A platform dedicated to commemorating the departed — preserving memories and supporting families.",
+    "definitionTitle": "What is Testimona?",
+    "definitionBody": "Testimona is a public social platform dedicated to the memory of the departed, where users can write testimonials, publish photos and videos, and make donations to the rightful heirs.",
     "visionTitle": "Our vision",
     "visionBody": "Celebrate the lives of the departed by creating a space to share joyful memories that endure for relatives and future generations.",
     "missionTitle": "Our mission",
-    "missionBody": "Become the reference social platform for commemorating lives, where loved ones publish testimonials and anecdotes, shared and preserved for future generations.",
+    "missionBody": "Become the reference social platform for commemorating the lives of the departed, where loved ones publish testimonials and anecdotes that are shared, commented on, and preserved for future generations.",
     "howTitle": "How it works",
     "howStep1Title": "1. Write a testimonial",
     "howStep1Body": "Provide the person's name, add your memory, photos or videos.",
@@ -569,6 +571,12 @@
     "setCover": {
       "cover": "Cover",
       "setAsCover": "Set as cover photo"
+    },
+    "photoDelete": {
+      "delete": "Delete",
+      "deleteTitle": "Delete this photo",
+      "confirm": "Delete this photo? It will no longer be visible on the memorial. This action can't be undone.",
+      "error": "Couldn't delete the photo. Try again."
     },
     "membersSection": {
       "title": "Co-administrators",

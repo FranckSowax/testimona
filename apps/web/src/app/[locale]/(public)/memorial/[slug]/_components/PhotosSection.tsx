@@ -7,6 +7,7 @@ import { PhotoPublicSubmitModal } from './PhotoPublicSubmitModal';
 import { PhotoModerateButtons } from './PhotoModerateButtons';
 import { PhotoActions, type PhotoComment } from './PhotoActions';
 import { SetCoverButton } from './SetCoverButton';
+import { PhotoDeleteButton } from './PhotoDeleteButton';
 
 async function getPhotoComments(
   photoIds: string[],
@@ -239,13 +240,14 @@ export async function PhotosSection({
                 {!isPending && (
                   <div className="border-t border-border">
                     {isOwner && (
-                      <div className="border-b border-border/60">
+                      <div className="grid grid-cols-2 divide-x divide-border/60 border-b border-border/60">
                         <SetCoverButton
                           memorialId={memorialId}
                           photoId={p.id}
                           slug={slug}
                           isCover={p.id === effectiveCoverId}
                         />
+                        <PhotoDeleteButton photoId={p.id} slug={slug} />
                       </div>
                     )}
                     <PhotoActions

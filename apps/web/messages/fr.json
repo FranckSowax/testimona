@@ -112,10 +112,12 @@
   "about": {
     "title": "À propos de Testimona",
     "lead": "Une plateforme dédiée à la commémoration des défunts, pour préserver les souvenirs et soutenir les familles.",
+    "definitionTitle": "Qu'est-ce que Testimona ?",
+    "definitionBody": "Testimona est une plateforme sociale publique dédiée à la mémoire des défunts, sur laquelle les utilisateurs peuvent écrire leurs témoignages, publier des photos et vidéos, et faire des dons aux ayants-droits.",
     "visionTitle": "Notre vision",
-    "visionBody": "Célébrer la vie des êtres chers disparus en créant un espace de partage de souvenirs joyeux qui resteront gravés pour les proches et les générations futures.",
+    "visionBody": "Célébrer la vie des êtres chers disparus en créant un espace de partage de souvenirs joyeux qui resteront gravés pour les proches et générations futures.",
     "missionTitle": "Notre mission",
-    "missionBody": "Devenir la plateforme sociale de référence pour la commémoration de la vie des défunts, où les proches publient leurs témoignages et anecdotes, partagés et conservés pour les générations futures.",
+    "missionBody": "Devenir la plateforme sociale de référence pour la commémoration de la vie des défunts, sur laquelle les proches publieront leurs témoignages et anecdotes qui seront partagés, commentés et conservés pour les générations futures.",
     "howTitle": "Comment ça marche",
     "howStep1Title": "1. Écrivez un témoignage",
     "howStep1Body": "Renseignez le nom de la personne, ajoutez votre souvenir, photos ou vidéos.",
@@ -560,6 +562,12 @@
     "setCover": {
       "cover": "Couverture",
       "setAsCover": "Définir comme photo de couverture"
+    },
+    "photoDelete": {
+      "delete": "Supprimer",
+      "deleteTitle": "Supprimer cette photo",
+      "confirm": "Supprimer cette photo ? Elle ne sera plus visible sur le mémorial. Cette action est irréversible.",
+      "error": "Échec de la suppression. Réessaie."
     },
     "membersSection": {
       "title": "Co-administrateurs",
