@@ -1,38 +1,45 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useRouter } from '@/i18n/navigation';
+import { useLocale } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
+import { localizedPath, safeNextPath } from '@/lib/auth/redirect-target';
 import { signupAction, type SignupActionState } from './actions';
 
 export function SignupForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const locale = useLocale();
+
   const [state, formAction, isPending] = useActionState<SignupActionState | null, FormData>(
-    signupAction,
+    async (prev, formData) => {
+      const result = await signupAction(prev, formData);
+      // Only auto-redirect when the account is already usable (email
+      // confirmation disabled). When confirmation is required (G2) we keep the
+      // user on the page and show the "check your inbox" panel below.
+      if (result.success && !result.confirmEmail) {
+        // Forward the caller's `next` intent (e.g. /dashboard/new when the user
+        // clicked "Create memorial" while logged out) so login lands them on the
+        // page they actually wanted instead of dropping them on /dashboard.
+        // welcome=1 is forwarded by LoginForm to <next>?welcome=1 on first
+        // sign-in, where WelcomeOverlayTrigger picks it up.
+        const next = safeNextPath(searchParams.get('next'), '');
+        const params = new URLSearchParams({ signup: 'ok', welcome: '1' });
+        if (next) params.set('next', next);
+        // Full document navigation for the same reason as LoginForm: a soft
+        // navigation would leave the intercepting `@modal/(.)signup` slot
+        // mounted over the login screen with a session it was not rendered
+        // with, which crashes the client router.
+        window.location.replace(localizedPath(`/login?${params.toString()}`, locale));
+      }
+      return result;
+    },
     null,
   );
 
-  useEffect(() => {
-    // Only auto-redirect when the account is already usable (email
-    // confirmation disabled). When confirmation is required (G2) we keep the
-    // user on the page and show the "check your inbox" panel below.
-    if (state?.success && !state.confirmEmail) {
-      // Forward the caller's `next` intent (e.g. /dashboard/new when the user
-      // clicked "Create memorial" while logged out) so login lands them on the
-      // page they actually wanted instead of dropping them on /dashboard.
-      // welcome=1 is forwarded by LoginForm to <next>?welcome=1 on first
-      // sign-in, where WelcomeOverlayTrigger picks it up.
-      const next = searchParams.get('next');
-      const params = new URLSearchParams({ signup: 'ok', welcome: '1' });
-      if (next && next.startsWith('/')) params.set('next', next);
-      router.replace(`/login?${params.toString()}`);
-      router.refresh();
-    }
-  }, [state, router, searchParams]);
+  const redirecting = !!state?.success && !state.confirmEmail;
 
   if (state?.success && state.confirmEmail) {
     return (
@@ -48,11 +55,13 @@ export function SignupForm() {
           qu&apos;il contient pour activer ton compte, puis connecte-toi.
         </p>
         <a
-          href={
-            searchParams.get('next')?.startsWith('/')
-              ? `/login?next=${encodeURIComponent(searchParams.get('next')!)}`
-              : '/login'
-          }
+          href={localizedPath(
+            (() => {
+              const next = safeNextPath(searchParams.get('next'), '');
+              return next ? `/login?next=${encodeURIComponent(next)}` : '/login';
+            })(),
+            locale,
+          )}
           className="press-scale inline-block rounded-md border-2 border-emerald-600 px-4 py-2 font-display text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-600 hover:text-white"
         >
           Aller à la connexion
@@ -90,8 +99,15 @@ export function SignupForm() {
           {state.error}
         </p>
       )}
-      <Button type="submit" variant="primary" size="lg" loading={isPending} fullWidth>
-        {isPending ? 'Création…' : 'Créer mon compte'}
+      {/* `redirecting` keeps the spinner up while the browser loads /login. */}
+      <Button
+        type="submit"
+        variant="primary"
+        size="lg"
+        loading={isPending || redirecting}
+        fullWidth
+      >
+        {isPending || redirecting ? 'Création…' : 'Créer mon compte'}
       </Button>
     </form>
   );

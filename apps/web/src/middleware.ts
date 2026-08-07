@@ -6,6 +6,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import createIntlMiddleware from 'next-intl/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
 import { routing } from '@/i18n/routing';
+import { localizedPath } from '@/lib/auth/redirect-target';
 
 interface CookiePayload {
   name: string;
@@ -33,6 +34,14 @@ function isProtected(pathname: string): boolean {
 function isAdmin(pathname: string): boolean {
   const stripped = stripLocale(pathname);
   return stripped === '/admin' || stripped.startsWith('/admin/');
+}
+
+/** The locale the request is already browsing in, from its path prefix. */
+function localeOf(pathname: string): string {
+  for (const locale of routing.locales) {
+    if (pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) return locale;
+  }
+  return routing.defaultLocale;
 }
 
 export async function middleware(req: NextRequest) {
@@ -89,9 +98,13 @@ export async function middleware(req: NextRequest) {
     return res;
   }
 
+  // Both gates keep the visitor in the language they were browsing in —
+  // a bare `/login` would drop an English visitor onto the French tree.
+  const locale = localeOf(pathname);
+
   if (!user && isProtected(pathname)) {
     const url = req.nextUrl.clone();
-    url.pathname = '/login';
+    url.pathname = localizedPath('/login', locale);
     url.searchParams.set('next', pathname);
     return withAuthCleanup(NextResponse.redirect(url));
   }
@@ -100,7 +113,7 @@ export async function middleware(req: NextRequest) {
     const role = (user.app_metadata as { role?: string } | null | undefined)?.role;
     if (role !== 'Admin') {
       const url = req.nextUrl.clone();
-      url.pathname = '/dashboard';
+      url.pathname = localizedPath('/dashboard', locale);
       return NextResponse.redirect(url);
     }
   }

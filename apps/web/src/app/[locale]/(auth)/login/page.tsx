@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
+import { getLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
+import { loginSuccessTarget } from '@/lib/auth/redirect-target';
 import { Card } from '@/components/ui/Card';
 import { LoginForm } from './LoginForm';
 
@@ -11,12 +13,15 @@ export const metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; error?: string }>;
+  searchParams: Promise<{ next?: string; welcome?: string; error?: string }>;
 }) {
   const user = await getCurrentUser();
   if (user) {
-    const sp = await searchParams;
-    redirect(sp.next && sp.next.startsWith('/') ? sp.next : '/dashboard');
+    const [sp, locale] = await Promise.all([searchParams, getLocale()]);
+    // Localised on purpose: a bare `/dashboard` here dropped English visitors
+    // back onto the French tree. `welcome=1` is carried over so the overlay
+    // still fires when signup hands off to this page.
+    redirect(loginSuccessTarget(sp, locale));
   }
   return (
     <div className="bg-mesh">

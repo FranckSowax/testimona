@@ -6,11 +6,14 @@
  */
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { safeNextPath } from '@/lib/auth/redirect-target';
 
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = req.nextUrl;
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/dashboard';
+  // Sanitised: `${origin}${next}` with an unchecked `next` is an open redirect
+  // (`?next=@evil.com` → `https://our-host@evil.com`).
+  const next = safeNextPath(searchParams.get('next'));
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=missing_code`);

@@ -221,7 +221,7 @@ export function BiographyChaptersManager({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <p className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <p className="font-display text-base font-bold uppercase tracking-wider text-muted-foreground">
           {t('title')}
         </p>
         <p className="text-[11px] italic text-muted-foreground">

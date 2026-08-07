@@ -2,7 +2,6 @@
 
 import { LoginEmailSchema } from '@testimona/shared';
 import { redirect } from 'next/navigation';
-import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 
 export interface LoginActionState {
@@ -41,11 +40,18 @@ export async function loginAction(
     return { error: error.message };
   }
 
-  revalidatePath('/', 'layout');
-  // Do NOT redirect from the server action — Next.js 15 keeps the
-  // intercepting-route @modal slot mounted across server-side redirects,
-  // which leaves the login modal visible with a stuck spinner. Signal
-  // success to the client and let it perform router.replace + refresh.
+  // Neither `redirect()` nor `revalidatePath()` here, on purpose:
+  //
+  // - `redirect()` from a Server Action keeps the intercepting `@modal` slot
+  //   mounted on Next.js 15, leaving the login modal up with a stuck spinner.
+  // - `revalidatePath('/', 'layout')` made Next re-render the still-mounted
+  //   login modal against the brand-new session, which is what crashed the
+  //   client router ("Application error: a client-side exception has
+  //   occurred") on every fresh sign-in.
+  //
+  // The client turns `ok` into a full document navigation instead, which
+  // re-renders every layout server-side with the new session cookie — so
+  // there is nothing left for a revalidation to fix.
   return { ok: true };
 }
 

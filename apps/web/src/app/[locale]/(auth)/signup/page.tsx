@@ -1,14 +1,16 @@
 import { redirect } from 'next/navigation';
+import { getLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
+import { localizedPath } from '@/lib/auth/redirect-target';
 import { Card } from '@/components/ui/Card';
 import { SignupForm } from './SignupForm';
 
 export const metadata = { title: 'Créer un compte' };
 
 export default async function SignupPage() {
-  const user = await getCurrentUser();
-  if (user) redirect('/dashboard');
+  const [user, locale] = await Promise.all([getCurrentUser(), getLocale()]);
+  if (user) redirect(localizedPath('/dashboard', locale));
   return (
     <div className="bg-mesh">
       <div className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-md flex-col justify-center px-6 py-12">

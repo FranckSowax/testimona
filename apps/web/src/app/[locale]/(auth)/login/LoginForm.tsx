@@ -1,33 +1,52 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useRouter } from '@/i18n/navigation';
+import { useLocale } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
+import { loginSuccessTarget } from '@/lib/auth/redirect-target';
 import { loginAction, loginWithGoogleAction, type LoginActionState } from './actions';
 
 export function LoginForm() {
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const locale = useLocale();
+
   const [state, formAction, isPending] = useActionState<LoginActionState | null, FormData>(
-    loginAction,
+    async (prev, formData) => {
+      const result = await loginAction(prev, formData);
+      if (result.ok) {
+        const target = loginSuccessTarget(
+          { next: searchParams.get('next'), welcome: searchParams.get('welcome') },
+          locale,
+        );
+        // A full document navigation, on purpose — and the reason the redirect
+        // lives here rather than in a `useEffect`.
+        //
+        // A client-side `router.replace()` leaves the intercepting
+        // `@modal/(.)login` slot mounted on top of the destination, and the
+        // `router.refresh()` that had to follow it re-rendered that slot with a
+        // session it was not created with. That mismatch is what surfaced as
+        // "Application error: a client-side exception has occurred" on every
+        // fresh sign-in, and why reloading by hand made it go away. Reloading is
+        // now what we do, once, automatically: the modal slot is torn down, and
+        // the header, credit badge and dashboard are all rendered server-side
+        // with the new session cookie.
+        //
+        // Running it in the action continuation rather than an effect also means
+        // it still fires if React unmounts this form while applying the Server
+        // Action's re-render.
+        //
+        // `replace`, not `assign`: Back should return to whatever page the user
+        // opened the login modal from, not to /login — which, now that they are
+        // signed in, would only bounce them forward again.
+        window.location.replace(target);
+      }
+      return result;
+    },
     null,
   );
-
-  useEffect(() => {
-    if (state?.ok) {
-      const next = searchParams.get('next');
-      const welcome = searchParams.get('welcome') === '1';
-      let target = next && next.startsWith('/') ? next : '/dashboard';
-      if (welcome) {
-        target = target.includes('?') ? `${target}&welcome=1` : `${target}?welcome=1`;
-      }
-      router.replace(target);
-      router.refresh();
-    }
-  }, [state, router, searchParams]);
 
   return (
     <div className="mt-8 space-y-5">
@@ -56,8 +75,16 @@ export function LoginForm() {
             {state.error}
           </p>
         )}
-        <Button type="submit" variant="primary" size="lg" loading={isPending} fullWidth>
-          {isPending ? 'Connexion…' : 'Se connecter'}
+        {/* `state.ok` keeps the spinner up while the browser loads the next
+            document, instead of flashing back to the idle label. */}
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          loading={isPending || !!state?.ok}
+          fullWidth
+        >
+          {isPending || state?.ok ? 'Connexion…' : 'Se connecter'}
         </Button>
       </form>
       <div className="relative">
