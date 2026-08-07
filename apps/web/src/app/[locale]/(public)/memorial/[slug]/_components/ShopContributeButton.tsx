@@ -13,6 +13,8 @@ interface Props {
   currency: string;
 }
 
+const PRESET_MULTIPLIERS = [1, 2, 5];
+
 export function ShopContributeButton({
   shopItemId,
   productName,
@@ -25,12 +27,18 @@ export function ShopContributeButton({
   const unitPriceEur = unitPriceCents / 100;
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  // PDF p31 — the shop sells units, so the visitor picks a quantity and the
-  // amount is derived (quantity × unit price).
-  const [quantity, setQuantity] = useState<number>(1);
-  const amount = Math.round(quantity * unitPriceEur * 100) / 100;
+  // Contribution is a free amount rather than a purchased quantity — the
+  // item's price only seeds the preset buttons below (1×, 2×, 5× its price).
+  const [preset, setPreset] = useState<number | 'custom'>(1);
+  const [customAmount, setCustomAmount] = useState('');
+  const amount =
+    preset === 'custom'
+      ? Math.round((Number.parseFloat(customAmount) || 0) * 100) / 100
+      : Math.round(preset * unitPriceEur * 100) / 100;
   const [donorName, setDonorName] = useState('');
   const [message, setMessage] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [wantsItem, setWantsItem] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -53,6 +61,8 @@ export function ShopContributeButton({
       fd.set('amount', String(amount));
       if (donorName) fd.set('donorName', donorName);
       if (message) fd.set('message', message);
+      if (isAnonymous) fd.set('isAnonymous', '1');
+      if (wantsItem) fd.set('wantsItem', '1');
       const res = await contributeToShopItemAction(null, fd);
       if (!res.ok) {
         setError(res.error ?? t('error'));
@@ -99,53 +109,62 @@ export function ShopContributeButton({
                   {productName}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  {t('unitPrice', { price: fmt(unitPriceCents / 100) })}
+                  {t('itemPrice', { price: fmt(unitPriceEur) })}
                 </p>
               </header>
 
               <div className="space-y-3">
-                <div className="block">
-                  <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    {t('quantity')}
-                  </span>
-                  <div className="mt-1 flex items-center gap-3">
+                <fieldset className="block">
+                  <legend className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    {t('amountLegend')}
+                  </legend>
+                  <div className="mt-1 flex flex-wrap gap-2">
+                    {PRESET_MULTIPLIERS.map((multiplier) => {
+                      const active = preset === multiplier;
+                      return (
+                        <button
+                          key={multiplier}
+                          type="button"
+                          onClick={() => setPreset(multiplier)}
+                          aria-pressed={active}
+                          className={[
+                            'press-scale rounded-full border-2 px-4 py-1.5 font-display text-sm font-bold transition-colors',
+                            active
+                              ? 'border-primary bg-primary text-primary-foreground'
+                              : 'border-border text-foreground hover:bg-muted',
+                          ].join(' ')}
+                        >
+                          {fmt(multiplier * unitPriceEur)}
+                        </button>
+                      );
+                    })}
                     <button
                       type="button"
-                      aria-label={t('decrease')}
-                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                      disabled={quantity <= 1}
-                      className="press-scale inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-white text-xl font-bold text-foreground hover:bg-muted disabled:opacity-40"
+                      onClick={() => setPreset('custom')}
+                      aria-pressed={preset === 'custom'}
+                      className={[
+                        'press-scale rounded-full border-2 px-4 py-1.5 font-display text-sm font-bold transition-colors',
+                        preset === 'custom'
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-border text-foreground hover:bg-muted',
+                      ].join(' ')}
                     >
-                      −
+                      {t('otherAmount')}
                     </button>
+                  </div>
+                  {preset === 'custom' && (
                     <input
                       type="number"
                       min={1}
-                      step={1}
-                      value={quantity}
-                      onChange={(e) =>
-                        setQuantity(Math.max(1, Math.floor(Number(e.target.value) || 1)))
-                      }
-                      className="h-12 w-20 rounded-md border border-border bg-white px-3 text-center text-2xl font-display font-bold text-foreground focus:border-primary focus:outline-none"
+                      step="0.01"
+                      value={customAmount}
+                      onChange={(e) => setCustomAmount(e.target.value)}
+                      placeholder={t('enterAmount')}
+                      autoFocus
+                      className="mt-2 h-12 w-full rounded-md border border-border bg-white px-3 text-center text-2xl font-display font-bold text-foreground focus:border-primary focus:outline-none"
                     />
-                    <button
-                      type="button"
-                      aria-label={t('increase')}
-                      onClick={() => setQuantity((q) => q + 1)}
-                      className="press-scale inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-white text-xl font-bold text-foreground hover:bg-muted"
-                    >
-                      +
-                    </button>
-                    <span className="ml-auto text-right">
-                      <span className="block font-display text-xl font-bold text-foreground tabular">
-                        {fmt(amount)}
-                      </span>
-                      <span className="block text-[11px] text-muted-foreground">
-                        {quantity} × {fmt(unitPriceEur)}
-                      </span>
-                    </span>
-                  </div>
-                </div>
+                  )}
+                </fieldset>
                 <label className="block">
                   <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     {t('name')}
@@ -171,6 +190,29 @@ export function ShopContributeButton({
                     className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
                   />
                 </label>
+                <label className="flex items-start gap-2.5 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={isAnonymous}
+                    onChange={(e) => setIsAnonymous(e.target.checked)}
+                    className="mt-0.5 h-5 w-5 cursor-pointer rounded border-2 border-border accent-primary"
+                  />
+                  <span className="text-foreground">{t('anonymousOption')}</span>
+                </label>
+                <label className="flex items-start gap-2.5 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={wantsItem}
+                    onChange={(e) => setWantsItem(e.target.checked)}
+                    className="mt-0.5 h-5 w-5 cursor-pointer rounded border-2 border-border accent-primary"
+                  />
+                  <span className="text-foreground">{t('wantsItemOption')}</span>
+                </label>
+                {wantsItem && (
+                  <p className="rounded-md border border-accent/30 bg-accent/5 px-2.5 py-1.5 text-xs text-foreground/80">
+                    {t('wantsItemHint')}
+                  </p>
+                )}
               </div>
 
               {error && (

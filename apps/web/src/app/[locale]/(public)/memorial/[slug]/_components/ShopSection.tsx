@@ -1,10 +1,11 @@
 import Image from 'next/image';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { findProduct, CATEGORY_LABEL } from '@/lib/shop/catalog';
 import { ShopProductIcon } from './ShopProductIcon';
 import { ShopOwnerPanel } from './ShopOwnerPanel';
 import { ShopContributeButton } from './ShopContributeButton';
+import { ShopContributionsOwnerPanel } from './ShopContributionsOwnerPanel';
 import { getMemorialCurrency } from '@/lib/memorial/currency';
 import { ShopItemRemoveButton } from './ShopItemRemoveButton';
 
@@ -58,8 +59,11 @@ export async function ShopSection({
   slug: string;
   isOwner: boolean;
 }) {
-  const t = await getTranslations('memorial.shopSection');
-  const currency = await getMemorialCurrency(memorialId);
+  const [t, currency, locale] = await Promise.all([
+    getTranslations('memorial.shopSection'),
+    getMemorialCurrency(memorialId),
+    getLocale(),
+  ]);
   const eurFmt = moneyFmt(currency); // name kept — now memorial-currency aware
   const supabase = getSupabaseAdminClient();
   const [photosRes, visualsRes, itemsRes] = await Promise.all([
@@ -275,6 +279,13 @@ export async function ShopSection({
           })}
         </ul>
       )}
+
+      <ShopContributionsOwnerPanel
+        memorialId={memorialId}
+        isOwner={isOwner}
+        locale={locale}
+        currency={currency}
+      />
 
       {isOwner && (
         <ShopOwnerPanel

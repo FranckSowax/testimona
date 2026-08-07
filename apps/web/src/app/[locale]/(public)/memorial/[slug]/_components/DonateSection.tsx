@@ -1,10 +1,11 @@
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { unsplashAvatarFor } from '@/lib/avatars';
 import { getMemorialCurrency } from '@/lib/memorial/currency';
 import { DonateModalShell } from './DonateModalShell';
 import { DonationGoal } from './DonationGoal';
 import { DonorsList } from './DonorsList';
+import { DonorsOwnerPanel } from './DonorsOwnerPanel';
 
 interface MemorialLite {
   firstname: string;
@@ -46,11 +47,12 @@ export async function DonateSection({
   slug: string;
   isOwner?: boolean;
 }) {
-  const [user, meta, t, memorialCurrency] = await Promise.all([
+  const [user, meta, t, memorialCurrency, locale] = await Promise.all([
     getCurrentUser(),
     getMemorialMeta(memorialId),
     getTranslations('memorial.donateSection'),
     getMemorialCurrency(memorialId),
+    getLocale(),
   ]);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
   const shareUrl = `${siteUrl}/memorial/${slug}#donate`;
@@ -89,6 +91,8 @@ export async function DonateSection({
       />
 
       <DonorsList memorialId={memorialId} />
+
+      <DonorsOwnerPanel memorialId={memorialId} isOwner={isOwner} locale={locale} />
     </section>
   );
 }

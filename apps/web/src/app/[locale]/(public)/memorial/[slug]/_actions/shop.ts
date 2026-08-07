@@ -504,6 +504,8 @@ export async function contributeToShopItemAction(
   const donorName = String(formData.get('donorName') ?? '').trim().slice(0, 80) || null;
   const donorEmail = String(formData.get('donorEmail') ?? '').trim().slice(0, 200) || null;
   const message = String(formData.get('message') ?? '').trim().slice(0, 280) || null;
+  const isAnonymous = String(formData.get('isAnonymous') ?? '') === '1';
+  const wantsItem = String(formData.get('wantsItem') ?? '') === '1';
 
   if (!shopItemId) return { error: 'shopItemId requis.' };
   if (!Number.isFinite(amountEuros) || amountEuros < 1)
@@ -536,6 +538,8 @@ export async function contributeToShopItemAction(
     donorEmail: donorEmail ?? user?.email ?? null,
     amountCents,
     message,
+    isAnonymous,
+    wantsItem,
     // Demo: skip Stripe, mark as Succeeded immediately. Real flow will
     // start as 'Processing' and flip to 'Succeeded' on webhook.
     status: 'Succeeded',

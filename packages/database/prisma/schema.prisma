@@ -169,6 +169,9 @@ model Donation {
   donorName       String?
   donorEmail      String?
   message         String?
+  /// Donor asked to appear as "Anonymous" on public lists; the owner still
+  /// sees donorName. See migration-v24-contribution-privacy.sql.
+  isAnonymous     Boolean  @default(false)
   createdAt       DateTime @default(now()) @db.Timestamptz(6)
 
   memorial Memorial @relation(fields: [memorialId], references: [id], onDelete: Cascade)

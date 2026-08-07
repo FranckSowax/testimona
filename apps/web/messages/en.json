@@ -129,9 +129,9 @@
   "tabs": {
     "testimonials": "Testimonials",
     "photos": "Photos",
-    "donation": "Make a donation",
+    "donation": "Donation",
     "lifeDetails": "Biography",
-    "funeral": "Funeral arrangements"
+    "funeral": "Funeral"
   },
   "donate": {
     "amountLegend": "Amount",
@@ -223,12 +223,14 @@
       "scriptTitle": "My Donation",
       "subtitle": "Create a new",
       "flowersFade": "Flowers fade over time, but your donation will surely help the close relatives of",
+      "nameLabel": "Your name (optional)",
+      "namePlaceholder": "Anonymous if left blank",
       "messageLabel": "Add a message to be delivered with your donation",
       "currencyLabel": "Select the currency",
       "amountLegend": "Amount of the donation",
       "otherAmount": "Other",
       "enterAmount": "Enter the amount",
-      "hideOption": "Hide my donation from everyone",
+      "hideOption": "Stay anonymous publicly (your name stays visible to the family)",
       "submit": "Send donation",
       "sending": "Sending…",
       "ariaLabel": "Create a donation",
@@ -470,6 +472,17 @@
     "donateSection": {
       "heading": "Make a tribute donation"
     },
+    "contributorsPanel": {
+      "donorsTitle": "Donor details",
+      "contributionsTitle": "Contribution details",
+      "subtitle": "Visible to you only — a contributor who chose to stay anonymous publicly is still identified here.",
+      "empty": "No contributions yet.",
+      "anonymousBadge": "Anonymous publicly",
+      "wantsItemBadge": "Wants to receive an item",
+      "noEmail": "No email provided",
+      "noMessage": "No message",
+      "itemLabel": "Item: {name}"
+    },
     "shopSection": {
       "heading": "Memorial shop",
       "intro": "Take part in the preparations by contributing to the purchase of items for the wake, the ceremony or a lasting tribute. Each donation funds a list chosen by the family — t-shirts, fans, banners, or partner accessories.",
@@ -519,13 +532,16 @@
       "contributeTo": "Contribute to {name}",
       "close": "Close",
       "header": "Contribution",
-      "unitPrice": "Unit price: {price}",
-      "quantity": "Quantity",
-      "decrease": "Decrease quantity",
-      "increase": "Increase quantity",
+      "itemPrice": "Item price: {price}",
+      "amountLegend": "Amount",
+      "otherAmount": "Other",
+      "enterAmount": "Enter the amount",
       "name": "Name (optional)",
       "namePlaceholder": "Anonymous if left blank",
       "message": "Message (optional)",
+      "anonymousOption": "Stay anonymous publicly (your name stays visible to the family)",
+      "wantsItemOption": "I'd like to receive an item related to my contribution",
+      "wantsItemHint": "The family will reach out to arrange delivery.",
       "thanks": "Thank you for your contribution ✓",
       "cancel": "Cancel",
       "sending": "Sending…",

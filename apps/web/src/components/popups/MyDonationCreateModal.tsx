@@ -9,8 +9,10 @@ import { PopupCard, PopupHeader } from './PopupCard';
 export interface DonationFormValues {
   amountCents: number;
   currency: string;
+  donorName: string;
   message: string;
-  hideFromEveryone: boolean;
+  /** Donor's real name is still recorded for the family; this only hides it publicly. */
+  isAnonymous: boolean;
 }
 
 interface MyDonationCreateModalProps {
@@ -49,8 +51,9 @@ export function MyDonationCreateModal({
   const [currency, setCurrency] = useState(defaultCurrency ?? 'EUR');
   const [presetAmount, setPresetAmount] = useState<number | 'other' | null>(20);
   const [otherAmount, setOtherAmount] = useState('');
+  const [name, setName] = useState(donorName ?? '');
   const [message, setMessage] = useState('');
-  const [hide, setHide] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(false);
 
   const finalAmount =
     presetAmount === 'other' ? Number.parseFloat(otherAmount) || 0 : presetAmount ?? 0;
@@ -61,8 +64,9 @@ export function MyDonationCreateModal({
     await onSubmit({
       amountCents: Math.round(finalAmount * 100),
       currency,
+      donorName: name.trim(),
       message: message.trim(),
-      hideFromEveryone: hide,
+      isAnonymous,
     });
   }
 
@@ -86,6 +90,20 @@ export function MyDonationCreateModal({
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <label className="block">
+            <span className="block font-display text-sm font-medium text-muted-foreground">
+              {t('nameLabel')}
+            </span>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={80}
+              placeholder={t('namePlaceholder')}
+              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+            />
+          </label>
+
           <label className="block">
             <span className="block font-display text-sm font-medium text-muted-foreground">
               {t('messageLabel')}
@@ -170,8 +188,8 @@ export function MyDonationCreateModal({
           <label className="flex items-start gap-2.5 text-sm">
             <input
               type="checkbox"
-              checked={hide}
-              onChange={(e) => setHide(e.target.checked)}
+              checked={isAnonymous}
+              onChange={(e) => setIsAnonymous(e.target.checked)}
               className="mt-0.5 h-5 w-5 cursor-pointer rounded border-2 border-border accent-primary"
             />
             <span className="text-foreground">{t('hideOption')}</span>

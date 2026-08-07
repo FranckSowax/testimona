@@ -56,7 +56,9 @@ export function DonateModalShell({
           fd.set('amount', String(values.amountCents / 100));
           fd.set('currency', values.currency);
           fd.set('language', 'fr');
+          if (values.donorName) fd.set('donorName', values.donorName);
           if (values.message) fd.set('message', values.message);
+          if (values.isAnonymous) fd.set('isAnonymous', '1');
 
           const result = await createDonationCheckoutAction(null, fd);
           if (result?.error) {

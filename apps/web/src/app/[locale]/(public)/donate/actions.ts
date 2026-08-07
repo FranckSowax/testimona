@@ -72,6 +72,9 @@ export async function createDonationCheckoutAction(
   if (donorUserId) insertPayload.donorId = donorUserId;
   if (parsed.data.donorName) insertPayload.donorName = parsed.data.donorName;
   if (parsed.data.message) insertPayload.message = parsed.data.message;
+  // Not part of the Zod schema (like `slug` below) — read straight off the
+  // form. Only hides the name on public lists; the owner still sees it.
+  if (String(formData.get('isAnonymous') ?? '') === '1') insertPayload.isAnonymous = true;
   const { data: donation, error: insertErr } = await adminDb
     .from('Donation')
     .insert(insertPayload)
