@@ -22,8 +22,7 @@ jobs:
           node-version: 22
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      # format:check retiré : 249 fichiers historiques non formatés. À réactiver
-      # après un commit de formatage dédié (voir docs/LOT0.md).
+      - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
 

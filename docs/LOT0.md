@@ -15,6 +15,7 @@ Référence : [`parcours-proposition.html`](./parcours-proposition.html), sectio
 | Nettoyage              | Don simulé supprimé (créait de faux dons « réussis ») ; `packages/database` (Prisma) supprimé ; `docker-compose.yml` et `infra/railway` (ancienne API Express) supprimés ; Cloudinary retiré ; `.env.example` aligné sur les variables réellement utilisées ; lockfile purgé de l'ancien `apps/api`                                                  | Build de production vert                                                                                                 |
 | Client service-role    | `import 'server-only'` ajouté : un import depuis un composant client casse désormais le build                                                                                                                                                                                                                                                        | —                                                                                                                        |
 | Règles ESLint de garde | `apps/web/eslint.config.mjs` (Next.js + TypeScript) : client service-role interdit hors de `src/server/privileged/`, `.from('Table')` interdit hors des `repo.ts`, 300 lignes max par fichier. Les fichiers existants sont gelés dans `eslint.legacy.mjs` (62, 63 et 11 fichiers) ; liens `<a>` des overlays et de l'admin passés au `Link` localisé | `pnpm lint` : 0 erreur ; un fichier test fautif déclenche bien les deux règles                                           |
+| Formatage | Commit Prettier dédié (`.git-blame-ignore-revs`), `format:check` réactivé en CI | `pnpm format:check` vert |
 
 ## Bloqué ou en attente
 
@@ -22,8 +23,6 @@ Référence : [`parcours-proposition.html`](./parcours-proposition.html), sectio
    la CLI Supabase et un accès au projet (`supabase login`).
 2. **Comparaison avec la production** : `supabase db diff --linked` puis `migration repair`
    (voir `supabase/README.md`). Tant que ce n'est pas fait, la baseline reste une reconstitution.
-3. **Formatage** : `format:check` est retiré de la CI (249 fichiers historiques non formatés). À
-   réactiver après un commit `prettier --write` dédié, isolé des changements de fond.
 
 ## Reporté volontairement
 
