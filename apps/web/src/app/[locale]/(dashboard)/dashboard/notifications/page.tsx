@@ -6,6 +6,7 @@ import { getCurrentUser, getSupabaseServer } from '@/lib/supabase/server';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { EmptyState } from '@/components/EmptyState';
 import { findProduct } from '@/lib/shop/catalog';
+import { listOwnerShopContributions } from '@/server/privileged/shop-contributions';
 import { ContributionGroup, type Contributor } from './ContributionGroup';
 
 interface MemorialSummary {
@@ -297,25 +298,9 @@ export default async function NotificationsPage() {
       shopItems.map((it) => [it.id, findProduct(it.productId)?.name ?? it.productId]),
     );
     if (shopItems.length > 0) {
-      const { data: contribs } = await supabase
-        .from('ShopContribution')
-        .select('shopItemId, donorName, amountCents, createdAt')
-        .in(
-          'shopItemId',
-          shopItems.map((it) => it.id),
-        )
-        .eq('status', 'Succeeded')
-        .order('createdAt', { ascending: false })
-        .limit(500)
-        .returns<
-          {
-            shopItemId: string;
-            donorName: string | null;
-            amountCents: number;
-            createdAt: string;
-          }[]
-        >();
-      for (const c of contribs ?? []) {
+      // WHY: donorName n'est plus lisible via l'API publique ; lecture serveur contrôlée.
+      const contribs = await listOwnerShopContributions(user.id);
+      for (const c of contribs) {
         const memorialId = shopItemMemorial.get(c.shopItemId);
         if (!memorialId) continue;
         const s = ensureSummary(memorialId);
