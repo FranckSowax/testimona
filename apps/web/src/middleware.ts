@@ -55,7 +55,7 @@ export async function middleware(req: NextRequest) {
     pathname === '/robots.txt' ||
     pathname === '/favicon.ico';
 
-  let response = skipIntl ? NextResponse.next({ request: req }) : intlMiddleware(req);
+  const response = skipIntl ? NextResponse.next({ request: req }) : intlMiddleware(req);
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

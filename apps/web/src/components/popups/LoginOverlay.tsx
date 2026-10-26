@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useEffect } from 'react';
-import { useRouter } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { ButtonOutlined } from '@/components/ui/ButtonOutlined';
 import {
   loginAction,
@@ -37,15 +37,18 @@ export function LoginOverlay({ open, onClose, next }: LoginOverlayProps) {
         <div className="space-y-4 text-center">
           <h2 className="relative inline-block">
             <span
-              className="-rotate-1 inline-block text-5xl text-[var(--color-primary-soft)] sm:text-6xl"
+              className="inline-block -rotate-1 text-5xl text-[var(--color-primary-soft)] sm:text-6xl"
               style={{ fontFamily: 'var(--font-cursive)' }}
             >
               Logging in
             </span>
-            <span aria-hidden="true" className="absolute -left-6 top-2 text-xl text-[var(--color-primary-soft)]">
+            <span
+              aria-hidden="true"
+              className="absolute -left-6 top-2 text-xl text-[var(--color-primary-soft)]"
+            >
               ♡
             </span>
-            <span aria-hidden="true" className="absolute -right-6 top-2 text-xl text-accent">
+            <span aria-hidden="true" className="text-accent absolute -right-6 top-2 text-xl">
               ♥
             </span>
           </h2>
@@ -53,14 +56,14 @@ export function LoginOverlay({ open, onClose, next }: LoginOverlayProps) {
           <div className="space-y-2">
             <button
               type="button"
-              className="press-scale flex w-full items-center justify-center gap-2 rounded-md bg-[#1877F2] px-5 py-3 font-display text-sm font-bold text-white transition-opacity hover:opacity-90"
+              className="press-scale font-display flex w-full items-center justify-center gap-2 rounded-md bg-[#1877F2] px-5 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
             >
               Continue with Facebook
             </button>
             <form action={loginWithGoogleAction}>
               <button
                 type="submit"
-                className="press-scale flex w-full items-center justify-center gap-2 rounded-md bg-[#EA4335] px-5 py-3 font-display text-sm font-bold text-white transition-opacity hover:opacity-90"
+                className="press-scale font-display flex w-full items-center justify-center gap-2 rounded-md bg-[#EA4335] px-5 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
               >
                 Continue with Google
               </button>
@@ -71,7 +74,7 @@ export function LoginOverlay({ open, onClose, next }: LoginOverlayProps) {
         <div className="space-y-4 text-center">
           <h2 className="relative inline-block">
             <span
-              className="-rotate-1 inline-block text-5xl text-[var(--color-primary-soft)] sm:text-6xl"
+              className="inline-block -rotate-1 text-5xl text-[var(--color-primary-soft)] sm:text-6xl"
               style={{ fontFamily: 'var(--font-cursive)' }}
             >
               Logging in
@@ -87,10 +90,10 @@ export function LoginOverlay({ open, onClose, next }: LoginOverlayProps) {
             placeholder="Enter your email*"
             required
             autoComplete="email"
-            className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:text-sm"
+            className="text-foreground placeholder:text-muted-foreground focus:border-primary block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base focus:outline-none sm:text-sm"
           />
           {state?.fieldErrors?.email && (
-            <p className="text-xs text-accent">{state.fieldErrors.email}</p>
+            <p className="text-accent text-xs">{state.fieldErrors.email}</p>
           )}
           <input
             name="password"
@@ -99,10 +102,10 @@ export function LoginOverlay({ open, onClose, next }: LoginOverlayProps) {
             required
             minLength={8}
             autoComplete="current-password"
-            className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:text-sm"
+            className="text-foreground placeholder:text-muted-foreground focus:border-primary block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base focus:outline-none sm:text-sm"
           />
           {state?.fieldErrors?.password && (
-            <p className="text-xs text-accent">{state.fieldErrors.password}</p>
+            <p className="text-accent text-xs">{state.fieldErrors.password}</p>
           )}
 
           <p className="text-center">
@@ -115,10 +118,7 @@ export function LoginOverlay({ open, onClose, next }: LoginOverlayProps) {
           </p>
 
           {state?.error && state.error !== 'Validation' && (
-            <p
-              role="alert"
-              className="rounded-md bg-accent/20 px-3 py-2 text-sm text-white"
-            >
+            <p role="alert" className="bg-accent/20 rounded-md px-3 py-2 text-sm text-white">
               {state.error}
             </p>
           )}
@@ -133,12 +133,7 @@ export function LoginOverlay({ open, onClose, next }: LoginOverlayProps) {
             >
               Cancel
             </ButtonOutlined>
-            <ButtonOutlined
-              type="submit"
-              variant="popup-rose"
-              size="lg"
-              loading={isPending}
-            >
+            <ButtonOutlined type="submit" variant="popup-rose" size="lg" loading={isPending}>
               {isPending ? 'Logging in…' : 'Log in'}
             </ButtonOutlined>
           </div>
@@ -146,19 +141,18 @@ export function LoginOverlay({ open, onClose, next }: LoginOverlayProps) {
 
         <p className="text-center text-xs text-white/70">
           By logging in, you agree to our{' '}
-          <a href="/legal/terms" className="underline">
+          <Link href="/legal/terms" className="underline">
             Terms of Use
-          </a>{' '}
+          </Link>{' '}
           and acknowledge that you read our{' '}
-          <a href="/legal/privacy" className="underline">
+          <Link href="/legal/privacy" className="underline">
             Privacy Policy
-          </a>
-          .
-          <span className="mx-3 text-white/40">|</span>
+          </Link>
+          .<span className="mx-3 text-white/40">|</span>
           Need an account?{' '}
-          <a href="/signup" className="font-display font-bold text-accent hover:underline">
+          <Link href="/signup" className="font-display text-accent font-bold hover:underline">
             Sign up
-          </a>
+          </Link>
         </p>
       </div>
     </OverlayModal>

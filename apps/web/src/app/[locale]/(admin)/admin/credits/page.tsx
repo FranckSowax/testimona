@@ -115,7 +115,7 @@ export default async function AdminCreditsPage() {
         </h3>
         <p className="mb-4 text-xs text-muted-foreground">
           Studia Labs fournit le service compute (génération vidéo IA). Les
-          packs sont facturés au coût studio + marge — c'est ce qui paie ton
+          packs sont facturés au coût studio + marge — c’est ce qui paie ton
           fournisseur de génération.
         </p>
         <div className="grid gap-3 sm:grid-cols-3">

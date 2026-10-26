@@ -37,7 +37,7 @@ export default async function CreditsPage() {
         </h1>
         <p className="text-sm text-muted-foreground">
           1 crédit = 1 animation de 5 à 7 secondes. Utilise tes crédits pour
-          faire vivre les photos d'un mémorial.
+          faire vivre les photos d’un mémorial.
         </p>
       </header>
 

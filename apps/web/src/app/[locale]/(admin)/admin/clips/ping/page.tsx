@@ -31,8 +31,8 @@ export default async function ProviderPingPage() {
               ⚠️ Mode demo actif
             </p>
             <p className="mt-2 text-sm text-foreground/80">
-              Aucune credential fournisseur trouvée dans l'environnement.
-              Configure l'une de ces options sur Railway :
+              Aucune credential fournisseur trouvée dans l’environnement.
+              Configure l’une de ces options sur Railway :
             </p>
             <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-foreground/80">
               <li>
@@ -122,7 +122,7 @@ function SuccessCard({ verdict }: { verdict?: string }) {
         ✓ Credentials valides
       </p>
       <p className="mt-2 text-sm text-emerald-700/90">
-        L'authentification fonctionne correctement.
+        L’authentification fonctionne correctement.
       </p>
       {verdict && (
         <p className="mt-2 font-mono text-[11px] text-emerald-700/70">
@@ -182,7 +182,7 @@ function ErrorCard({
       {attempts && attempts.length > 0 && (
         <details className="mt-4">
           <summary className="cursor-pointer text-xs font-bold uppercase tracking-wider text-foreground/70">
-            Détail des {attempts.length} tentatives d'auth
+            Détail des {attempts.length} tentatives d’auth
           </summary>
           <table className="mt-2 w-full overflow-hidden rounded border border-border text-xs">
             <thead className="bg-muted">

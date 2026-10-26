@@ -2,12 +2,9 @@
 
 import Image from 'next/image';
 import { useActionState, useEffect } from 'react';
-import { useRouter } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { ButtonOutlined } from '@/components/ui/ButtonOutlined';
-import {
-  signupAction,
-  type SignupActionState,
-} from '@/app/[locale]/(auth)/signup/actions';
+import { signupAction, type SignupActionState } from '@/app/[locale]/(auth)/signup/actions';
 import { OverlayModal } from './OverlayModal';
 
 interface SignupOverlayProps {
@@ -43,31 +40,31 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
             />
           </div>
           <p className="font-body text-base leading-relaxed text-white/90 sm:text-lg">
-            Testimona is a beautiful community dedicated to sharing joyful souvenirs of our
-            loved ones in heaven so they live forever in our hearts. We are writing their life
-            stories to remember, share with our children and pass to future generations. We
-            look forward to learning more about your loved one.
+            Testimona is a beautiful community dedicated to sharing joyful souvenirs of our loved
+            ones in heaven so they live forever in our hearts. We are writing their life stories to
+            remember, share with our children and pass to future generations. We look forward to
+            learning more about your loved one.
           </p>
           <p className="text-xs text-white/60">
             By signing up, you agree to our{' '}
-            <a href="/legal/terms" className="underline">
+            <Link href="/legal/terms" className="underline">
               Terms of Use
-            </a>
+            </Link>
             , the{' '}
-            <a href="/legal/privacy" className="underline">
+            <Link href="/legal/privacy" className="underline">
               Cookies Policy
-            </a>
+            </Link>
             , and acknowledge that you read our{' '}
-            <a href="/legal/privacy" className="underline">
+            <Link href="/legal/privacy" className="underline">
               Privacy Policy
-            </a>
+            </Link>
             .
           </p>
           <p className="text-sm text-white/80">
             You already have an account?{' '}
-            <a href="/login" className="font-display font-bold text-accent hover:underline">
+            <Link href="/login" className="font-display text-accent font-bold hover:underline">
               Log in
-            </a>
+            </Link>
           </p>
         </aside>
 
@@ -75,7 +72,7 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
           <div className="space-y-2 text-center">
             <h2 className="relative inline-block">
               <span
-                className="-rotate-1 inline-block text-5xl text-[var(--color-primary-soft)] sm:text-6xl"
+                className="inline-block -rotate-1 text-5xl text-[var(--color-primary-soft)] sm:text-6xl"
                 style={{ fontFamily: 'var(--font-cursive)' }}
               >
                 Sign up
@@ -85,13 +82,13 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
             <div className="space-y-2 pt-2">
               <button
                 type="button"
-                className="press-scale flex w-full items-center justify-center gap-2 rounded-md bg-[#1877F2] px-5 py-3 font-display text-sm font-bold text-white transition-opacity hover:opacity-90"
+                className="press-scale font-display flex w-full items-center justify-center gap-2 rounded-md bg-[#1877F2] px-5 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
               >
                 Continue with Facebook
               </button>
               <button
                 type="button"
-                className="press-scale flex w-full items-center justify-center gap-2 rounded-md bg-[#EA4335] px-5 py-3 font-display text-sm font-bold text-white transition-opacity hover:opacity-90"
+                className="press-scale font-display flex w-full items-center justify-center gap-2 rounded-md bg-[#EA4335] px-5 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
               >
                 Continue with Google
               </button>
@@ -101,7 +98,7 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
           <div className="space-y-2 text-center">
             <h2 className="relative inline-block">
               <span
-                className="-rotate-1 inline-block text-5xl text-[var(--color-primary-soft)] sm:text-6xl"
+                className="inline-block -rotate-1 text-5xl text-[var(--color-primary-soft)] sm:text-6xl"
                 style={{ fontFamily: 'var(--font-cursive)' }}
               >
                 Sign up
@@ -116,7 +113,7 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
               type="text"
               placeholder="Firstname*"
               autoComplete="given-name"
-              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:text-sm"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base focus:outline-none sm:text-sm"
             />
             <input
               name="nickname"
@@ -125,10 +122,10 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
               required
               autoComplete="nickname"
               maxLength={50}
-              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:text-sm"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base focus:outline-none sm:text-sm"
             />
             {state?.fieldErrors?.nickname && (
-              <p className="text-xs text-accent">{state.fieldErrors.nickname}</p>
+              <p className="text-accent text-xs">{state.fieldErrors.nickname}</p>
             )}
             <input
               name="email"
@@ -136,10 +133,10 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
               placeholder="Enter your email*"
               required
               autoComplete="email"
-              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:text-sm"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base focus:outline-none sm:text-sm"
             />
             {state?.fieldErrors?.email && (
-              <p className="text-xs text-accent">{state.fieldErrors.email}</p>
+              <p className="text-accent text-xs">{state.fieldErrors.email}</p>
             )}
             <input
               name="password"
@@ -148,10 +145,10 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
               required
               minLength={8}
               autoComplete="new-password"
-              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:text-sm"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base focus:outline-none sm:text-sm"
             />
             {state?.fieldErrors?.password && (
-              <p className="text-xs text-accent">{state.fieldErrors.password}</p>
+              <p className="text-accent text-xs">{state.fieldErrors.password}</p>
             )}
             <input
               name="password_confirm"
@@ -159,12 +156,12 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
               placeholder="Repeat password"
               minLength={8}
               autoComplete="new-password"
-              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:text-sm"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base focus:outline-none sm:text-sm"
             />
             <select
               name="favorite_color"
               defaultValue=""
-              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+              className="text-foreground focus:border-primary block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base focus:outline-none sm:text-sm"
             >
               <option value="" disabled>
                 What is your favorite color?
@@ -177,7 +174,7 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
             <select
               name="security_question"
               defaultValue=""
-              className="block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+              className="text-foreground focus:border-primary block w-full rounded-md border border-white/20 bg-white/95 px-4 py-3 text-base focus:outline-none sm:text-sm"
             >
               <option value="" disabled>
                 Choose your security question 2
@@ -188,7 +185,7 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
             </select>
 
             {state?.error && state.error !== 'Validation' && (
-              <p role="alert" className="rounded-md bg-accent/20 px-3 py-2 text-sm text-white">
+              <p role="alert" className="bg-accent/20 rounded-md px-3 py-2 text-sm text-white">
                 {state.error}
               </p>
             )}
@@ -203,12 +200,7 @@ export function SignupOverlay({ open, onClose }: SignupOverlayProps) {
               >
                 Cancel
               </ButtonOutlined>
-              <ButtonOutlined
-                type="submit"
-                variant="popup-rose"
-                size="lg"
-                loading={isPending}
-              >
+              <ButtonOutlined type="submit" variant="popup-rose" size="lg" loading={isPending}>
                 {isPending ? 'Creating…' : 'Sign up'}
               </ButtonOutlined>
             </div>
