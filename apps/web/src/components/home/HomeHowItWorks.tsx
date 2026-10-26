@@ -17,27 +17,27 @@ export async function HomeHowItWorks() {
       <header className="mx-auto max-w-2xl text-center">
         <h2
           id="how-it-works-heading"
-          className="font-display text-3xl font-semibold text-foreground sm:text-4xl"
+          className="font-display text-foreground text-3xl font-semibold sm:text-4xl"
         >
           {t('title')}
         </h2>
-        <p className="mt-3 text-base leading-relaxed text-muted-foreground">{t('subtitle')}</p>
+        <p className="text-muted-foreground mt-3 text-base leading-relaxed">{t('subtitle')}</p>
       </header>
 
       <ol className="mt-12 grid gap-6 sm:grid-cols-3">
         {steps.map((step) => (
           <li
             key={step.num}
-            className="relative rounded-lg border border-border bg-white p-6 shadow-[var(--shadow-card)]"
+            className="border-border relative rounded-lg border bg-white p-6 shadow-[var(--shadow-card)]"
           >
             <span
               aria-hidden="true"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-display text-lg font-bold text-primary"
+              className="bg-primary/10 font-display text-primary inline-flex h-10 w-10 items-center justify-center rounded-full text-lg font-bold"
             >
               {step.num}
             </span>
-            <h3 className="mt-4 font-display text-lg font-bold text-foreground">{step.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+            <h3 className="font-display text-foreground mt-4 text-lg font-bold">{step.title}</h3>
+            <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{step.body}</p>
           </li>
         ))}
       </ol>

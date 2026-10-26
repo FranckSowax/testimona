@@ -46,9 +46,7 @@ export function FuneralEventCreateModalShell({
 
         const result = await createFuneralEventAction(null, fd);
         if (result?.error) {
-          setError(
-            result.error === 'Validation' ? tActions('checkRequiredFields') : result.error,
-          );
+          setError(result.error === 'Validation' ? tActions('checkRequiredFields') : result.error);
           resolve();
           return;
         }
@@ -63,12 +61,7 @@ export function FuneralEventCreateModalShell({
 
   return (
     <>
-      <ButtonOutlined
-        variant="page-gray"
-        size="md"
-        onClick={() => setOpen(true)}
-        type="button"
-      >
+      <ButtonOutlined variant="page-gray" size="md" onClick={() => setOpen(true)} type="button">
         {label}
       </ButtonOutlined>
       <FuneralEventCreatePopup
@@ -78,7 +71,7 @@ export function FuneralEventCreateModalShell({
         submitting={pending}
       />
       {error && (
-        <p role="alert" className="mt-2 text-sm text-destructive">
+        <p role="alert" className="text-destructive mt-2 text-sm">
           {error}
         </p>
       )}

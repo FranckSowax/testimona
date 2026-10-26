@@ -3,10 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import {
-  submitTestimonialAction,
-  type TestimonialActionState,
-} from '../actions';
+import { submitTestimonialAction, type TestimonialActionState } from '../actions';
 
 interface Props {
   memorialId: string;
@@ -37,10 +34,10 @@ export function TestimonialPublicForm({
 }: Props) {
   const t = useTranslations('memorial.testimonialForm');
   const router = useRouter();
-  const [state, formAction, isPending] = useActionState<
-    TestimonialActionState | null,
-    FormData
-  >(submitTestimonialAction, null);
+  const [state, formAction, isPending] = useActionState<TestimonialActionState | null, FormData>(
+    submitTestimonialAction,
+    null,
+  );
   const [open, setOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -63,13 +60,11 @@ export function TestimonialPublicForm({
       <div className="mt-8 flex flex-col items-center gap-2">
         <a
           href={`/login?next=/memorial/${slug}`}
-          className="press-scale rounded-md bg-primary px-5 py-2.5 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+          className="press-scale bg-primary font-display text-primary-foreground rounded-md px-5 py-2.5 text-sm font-bold transition-opacity hover:opacity-90"
         >
           {t('signinCta')}
         </a>
-        <p className="text-xs text-muted-foreground">
-          {t('signinHelp')}
-        </p>
+        <p className="text-muted-foreground text-xs">{t('signinHelp')}</p>
       </div>
     );
   }
@@ -80,13 +75,11 @@ export function TestimonialPublicForm({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="press-scale rounded-md bg-primary px-5 py-2.5 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+          className="press-scale bg-primary font-display text-primary-foreground rounded-md px-5 py-2.5 text-sm font-bold transition-opacity hover:opacity-90"
         >
           {t('leaveCta')}
         </button>
-        <p className="text-xs text-muted-foreground">
-          {t('leaveHelp')}
-        </p>
+        <p className="text-muted-foreground text-xs">{t('leaveHelp')}</p>
       </div>
     );
   }
@@ -95,7 +88,7 @@ export function TestimonialPublicForm({
     <form
       ref={formRef}
       action={formAction}
-      className="mt-8 space-y-4 rounded-2xl border border-border bg-white p-5 shadow-[var(--shadow-card)] sm:p-6"
+      className="border-border mt-8 space-y-4 rounded-2xl border bg-white p-5 shadow-[var(--shadow-card)] sm:p-6"
     >
       <input type="hidden" name="memorialId" value={memorialId} />
       <input type="hidden" name="slug" value={slug} />
@@ -103,18 +96,16 @@ export function TestimonialPublicForm({
 
       <header className="flex items-baseline justify-between gap-3">
         <div>
-          <p className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
             {t('forMemorial', { name: memorialName })}
           </p>
-          <h3 className="font-display text-lg font-bold text-foreground">
-            {t('shareMemory')}
-          </h3>
+          <h3 className="font-display text-foreground text-lg font-bold">{t('shareMemory')}</h3>
         </div>
         <button
           type="button"
           onClick={() => setOpen(false)}
           aria-label={t('close')}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-9 w-9 items-center justify-center rounded-full"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="2" />
@@ -124,7 +115,7 @@ export function TestimonialPublicForm({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block">
-          <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
             {t('firstname')}
           </span>
           <input
@@ -134,16 +125,14 @@ export function TestimonialPublicForm({
             maxLength={60}
             defaultValue={prefill?.firstname ?? ''}
             placeholder="Marie"
-            className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+            className="border-border text-foreground focus:border-primary mt-1 h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none sm:text-sm"
           />
           {state?.fieldErrors?.authorFirstname && (
-            <p className="mt-1 text-xs text-destructive">
-              {state.fieldErrors.authorFirstname}
-            </p>
+            <p className="text-destructive mt-1 text-xs">{state.fieldErrors.authorFirstname}</p>
           )}
         </label>
         <label className="block">
-          <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
             {t('lastname')}
           </span>
           <input
@@ -153,32 +142,31 @@ export function TestimonialPublicForm({
             maxLength={80}
             defaultValue={prefill?.lastname ?? ''}
             placeholder="Dupont"
-            className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+            className="border-border text-foreground focus:border-primary mt-1 h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none sm:text-sm"
           />
           {state?.fieldErrors?.authorName && (
-            <p className="mt-1 text-xs text-destructive">
-              {state.fieldErrors.authorName}
-            </p>
+            <p className="text-destructive mt-1 text-xs">{state.fieldErrors.authorName}</p>
           )}
         </label>
       </div>
 
       <label className="block">
-        <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          {t('relationshipLabel')} <span className="font-normal text-foreground/60">{t('relationshipHint')}</span>
+        <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
+          {t('relationshipLabel')}{' '}
+          <span className="text-foreground/60 font-normal">{t('relationshipHint')}</span>
         </span>
         <input
           name="authorRelationship"
           type="text"
           maxLength={60}
           placeholder={t('relationshipPlaceholder')}
-          className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+          className="border-border text-foreground focus:border-primary mt-1 h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none sm:text-sm"
         />
       </label>
 
       <label className="block">
-        <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          {t('emailLabel')} <span className="font-normal text-foreground/60">{t('emailHint')}</span>
+        <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
+          {t('emailLabel')} <span className="text-foreground/60 font-normal">{t('emailHint')}</span>
         </span>
         <input
           name="authorEmail"
@@ -186,17 +174,15 @@ export function TestimonialPublicForm({
           maxLength={200}
           defaultValue={prefill?.email ?? ''}
           placeholder="marie@exemple.fr"
-          className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+          className="border-border text-foreground focus:border-primary mt-1 h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none sm:text-sm"
         />
         {state?.fieldErrors?.authorEmail && (
-          <p className="mt-1 text-xs text-destructive">
-            {state.fieldErrors.authorEmail}
-          </p>
+          <p className="text-destructive mt-1 text-xs">{state.fieldErrors.authorEmail}</p>
         )}
       </label>
 
       <label className="block">
-        <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
           {t('messageLabel')}
         </span>
         <textarea
@@ -206,19 +192,17 @@ export function TestimonialPublicForm({
           minLength={10}
           maxLength={2000}
           placeholder={t('messagePlaceholder')}
-          className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2.5 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+          className="border-border text-foreground focus:border-primary mt-1 w-full rounded-md border bg-white px-3 py-2.5 text-base focus:outline-none sm:text-sm"
         />
         {state?.fieldErrors?.message && (
-          <p className="mt-1 text-xs text-destructive">
-            {state.fieldErrors.message}
-          </p>
+          <p className="text-destructive mt-1 text-xs">{state.fieldErrors.message}</p>
         )}
       </label>
 
       {state?.error && state.error !== 'Validation' && (
         <p
           role="alert"
-          className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+          className="border-destructive/30 bg-destructive/5 text-destructive rounded-md border px-3 py-2 text-sm"
         >
           {state.error}
         </p>
@@ -230,13 +214,11 @@ export function TestimonialPublicForm({
       )}
 
       <div className="flex items-center justify-between gap-3">
-        <p className="text-[11px] italic text-muted-foreground">
-          {t('moderationNote')}
-        </p>
+        <p className="text-muted-foreground text-[11px] italic">{t('moderationNote')}</p>
         <button
           type="submit"
           disabled={isPending}
-          className="press-scale rounded-md bg-primary px-5 py-2.5 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="press-scale bg-primary font-display text-primary-foreground rounded-md px-5 py-2.5 text-sm font-bold transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {isPending ? t('sending') : t('publish')}
         </button>

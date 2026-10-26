@@ -72,8 +72,7 @@ function mapUser(u: SupabaseUser): AdminUserRow {
     createdAt: u.created_at,
     lastSignInAt: u.last_sign_in_at ?? null,
     role,
-    bannedUntil:
-      bannedUntil && new Date(bannedUntil).getTime() > Date.now() ? bannedUntil : null,
+    bannedUntil: bannedUntil && new Date(bannedUntil).getTime() > Date.now() ? bannedUntil : null,
     fullName: u.user_metadata?.full_name ?? null,
     nickname: u.user_metadata?.nickname ?? null,
     avatarUrl: u.user_metadata?.avatar_url ?? null,
@@ -97,9 +96,7 @@ export async function getUsersList(params: UsersListParams = {}): Promise<UsersL
 
   const filtered = mapped.filter((u) => {
     if (query) {
-      const haystack = [u.email ?? '', u.fullName ?? '', u.nickname ?? '']
-        .join(' ')
-        .toLowerCase();
+      const haystack = [u.email ?? '', u.fullName ?? '', u.nickname ?? ''].join(' ').toLowerCase();
       if (!haystack.includes(query)) return false;
     }
     if (role === 'admin' && u.role !== 'Admin') return false;
@@ -126,18 +123,12 @@ export async function getUserDetail(userId: string): Promise<AdminUserDetail | n
 
   const [memorialsCount, testimonialsCount, donationsCount, memorials, testimonials] =
     await Promise.all([
-      supabase
-        .from('Memorial')
-        .select('id', { count: 'exact', head: true })
-        .eq('ownerId', userId),
+      supabase.from('Memorial').select('id', { count: 'exact', head: true }).eq('ownerId', userId),
       supabase
         .from('Testimonial')
         .select('id', { count: 'exact', head: true })
         .eq('authorId', userId),
-      supabase
-        .from('Donation')
-        .select('id', { count: 'exact', head: true })
-        .eq('userId', userId),
+      supabase.from('Donation').select('id', { count: 'exact', head: true }).eq('userId', userId),
       supabase
         .from('Memorial')
         .select('id, slug, firstname, lastname, isPublic, createdAt')
@@ -160,9 +151,7 @@ export async function getUserDetail(userId: string): Promise<AdminUserDetail | n
         .eq('authorId', userId)
         .order('createdAt', { ascending: false })
         .limit(10)
-        .returns<
-          { id: string; message: string; memorialId: string; createdAt: string }[]
-        >(),
+        .returns<{ id: string; message: string; memorialId: string; createdAt: string }[]>(),
     ]);
 
   return {

@@ -32,10 +32,7 @@ export function TabNav({
       <div
         role="tablist"
         aria-label={ariaLabel}
-        className={[
-          'inline-flex gap-1 rounded-full bg-surface p-1',
-          className ?? '',
-        ]
+        className={['bg-surface inline-flex gap-1 rounded-full p-1', className ?? '']
           .filter(Boolean)
           .join(' ')}
       >
@@ -56,17 +53,15 @@ export function TabNav({
                 'duration-150 ease-[var(--motion-ease-out)]',
                 'press-scale',
                 active
-                  ? 'bg-white text-foreground shadow-[var(--shadow-card)]'
+                  ? 'text-foreground bg-white shadow-[var(--shadow-card)]'
                   : 'text-foreground/70 hover:text-foreground',
-                item.disabled ? 'opacity-50 cursor-not-allowed' : '',
+                item.disabled ? 'cursor-not-allowed opacity-50' : '',
               ].join(' ')}
             >
               {item.iconLeft && <span aria-hidden="true">{item.iconLeft}</span>}
               <span>{item.label}</span>
               {typeof item.badge === 'number' && item.badge > 0 && (
-                <span className="tabular ml-1 text-xs text-muted-foreground">
-                  {item.badge}
-                </span>
+                <span className="tabular text-muted-foreground ml-1 text-xs">{item.badge}</span>
               )}
             </button>
           );
@@ -79,10 +74,7 @@ export function TabNav({
     <div
       role="tablist"
       aria-label={ariaLabel}
-      className={[
-        'flex gap-1 border-b border-border overflow-x-auto',
-        className ?? '',
-      ]
+      className={['border-border flex gap-1 overflow-x-auto border-b', className ?? '']
         .filter(Boolean)
         .join(' ')}
     >
@@ -100,17 +92,17 @@ export function TabNav({
             className={[
               'relative inline-flex items-center gap-2 px-4 py-3 text-sm font-medium',
               'transition-colors duration-150 ease-[var(--motion-ease-out)]',
-              'border-b-2 -mb-px whitespace-nowrap',
+              '-mb-px whitespace-nowrap border-b-2',
               active
                 ? 'border-primary text-primary'
-                : 'border-transparent text-foreground/70 hover:text-foreground',
-              item.disabled ? 'opacity-50 cursor-not-allowed' : '',
+                : 'text-foreground/70 hover:text-foreground border-transparent',
+              item.disabled ? 'cursor-not-allowed opacity-50' : '',
             ].join(' ')}
           >
             {item.iconLeft && <span aria-hidden="true">{item.iconLeft}</span>}
             <span>{item.label}</span>
             {typeof item.badge === 'number' && item.badge > 0 && (
-              <span className="tabular ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-foreground/10 px-1.5 text-[11px] font-semibold">
+              <span className="tabular bg-foreground/10 ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-semibold">
                 {item.badge}
               </span>
             )}

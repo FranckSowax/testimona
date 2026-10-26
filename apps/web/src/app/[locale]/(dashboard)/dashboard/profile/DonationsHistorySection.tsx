@@ -104,25 +104,25 @@ export async function DonationsHistorySection({ locale }: { locale: string }) {
     <div className="space-y-6">
       {/* KPI strip */}
       <div className="grid gap-3 sm:grid-cols-2">
-        <article className="rounded-lg border border-border bg-white p-4">
-          <p className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        <article className="border-border rounded-lg border bg-white p-4">
+          <p className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wide">
             {t('totalMade')}
           </p>
-          <p className="mt-2 font-display text-2xl font-bold tabular text-foreground">
+          <p className="font-display tabular text-foreground mt-2 text-2xl font-bold">
             {formatMoney(totalMadeCents, totalMadeCurrency, locale)}
           </p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
+          <p className="text-muted-foreground mt-0.5 text-xs">
             {t('donationsCount', { count: donations.length })}
           </p>
         </article>
-        <article className="rounded-lg border border-border bg-white p-4">
-          <p className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        <article className="border-border rounded-lg border bg-white p-4">
+          <p className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wide">
             {t('totalReceived')}
           </p>
-          <p className="mt-2 font-display text-2xl font-bold tabular text-foreground">
+          <p className="font-display tabular text-foreground mt-2 text-2xl font-bold">
             {formatMoney(totalReceivedCents, totalReceivedCurrency, locale)}
           </p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
+          <p className="text-muted-foreground mt-0.5 text-xs">
             {t('donationsCount', { count: receivedPaid.length })}
           </p>
         </article>
@@ -130,16 +130,12 @@ export async function DonationsHistorySection({ locale }: { locale: string }) {
 
       {/* List of donations made */}
       <section>
-        <h3 className="font-display text-base font-bold text-foreground">
-          {t('madeListTitle')}
-        </h3>
-        <div className="mt-3 overflow-hidden rounded-md border border-border bg-white">
+        <h3 className="font-display text-foreground text-base font-bold">{t('madeListTitle')}</h3>
+        <div className="border-border mt-3 overflow-hidden rounded-md border bg-white">
           {donations.length === 0 ? (
-            <p className="p-6 text-center text-sm italic text-muted-foreground">
-              {t('madeEmpty')}
-            </p>
+            <p className="text-muted-foreground p-6 text-center text-sm italic">{t('madeEmpty')}</p>
           ) : (
-            <ul className="divide-y divide-border">
+            <ul className="divide-border divide-y">
               {donations.map((d) => {
                 const memorial = memorialsById.get(d.memorialId);
                 return (
@@ -148,23 +144,20 @@ export async function DonationsHistorySection({ locale }: { locale: string }) {
                     className="flex flex-wrap items-baseline justify-between gap-3 p-4 text-sm"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="font-display font-bold text-foreground">
+                      <p className="font-display text-foreground font-bold">
                         {formatMoney(d.amount, d.currency, locale)}
                         <span
                           className={[
-                            'ml-2 rounded-full px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wide',
+                            'font-display ml-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide',
                             STATUS_TONE[d.status] ?? 'bg-foreground/10 text-foreground/70',
                           ].join(' ')}
                         >
                           {d.status}
                         </span>
                       </p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
+                      <p className="text-muted-foreground mt-0.5 text-xs">
                         {memorial ? (
-                          <Link
-                            href={`/memorial/${memorial.slug}`}
-                            className="hover:text-primary"
-                          >
+                          <Link href={`/memorial/${memorial.slug}`} className="hover:text-primary">
                             {memorial.firstname} {memorial.lastname}
                           </Link>
                         ) : (
@@ -174,7 +167,7 @@ export async function DonationsHistorySection({ locale }: { locale: string }) {
                         {formatDate(d.createdAt, locale)}
                       </p>
                       {d.message && (
-                        <p className="mt-1 line-clamp-2 text-xs italic text-muted-foreground">
+                        <p className="text-muted-foreground mt-1 line-clamp-2 text-xs italic">
                           “{d.message}”
                         </p>
                       )}

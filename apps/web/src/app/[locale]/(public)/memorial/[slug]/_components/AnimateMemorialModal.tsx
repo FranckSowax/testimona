@@ -5,10 +5,7 @@ import { Link } from '@/i18n/navigation';
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
-import {
-  submitAnimationAction,
-  type AnimateSelection,
-} from '../_actions/animate';
+import { submitAnimationAction, type AnimateSelection } from '../_actions/animate';
 
 export interface AnimatePhoto {
   id: string;
@@ -91,7 +88,10 @@ export function AnimateMemorialModal({
   }, [open, step]);
 
   const pickedIds = useMemo(
-    () => Object.entries(sel).filter(([, v]) => v.picked).map(([k]) => k),
+    () =>
+      Object.entries(sel)
+        .filter(([, v]) => v.picked)
+        .map(([k]) => k),
     [sel],
   );
   const cost = pickedIds.length;
@@ -184,15 +184,15 @@ export function AnimateMemorialModal({
         type="button"
         aria-label={t('close')}
         onClick={() => step !== 'submitting' && setOpen(false)}
-        className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
+        className="bg-foreground/40 absolute inset-0 backdrop-blur-sm"
       />
       <div className="animate-slide-in-up relative z-10 flex max-h-[92dvh] w-full max-w-2xl flex-col rounded-t-2xl bg-white shadow-[var(--shadow-overlay)] sm:my-auto sm:max-h-[calc(100dvh-4rem)] sm:rounded-2xl">
-        <header className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
+        <header className="border-border flex items-center justify-between gap-3 border-b px-5 py-4">
           <div className="min-w-0">
-            <p className="font-display text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            <p className="font-display text-muted-foreground text-[11px] font-bold uppercase tracking-wider">
               {t('subtitle')} · {memorialName}
             </p>
-            <h2 className="truncate font-display text-lg font-bold text-foreground">
+            <h2 className="font-display text-foreground truncate text-lg font-bold">
               {titleByStep[step]}
             </h2>
           </div>
@@ -201,7 +201,7 @@ export function AnimateMemorialModal({
             onClick={() => step !== 'submitting' && setOpen(false)}
             aria-label={t('close')}
             disabled={step === 'submitting'}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors disabled:opacity-50"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="2" />
@@ -225,13 +225,7 @@ export function AnimateMemorialModal({
         )}
 
         <div className="flex-1 overflow-y-auto px-5 py-4">
-          {step === 1 && (
-            <Step1Pick
-              photos={photos}
-              sel={sel}
-              onToggle={togglePick}
-            />
-          )}
+          {step === 1 && <Step1Pick photos={photos} sel={sel} onToggle={togglePick} />}
           {step === 2 && (
             <Step2Captions
               photos={photos}
@@ -244,32 +238,24 @@ export function AnimateMemorialModal({
             />
           )}
           {step === 3 && (
-            <Step3Confirm
-              pickedCount={pickedIds.length}
-              cost={cost}
-              balance={balance}
-            />
+            <Step3Confirm pickedCount={pickedIds.length} cost={cost} balance={balance} />
           )}
           {step === 'submitting' && (
             <div className="flex flex-col items-center gap-3 py-12">
-              <span className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-              <p className="text-sm text-muted-foreground">
-                {t('submittingText')}
-              </p>
+              <span className="border-primary h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
+              <p className="text-muted-foreground text-sm">{t('submittingText')}</p>
             </div>
           )}
           {step === 'done' && (
             <div className="space-y-4 py-6 text-center">
               <p className="text-4xl">🎬</p>
-              <p className="font-display text-lg font-bold text-foreground">
+              <p className="font-display text-foreground text-lg font-bold">
                 {t('doneCount', { count: createdCount })}
               </p>
-              <p className="text-sm text-muted-foreground">
-                {t('doneHelp')}
-              </p>
+              <p className="text-muted-foreground text-sm">{t('doneHelp')}</p>
               <Link
                 href="/dashboard/clips"
-                className="press-scale inline-flex rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground"
+                className="press-scale bg-primary font-display text-primary-foreground inline-flex rounded-md px-4 py-2 text-sm font-bold"
               >
                 {t('viewClips')}
               </Link>
@@ -278,11 +264,11 @@ export function AnimateMemorialModal({
           {step === 'error' && (
             <div className="space-y-3 py-6 text-center">
               <p className="text-3xl">⚠️</p>
-              <p className="text-sm text-destructive">{error}</p>
+              <p className="text-destructive text-sm">{error}</p>
               {error && error.includes('Solde insuffisant') && (
                 <Link
                   href="/dashboard/profile/credits"
-                  className="press-scale inline-flex rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground"
+                  className="press-scale bg-primary font-display text-primary-foreground inline-flex rounded-md px-4 py-2 text-sm font-bold"
                 >
                   {t('buyCredits')}
                 </Link>
@@ -292,22 +278,18 @@ export function AnimateMemorialModal({
         </div>
 
         {(step === 1 || step === 2 || step === 3) && (
-          <footer className="flex items-center justify-between gap-3 border-t border-border bg-muted/30 px-5 py-3">
-            <div className="text-xs text-muted-foreground">
-              <span className="font-display font-bold text-foreground tabular">
-                {cost}
-              </span>{' '}
+          <footer className="border-border bg-muted/30 flex items-center justify-between gap-3 border-t px-5 py-3">
+            <div className="text-muted-foreground text-xs">
+              <span className="font-display text-foreground tabular font-bold">{cost}</span>{' '}
               {t('creditsWord', { count: cost })} · {t('balanceWord')}{' '}
-              <span className="font-display font-bold text-foreground tabular">
-                {balance}
-              </span>
+              <span className="font-display text-foreground tabular font-bold">{balance}</span>
             </div>
             <div className="flex items-center gap-2">
               {step !== 1 && (
                 <button
                   type="button"
                   onClick={() => setStep((s) => ((s as number) - 1) as Step)}
-                  className="press-scale rounded-md border border-border bg-white px-3 py-2 font-display text-sm font-bold text-foreground transition-colors hover:bg-muted"
+                  className="press-scale border-border font-display text-foreground hover:bg-muted rounded-md border bg-white px-3 py-2 text-sm font-bold transition-colors"
                 >
                   {t('back')}
                 </button>
@@ -317,7 +299,7 @@ export function AnimateMemorialModal({
                   type="button"
                   disabled={cost === 0}
                   onClick={() => setStep(2)}
-                  className="press-scale rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+                  className="press-scale bg-primary font-display text-primary-foreground rounded-md px-4 py-2 text-sm font-bold transition-opacity hover:opacity-90 disabled:opacity-50"
                 >
                   {t('nextWithCount', { count: cost })}
                 </button>
@@ -326,7 +308,7 @@ export function AnimateMemorialModal({
                 <button
                   type="button"
                   onClick={() => setStep(3)}
-                  className="press-scale rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+                  className="press-scale bg-primary font-display text-primary-foreground rounded-md px-4 py-2 text-sm font-bold transition-opacity hover:opacity-90"
                 >
                   {t('next')}
                 </button>
@@ -336,7 +318,7 @@ export function AnimateMemorialModal({
                   {!sufficient && (
                     <Link
                       href="/dashboard/profile/credits"
-                      className="press-scale rounded-md border-2 border-accent px-3 py-2 font-display text-sm font-bold text-accent hover:bg-accent/10"
+                      className="press-scale border-accent font-display text-accent hover:bg-accent/10 rounded-md border-2 px-3 py-2 text-sm font-bold"
                     >
                       {t('buy')}
                     </Link>
@@ -345,7 +327,7 @@ export function AnimateMemorialModal({
                     type="button"
                     onClick={submit}
                     disabled={!sufficient || isPending}
-                    className="press-scale rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+                    className="press-scale bg-primary font-display text-primary-foreground rounded-md px-4 py-2 text-sm font-bold transition-opacity hover:opacity-90 disabled:opacity-50"
                   >
                     {t('start')}
                   </button>
@@ -372,16 +354,14 @@ function Step1Pick({
   const t = useTranslations('memorial.animate');
   if (photos.length === 0) {
     return (
-      <p className="rounded-md border border-dashed border-border bg-muted px-4 py-8 text-center text-sm italic text-muted-foreground">
+      <p className="border-border bg-muted text-muted-foreground rounded-md border border-dashed px-4 py-8 text-center text-sm italic">
         {t('noPhotos')}
       </p>
     );
   }
   return (
     <div className="space-y-3">
-      <p className="text-sm text-muted-foreground">
-        {t('pickHint')}
-      </p>
+      <p className="text-muted-foreground text-sm">{t('pickHint')}</p>
       <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
         {photos.map((p) => {
           const picked = sel[p.id]?.picked ?? false;
@@ -407,8 +387,16 @@ function Step1Pick({
                     className="object-cover"
                   />
                   {picked && (
-                    <span className="absolute right-1.5 top-1.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden="true">
+                    <span className="bg-primary text-primary-foreground absolute right-1.5 top-1.5 inline-flex h-6 w-6 items-center justify-center rounded-full shadow">
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        aria-hidden="true"
+                      >
                         <path d="M20 6 9 17l-5-5" />
                       </svg>
                     </span>
@@ -444,38 +432,27 @@ function Step2Captions({
   const photoById = new Map(photos.map((p) => [p.id, p]));
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        {t('captionsHint')}
-      </p>
+      <p className="text-muted-foreground text-sm">{t('captionsHint')}</p>
       {pickedIds.map((pid) => {
         const p = photoById.get(pid);
         if (!p) return null;
         const state = sel[pid]!;
         return (
-          <div
-            key={pid}
-            className="flex gap-3 rounded-lg border border-border bg-white p-3"
-          >
+          <div key={pid} className="border-border flex gap-3 rounded-lg border bg-white p-3">
             <span className="relative block h-20 w-20 shrink-0 overflow-hidden rounded-md">
-              <Image
-                src={p.url}
-                alt=""
-                fill
-                sizes="80px"
-                className="object-cover"
-              />
+              <Image src={p.url} alt="" fill sizes="80px" className="object-cover" />
             </span>
             <div className="min-w-0 flex-1 space-y-2">
-              <div className="flex gap-1 rounded-full bg-muted p-1">
+              <div className="bg-muted flex gap-1 rounded-full p-1">
                 <button
                   type="button"
                   onClick={() => onSource(pid, 'testimonial')}
                   aria-pressed={state.source === 'testimonial'}
                   disabled={testimonials.length === 0}
                   className={[
-                    'flex-1 rounded-full px-3 py-1 font-display text-[11px] font-bold uppercase tracking-wider transition-colors disabled:opacity-50',
+                    'font-display flex-1 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors disabled:opacity-50',
                     state.source === 'testimonial'
-                      ? 'bg-white text-foreground shadow-sm'
+                      ? 'text-foreground bg-white shadow-sm'
                       : 'text-muted-foreground',
                   ].join(' ')}
                 >
@@ -486,9 +463,9 @@ function Step2Captions({
                   onClick={() => onSource(pid, 'free')}
                   aria-pressed={state.source === 'free'}
                   className={[
-                    'flex-1 rounded-full px-3 py-1 font-display text-[11px] font-bold uppercase tracking-wider transition-colors',
+                    'font-display flex-1 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors',
                     state.source === 'free'
-                      ? 'bg-white text-foreground shadow-sm'
+                      ? 'text-foreground bg-white shadow-sm'
                       : 'text-muted-foreground',
                   ].join(' ')}
                 >
@@ -498,14 +475,14 @@ function Step2Captions({
 
               {state.source === 'testimonial' ? (
                 testimonials.length === 0 ? (
-                  <p className="rounded-md bg-muted px-2 py-1.5 text-xs italic text-muted-foreground">
+                  <p className="bg-muted text-muted-foreground rounded-md px-2 py-1.5 text-xs italic">
                     {t('noTestimonials')}
                   </p>
                 ) : (
                   <select
                     value={state.testimonialId ?? ''}
                     onChange={(e) => onTestimonial(pid, e.target.value)}
-                    className="block w-full rounded-md border border-border bg-white px-3 py-2 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+                    className="border-border text-foreground focus:border-primary block w-full rounded-md border bg-white px-3 py-2 text-base focus:outline-none sm:text-sm"
                   >
                     <option value="">{t('chooseTestimonial')}</option>
                     {testimonials.map((t) => (
@@ -522,7 +499,7 @@ function Step2Captions({
                   rows={2}
                   maxLength={280}
                   placeholder={t('captionPlaceholder')}
-                  className="block w-full rounded-md border border-border bg-white px-3 py-2 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:text-sm"
+                  className="border-border text-foreground placeholder:text-muted-foreground focus:border-primary block w-full rounded-md border bg-white px-3 py-2 text-base focus:outline-none sm:text-sm"
                 />
               )}
             </div>
@@ -547,24 +524,22 @@ function Step3Confirm({
   const insufficient = balance < cost;
   return (
     <div className="space-y-4 py-3">
-      <div className="rounded-xl border border-border bg-surface/40 p-5">
-        <p className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+      <div className="border-border bg-surface/40 rounded-xl border p-5">
+        <p className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
           {t('summary')}
         </p>
         <ul className="mt-3 space-y-2 text-sm">
           <li className="flex justify-between">
             <span className="text-foreground">{t('summaryAnimations')}</span>
-            <span className="tabular font-display font-bold text-foreground">
-              {pickedCount}
-            </span>
+            <span className="tabular font-display text-foreground font-bold">{pickedCount}</span>
           </li>
           <li className="flex justify-between">
             <span className="text-foreground">{t('summaryDuration')}</span>
-            <span className="font-display font-bold text-foreground">5-7 s</span>
+            <span className="font-display text-foreground font-bold">5-7 s</span>
           </li>
-          <li className="flex justify-between border-t border-border pt-2">
+          <li className="border-border flex justify-between border-t pt-2">
             <span className="text-foreground">{t('summaryTotalCost')}</span>
-            <span className="tabular font-display text-lg font-bold text-foreground">
+            <span className="tabular font-display text-foreground text-lg font-bold">
               {t('creditsCount', { count: cost })}
             </span>
           </li>
@@ -580,9 +555,7 @@ function Step3Confirm({
       >
         <p className="flex justify-between text-sm">
           <span className="text-foreground">{t('currentBalance')}</span>
-          <span className="tabular font-display font-bold text-foreground">
-            {balance}
-          </span>
+          <span className="tabular font-display text-foreground font-bold">{balance}</span>
         </p>
         <p className="mt-1 flex justify-between text-sm">
           <span className="text-foreground">{t('balanceAfter')}</span>
@@ -596,7 +569,7 @@ function Step3Confirm({
           </span>
         </p>
         {insufficient && (
-          <p className="mt-2 text-xs text-destructive">
+          <p className="text-destructive mt-2 text-xs">
             {t('missingCredits', { count: cost - balance })}
           </p>
         )}

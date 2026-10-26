@@ -1,16 +1,10 @@
 import type { CSSProperties } from 'react';
 
-export function Skeleton({
-  className = '',
-  style,
-}: {
-  className?: string;
-  style?: CSSProperties;
-}) {
+export function Skeleton({ className = '', style }: { className?: string; style?: CSSProperties }) {
   return (
     <div
       aria-hidden="true"
-      className={`animate-pulse rounded-md bg-muted ${className}`}
+      className={`bg-muted animate-pulse rounded-md ${className}`}
       style={style}
     />
   );
@@ -38,7 +32,7 @@ export function SkeletonText({
 
 export function SkeletonCard() {
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-white">
+    <div className="border-border overflow-hidden rounded-lg border bg-white">
       <Skeleton className="aspect-[4/3] w-full rounded-none" />
       <div className="space-y-3 p-4">
         <Skeleton className="h-5 w-3/4 rounded" />

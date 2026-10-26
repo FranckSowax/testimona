@@ -57,7 +57,7 @@ export function CommentForm({
 
       <div className="flex items-start gap-3">
         <Avatar src={authorAvatarUrl} name={authorName} size="sm" className="mt-1" />
-        <div className="flex flex-1 items-end gap-2 rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-3 py-2 transition-[background-color,border-color,box-shadow] duration-150 focus-within:border-primary focus-within:bg-white focus-within:shadow-[var(--shadow-glow-primary)]">
+        <div className="focus-within:border-primary flex flex-1 items-end gap-2 rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-3 py-2 transition-[background-color,border-color,box-shadow] duration-150 focus-within:bg-white focus-within:shadow-[var(--shadow-glow-primary)]">
           <textarea
             ref={textareaRef}
             name="message"
@@ -73,7 +73,7 @@ export function CommentForm({
               }
             }}
             placeholder={t('writeComment')}
-            className="block min-h-[24px] flex-1 resize-none bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground sm:text-sm"
+            className="text-foreground placeholder:text-muted-foreground block min-h-[24px] flex-1 resize-none bg-transparent text-base outline-none sm:text-sm"
           />
 
           <ButtonIcon label="Emoji" size="sm" disabled type="button">
@@ -116,10 +116,10 @@ export function CommentForm({
       </div>
 
       {state?.fieldErrors?.message && (
-        <p className="ml-12 text-xs text-destructive">{state.fieldErrors.message}</p>
+        <p className="text-destructive ml-12 text-xs">{state.fieldErrors.message}</p>
       )}
       {state?.error && state.error !== 'Validation' && (
-        <p role="alert" className="ml-12 text-xs text-destructive">
+        <p role="alert" className="text-destructive ml-12 text-xs">
           {state.error}
         </p>
       )}

@@ -56,14 +56,14 @@ export async function HomeFeed() {
   return (
     <section aria-labelledby="home-feed-heading" className="space-y-4">
       <header>
-        <h2 id="home-feed-heading" className="font-display text-2xl font-semibold text-foreground">
+        <h2 id="home-feed-heading" className="font-display text-foreground text-2xl font-semibold">
           {t('title')}
         </h2>
-        <p className="mt-1 text-sm text-muted-foreground">{t('subtitle')}</p>
+        <p className="text-muted-foreground mt-1 text-sm">{t('subtitle')}</p>
       </header>
 
       {items.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border bg-surface px-6 py-12 text-center text-sm text-muted-foreground">
+        <p className="border-border bg-surface text-muted-foreground rounded-lg border border-dashed px-6 py-12 text-center text-sm">
           {t('emptyBody')}
         </p>
       ) : (

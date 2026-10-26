@@ -3,7 +3,6 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import { ShareLinkButton } from '@/components/ui/ShareLinkButton';
 import { DonationBar } from '@/components/motion/DonationBar';
 import { DonationSettingsModalShell } from './DonationSettingsModalShell';
-import { SimulateDonationButton } from './SimulateDonationButton';
 
 interface DonationRow {
   amount: number;
@@ -87,10 +86,7 @@ export async function DonationGoal({
   // Public: hide the empty card. Owner: always show so they can set a goal
   // and write the "about the donation" message (D3/D4).
   const isEmpty =
-    stats.goalCents === 0 &&
-    stats.raisedCents === 0 &&
-    stats.count === 0 &&
-    !stats.about;
+    stats.goalCents === 0 && stats.raisedCents === 0 && stats.count === 0 && !stats.about;
   if (isEmpty && !isOwner) return null;
 
   const pct =
@@ -101,16 +97,14 @@ export async function DonationGoal({
   const raisedMain = format(stats.raisedCents, stats.currency);
   const raised =
     stats.otherTotals.length > 0
-      ? `${raisedMain} · ${stats.otherTotals
-          .map(([cur, cents]) => format(cents, cur))
-          .join(' · ')}`
+      ? `${raisedMain} · ${stats.otherTotals.map(([cur, cents]) => format(cents, cur)).join(' · ')}`
       : raisedMain;
   const goal = stats.goalCents > 0 ? format(stats.goalCents, stats.currency) : null;
 
   return (
-    <div className="rounded-lg border border-border bg-white p-5 shadow-sm">
+    <div className="border-border rounded-lg border bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
-        <p className="font-display text-sm font-semibold uppercase tracking-widest text-foreground/70">
+        <p className="font-display text-foreground/70 text-sm font-semibold uppercase tracking-widest">
           {t('goalTitle')}
         </p>
         <div className="flex shrink-0 items-center gap-1">
@@ -129,28 +123,20 @@ export async function DonationGoal({
 
       {/* About the donation — owner's message to potential donors (D3). */}
       {stats.about ? (
-        <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-foreground/90">
+        <p className="text-foreground/90 mt-2 whitespace-pre-line text-sm leading-relaxed">
           {stats.about}
         </p>
       ) : isOwner ? (
-        <p className="mt-2 text-sm italic text-muted-foreground">
-          {t('ownerAboutHint')}
-        </p>
+        <p className="text-muted-foreground mt-2 text-sm italic">{t('ownerAboutHint')}</p>
       ) : null}
 
-      <p className="mt-3 text-2xl font-bold text-foreground">
+      <p className="text-foreground mt-3 text-2xl font-bold">
         {goal ? t('goalRaised', { raised, goal }) : t('goalNoTarget', { raised })}
       </p>
       {goal && <DonationBar pct={pct} />}
-      <p className="mt-2 text-xs text-muted-foreground">
+      <p className="text-muted-foreground mt-2 text-xs">
         {t('goalSupporters', { count: stats.count })}
       </p>
-
-      {isOwner && slug && (
-        <div className="mt-3 flex flex-col items-start border-t border-dashed border-border pt-3">
-          <SimulateDonationButton memorialId={memorialId} slug={slug} />
-        </div>
-      )}
     </div>
   );
 }

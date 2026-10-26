@@ -15,10 +15,10 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
       id={id}
       type="checkbox"
       className={[
-        'h-5 w-5 shrink-0 cursor-pointer rounded border-2 border-border',
+        'border-border h-5 w-5 shrink-0 cursor-pointer rounded border-2',
         'accent-primary',
         'transition-[border-color,box-shadow] duration-150',
-        'focus-visible:outline-none focus-visible:border-primary focus-visible:shadow-[var(--shadow-glow-primary)]',
+        'focus-visible:border-primary focus-visible:shadow-[var(--shadow-glow-primary)] focus-visible:outline-none',
         'disabled:cursor-not-allowed disabled:opacity-50',
         className ?? '',
       ]
@@ -31,7 +31,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
   if (!label) return input;
 
   return (
-    <label className="inline-flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
+    <label className="text-foreground inline-flex cursor-pointer items-start gap-2.5 text-sm">
       {input}
       <span className="leading-tight">{label}</span>
     </label>

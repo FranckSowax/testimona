@@ -3,13 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, type ReactNode } from 'react';
 
-export function Modal({
-  children,
-  ariaLabel,
-}: {
-  children: ReactNode;
-  ariaLabel: string;
-}) {
+export function Modal({ children, ariaLabel }: { children: ReactNode; ariaLabel: string }) {
   const ref = useRef<HTMLDialogElement>(null);
   const router = useRouter();
 
@@ -37,14 +31,14 @@ export function Modal({
       aria-label={ariaLabel}
       onClose={dismiss}
       onClick={onBackdropClick}
-      className="mx-auto my-0 w-[calc(100%-1rem)] max-w-md max-h-[calc(100dvh-1rem)] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-white p-0 shadow-[var(--shadow-overlay)] backdrop:bg-foreground/40 backdrop:backdrop-blur-sm sm:my-auto sm:max-h-[calc(100vh-2rem)]"
+      className="border-border backdrop:bg-foreground/40 mx-auto my-0 max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] max-w-md overflow-y-auto overscroll-contain rounded-2xl border bg-white p-0 shadow-[var(--shadow-overlay)] backdrop:backdrop-blur-sm sm:my-auto sm:max-h-[calc(100vh-2rem)]"
     >
       <div className="animate-pop-in relative p-4 sm:p-6">
         <button
           type="button"
           aria-label="Fermer"
           onClick={dismiss}
-          className="absolute right-2 top-2 inline-flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:right-3 sm:top-3"
+          className="text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-primary absolute right-2 top-2 inline-flex h-11 w-11 items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 sm:right-3 sm:top-3"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
             <path

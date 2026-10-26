@@ -62,7 +62,7 @@ attend des PRs dédiées.
 7. **Formulaire de testimonial unifié** (« Write a testimonial »)
    - Aujourd'hui : flow signup → /dashboard/new → témoignage séparé
    - TdR : un seul formulaire qui crée la RIP page si elle n'existe pas
-     + matching automatique des doublons par nom/pays/date
+     - matching automatique des doublons par nom/pays/date
 
 8. **Photos / vidéos**
    - Upload photo via Cloudinary signed upload (storage déjà budgété)
@@ -97,6 +97,7 @@ attend des PRs dédiées.
 ## Notes design
 
 Palette héritée de l'ancienne app conservée :
+
 - Primary turquoise `#50aac3`
 - Foreground martinique `#2d3250`
 - Accent rose `#db8186`

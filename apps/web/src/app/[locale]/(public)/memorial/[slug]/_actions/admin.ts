@@ -45,9 +45,14 @@ export async function updateDonationSettingsAction(
 
   const goalEuros = Number.parseFloat(String(formData.get('goalEuros') ?? '0'));
   const goalCents = Number.isFinite(goalEuros) ? Math.max(0, Math.round(goalEuros * 100)) : 0;
-  const currencyRaw = String(formData.get('currency') ?? 'EUR').trim().toUpperCase();
+  const currencyRaw = String(formData.get('currency') ?? 'EUR')
+    .trim()
+    .toUpperCase();
   const currency = /^[A-Z]{3}$/.test(currencyRaw) ? currencyRaw : 'EUR';
-  const about = String(formData.get('about') ?? '').trim().slice(0, 1000) || null;
+  const about =
+    String(formData.get('about') ?? '')
+      .trim()
+      .slice(0, 1000) || null;
 
   const { error } = await supabase
     .from('Memorial')
@@ -178,10 +183,7 @@ export async function updateFuneralInfoAction(
     .maybeSingle<{ id: string }>();
 
   if (funeral) {
-    const { error } = await supabase
-      .from('Funeral')
-      .update({ description })
-      .eq('id', funeral.id);
+    const { error } = await supabase.from('Funeral').update({ description }).eq('id', funeral.id);
     if (error) return { error: error.message };
   } else {
     const { error } = await supabase
@@ -276,8 +278,7 @@ export async function resolveAdminRequestAction(
   const slug = String(formData.get('slug') ?? '').trim();
   const decision = String(formData.get('decision') ?? '').trim();
   if (!requestId || !memorialId) return { error: 'requestId/memorialId requis.' };
-  if (decision !== 'accepted' && decision !== 'declined')
-    return { error: 'Décision invalide.' };
+  if (decision !== 'accepted' && decision !== 'declined') return { error: 'Décision invalide.' };
 
   const owner = await ensureOwner(memorialId);
   if (typeof owner === 'string') return { error: owner };

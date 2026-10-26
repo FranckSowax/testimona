@@ -46,11 +46,11 @@ export function DonationBar({ pct }: { pct: number }) {
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={pct}
-      className="mt-3 h-2 w-full overflow-hidden rounded-full bg-surface"
+      className="bg-surface mt-3 h-2 w-full overflow-hidden rounded-full"
     >
       <div
         data-fill
-        className="h-full origin-left rounded-full bg-primary"
+        className="bg-primary h-full origin-left rounded-full"
         style={{ width: `${pct}%` }}
       />
     </div>

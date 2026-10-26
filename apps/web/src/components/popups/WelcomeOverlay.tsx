@@ -31,7 +31,7 @@ export function WelcomeOverlay({ open, onClose, onExplore }: WelcomeOverlayProps
 
         <h2 className="relative inline-block">
           <span
-            className="-rotate-2 inline-block text-7xl text-[var(--color-primary-soft)] sm:text-8xl"
+            className="inline-block -rotate-2 text-7xl text-[var(--color-primary-soft)] sm:text-8xl"
             style={{ fontFamily: 'var(--font-cursive)' }}
           >
             Thank you!
@@ -43,9 +43,9 @@ export function WelcomeOverlay({ open, onClose, onExplore }: WelcomeOverlayProps
         </p>
 
         <p className="mx-auto max-w-xl text-base leading-relaxed text-white/90">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-          incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-3">
@@ -58,12 +58,7 @@ export function WelcomeOverlay({ open, onClose, onExplore }: WelcomeOverlayProps
           >
             Back to Home page
           </ButtonOutlined>
-          <ButtonOutlined
-            type="button"
-            variant="popup-rose"
-            size="lg"
-            onClick={onExplore}
-          >
+          <ButtonOutlined type="button" variant="popup-rose" size="lg" onClick={onExplore}>
             Explore Testimona
           </ButtonOutlined>
         </div>

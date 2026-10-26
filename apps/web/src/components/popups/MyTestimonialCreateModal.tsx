@@ -84,14 +84,14 @@ export function MyTestimonialCreateModal({
         </div>
 
         {preselectedMemorial && (
-          <div className="flex items-center gap-3 rounded-md border border-border bg-surface p-3">
+          <div className="border-border bg-surface flex items-center gap-3 rounded-md border p-3">
             <Avatar
               src={preselectedMemorial.coverUrl}
               name={preselectedMemorial.name}
               size="sm"
               border="rose"
             />
-            <p className="flex-1 truncate font-display text-sm font-semibold text-foreground">
+            <p className="font-display text-foreground flex-1 truncate text-sm font-semibold">
               {preselectedMemorial.name}
             </p>
             <ButtonText variant="action" type="button" onClick={onClose}>
@@ -102,7 +102,7 @@ export function MyTestimonialCreateModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block">
-            <span className="block font-display text-sm font-medium text-muted-foreground">
+            <span className="font-display text-muted-foreground block text-sm font-medium">
               {t('memorablePrompt')}
             </span>
             <textarea
@@ -111,18 +111,18 @@ export function MyTestimonialCreateModal({
               placeholder={t('sharePlaceholder')}
               required
               rows={5}
-              className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)] sm:text-sm"
+              className="border-border text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border bg-white px-3 py-2.5 text-base focus:shadow-[var(--shadow-glow-primary)] focus:outline-none sm:text-sm"
             />
           </label>
 
           <label className="block">
-            <span className="block font-display text-sm font-medium text-muted-foreground">
+            <span className="font-display text-muted-foreground block text-sm font-medium">
               {t('relationshipLabel')}
             </span>
             <select
               value={relationship}
               onChange={(e) => setRelationship(e.target.value as Relation)}
-              className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-base text-foreground focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)] sm:text-sm"
+              className="border-border text-foreground focus:border-primary mt-1 block w-full rounded-md border bg-white px-3 py-2.5 text-base focus:shadow-[var(--shadow-glow-primary)] focus:outline-none sm:text-sm"
             >
               {RELATION_KEYS.map((key) => (
                 <option key={key} value={key}>

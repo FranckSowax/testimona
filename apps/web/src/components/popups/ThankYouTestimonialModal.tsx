@@ -33,16 +33,19 @@ export function ThankYouTestimonialModal({
       <div className="space-y-5 text-center">
         <header>
           <h2 className="relative inline-block">
-            <span aria-hidden="true" className="absolute -left-8 top-3 text-xl text-[var(--color-primary-soft)]">
+            <span
+              aria-hidden="true"
+              className="absolute -left-8 top-3 text-xl text-[var(--color-primary-soft)]"
+            >
               ♡
             </span>
             <span
-              className="-rotate-2 inline-block text-5xl text-accent sm:text-6xl"
+              className="text-accent inline-block -rotate-2 text-5xl sm:text-6xl"
               style={{ fontFamily: 'var(--font-cursive)' }}
             >
               Thank you!
             </span>
-            <span aria-hidden="true" className="absolute -right-8 top-3 text-xl text-accent">
+            <span aria-hidden="true" className="text-accent absolute -right-8 top-3 text-xl">
               ♥
             </span>
           </h2>
@@ -52,54 +55,39 @@ export function ThankYouTestimonialModal({
           <Avatar src={authorAvatarUrl} name={authorName} size="lg" />
         </div>
 
-        <p className="text-sm leading-relaxed text-foreground">
+        <p className="text-foreground text-sm leading-relaxed">
           <span className="inline-flex items-center gap-2">
-            <Avatar
-              src={memorialCoverUrl}
-              name={memorialName}
-              size="xs"
-              border="rose"
-            />
+            <Avatar src={memorialCoverUrl} name={memorialName} size="xs" border="rose" />
             <span className="font-display font-bold">{memorialName}</span>
           </span>{' '}
           received your testimonial.
         </p>
 
-        <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground">
+        <p className="text-muted-foreground mx-auto max-w-md text-sm leading-relaxed">
           You may wish to include a donation to the family or continue posting your testimonial.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <ButtonOutlined
-            type="button"
-            variant="popup-blue"
-            size="md"
-            onClick={onViewMemorial}
-          >
+          <ButtonOutlined type="button" variant="popup-blue" size="md" onClick={onViewMemorial}>
             View the memorial page
           </ButtonOutlined>
-          <ButtonOutlined
-            type="button"
-            variant="popup-rose"
-            size="md"
-            onClick={onIncludeDonation}
-          >
+          <ButtonOutlined type="button" variant="popup-rose" size="md" onClick={onIncludeDonation}>
             Include donation
           </ButtonOutlined>
         </div>
 
-        <footer className="border-t border-border pt-4">
-          <p className="flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
+        <footer className="border-border border-t pt-4">
+          <p className="text-muted-foreground flex flex-wrap items-center justify-center gap-3 text-xs">
             <span>Secure payment via</span>
-            <span className="font-display font-bold text-foreground">PayPal</span>
+            <span className="font-display text-foreground font-bold">PayPal</span>
             <span aria-hidden="true">·</span>
-            <span className="font-display font-bold text-foreground">VISA</span>
+            <span className="font-display text-foreground font-bold">VISA</span>
             <span aria-hidden="true">·</span>
-            <span className="font-display font-bold text-foreground">Mastercard</span>
+            <span className="font-display text-foreground font-bold">Mastercard</span>
             <span aria-hidden="true">·</span>
-            <span className="font-display font-bold text-foreground">Amex</span>
+            <span className="font-display text-foreground font-bold">Amex</span>
             <span aria-hidden="true">·</span>
-            <span className="font-display font-bold text-foreground">Discover</span>
+            <span className="font-display text-foreground font-bold">Discover</span>
           </p>
         </footer>
       </div>

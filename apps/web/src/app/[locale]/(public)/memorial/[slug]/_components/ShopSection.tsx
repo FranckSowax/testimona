@@ -114,15 +114,10 @@ export async function ShopSection({
   return (
     <section aria-labelledby="shop-heading" className="space-y-6">
       <header className="space-y-2">
-        <h2
-          id="shop-heading"
-          className="font-display text-2xl font-bold text-foreground"
-        >
+        <h2 id="shop-heading" className="font-display text-foreground text-2xl font-bold">
           {t('heading')}
         </h2>
-        <p className="text-sm text-muted-foreground">
-          {t('intro')}
-        </p>
+        <p className="text-muted-foreground text-sm">{t('intro')}</p>
       </header>
 
       {/* Hero visual hidden on the public-facing shop — visitors land
@@ -131,21 +126,21 @@ export async function ShopSection({
           owner panel below for management. */}
 
       {items.length > 0 && (
-        <div className="rounded-xl border border-border bg-white p-5 shadow-[var(--shadow-card)]">
+        <div className="border-border rounded-xl border bg-white p-5 shadow-[var(--shadow-card)]">
           <div className="mb-2 flex items-baseline justify-between gap-3">
-            <p className="font-display text-sm font-bold uppercase tracking-wider text-muted-foreground">
+            <p className="font-display text-muted-foreground text-sm font-bold uppercase tracking-wider">
               {t('overallProgress')}
             </p>
-            <p className="font-display text-sm font-bold text-foreground">
+            <p className="font-display text-foreground text-sm font-bold">
               {eurFmt.format(totalFundedCents / 100)}{' '}
               <span className="text-muted-foreground">
                 / {eurFmt.format(totalTargetCents / 100)}
               </span>
             </p>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+          <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
             <div
-              className="h-full rounded-full bg-primary transition-all"
+              className="bg-primary h-full rounded-full transition-all"
               style={{ width: `${overallProgress}%` }}
             />
           </div>
@@ -153,7 +148,7 @@ export async function ShopSection({
       )}
 
       {items.length === 0 ? (
-        <p className="rounded-md border border-dashed border-border bg-surface/60 px-6 py-12 text-center text-sm italic text-muted-foreground">
+        <p className="border-border bg-surface/60 text-muted-foreground rounded-md border border-dashed px-6 py-12 text-center text-sm italic">
           {isOwner ? t('emptyOwner') : t('emptyPublic')}
         </p>
       ) : (
@@ -162,16 +157,17 @@ export async function ShopSection({
             const product = findProduct(item.productId);
             if (!product) return null;
             const totalCents = item.targetQuantity * item.unitPriceCents;
-            const progress = totalCents > 0 ? Math.min(100, (item.fundedCents / totalCents) * 100) : 100;
+            const progress =
+              totalCents > 0 ? Math.min(100, (item.fundedCents / totalCents) * 100) : 100;
             const fundedUnits = Math.floor(item.fundedCents / item.unitPriceCents);
             const visual = item.visualId ? visualById.get(item.visualId) : null;
             return (
               <li
                 key={item.id}
-                className="overflow-hidden rounded-xl border border-border bg-white shadow-[var(--shadow-card)]"
+                className="border-border overflow-hidden rounded-xl border bg-white shadow-[var(--shadow-card)]"
               >
                 <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start sm:gap-5 sm:p-5">
-                  <div className="relative aspect-square w-full max-w-[160px] shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-white to-surface ring-1 ring-border sm:w-40">
+                  <div className="to-surface ring-border relative aspect-square w-full max-w-[160px] shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-white ring-1 sm:w-40">
                     {item.mockupImageUrl ? (
                       <Image
                         src={item.mockupImageUrl}
@@ -180,11 +176,10 @@ export async function ShopSection({
                         sizes="160px"
                         className="object-cover"
                       />
-                    ) : item.mockupStatus === 'processing' ||
-                      item.mockupStatus === 'pending' ? (
+                    ) : item.mockupStatus === 'processing' || item.mockupStatus === 'pending' ? (
                       <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-3 text-center">
-                        <span className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                        <p className="font-display text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <span className="border-primary h-7 w-7 animate-spin rounded-full border-2 border-t-transparent" />
+                        <p className="font-display text-muted-foreground text-[10px] font-bold uppercase tracking-wider">
                           {t('mockupInProgress')}
                         </p>
                       </div>
@@ -197,37 +192,31 @@ export async function ShopSection({
                         className="object-cover opacity-90"
                       />
                     ) : (
-                      <span className="absolute inset-0 flex items-center justify-center text-foreground/40">
-                        <ShopProductIcon
-                          iconKey={product.iconKey}
-                          className="h-14 w-14"
-                        />
+                      <span className="text-foreground/40 absolute inset-0 flex items-center justify-center">
+                        <ShopProductIcon iconKey={product.iconKey} className="h-14 w-14" />
                       </span>
                     )}
-                    <span className="absolute bottom-1.5 left-1.5 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-foreground shadow ring-1 ring-border">
-                      <ShopProductIcon
-                        iconKey={product.iconKey}
-                        className="h-4 w-4"
-                      />
+                    <span className="text-foreground ring-border absolute bottom-1.5 left-1.5 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white shadow ring-1">
+                      <ShopProductIcon iconKey={product.iconKey} className="h-4 w-4" />
                     </span>
                   </div>
 
                   <div className="min-w-0 flex-1 space-y-2">
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
-                      <h3 className="font-display text-lg font-bold text-foreground">
+                      <h3 className="font-display text-foreground text-lg font-bold">
                         {product.name}
                       </h3>
-                      <span className="rounded-full bg-surface px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <span className="bg-surface font-display text-muted-foreground rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                         {CATEGORY_LABEL[product.category]}
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {item.notes || product.description}
                     </p>
                     <div className="flex flex-wrap items-baseline gap-3 text-sm">
-                      <span className="font-display font-bold text-foreground">
+                      <span className="font-display text-foreground font-bold">
                         {eurFmt.format(item.unitPriceCents / 100)}
-                        <span className="ml-1 text-xs font-medium text-muted-foreground">
+                        <span className="text-muted-foreground ml-1 text-xs font-medium">
                           {t('perUnit')}
                         </span>
                       </span>
@@ -241,24 +230,22 @@ export async function ShopSection({
                     <div>
                       <div className="mb-1 flex justify-between text-xs">
                         <span className="text-foreground/80">
-                          <span className="font-display font-bold tabular">
-                            {fundedUnits}
-                          </span>{' '}
+                          <span className="font-display tabular font-bold">{fundedUnits}</span>{' '}
                           {t('unitsFunded', { quantity: item.targetQuantity })}
                         </span>
-                        <span className="font-display font-bold tabular text-primary">
+                        <span className="font-display tabular text-primary font-bold">
                           {progress.toFixed(0)}%
                         </span>
                       </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-muted">
+                      <div className="bg-muted h-2 overflow-hidden rounded-full">
                         <div
-                          className="h-full rounded-full bg-primary transition-all"
+                          className="bg-primary h-full rounded-full transition-all"
                           style={{ width: `${progress}%` }}
                         />
                       </div>
                     </div>
                     {product.partner && (
-                      <p className="rounded-md border border-accent/30 bg-accent/5 px-2.5 py-1.5 text-xs text-foreground/80">
+                      <p className="border-accent/30 bg-accent/5 text-foreground/80 rounded-md border px-2.5 py-1.5 text-xs">
                         {t('partnerNote')}
                       </p>
                     )}
@@ -302,8 +289,7 @@ export async function ShopSection({
           failedVisuals={visuals.filter((v) => v.status === 'failed')}
           existingProductIds={items.map((it) => it.productId)}
           mockupsInProgress={items.some(
-            (it) =>
-              it.mockupStatus === 'pending' || it.mockupStatus === 'processing',
+            (it) => it.mockupStatus === 'pending' || it.mockupStatus === 'processing',
           )}
         />
       )}

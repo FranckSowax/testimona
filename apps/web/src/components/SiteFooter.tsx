@@ -14,7 +14,7 @@ export async function SiteFooter() {
   const emailShare = `mailto:?subject=${shareText}&body=${shareUrl}`;
 
   return (
-    <footer className="mt-auto border-t border-border bg-white text-sm text-muted-foreground">
+    <footer className="border-border text-muted-foreground mt-auto border-t bg-white text-sm">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:px-8 sm:py-10">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <nav
@@ -24,45 +24,45 @@ export async function SiteFooter() {
             {!user && (
               <Link
                 href="/login"
-                className="font-display font-bold text-accent transition-opacity hover:opacity-80"
+                className="font-display text-accent font-bold transition-opacity hover:opacity-80"
               >
                 {t('signIn')}
               </Link>
             )}
             <Link
               href="/about"
-              className="font-display font-medium transition-colors hover:text-foreground"
+              className="font-display hover:text-foreground font-medium transition-colors"
             >
               {t('about')}
             </Link>
             <Link
               href="/about"
-              className="font-display font-medium transition-colors hover:text-foreground"
+              className="font-display hover:text-foreground font-medium transition-colors"
             >
               {t('faq')}
             </Link>
             <Link
               href="/legal/terms"
-              className="font-display font-medium transition-colors hover:text-foreground"
+              className="font-display hover:text-foreground font-medium transition-colors"
             >
               {t('terms')}
             </Link>
             <Link
               href="/legal/privacy"
-              className="font-display font-medium transition-colors hover:text-foreground"
+              className="font-display hover:text-foreground font-medium transition-colors"
             >
               {t('privacy')}
             </Link>
             <Link
               href="/legal/mentions"
-              className="font-display font-medium transition-colors hover:text-foreground"
+              className="font-display hover:text-foreground font-medium transition-colors"
             >
               {t('cookies')}
             </Link>
           </nav>
 
           <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className="font-display font-medium text-foreground/80">
+            <span className="font-display text-foreground/80 font-medium">
               {t('shareToAFriend')}
             </span>
             <span aria-hidden="true" className="text-muted-foreground/60">
@@ -73,9 +73,15 @@ export async function SiteFooter() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={t('socialTwitter')}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+              className="border-border text-muted-foreground hover:border-primary hover:text-primary inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
               </svg>
             </a>
@@ -84,16 +90,22 @@ export async function SiteFooter() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={t('socialFacebook')}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+              className="border-border text-muted-foreground hover:border-primary hover:text-primary inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
                 <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.84c0-2.51 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.91h-2.33V22c4.78-.76 8.44-4.92 8.44-9.94Z" />
               </svg>
             </a>
             <a
               href={emailShare}
               aria-label={t('socialEmail')}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+              className="border-border text-muted-foreground hover:border-primary hover:text-primary inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors"
             >
               <svg
                 width="14"
@@ -113,13 +125,13 @@ export async function SiteFooter() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 border-t border-border pt-5 text-xs sm:flex-row sm:items-center sm:justify-between">
+        <div className="border-border flex flex-col gap-2 border-t pt-5 text-xs sm:flex-row sm:items-center sm:justify-between">
           <p className="tabular text-muted-foreground">
             {t('copyright')} © {year}
           </p>
           <Link
             href="/about"
-            className="font-display font-medium transition-colors hover:text-foreground"
+            className="font-display hover:text-foreground font-medium transition-colors"
           >
             {t('contactUs')}
           </Link>

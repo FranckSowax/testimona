@@ -8,10 +8,7 @@ export async function HomeFinalCta() {
   return (
     <section aria-labelledby="final-cta-heading" className="bg-secondary text-secondary-foreground">
       <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 px-4 py-16 text-center sm:px-6 sm:py-20">
-        <h2
-          id="final-cta-heading"
-          className="font-display text-3xl font-bold sm:text-4xl"
-        >
+        <h2 id="final-cta-heading" className="font-display text-3xl font-bold sm:text-4xl">
           {t('title')}
         </h2>
         <p className="max-w-2xl text-base leading-relaxed text-white/85">{t('subtitle')}</p>

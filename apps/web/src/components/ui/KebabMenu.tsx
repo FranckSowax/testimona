@@ -57,7 +57,7 @@ export function KebabMenu({ label, items, align = 'right', className }: KebabMen
         aria-expanded={open}
         aria-controls={open ? id : undefined}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-[var(--color-bg-hover-gray)] hover:text-foreground active:bg-[var(--color-bg-active-gray)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-glow-primary)]"
+        className="text-muted-foreground hover:text-foreground inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--color-bg-hover-gray)] focus-visible:shadow-[var(--shadow-glow-primary)] focus-visible:outline-none active:bg-[var(--color-bg-active-gray)]"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <circle cx="5" cy="12" r="2" />
@@ -70,9 +70,9 @@ export function KebabMenu({ label, items, align = 'right', className }: KebabMen
           id={id}
           role="menu"
           className={[
-            'absolute top-full mt-1 z-[var(--z-dropdown)] min-w-[180px]',
-            'rounded-md border border-border bg-white shadow-[var(--shadow-overlay)]',
-            'py-1 animate-fade-in',
+            'absolute top-full z-[var(--z-dropdown)] mt-1 min-w-[180px]',
+            'border-border rounded-md border bg-white shadow-[var(--shadow-overlay)]',
+            'animate-fade-in py-1',
             align === 'right' ? 'right-0' : 'left-0',
           ].join(' ')}
         >

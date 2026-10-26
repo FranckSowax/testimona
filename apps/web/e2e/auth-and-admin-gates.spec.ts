@@ -51,9 +51,7 @@ test.describe('Signup flow (no mutation)', () => {
     await form.getByLabel(/Email/i).fill('e2e@example.com');
     // Less than 8 chars triggers minLength validation
     await form.getByLabel(/Mot de passe|Password/i).fill('short');
-    await page
-      .getByRole('button', { name: /Créer mon compte|Create.+account/i })
-      .click();
+    await page.getByRole('button', { name: /Créer mon compte|Create.+account/i }).click();
     await expect(page).toHaveURL(/\/signup/);
   });
 

@@ -15,9 +15,7 @@ test.describe('Locale switching', () => {
   test('home: /en renders English copy', async ({ page }) => {
     await page.goto('/en');
     await expect(page.getByText(/How it works/i).first()).toBeVisible();
-    await expect(
-      page.getByText(/Honor the memory of someone you love/i).first(),
-    ).toBeVisible();
+    await expect(page.getByText(/Honor the memory of someone you love/i).first()).toBeVisible();
   });
 
   test('LocaleSwitcher select is present and lists fr/en', async ({ page }) => {

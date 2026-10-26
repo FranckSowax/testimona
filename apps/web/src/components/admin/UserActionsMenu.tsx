@@ -39,14 +39,7 @@ interface Props {
   labels: Labels;
 }
 
-export function UserActionsMenu({
-  userId,
-  email,
-  role,
-  isBanned,
-  isSelf,
-  labels,
-}: Props) {
+export function UserActionsMenu({ userId, email, role, isBanned, isSelf, labels }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 

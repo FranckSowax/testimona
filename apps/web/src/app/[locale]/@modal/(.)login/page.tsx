@@ -11,11 +11,7 @@ export default async function LoginModalPage({
 }: {
   searchParams: Promise<{ next?: string; welcome?: string; error?: string }>;
 }) {
-  const [user, sp, locale] = await Promise.all([
-    getCurrentUser(),
-    searchParams,
-    getLocale(),
-  ]);
+  const [user, sp, locale] = await Promise.all([getCurrentUser(), searchParams, getLocale()]);
 
   // Deliberately NOT `redirect()`: this page renders inside the `@modal`
   // parallel slot, and Next re-renders that slot in place right after the
@@ -26,8 +22,8 @@ export default async function LoginModalPage({
 
   return (
     <Modal ariaLabel="Connexion">
-      <h2 className="font-display text-2xl font-semibold text-foreground">Connexion</h2>
-      <p className="mt-1 text-sm text-muted-foreground">
+      <h2 className="font-display text-foreground text-2xl font-semibold">Connexion</h2>
+      <p className="text-muted-foreground mt-1 text-sm">
         Pas encore de compte ?{' '}
         <Link href="/signup" className="text-primary hover:underline">
           Créer un compte

@@ -30,7 +30,7 @@ export function Card({
         'rounded-lg',
         ELEVATION[elevation],
         interactive
-          ? 'press-scale transition-shadow hover:shadow-[var(--shadow-elevated)] cursor-pointer'
+          ? 'press-scale cursor-pointer transition-shadow hover:shadow-[var(--shadow-elevated)]'
           : '',
         className ?? '',
       ]
@@ -43,26 +43,15 @@ export function Card({
   );
 }
 
-export function CardHeader({
-  className,
-  children,
-  ...rest
-}: HTMLAttributes<HTMLDivElement>) {
+export function CardHeader({ className, children, ...rest }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      className={['border-b border-border px-5 py-4', className ?? ''].join(' ')}
-      {...rest}
-    >
+    <div className={['border-border border-b px-5 py-4', className ?? ''].join(' ')} {...rest}>
       {children}
     </div>
   );
 }
 
-export function CardBody({
-  className,
-  children,
-  ...rest
-}: HTMLAttributes<HTMLDivElement>) {
+export function CardBody({ className, children, ...rest }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={['px-5 py-4', className ?? ''].join(' ')} {...rest}>
       {children}
@@ -70,16 +59,9 @@ export function CardBody({
   );
 }
 
-export function CardFooter({
-  className,
-  children,
-  ...rest
-}: HTMLAttributes<HTMLDivElement>) {
+export function CardFooter({ className, children, ...rest }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      className={['border-t border-border px-5 py-3', className ?? ''].join(' ')}
-      {...rest}
-    >
+    <div className={['border-border border-t px-5 py-3', className ?? ''].join(' ')} {...rest}>
       {children}
     </div>
   );

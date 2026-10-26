@@ -67,7 +67,7 @@ export function AvatarUploader({ defaultUrl }: { defaultUrl: string | null }) {
 
   return (
     <div className="flex items-center gap-5">
-      <div className="relative flex h-20 w-20 shrink-0 overflow-hidden rounded-full border border-border bg-surface">
+      <div className="border-border bg-surface relative flex h-20 w-20 shrink-0 overflow-hidden rounded-full border">
         {previewUrl ? (
           <Image
             src={previewUrl}
@@ -89,8 +89,8 @@ export function AvatarUploader({ defaultUrl }: { defaultUrl: string | null }) {
       </div>
 
       <div className="space-y-2">
-        <p className="font-display text-sm font-semibold text-foreground">{t('title')}</p>
-        <p className="text-xs text-muted-foreground">{t('hint')}</p>
+        <p className="font-display text-foreground text-sm font-semibold">{t('title')}</p>
+        <p className="text-muted-foreground text-xs">{t('hint')}</p>
         <div className="flex flex-wrap gap-2">
           <input
             ref={inputRef}
@@ -103,7 +103,7 @@ export function AvatarUploader({ defaultUrl }: { defaultUrl: string | null }) {
             type="button"
             onClick={handlePick}
             disabled={pending}
-            className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="bg-primary text-primary-foreground rounded-md px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {pending ? t('uploading') : t('upload')}
           </button>
@@ -112,7 +112,7 @@ export function AvatarUploader({ defaultUrl }: { defaultUrl: string | null }) {
               type="button"
               onClick={handleRemove}
               disabled={pending}
-              className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-destructive hover:text-destructive disabled:opacity-50"
+              className="border-border text-muted-foreground hover:border-destructive hover:text-destructive rounded-md border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50"
             >
               {t('remove')}
             </button>

@@ -90,20 +90,21 @@ export default async function AdminDonationsPage({
       </section>
 
       {/* Monthly chart */}
-      <section className="mt-6 rounded-lg border border-border bg-white p-5">
-        <h2 className="font-display text-base font-bold text-foreground">
-          {t('monthlyTitle')}
-        </h2>
+      <section className="border-border mt-6 rounded-lg border bg-white p-5">
+        <h2 className="font-display text-foreground text-base font-bold">{t('monthlyTitle')}</h2>
         <ul className="mt-4 space-y-2">
           {stats.byMonth.map((m) => (
             <li key={m.month} className="grid grid-cols-[80px_1fr_auto] items-center gap-3 text-sm">
-              <span className="tabular text-xs text-muted-foreground">{m.month}</span>
+              <span className="tabular text-muted-foreground text-xs">{m.month}</span>
               <span
                 aria-hidden="true"
-                className="h-2 rounded-full bg-primary"
-                style={{ width: `${Math.round((m.paidCents / maxMonth) * 100)}%`, minWidth: m.paidCents > 0 ? '4px' : 0 }}
+                className="bg-primary h-2 rounded-full"
+                style={{
+                  width: `${Math.round((m.paidCents / maxMonth) * 100)}%`,
+                  minWidth: m.paidCents > 0 ? '4px' : 0,
+                }}
               />
-              <span className="font-display text-xs font-bold text-foreground">
+              <span className="font-display text-foreground text-xs font-bold">
                 {formatMoney(m.paidCents, stats.currency, locale)}
               </span>
             </li>
@@ -113,32 +114,27 @@ export default async function AdminDonationsPage({
 
       {/* Top memorials */}
       {stats.topMemorials.length > 0 && (
-        <section className="mt-6 rounded-lg border border-border bg-white p-5">
-          <h2 className="font-display text-base font-bold text-foreground">
-            {t('topMemorials')}
-          </h2>
-          <ol className="mt-4 divide-y divide-border">
+        <section className="border-border mt-6 rounded-lg border bg-white p-5">
+          <h2 className="font-display text-foreground text-base font-bold">{t('topMemorials')}</h2>
+          <ol className="divide-border mt-4 divide-y">
             {stats.topMemorials.map((m, i) => (
-              <li
-                key={m.memorialId}
-                className="flex items-center justify-between gap-3 py-3"
-              >
+              <li key={m.memorialId} className="flex items-center justify-between gap-3 py-3">
                 <span className="flex min-w-0 items-center gap-3">
-                  <span className="font-display text-sm font-bold text-muted-foreground">
+                  <span className="font-display text-muted-foreground text-sm font-bold">
                     {i + 1}.
                   </span>
                   <Link
                     href={`/admin/memorials/${m.memorialId}`}
-                    className="truncate font-display text-sm font-bold text-foreground hover:text-primary"
+                    className="font-display text-foreground hover:text-primary truncate text-sm font-bold"
                   >
                     {m.memorialName || m.memorialId.slice(0, 8)}
                   </Link>
                 </span>
                 <span className="flex shrink-0 items-baseline gap-2">
-                  <span className="font-display text-sm font-bold text-foreground">
+                  <span className="font-display text-foreground text-sm font-bold">
                     {formatMoney(m.paidCents, stats.currency, locale)}
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-muted-foreground text-xs">
                     {t('donationsCount', { count: m.count })}
                   </span>
                 </span>
@@ -151,24 +147,24 @@ export default async function AdminDonationsPage({
       {/* Filter bar */}
       <form
         method="get"
-        className="mt-8 flex flex-wrap items-end gap-3 rounded-md border border-border bg-white p-4"
+        className="border-border mt-8 flex flex-wrap items-end gap-3 rounded-md border bg-white p-4"
       >
-        <label className="flex flex-1 flex-col gap-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        <label className="text-muted-foreground flex flex-1 flex-col gap-1 text-xs font-bold uppercase tracking-wide">
           {t('searchLabel')}
           <input
             type="search"
             name="q"
             defaultValue={sp.q ?? ''}
             placeholder={t('searchPlaceholder')}
-            className="h-11 rounded-md border border-border bg-white px-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+            className="border-border text-foreground placeholder:text-muted-foreground focus:border-primary h-11 rounded-md border bg-white px-3 text-base focus:outline-none"
           />
         </label>
-        <label className="flex flex-col gap-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        <label className="text-muted-foreground flex flex-col gap-1 text-xs font-bold uppercase tracking-wide">
           {t('statusLabel')}
           <select
             name="status"
             defaultValue={sp.status ?? 'all'}
-            className="h-11 rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none"
+            className="border-border text-foreground focus:border-primary h-11 rounded-md border bg-white px-3 text-base focus:outline-none"
           >
             <option value="all">{t('statusAll')}</option>
             <option value="Succeeded">{t('statusPaid')}</option>
@@ -179,42 +175,37 @@ export default async function AdminDonationsPage({
         </label>
         <button
           type="submit"
-          className="h-11 rounded-md bg-primary px-5 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+          className="bg-primary font-display text-primary-foreground h-11 rounded-md px-5 text-sm font-bold transition-opacity hover:opacity-90"
         >
           {tUsers('filter')}
         </button>
       </form>
 
-      <p className="mt-4 text-sm text-muted-foreground">
+      <p className="text-muted-foreground mt-4 text-sm">
         {t('resultsSummary', { count: list.total })}
       </p>
 
       {/* List */}
-      <div className="mt-4 overflow-hidden rounded-md border border-border bg-white">
+      <div className="border-border mt-4 overflow-hidden rounded-md border bg-white">
         {list.donations.length === 0 ? (
-          <p className="p-8 text-center text-sm italic text-muted-foreground">
-            {t('empty')}
-          </p>
+          <p className="text-muted-foreground p-8 text-center text-sm italic">{t('empty')}</p>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-border divide-y">
             {list.donations.map((d) => (
-              <li
-                key={d.id}
-                className="flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap"
-              >
+              <li key={d.id} className="flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap">
                 <div className="min-w-0 flex-1">
-                  <p className="font-display text-sm font-bold text-foreground">
+                  <p className="font-display text-foreground text-sm font-bold">
                     {formatMoney(d.amount, d.currency, locale)}
                     <span
                       className={[
-                        'ml-2 rounded-full px-2 py-0.5 font-display text-[11px] font-bold uppercase tracking-wide',
+                        'font-display ml-2 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide',
                         STATUS_TONES[d.status] ?? 'bg-foreground/10 text-foreground/70',
                       ].join(' ')}
                     >
                       {d.status}
                     </span>
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {d.memorialName ? (
                       <Link
                         href={`/admin/memorials/${d.memorialId}`}
@@ -231,7 +222,7 @@ export default async function AdminDonationsPage({
                     {formatDate(d.createdAt, locale)}
                   </p>
                   {d.message && (
-                    <p className="mt-1 line-clamp-2 text-xs italic text-muted-foreground">
+                    <p className="text-muted-foreground mt-1 line-clamp-2 text-xs italic">
                       “{d.message}”
                     </p>
                   )}
@@ -250,7 +241,7 @@ export default async function AdminDonationsPage({
               p.set('page', String(list.page - 1));
               return p.toString();
             })()}`}
-            className="font-display font-bold text-primary hover:underline"
+            className="font-display text-primary font-bold hover:underline"
           >
             ← {tUsers('prev')}
           </Link>
@@ -265,7 +256,7 @@ export default async function AdminDonationsPage({
               p.set('page', String(list.page + 1));
               return p.toString();
             })()}`}
-            className="font-display font-bold text-primary hover:underline"
+            className="font-display text-primary font-bold hover:underline"
           >
             {tUsers('next')} →
           </Link>

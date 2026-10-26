@@ -38,9 +38,8 @@ export default async function AdminClipsPage() {
 
   const counts = {
     total: data?.length ?? 0,
-    processing: (data ?? []).filter(
-      (c) => c.status === 'pending' || c.status === 'processing',
-    ).length,
+    processing: (data ?? []).filter((c) => c.status === 'pending' || c.status === 'processing')
+      .length,
     ready: (data ?? []).filter((c) => c.status === 'ready').length,
     failed: (data ?? []).filter((c) => c.status === 'failed').length,
   };
@@ -54,55 +53,45 @@ export default async function AdminClipsPage() {
         <StatTile label="Échoués" value={counts.failed} tone="failed" />
       </section>
 
-      <p className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-xs text-foreground/80">
+      <p className="border-accent/30 bg-accent/5 text-foreground/80 mb-4 flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2 text-xs">
         <span>
-          Le worker tourne automatiquement quand un user a la page « Mes clips »
-          ouverte. Pour pousser un cycle manuel, utilise{' '}
-          <code className="rounded bg-muted px-1.5 py-0.5">POST /api/clips/poll</code>.
+          Le worker tourne automatiquement quand un user a la page « Mes clips » ouverte. Pour
+          pousser un cycle manuel, utilise{' '}
+          <code className="bg-muted rounded px-1.5 py-0.5">POST /api/clips/poll</code>.
         </span>
-        <a
+        <Link
           href="/admin/clips/ping"
-          className="press-scale inline-flex items-center gap-1 rounded-md border border-border bg-white px-2.5 py-1 font-display text-[11px] font-bold uppercase tracking-wider text-foreground hover:bg-muted"
+          className="press-scale border-border font-display text-foreground hover:bg-muted inline-flex items-center gap-1 rounded-md border bg-white px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider"
         >
           Tester credentials
-        </a>
+        </Link>
       </p>
 
       {!data || data.length === 0 ? (
-        <p className="rounded-md border border-dashed border-border bg-muted/50 px-4 py-10 text-center text-sm italic text-muted-foreground">
+        <p className="border-border bg-muted/50 text-muted-foreground rounded-md border border-dashed px-4 py-10 text-center text-sm italic">
           Aucun clip généré encore.
         </p>
       ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border bg-white">
+        <ul className="divide-border border-border divide-y rounded-lg border bg-white">
           {data.map((c) => (
             <li key={c.id} className="flex items-center gap-3 px-3 py-3">
-              <span className="relative block h-16 w-16 shrink-0 overflow-hidden rounded-md bg-muted">
+              <span className="bg-muted relative block h-16 w-16 shrink-0 overflow-hidden rounded-md">
                 {c.Photo?.url && (
-                  <Image
-                    src={c.Photo.url}
-                    alt=""
-                    fill
-                    sizes="64px"
-                    className="object-cover"
-                  />
+                  <Image src={c.Photo.url} alt="" fill sizes="64px" className="object-cover" />
                 )}
               </span>
               <div className="min-w-0 flex-1">
                 <Link
                   href={`/memorial/${c.Memorial?.slug}`}
-                  className="block truncate font-display text-sm font-bold text-foreground hover:text-primary"
+                  className="font-display text-foreground hover:text-primary block truncate text-sm font-bold"
                 >
-                  {[c.Memorial?.firstname, c.Memorial?.lastname]
-                    .filter(Boolean)
-                    .join(' ')}
+                  {[c.Memorial?.firstname, c.Memorial?.lastname].filter(Boolean).join(' ')}
                 </Link>
                 {c.caption && (
-                  <p className="line-clamp-1 text-xs italic text-muted-foreground">
-                    {c.caption}
-                  </p>
+                  <p className="text-muted-foreground line-clamp-1 text-xs italic">{c.caption}</p>
                 )}
                 <p
-                  className="text-[10px] uppercase tracking-wide text-muted-foreground"
+                  className="text-muted-foreground text-[10px] uppercase tracking-wide"
                   suppressHydrationWarning
                 >
                   Job {c.higgsfieldJobId ? c.higgsfieldJobId.slice(0, 12) : '—'} ·{' '}
@@ -113,16 +102,10 @@ export default async function AdminClipsPage() {
                   })}
                 </p>
                 {c.errorMessage && (
-                  <p className="line-clamp-1 text-xs text-destructive">
-                    {c.errorMessage}
-                  </p>
+                  <p className="text-destructive line-clamp-1 text-xs">{c.errorMessage}</p>
                 )}
               </div>
-              <ClipAdminRow
-                id={c.id}
-                status={c.status}
-                videoUrl={c.videoUrl}
-              />
+              <ClipAdminRow id={c.id} status={c.status} videoUrl={c.videoUrl} />
             </li>
           ))}
         </ul>
@@ -144,21 +127,16 @@ function StatTile({
     tone === 'processing'
       ? 'border-primary/30 bg-primary/5 text-primary'
       : tone === 'ready'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-      : tone === 'failed'
-      ? 'border-destructive/30 bg-destructive/5 text-destructive'
-      : 'border-border bg-white text-foreground';
+        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+        : tone === 'failed'
+          ? 'border-destructive/30 bg-destructive/5 text-destructive'
+          : 'border-border bg-white text-foreground';
   return (
-    <div
-      className={[
-        'rounded-lg border p-3',
-        toneCls,
-      ].join(' ')}
-    >
+    <div className={['rounded-lg border p-3', toneCls].join(' ')}>
       <p className="font-display text-[11px] font-bold uppercase tracking-wider opacity-70">
         {label}
       </p>
-      <p className="tabular mt-1 font-display text-2xl font-bold">{value}</p>
+      <p className="tabular font-display mt-1 text-2xl font-bold">{value}</p>
     </div>
   );
 }

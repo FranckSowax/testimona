@@ -55,7 +55,10 @@ export function HeaderUserMenu({ avatarUrl, displayName, labels }: Props) {
     };
   }, [open]);
 
-  const items: { href: '/dashboard/profile' | '/dashboard' | '/dashboard/notifications'; label: string }[] = [
+  const items: {
+    href: '/dashboard/profile' | '/dashboard' | '/dashboard/notifications';
+    label: string;
+  }[] = [
     { href: '/dashboard/profile', label: labels.profile },
     { href: '/dashboard', label: labels.memorials },
     { href: '/dashboard/notifications', label: labels.notifications },
@@ -69,7 +72,7 @@ export function HeaderUserMenu({ avatarUrl, displayName, labels }: Props) {
         aria-expanded={open}
         aria-label={displayName || labels.account}
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center rounded-full focus-visible:outline-none focus-visible:shadow-[var(--shadow-glow-primary)]"
+        className="flex items-center rounded-full focus-visible:shadow-[var(--shadow-glow-primary)] focus-visible:outline-none"
       >
         <Avatar src={avatarUrl} name={displayName || undefined} size="md" />
       </button>
@@ -78,10 +81,10 @@ export function HeaderUserMenu({ avatarUrl, displayName, labels }: Props) {
         <div
           role="menu"
           aria-label={labels.account}
-          className="absolute right-0 z-[var(--z-modal)] mt-2 w-56 overflow-hidden rounded-lg border border-border bg-white py-1 shadow-[var(--shadow-overlay)]"
+          className="border-border absolute right-0 z-[var(--z-modal)] mt-2 w-56 overflow-hidden rounded-lg border bg-white py-1 shadow-[var(--shadow-overlay)]"
         >
           {displayName && (
-            <p className="truncate px-4 py-2 font-display text-sm font-bold text-foreground">
+            <p className="font-display text-foreground truncate px-4 py-2 text-sm font-bold">
               {displayName}
             </p>
           )}
@@ -92,7 +95,7 @@ export function HeaderUserMenu({ avatarUrl, displayName, labels }: Props) {
               href={item.href}
               role="menuitem"
               onClick={() => setOpen(false)}
-              className="block px-4 py-2.5 font-display text-sm font-semibold text-secondary transition-colors hover:bg-surface hover:text-primary"
+              className="font-display text-secondary hover:bg-surface hover:text-primary block px-4 py-2.5 text-sm font-semibold transition-colors"
             >
               {item.label}
             </Link>
@@ -102,7 +105,7 @@ export function HeaderUserMenu({ avatarUrl, displayName, labels }: Props) {
             <button
               type="submit"
               role="menuitem"
-              className="flex w-full items-center gap-2 px-4 py-2.5 text-left font-display text-sm font-bold text-destructive transition-colors hover:bg-[var(--color-bg-hover-pink)]"
+              className="font-display text-destructive flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-bold transition-colors hover:bg-[var(--color-bg-hover-pink)]"
             >
               <svg
                 width="18"

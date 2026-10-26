@@ -30,7 +30,7 @@ export function LocaleSwitcher() {
         value={locale}
         onChange={onChange}
         disabled={isPending}
-        className="rounded border border-border bg-transparent px-2 py-1 text-foreground/80 hover:text-foreground disabled:opacity-50"
+        className="border-border text-foreground/80 hover:text-foreground rounded border bg-transparent px-2 py-1 disabled:opacity-50"
       >
         {routing.locales.map((l) => (
           <option key={l} value={l}>

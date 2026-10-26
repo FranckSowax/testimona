@@ -31,11 +31,7 @@ interface Props {
  * full ordered id list to reorderChaptersAction, which rewrites every
  * position field atomically.
  */
-export function BiographyChaptersManager({
-  memorialId,
-  slug,
-  initialChapters,
-}: Props) {
+export function BiographyChaptersManager({ memorialId, slug, initialChapters }: Props) {
   const t = useTranslations('memorial.chaptersManager');
   const router = useRouter();
   const [chapters, setChapters] = useState<ChapterDraft[]>(initialChapters);
@@ -79,8 +75,7 @@ export function BiographyChaptersManager({
   function onDrop(targetId: string) {
     return (e: React.DragEvent<HTMLLIElement>) => {
       e.preventDefault();
-      const sourceId =
-        draggedId ?? (e.dataTransfer.getData('text/plain') || null);
+      const sourceId = draggedId ?? (e.dataTransfer.getData('text/plain') || null);
       setDraggedId(null);
       setDragOverId(null);
       if (!sourceId || sourceId === targetId) return;
@@ -116,15 +111,8 @@ export function BiographyChaptersManager({
   // that the loaded client bundle still references. Detect that error and
   // force a hard reload so the user picks up the new bundle.
   function isStaleActionError(err: unknown): boolean {
-    const msg =
-      err instanceof Error
-        ? err.message
-        : typeof err === 'string'
-          ? err
-          : '';
-    return /Server Action|UnrecognizedActionError|was not found on the server/i.test(
-      msg,
-    );
+    const msg = err instanceof Error ? err.message : typeof err === 'string' ? err : '';
+    return /Server Action|UnrecognizedActionError|was not found on the server/i.test(msg);
   }
 
   function persistOrder(orderedIds: string[]) {
@@ -177,9 +165,7 @@ export function BiographyChaptersManager({
       }
       // Title/content update optimistically; media (new upload URLs) comes back
       // via the refresh below.
-      setChapters((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, title, content } : c)),
-      );
+      setChapters((prev) => prev.map((c) => (c.id === id ? { ...c, title, content } : c)));
       setEditingId(null);
       router.refresh();
       return true;
@@ -221,12 +207,10 @@ export function BiographyChaptersManager({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <p className="font-display text-base font-bold uppercase tracking-wider text-muted-foreground">
+        <p className="font-display text-muted-foreground text-base font-bold uppercase tracking-wider">
           {t('title')}
         </p>
-        <p className="text-[11px] italic text-muted-foreground">
-          {t('hint')}
-        </p>
+        <p className="text-muted-foreground text-[11px] italic">{t('hint')}</p>
       </div>
 
       <ul className="space-y-2">
@@ -249,9 +233,7 @@ export function BiographyChaptersManager({
               className={[
                 'group relative rounded-lg border bg-white transition-all',
                 isDragging ? 'opacity-50' : 'opacity-100',
-                isDragOver
-                  ? 'border-primary ring-2 ring-primary/30'
-                  : 'border-border',
+                isDragOver ? 'border-primary ring-primary/30 ring-2' : 'border-border',
                 isEditing ? '' : 'cursor-grab active:cursor-grabbing',
               ].join(' ')}
             >
@@ -269,7 +251,7 @@ export function BiographyChaptersManager({
                 <div className="flex items-start gap-2 p-3 sm:p-4">
                   <span
                     aria-hidden="true"
-                    className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center text-muted-foreground"
+                    className="text-muted-foreground mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center"
                     title={t('dragHandle')}
                   >
                     <svg
@@ -289,21 +271,19 @@ export function BiographyChaptersManager({
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="flex items-baseline gap-2">
-                      <span className="font-display text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <span className="font-display text-muted-foreground text-[11px] font-bold uppercase tracking-wider">
                         #{index + 1}
                       </span>
-                      <span className="truncate font-display text-base font-bold text-foreground">
+                      <span className="font-display text-foreground truncate text-base font-bold">
                         {c.title}
                       </span>
                     </p>
                     {c.content && (
-                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                        {c.content}
-                      </p>
+                      <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">{c.content}</p>
                     )}
                     {c.media && c.media.length > 0 && (
                       <>
-                        <p className="mt-1 text-xs text-muted-foreground">
+                        <p className="text-muted-foreground mt-1 text-xs">
                           📎 {t('mediaCount', { count: c.media.length })}
                         </p>
                         {/* Client recette: owners must SEE the chapter photos in
@@ -318,9 +298,19 @@ export function BiographyChaptersManager({
                       aria-label={t('moveUp')}
                       disabled={index === 0 || isPending}
                       onClick={() => move(c.id, -1)}
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
+                      className="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors disabled:opacity-30"
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
                         <path d="M18 15l-6-6-6 6" />
                       </svg>
                     </button>
@@ -329,9 +319,19 @@ export function BiographyChaptersManager({
                       aria-label={t('moveDown')}
                       disabled={index === chapters.length - 1 || isPending}
                       onClick={() => move(c.id, 1)}
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
+                      className="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors disabled:opacity-30"
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
                         <path d="M6 9l6 6 6-6" />
                       </svg>
                     </button>
@@ -339,9 +339,19 @@ export function BiographyChaptersManager({
                       type="button"
                       aria-label={t('editChapter')}
                       onClick={() => setEditingId(c.id)}
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                      className="text-muted-foreground hover:bg-primary/10 hover:text-primary inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors"
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
                         <path d="M12 20h9" />
                         <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
                       </svg>
@@ -350,17 +360,23 @@ export function BiographyChaptersManager({
                       type="button"
                       aria-label={t('deleteChapter')}
                       onClick={() => {
-                        if (
-                          window.confirm(
-                            t('confirmDelete', { title: c.title }),
-                          )
-                        ) {
+                        if (window.confirm(t('confirmDelete', { title: c.title }))) {
                           void submitDelete(c.id);
                         }
                       }}
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                      className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors"
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
                         <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
                       </svg>
                     </button>
@@ -388,8 +404,7 @@ export function BiographyChaptersManager({
 }
 
 const MAX_CHAPTER_MEDIA = 10;
-const MEDIA_ACCEPT =
-  'image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime';
+const MEDIA_ACCEPT = 'image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime';
 
 function ChapterEditForm({
   initialTitle,
@@ -430,7 +445,7 @@ function ChapterEditForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-2 p-3 sm:p-4">
       <label className="block">
-        <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
           {t('fieldTitle')}
         </span>
         <input
@@ -439,11 +454,11 @@ function ChapterEditForm({
           onChange={(e) => setTitle(e.target.value)}
           required
           maxLength={200}
-          className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+          className="border-border text-foreground focus:border-primary mt-1 h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none sm:text-sm"
         />
       </label>
       <label className="block">
-        <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
           {t('fieldContent')}
         </span>
         <textarea
@@ -451,21 +466,21 @@ function ChapterEditForm({
           onChange={(e) => setContent(e.target.value)}
           rows={5}
           maxLength={5000}
-          className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+          className="border-border text-foreground focus:border-primary mt-1 w-full rounded-md border bg-white px-3 py-2 text-base focus:outline-none sm:text-sm"
         />
       </label>
 
       {/* Media: view/remove existing, add new. */}
-      <div className="rounded-md border border-dashed border-border bg-surface p-2">
+      <div className="border-border bg-surface rounded-md border border-dashed p-2">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-xs italic text-muted-foreground">
+          <span className="text-muted-foreground text-xs italic">
             {t('mediaCount', { count: totalMedia })}
           </span>
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
             disabled={totalMedia >= MAX_CHAPTER_MEDIA}
-            className="press-scale rounded-md border border-border bg-white px-2 py-1 font-display text-[11px] font-bold text-primary transition-colors hover:bg-primary/5 disabled:opacity-40"
+            className="press-scale border-border font-display text-primary hover:bg-primary/5 rounded-md border bg-white px-2 py-1 text-[11px] font-bold transition-colors disabled:opacity-40"
           >
             {t('addMedia')}
           </button>
@@ -478,9 +493,7 @@ function ChapterEditForm({
           className="hidden"
           onChange={(e) => {
             const picked = Array.from(e.target.files ?? []);
-            setNewFiles((prev) =>
-              [...prev, ...picked].slice(0, MAX_CHAPTER_MEDIA - kept.length),
-            );
+            setNewFiles((prev) => [...prev, ...picked].slice(0, MAX_CHAPTER_MEDIA - kept.length));
             e.target.value = '';
           }}
         />
@@ -489,17 +502,16 @@ function ChapterEditForm({
             {kept.map((m, i) => (
               <li
                 key={`${m.url}-${i}`}
-                className="flex items-center justify-between gap-2 text-xs text-foreground"
+                className="text-foreground flex items-center justify-between gap-2 text-xs"
               >
                 <span className="truncate">
-                  {m.type === 'video' ? '🎬' : '🖼️'}{' '}
-                  {m.url.split('/').pop()}
+                  {m.type === 'video' ? '🎬' : '🖼️'} {m.url.split('/').pop()}
                 </span>
                 <button
                   type="button"
                   aria-label={t('removeMedia')}
                   onClick={() => setKept((prev) => prev.filter((_, j) => j !== i))}
-                  className="shrink-0 text-muted-foreground hover:text-destructive"
+                  className="text-muted-foreground hover:text-destructive shrink-0"
                 >
                   ✕
                 </button>
@@ -508,7 +520,7 @@ function ChapterEditForm({
             {newFiles.map((f, i) => (
               <li
                 key={`new-${f.name}-${i}`}
-                className="flex items-center justify-between gap-2 text-xs text-foreground"
+                className="text-foreground flex items-center justify-between gap-2 text-xs"
               >
                 <span className="truncate">
                   {f.type.startsWith('video') ? '🎬' : '🖼️'} {f.name}
@@ -516,10 +528,8 @@ function ChapterEditForm({
                 <button
                   type="button"
                   aria-label={t('removeMedia')}
-                  onClick={() =>
-                    setNewFiles((prev) => prev.filter((_, j) => j !== i))
-                  }
-                  className="shrink-0 text-muted-foreground hover:text-destructive"
+                  onClick={() => setNewFiles((prev) => prev.filter((_, j) => j !== i))}
+                  className="text-muted-foreground hover:text-destructive shrink-0"
                 >
                   ✕
                 </button>
@@ -534,14 +544,14 @@ function ChapterEditForm({
           type="button"
           onClick={onCancel}
           disabled={isPending}
-          className="press-scale rounded-md border border-border bg-white px-3 py-1.5 font-display text-xs font-bold text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+          className="press-scale border-border font-display text-foreground hover:bg-muted rounded-md border bg-white px-3 py-1.5 text-xs font-bold transition-colors disabled:opacity-50"
         >
           {t('cancel')}
         </button>
         <button
           type="submit"
           disabled={isPending || !title.trim()}
-          className="press-scale rounded-md bg-primary px-4 py-1.5 font-display text-xs font-bold uppercase tracking-wider text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="press-scale bg-primary font-display text-primary-foreground rounded-md px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {isPending ? t('saving') : t('save')}
         </button>

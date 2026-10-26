@@ -110,7 +110,7 @@ export function HeaderSearch({ placeholder }: { placeholder: string }) {
         aria-expanded={open}
         aria-haspopup="listbox"
         aria-controls={listId}
-        className="flex w-full items-center gap-3 rounded-full border border-transparent bg-[var(--color-bg-active-gray)] px-5 transition-[background-color,border-color,box-shadow] duration-150 focus-within:border-primary focus-within:bg-white focus-within:shadow-[var(--shadow-glow-primary)]"
+        className="focus-within:border-primary flex w-full items-center gap-3 rounded-full border border-transparent bg-[var(--color-bg-active-gray)] px-5 transition-[background-color,border-color,box-shadow] duration-150 focus-within:bg-white focus-within:shadow-[var(--shadow-glow-primary)]"
       >
         <label htmlFor="header-search" className="sr-only">
           {placeholder}
@@ -126,14 +126,14 @@ export function HeaderSearch({ placeholder }: { placeholder: string }) {
           placeholder={placeholder}
           aria-autocomplete="list"
           aria-controls={listId}
-          className="h-11 min-w-0 flex-1 bg-transparent font-display text-base font-medium text-foreground outline-none placeholder:font-medium placeholder:text-muted-foreground sm:text-sm"
+          className="font-display text-foreground placeholder:text-muted-foreground h-11 min-w-0 flex-1 bg-transparent text-base font-medium outline-none placeholder:font-medium sm:text-sm"
           autoComplete="off"
         />
         <button
           type="button"
           aria-label={placeholder}
           onClick={submitSearch}
-          className="shrink-0 text-muted-foreground hover:text-primary"
+          className="text-muted-foreground hover:text-primary shrink-0"
         >
           <svg
             width="18"
@@ -155,7 +155,7 @@ export function HeaderSearch({ placeholder }: { placeholder: string }) {
         <ul
           id={listId}
           role="listbox"
-          className="absolute left-0 right-0 top-full z-[var(--z-modal)] mt-2 overflow-hidden rounded-xl border border-border bg-white py-1 shadow-[var(--shadow-overlay)]"
+          className="border-border absolute left-0 right-0 top-full z-[var(--z-modal)] mt-2 overflow-hidden rounded-xl border bg-white py-1 shadow-[var(--shadow-overlay)]"
         >
           {items.map((it, i) => (
             <li key={it.slug} role="option" aria-selected={i === active}>
@@ -164,13 +164,13 @@ export function HeaderSearch({ placeholder }: { placeholder: string }) {
                 onMouseEnter={() => setActive(i)}
                 onClick={() => go(it.slug)}
                 className={[
-                  'flex w-full items-center justify-between gap-2 px-4 py-2.5 text-left font-display text-sm transition-colors',
+                  'font-display flex w-full items-center justify-between gap-2 px-4 py-2.5 text-left text-sm transition-colors',
                   i === active ? 'bg-surface text-primary' : 'text-foreground hover:bg-surface',
                 ].join(' ')}
               >
                 <span className="font-semibold">{it.label}</span>
                 {it.nickname && (
-                  <span className="truncate text-xs italic text-muted-foreground">
+                  <span className="text-muted-foreground truncate text-xs italic">
                     « {it.nickname} »
                   </span>
                 )}

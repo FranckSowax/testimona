@@ -5,11 +5,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { canManageMemorial } from '@/lib/memorial/access';
 import { getBalance, spendCredits } from '@/lib/credits/balance';
-import {
-  STUDIA_COST_PER_VIDEO,
-  getStudiaBalance,
-  spendStudia,
-} from '@/lib/compute/balance';
+import { STUDIA_COST_PER_VIDEO, getStudiaBalance, spendStudia } from '@/lib/compute/balance';
 import { submitImageToVideo } from '@/lib/higgsfield/client';
 
 export interface AnimateSelection {
@@ -81,8 +77,7 @@ export async function submitAnimationAction(
   const photosById = new Map((photos ?? []).map((p) => [p.id, p]));
   for (const sel of selections) {
     const p = photosById.get(sel.photoId);
-    if (!p || p.memorialId !== memorialId)
-      return { ok: false, error: 'Photo invalide.' };
+    if (!p || p.memorialId !== memorialId) return { ok: false, error: 'Photo invalide.' };
     if (sel.captionSource === 'free' && !sel.caption.trim())
       return { ok: false, error: 'Texte requis pour la légende libre.' };
     if (sel.captionSource === 'testimonial' && !sel.testimonialId)
@@ -104,7 +99,7 @@ export async function submitAnimationAction(
     return {
       ok: false,
       error:
-        'Service indisponible momentanément. Réessaie dans quelques minutes — l\'admin a été notifié.',
+        "Service indisponible momentanément. Réessaie dans quelques minutes — l'admin a été notifié.",
     };
   }
 
@@ -137,8 +132,7 @@ export async function submitAnimationAction(
         photoId: sel.photoId,
         caption: caption || null,
         captionSource: sel.captionSource,
-        testimonialId:
-          sel.captionSource === 'testimonial' ? sel.testimonialId : null,
+        testimonialId: sel.captionSource === 'testimonial' ? sel.testimonialId : null,
         status: 'pending',
         createdById: user.id,
         creditCost: 1,

@@ -124,9 +124,9 @@ export default async function NotificationsPage() {
   const myTestimonialMemorialMap = new Map<string, string>();
   for (const tt of myTestimonials ?? []) myTestimonialMemorialMap.set(tt.id, tt.memorialId);
 
-  const missingIds = Array.from(
-    new Set((myTestimonials ?? []).map((tt) => tt.memorialId)),
-  ).filter((id) => !memorialMap.has(id));
+  const missingIds = Array.from(new Set((myTestimonials ?? []).map((tt) => tt.memorialId))).filter(
+    (id) => !memorialMap.has(id),
+  );
   if (missingIds.length > 0) {
     const { data: extra } = await supabase
       .from('Memorial')
@@ -370,9 +370,7 @@ export default async function NotificationsPage() {
         .eq('status', 'approved')
         .order('createdAt', { ascending: false })
         .limit(40)
-        .returns<
-          { id: string; memorialId: string; authorName: string; createdAt: string }[]
-        >();
+        .returns<{ id: string; memorialId: string; authorName: string; createdAt: string }[]>();
       const cross = (crossRows ?? []).filter((r) => !ownedIds.includes(r.memorialId));
       const crossMemorialIds = Array.from(new Set(cross.map((r) => r.memorialId)));
       const crossMemorials = new Map<string, MemorialLite>();
@@ -401,27 +399,25 @@ export default async function NotificationsPage() {
 
   return (
     <DashboardShell title={t('title')}>
-      <p className="-mt-4 mb-6 text-sm text-muted-foreground">{t('subtitle')}</p>
+      <p className="text-muted-foreground -mt-4 mb-6 text-sm">{t('subtitle')}</p>
 
       {summaryCards.length > 0 && (
         <section className="mb-8 space-y-4">
-          <h2 className="font-display text-base font-bold text-foreground">
+          <h2 className="font-display text-foreground text-base font-bold">
             {t('sectionContributions')}
           </h2>
           <div className="space-y-4">
             {summaryCards.map(({ memorial, summary }) => {
-              const name = [memorial.firstname, memorial.lastname]
-                .filter(Boolean)
-                .join(' ');
+              const name = [memorial.firstname, memorial.lastname].filter(Boolean).join(' ');
               return (
                 <div
                   key={memorial.id}
-                  className="rounded-xl border border-border bg-white p-4 shadow-sm"
+                  className="border-border rounded-xl border bg-white p-4 shadow-sm"
                 >
                   <div className="mb-3 flex items-baseline justify-between gap-2">
                     <Link
                       href={`/memorial/${memorial.slug}`}
-                      className="font-display text-sm font-bold text-foreground hover:text-primary"
+                      className="font-display text-foreground hover:text-primary text-sm font-bold"
                     >
                       {name}
                     </Link>
@@ -453,35 +449,29 @@ export default async function NotificationsPage() {
 
       {networkTop.length > 0 && (
         <section className="mb-8 space-y-3">
-          <h2 className="font-display text-base font-bold text-foreground">
-            {t('networkTitle')}
-          </h2>
-          <p className="-mt-1 text-xs text-muted-foreground">
-            {t('networkSubtitle')}
-          </p>
+          <h2 className="font-display text-foreground text-base font-bold">{t('networkTitle')}</h2>
+          <p className="text-muted-foreground -mt-1 text-xs">{t('networkSubtitle')}</p>
           <ul className="space-y-2">
             {networkTop.map((ev, i) => {
-              const name = [ev.memorial.firstname, ev.memorial.lastname]
-                .filter(Boolean)
-                .join(' ');
+              const name = [ev.memorial.firstname, ev.memorial.lastname].filter(Boolean).join(' ');
               return (
                 <li
                   key={`net-${ev.testimonialId}-${i}`}
-                  className="flex items-start justify-between gap-3 rounded-lg border border-border bg-white p-4 shadow-sm"
+                  className="border-border flex items-start justify-between gap-3 rounded-lg border bg-white p-4 shadow-sm"
                 >
-                  <p className="min-w-0 text-sm leading-relaxed text-foreground">
+                  <p className="text-foreground min-w-0 text-sm leading-relaxed">
                     <span className="font-display font-bold">{ev.authorName}</span>{' '}
                     {t('networkPostedOn')}{' '}
                     <Link
                       href={`/memorial/${ev.memorial.slug}`}
-                      className="font-display font-bold text-foreground hover:text-primary"
+                      className="font-display text-foreground hover:text-primary font-bold"
                     >
                       {name}
                     </Link>
                   </p>
                   <Link
                     href={`/memorial/${ev.memorial.slug}#testimonial-${ev.testimonialId}`}
-                    className="shrink-0 text-xs font-medium text-primary hover:underline"
+                    className="text-primary shrink-0 text-xs font-medium hover:underline"
                   >
                     {t('viewMemorial')} →
                   </Link>
@@ -525,9 +515,7 @@ export default async function NotificationsPage() {
               href = `/memorial/${event.memorial.slug}?tab=donate`;
             } else {
               const authorName =
-                event.kind === 'like'
-                  ? t('anonymous')
-                  : event.authorName ?? t('anonymous');
+                event.kind === 'like' ? t('anonymous') : (event.authorName ?? t('anonymous'));
               const messageKey =
                 event.kind === 'testimonial'
                   ? 'eventTestimonialReceived'
@@ -546,7 +534,7 @@ export default async function NotificationsPage() {
             return (
               <li
                 key={itemKey}
-                className="animate-fade-in-up flex items-start gap-3 rounded-lg border border-border bg-white p-4 shadow-sm"
+                className="animate-fade-in-up border-border flex items-start gap-3 rounded-lg border bg-white p-4 shadow-sm"
                 style={{ animationDelay: `${Math.min(i * 25, 200)}ms` }}
               >
                 <span
@@ -554,9 +542,9 @@ export default async function NotificationsPage() {
                   className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${dotColor}`}
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm leading-relaxed text-foreground">{message}</p>
+                  <p className="text-foreground text-sm leading-relaxed">{message}</p>
                   <p
-                    className="mt-1 text-xs text-muted-foreground tabular"
+                    className="text-muted-foreground tabular mt-1 text-xs"
                     suppressHydrationWarning
                   >
                     {new Date(event.createdAt).toLocaleString('fr-FR', {
@@ -566,7 +554,7 @@ export default async function NotificationsPage() {
                 </div>
                 <Link
                   href={href}
-                  className="shrink-0 text-xs font-medium text-primary hover:underline"
+                  className="text-primary shrink-0 text-xs font-medium hover:underline"
                 >
                   {t('viewMemorial')} →
                 </Link>

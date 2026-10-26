@@ -23,9 +23,7 @@ export default function GlobalError({
         }}
       >
         <div style={{ maxWidth: 420, textAlign: 'center' }}>
-          <h1 style={{ fontSize: 24, fontWeight: 600, margin: 0 }}>
-            Erreur inattendue
-          </h1>
+          <h1 style={{ fontSize: 24, fontWeight: 600, margin: 0 }}>Erreur inattendue</h1>
           <p style={{ marginTop: 8, fontSize: 14, color: '#64697a' }}>
             L&apos;application a rencontré un problème. Tu peux réessayer.
           </p>

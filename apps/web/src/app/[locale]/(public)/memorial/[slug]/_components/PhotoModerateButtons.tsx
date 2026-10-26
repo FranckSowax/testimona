@@ -2,27 +2,18 @@
 
 import { useActionState } from 'react';
 import { useTranslations } from 'next-intl';
-import {
-  moderatePhotoAction,
-  type PhotoActionState,
-} from '../photo-actions';
+import { moderatePhotoAction, type PhotoActionState } from '../photo-actions';
 
 /**
  * Owner-only approve / reject inline controls for a pending Photo.
  * Rejecting deletes both the row and the underlying storage object.
  */
-export function PhotoModerateButtons({
-  photoId,
-  slug,
-}: {
-  photoId: string;
-  slug: string;
-}) {
+export function PhotoModerateButtons({ photoId, slug }: { photoId: string; slug: string }) {
   const t = useTranslations('memorial.moderate');
-  const [state, formAction, isPending] = useActionState<
-    PhotoActionState | null,
-    FormData
-  >(moderatePhotoAction, null);
+  const [state, formAction, isPending] = useActionState<PhotoActionState | null, FormData>(
+    moderatePhotoAction,
+    null,
+  );
   return (
     <div className="flex flex-col gap-1">
       <div className="flex gap-1.5">
@@ -33,7 +24,7 @@ export function PhotoModerateButtons({
           <button
             type="submit"
             disabled={isPending}
-            className="press-scale flex w-full items-center justify-center gap-1 rounded-md bg-emerald-600 px-2 py-1 font-display text-[10px] font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="press-scale font-display flex w-full items-center justify-center gap-1 rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             <svg
               width="10"
@@ -58,7 +49,7 @@ export function PhotoModerateButtons({
           <button
             type="submit"
             disabled={isPending}
-            className="press-scale flex w-full items-center justify-center gap-1 rounded-md border border-destructive/40 bg-white px-2 py-1 font-display text-[10px] font-bold uppercase tracking-wider text-destructive transition-colors hover:bg-destructive/5 disabled:opacity-50"
+            className="press-scale border-destructive/40 font-display text-destructive hover:bg-destructive/5 flex w-full items-center justify-center gap-1 rounded-md border bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors disabled:opacity-50"
           >
             <svg
               width="10"
@@ -78,7 +69,7 @@ export function PhotoModerateButtons({
         </form>
       </div>
       {state?.error && (
-        <p role="alert" className="text-[10px] text-destructive">
+        <p role="alert" className="text-destructive text-[10px]">
           {state.error}
         </p>
       )}

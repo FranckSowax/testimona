@@ -78,11 +78,7 @@ function fmtYears(birth: string | null, death: string | null): string {
   return `${year(birth)} – ${year(death)}`;
 }
 
-export default async function UserProfilePage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function UserProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!(await userExists(id))) notFound();
 
@@ -97,21 +93,18 @@ export default async function UserProfilePage({
   return (
     <article className="mx-auto max-w-5xl px-4 pb-16 pt-6 sm:px-6">
       <Breadcrumb
-        items={[
-          { label: 'Home', href: '/' },
-          { label: `${userLabel} profile` },
-        ]}
+        items={[{ label: 'Home', href: '/' }, { label: `${userLabel} profile` }]}
         className="mb-4"
       />
 
       <section
         aria-label="Profile"
-        className="flex items-start gap-5 rounded-lg border border-border bg-white p-5 shadow-[var(--shadow-card)] sm:p-6"
+        className="border-border flex items-start gap-5 rounded-lg border bg-white p-5 shadow-[var(--shadow-card)] sm:p-6"
       >
         <Avatar size="xl" border="rose" name={userLabel} />
         <div className="flex-1">
-          <h1 className="font-display text-2xl font-bold text-foreground">{userLabel}</h1>
-          <p className="text-sm italic text-muted-foreground">Member of the Testimona community</p>
+          <h1 className="font-display text-foreground text-2xl font-bold">{userLabel}</h1>
+          <p className="text-muted-foreground text-sm italic">Member of the Testimona community</p>
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <ButtonIcon label="Edit" size="md">
@@ -152,7 +145,7 @@ export default async function UserProfilePage({
 
       <section className="mt-10 space-y-4" aria-label="Memorials administered">
         <header className="flex items-center justify-between">
-          <h2 className="font-display text-base font-bold text-foreground">
+          <h2 className="font-display text-foreground text-base font-bold">
             Memorials administered ({owned.length})
           </h2>
           <ButtonText variant="filter" type="button">
@@ -160,7 +153,7 @@ export default async function UserProfilePage({
           </ButtonText>
         </header>
         {owned.length === 0 ? (
-          <p className="text-sm italic text-muted-foreground">
+          <p className="text-muted-foreground text-sm italic">
             This user does not administer any public memorial yet.
           </p>
         ) : (
@@ -182,7 +175,7 @@ export default async function UserProfilePage({
 
       <section className="mt-10 space-y-4" aria-label="Memorials testified on">
         <header className="flex items-center justify-between">
-          <h2 className="font-display text-base font-bold text-foreground">
+          <h2 className="font-display text-foreground text-base font-bold">
             Testified on ({viaTestimonials.length})
           </h2>
           <ButtonText variant="filter" type="button">
@@ -190,9 +183,7 @@ export default async function UserProfilePage({
           </ButtonText>
         </header>
         {viaTestimonials.length === 0 ? (
-          <p className="text-sm italic text-muted-foreground">
-            No public testimonials yet.
-          </p>
+          <p className="text-muted-foreground text-sm italic">No public testimonials yet.</p>
         ) : (
           <ul className="space-y-1">
             {viaTestimonials.map((m) => {

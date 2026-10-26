@@ -92,23 +92,20 @@ export function TestimonialItem({
   return (
     <article
       id={`testimonial-${testimonialId}`}
-      className="rounded-lg border border-border bg-white p-5 shadow-[var(--shadow-card)]"
+      className="border-border rounded-lg border bg-white p-5 shadow-[var(--shadow-card)]"
     >
       <header className="flex items-start gap-3">
         <Avatar src={authorAvatarUrl} name={authorName} size="md" />
         <div className="min-w-0 flex-1">
-          <p className="font-display text-sm font-bold text-foreground sm:text-[17px]">
+          <p className="font-display text-foreground text-sm font-bold sm:text-[17px]">
             {memorialName} - {authorName}
             {authorRelation && (
-              <span className="ml-1 font-body italic font-bold text-muted-foreground">
+              <span className="font-body text-muted-foreground ml-1 font-bold italic">
                 , {authorRelation}
               </span>
             )}
           </p>
-          <p
-            className="text-xs italic text-muted-foreground tabular"
-            suppressHydrationWarning
-          >
+          <p className="text-muted-foreground tabular text-xs italic" suppressHydrationWarning>
             {t('publishedOn', { date: formattedDate })}
           </p>
         </div>
@@ -135,13 +132,13 @@ export function TestimonialItem({
             required
             rows={4}
             maxLength={4000}
-            className="block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+            className="text-foreground placeholder:text-muted-foreground focus:border-primary block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
           />
           {state?.fieldErrors?.message && (
-            <p className="text-xs text-destructive">{state.fieldErrors.message}</p>
+            <p className="text-destructive text-xs">{state.fieldErrors.message}</p>
           )}
           {state?.error && state.error !== 'Validation' && (
-            <p role="alert" className="text-xs text-destructive">
+            <p role="alert" className="text-destructive text-xs">
               {state.error}
             </p>
           )}
@@ -157,12 +154,7 @@ export function TestimonialItem({
             >
               {t('cancel')}
             </ButtonOutlined>
-            <ButtonOutlined
-              type="submit"
-              variant="popup-rose"
-              size="sm"
-              loading={isPending}
-            >
+            <ButtonOutlined type="submit" variant="popup-rose" size="sm" loading={isPending}>
               {t('save')}
             </ButtonOutlined>
           </div>
@@ -170,7 +162,7 @@ export function TestimonialItem({
       ) : (
         <>
           <div className="mt-3">
-            <p className="whitespace-pre-line text-[15px] leading-relaxed text-foreground">
+            <p className="text-foreground whitespace-pre-line text-[15px] leading-relaxed">
               {previewMessage}
               {isLong && !showFullText && (
                 <>
@@ -178,7 +170,7 @@ export function TestimonialItem({
                   <button
                     type="button"
                     onClick={() => setShowFullText(true)}
-                    className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground transition-colors hover:text-accent"
+                    className="font-display text-muted-foreground hover:text-accent text-xs font-bold uppercase tracking-wide transition-colors"
                   >
                     {t('readMore')}
                   </button>
@@ -194,7 +186,7 @@ export function TestimonialItem({
                 onClick={toggleReplies}
                 aria-expanded={repliesOpen}
                 aria-controls={`replies-${testimonialId}`}
-                className="text-xs italic text-muted-foreground transition-colors hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground text-xs italic transition-colors"
               >
                 {t('commentsCount', { count: comments.length })}
               </button>
@@ -216,7 +208,7 @@ export function TestimonialItem({
           {repliesOpen && (
             <div
               id={`replies-${testimonialId}`}
-              className="mt-4 ml-2 space-y-4 border-l-[3px] border-accent pl-4 sm:ml-12"
+              className="border-accent ml-2 mt-4 space-y-4 border-l-[3px] pl-4 sm:ml-12"
             >
               {visibleReplies.map((c) => (
                 <ReplyItem
@@ -273,17 +265,14 @@ function ReplyItem({ testimonialId, slug, comment, isLogged, shareUrl }: ReplyIt
       <header className="flex items-start gap-3">
         <Avatar src={avatarUrl} name={comment.authorName} size="sm" />
         <div className="min-w-0 flex-1">
-          <p className="font-display text-sm font-bold text-foreground">{comment.authorName}</p>
-          <p
-            className="text-xs italic text-muted-foreground tabular"
-            suppressHydrationWarning
-          >
+          <p className="font-display text-foreground text-sm font-bold">{comment.authorName}</p>
+          <p className="text-muted-foreground tabular text-xs italic" suppressHydrationWarning>
             {t('publishedOn', { date: formattedDate })}
           </p>
         </div>
       </header>
-      <div className="mt-2 ml-11">
-        <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90">
+      <div className="ml-11 mt-2">
+        <p className="text-foreground/90 whitespace-pre-line text-sm leading-relaxed">
           {comment.message}
         </p>
         <footer className="mt-2 flex items-center justify-end gap-1">

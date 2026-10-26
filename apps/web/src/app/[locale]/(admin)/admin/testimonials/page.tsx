@@ -4,10 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { AdminShell } from '@/components/admin/AdminShell';
 import { TestimonialDeleteButton } from '@/components/admin/ModerationActions';
 import { requireAdmin } from '@/lib/supabase/admin';
-import {
-  getTestimonialsAdminList,
-  type TestimonialsAdminListParams,
-} from '@/lib/admin/moderation';
+import { getTestimonialsAdminList, type TestimonialsAdminListParams } from '@/lib/admin/moderation';
 
 export const metadata: Metadata = {
   title: 'Admin — Testimonials',
@@ -59,24 +56,24 @@ export default async function AdminTestimonialsPage({
     <AdminShell title={tNav('testimonials')}>
       <form
         method="get"
-        className="flex flex-wrap items-end gap-3 rounded-md border border-border bg-white p-4"
+        className="border-border flex flex-wrap items-end gap-3 rounded-md border bg-white p-4"
       >
-        <label className="flex flex-1 flex-col gap-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        <label className="text-muted-foreground flex flex-1 flex-col gap-1 text-xs font-bold uppercase tracking-wide">
           {t('searchLabel')}
           <input
             type="search"
             name="q"
             defaultValue={sp.q ?? ''}
             placeholder={t('searchPlaceholder')}
-            className="h-11 rounded-md border border-border bg-white px-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+            className="border-border text-foreground placeholder:text-muted-foreground focus:border-primary h-11 rounded-md border bg-white px-3 text-base focus:outline-none"
           />
         </label>
-        <label className="flex flex-col gap-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        <label className="text-muted-foreground flex flex-col gap-1 text-xs font-bold uppercase tracking-wide">
           {t('reportFilter')}
           <select
             name="hasReports"
             defaultValue={sp.hasReports ?? 'all'}
-            className="h-11 rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none"
+            className="border-border text-foreground focus:border-primary h-11 rounded-md border bg-white px-3 text-base focus:outline-none"
           >
             <option value="all">{t('filterAll')}</option>
             <option value="reported">{t('filterReported')}</option>
@@ -84,30 +81,30 @@ export default async function AdminTestimonialsPage({
         </label>
         <button
           type="submit"
-          className="h-11 rounded-md bg-primary px-5 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+          className="bg-primary font-display text-primary-foreground h-11 rounded-md px-5 text-sm font-bold transition-opacity hover:opacity-90"
         >
           {tUsers('filter')}
         </button>
       </form>
 
-      <p className="mt-4 text-sm text-muted-foreground">
+      <p className="text-muted-foreground mt-4 text-sm">
         {t('resultsSummary', { count: list.total })}
       </p>
 
       <ul className="mt-4 space-y-3">
         {list.testimonials.length === 0 ? (
-          <li className="rounded-md border border-dashed border-border bg-surface p-8 text-center text-sm italic text-muted-foreground">
+          <li className="border-border bg-surface text-muted-foreground rounded-md border border-dashed p-8 text-center text-sm italic">
             {t('empty')}
           </li>
         ) : (
           list.testimonials.map((tm) => (
             <li
               key={tm.id}
-              className="rounded-lg border border-border bg-white p-4 shadow-[var(--shadow-card)]"
+              className="border-border rounded-lg border bg-white p-4 shadow-[var(--shadow-card)]"
             >
               <header className="flex flex-wrap items-baseline justify-between gap-2">
                 <div>
-                  <p className="font-display text-sm font-bold text-foreground">
+                  <p className="font-display text-foreground text-sm font-bold">
                     {tm.authorName}
                     {tm.memorialName && (
                       <>
@@ -116,14 +113,14 @@ export default async function AdminTestimonialsPage({
                         <Link
                           href={tm.memorialSlug ? `/memorial/${tm.memorialSlug}` : '#'}
                           target="_blank"
-                          className="font-normal italic text-muted-foreground hover:text-primary"
+                          className="text-muted-foreground hover:text-primary font-normal italic"
                         >
                           {tm.memorialName}
                         </Link>
                       </>
                     )}
                   </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
+                  <p className="text-muted-foreground mt-0.5 text-xs">
                     {formatDate(tm.createdAt, locale)}
                   </p>
                 </div>
@@ -131,7 +128,7 @@ export default async function AdminTestimonialsPage({
                   {tm.reportsCount > 0 && (
                     <Link
                       href="/admin/reports"
-                      className="rounded-full bg-destructive/10 px-2 py-0.5 font-display text-[11px] font-bold uppercase tracking-wide text-destructive hover:bg-destructive hover:text-white"
+                      className="bg-destructive/10 font-display text-destructive hover:bg-destructive rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide hover:text-white"
                     >
                       {t('reportsBadge', { count: tm.reportsCount })}
                     </Link>
@@ -139,16 +136,13 @@ export default async function AdminTestimonialsPage({
                   <TestimonialDeleteButton testimonialId={tm.id} labels={labels} />
                 </div>
               </header>
-              <p className="mt-3 line-clamp-3 text-sm text-foreground/85">{tm.message}</p>
+              <p className="text-foreground/85 mt-3 line-clamp-3 text-sm">{tm.message}</p>
             </li>
           ))
         )}
       </ul>
 
-      <nav
-        aria-label="pagination"
-        className="mt-6 flex items-center justify-between text-sm"
-      >
+      <nav aria-label="pagination" className="mt-6 flex items-center justify-between text-sm">
         {list.page > 1 ? (
           <Link
             href={`/admin/testimonials?${(() => {
@@ -156,16 +150,14 @@ export default async function AdminTestimonialsPage({
               p.set('page', String(list.page - 1));
               return p.toString();
             })()}`}
-            className="font-display font-bold text-primary hover:underline"
+            className="font-display text-primary font-bold hover:underline"
           >
             ← {tUsers('prev')}
           </Link>
         ) : (
           <span aria-hidden="true" />
         )}
-        <span className="text-muted-foreground">
-          {tUsers('pageOf', { page: list.page })}
-        </span>
+        <span className="text-muted-foreground">{tUsers('pageOf', { page: list.page })}</span>
         {list.hasMore ? (
           <Link
             href={`/admin/testimonials?${(() => {
@@ -173,7 +165,7 @@ export default async function AdminTestimonialsPage({
               p.set('page', String(list.page + 1));
               return p.toString();
             })()}`}
-            className="font-display font-bold text-primary hover:underline"
+            className="font-display text-primary font-bold hover:underline"
           >
             {tUsers('next')} →
           </Link>

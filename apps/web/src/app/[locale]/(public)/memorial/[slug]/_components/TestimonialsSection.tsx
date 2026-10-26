@@ -63,9 +63,7 @@ async function getMemorialMeta(memorialId: string): Promise<MemorialMetaLite> {
     .select('firstname, lastname, ownerId')
     .eq('id', memorialId)
     .maybeSingle<MemorialMetaLite>();
-  return (
-    data ?? { firstname: '', lastname: '', ownerId: '' }
-  );
+  return data ?? { firstname: '', lastname: '', ownerId: '' };
 }
 
 async function getLikes(testimonialIds: string[]): Promise<LikeRow[]> {
@@ -117,13 +115,8 @@ export async function TestimonialsSection({
     return b.createdAt.localeCompare(a.createdAt);
   });
 
-  const approvedIds = testimonials
-    .filter((row) => row.status === 'approved')
-    .map((row) => row.id);
-  const [likes, comments] = await Promise.all([
-    getLikes(approvedIds),
-    getComments(approvedIds),
-  ]);
+  const approvedIds = testimonials.filter((row) => row.status === 'approved').map((row) => row.id);
+  const [likes, comments] = await Promise.all([getLikes(approvedIds), getComments(approvedIds)]);
 
   const likesByTestimonial = new Map<string, number>();
   const userLikeSet = new Set<string>();
@@ -151,12 +144,13 @@ export async function TestimonialsSection({
   const memorialShareUrl = `${siteUrl}/memorial/${slug}`;
 
   const pendingCount = testimonials.filter((row) => row.status === 'pending').length;
-  const meta_user = user?.user_metadata as
-    | { full_name?: string; nickname?: string; avatar_url?: string }
-    | null;
+  const meta_user = user?.user_metadata as {
+    full_name?: string;
+    nickname?: string;
+    avatar_url?: string;
+  } | null;
   const userFirstname = meta_user?.nickname?.split(' ')[0] ?? '';
-  const userLastname =
-    meta_user?.full_name?.split(' ').slice(1).join(' ') ?? '';
+  const userLastname = meta_user?.full_name?.split(' ').slice(1).join(' ') ?? '';
   // Current user's identity for the reply composer avatar (removes the "?"
   // placeholder shown when no name/avatar is passed).
   const currentUserName =
@@ -170,8 +164,8 @@ export async function TestimonialsSection({
       </h2>
 
       {isOwner && pendingCount > 0 && (
-        <p className="mb-4 rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-sm text-foreground/80">
-          <span className="font-display font-bold text-foreground">
+        <p className="border-accent/30 bg-accent/5 text-foreground/80 mb-4 rounded-md border px-3 py-2 text-sm">
+          <span className="font-display text-foreground font-bold">
             {t('pendingCount', { count: pendingCount })}
           </span>{' '}
           {t('pendingAwaiting')}
@@ -179,9 +173,7 @@ export async function TestimonialsSection({
       )}
 
       {visible.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          {t('empty')}
-        </p>
+        <p className="text-muted-foreground text-sm">{t('empty')}</p>
       ) : (
         <Reveal as="ul" className="space-y-6">
           {visible.map((row) => {
@@ -189,19 +181,14 @@ export async function TestimonialsSection({
             return (
               <li key={row.id} className="space-y-2">
                 {isPending && (
-                  <div className="flex items-center justify-between gap-3 rounded-t-lg border border-b-0 border-accent/40 bg-accent/10 px-3 py-1.5">
-                    <span className="font-display text-[11px] font-bold uppercase tracking-wider text-accent">
+                  <div className="border-accent/40 bg-accent/10 flex items-center justify-between gap-3 rounded-t-lg border border-b-0 px-3 py-1.5">
+                    <span className="font-display text-accent text-[11px] font-bold uppercase tracking-wider">
                       {t('toValidate')}
                     </span>
-                    <TestimonialModerateButtons
-                      testimonialId={row.id}
-                      slug={slug}
-                    />
+                    <TestimonialModerateButtons testimonialId={row.id} slug={slug} />
                   </div>
                 )}
-                <div
-                  className={isPending ? 'opacity-90 ring-2 ring-accent/30' : ''}
-                >
+                <div className={isPending ? 'ring-accent/30 opacity-90 ring-2' : ''}>
                   <TestimonialItem
                     testimonialId={row.id}
                     slug={slug}

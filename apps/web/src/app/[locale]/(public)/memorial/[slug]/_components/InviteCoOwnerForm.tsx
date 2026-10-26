@@ -3,18 +3,9 @@
 import { useActionState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import {
-  inviteCoOwnerAction,
-  type MemberActionState,
-} from '../_actions/members';
+import { inviteCoOwnerAction, type MemberActionState } from '../_actions/members';
 
-export function InviteCoOwnerForm({
-  memorialId,
-  slug,
-}: {
-  memorialId: string;
-  slug: string;
-}) {
+export function InviteCoOwnerForm({ memorialId, slug }: { memorialId: string; slug: string }) {
   const t = useTranslations('memorial.membersSection');
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -40,24 +31,22 @@ export function InviteCoOwnerForm({
           type="email"
           required
           placeholder={t('emailPlaceholder')}
-          className="h-10 w-full rounded-md border border-border bg-white px-3 text-sm text-foreground focus:border-primary focus:outline-none"
+          className="border-border text-foreground focus:border-primary h-10 w-full rounded-md border bg-white px-3 text-sm focus:outline-none"
         />
         {state?.fieldErrors?.email && (
-          <p className="mt-1 text-xs text-destructive">{state.fieldErrors.email}</p>
+          <p className="text-destructive mt-1 text-xs">{state.fieldErrors.email}</p>
         )}
         {state?.error && state.error !== 'Validation' && (
-          <p role="alert" className="mt-1 text-xs text-destructive">
+          <p role="alert" className="text-destructive mt-1 text-xs">
             {state.error}
           </p>
         )}
-        {state?.ok && (
-          <p className="mt-1 text-xs font-bold text-emerald-600">{t('inviteSent')}</p>
-        )}
+        {state?.ok && <p className="mt-1 text-xs font-bold text-emerald-600">{t('inviteSent')}</p>}
       </div>
       <button
         type="submit"
         disabled={pending}
-        className="h-10 shrink-0 rounded-md bg-primary px-4 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="bg-primary font-display text-primary-foreground h-10 shrink-0 rounded-md px-4 text-sm font-bold transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? t('sending') : t('invite')}
       </button>

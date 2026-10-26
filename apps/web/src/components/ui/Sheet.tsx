@@ -12,14 +12,7 @@ interface SheetProps {
   className?: string;
 }
 
-export function Sheet({
-  open,
-  onClose,
-  title,
-  children,
-  side = 'bottom',
-  className,
-}: SheetProps) {
+export function Sheet({ open, onClose, title, children, side = 'bottom', className }: SheetProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -55,8 +48,8 @@ export function Sheet({
         if (e.target === dialogRef.current) onClose();
       }}
       className={[
-        'fixed m-0 p-0 backdrop:bg-foreground/40 backdrop:backdrop-blur-sm',
-        'bg-transparent text-foreground',
+        'backdrop:bg-foreground/40 fixed m-0 p-0 backdrop:backdrop-blur-sm',
+        'text-foreground bg-transparent',
         positionClasses,
       ].join(' ')}
       aria-labelledby={title ? 'sheet-title' : undefined}
@@ -64,31 +57,25 @@ export function Sheet({
       <div
         className={[
           'animate-fade-in surface-glass flex flex-col overflow-hidden',
-          side === 'bottom' ? 'rounded-t-2xl' : 'rounded-l-2xl h-full',
+          side === 'bottom' ? 'rounded-t-2xl' : 'h-full rounded-l-2xl',
           className ?? '',
         ]
           .filter(Boolean)
           .join(' ')}
       >
         {side === 'bottom' && (
-          <div
-            aria-hidden="true"
-            className="mx-auto mt-2 h-1 w-10 rounded-full bg-foreground/20"
-          />
+          <div aria-hidden="true" className="bg-foreground/20 mx-auto mt-2 h-1 w-10 rounded-full" />
         )}
         {title && (
-          <header className="flex items-center justify-between gap-3 border-b border-border/50 px-5 py-4">
-            <h2
-              id="sheet-title"
-              className="font-display text-base font-semibold text-foreground"
-            >
+          <header className="border-border/50 flex items-center justify-between gap-3 border-b px-5 py-4">
+            <h2 id="sheet-title" className="font-display text-foreground text-base font-semibold">
               {title}
             </h2>
             <button
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="rounded-full p-1 text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
+              className="text-foreground/60 hover:bg-foreground/5 hover:text-foreground rounded-full p-1"
             >
               <svg
                 width="20"

@@ -1,9 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
-import {
-  ClipsList,
-  type ClipRowDto,
-} from '@/app/[locale]/(dashboard)/dashboard/clips/ClipsList';
+import { ClipsList, type ClipRowDto } from '@/app/[locale]/(dashboard)/dashboard/clips/ClipsList';
 
 interface RawClipRow {
   id: string;
@@ -70,31 +67,20 @@ export async function MemorialClipsSection({
   const pendingCount = clips.filter(
     (c) => c.status === 'pending' || c.status === 'processing',
   ).length;
-  const readyUnvalidatedCount = clips.filter(
-    (c) => c.status === 'ready' && !c.validatedAt,
-  ).length;
+  const readyUnvalidatedCount = clips.filter((c) => c.status === 'ready' && !c.validatedAt).length;
 
   return (
     <section aria-labelledby="memorial-clips-heading" className="space-y-6">
       <header className="space-y-2">
-        <h2
-          id="memorial-clips-heading"
-          className="font-display text-2xl font-bold text-foreground"
-        >
+        <h2 id="memorial-clips-heading" className="font-display text-foreground text-2xl font-bold">
           {t('heading')}
         </h2>
-        <p className="text-sm text-muted-foreground">
-          {t('intro')}
-        </p>
+        <p className="text-muted-foreground text-sm">{t('intro')}</p>
       </header>
 
       {clips.length > 0 && (
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-3">
-          <Tile
-            label={t('validated')}
-            value={validatedCount}
-            tone="ready"
-          />
+          <Tile label={t('validated')} value={validatedCount} tone="ready" />
           <Tile
             label={t('toValidate')}
             value={readyUnvalidatedCount}
@@ -111,7 +97,7 @@ export async function MemorialClipsSection({
       <ClipsList clips={clips} />
 
       {clips.length === 0 ? null : (
-        <p className="rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-xs text-foreground/80">
+        <p className="border-accent/30 bg-accent/5 text-foreground/80 rounded-md border px-3 py-2 text-xs">
           {t.rich('footer', {
             strong: (chunks) => <strong>{chunks}</strong>,
           })}
@@ -134,16 +120,16 @@ function Tile({
     tone === 'ready'
       ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
       : tone === 'accent'
-      ? 'border-accent/30 bg-accent/5 text-accent'
-      : tone === 'processing'
-      ? 'border-primary/30 bg-primary/5 text-primary'
-      : 'border-border bg-white text-foreground/60';
+        ? 'border-accent/30 bg-accent/5 text-accent'
+        : tone === 'processing'
+          ? 'border-primary/30 bg-primary/5 text-primary'
+          : 'border-border bg-white text-foreground/60';
   return (
     <div className={['rounded-lg border p-3', cls].join(' ')}>
       <p className="font-display text-[10px] font-bold uppercase tracking-wider opacity-80">
         {label}
       </p>
-      <p className="tabular mt-1 font-display text-xl font-bold">{value}</p>
+      <p className="tabular font-display mt-1 text-xl font-bold">{value}</p>
     </div>
   );
 }

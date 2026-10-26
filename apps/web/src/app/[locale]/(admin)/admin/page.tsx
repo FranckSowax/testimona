@@ -42,7 +42,7 @@ export default async function AdminOverviewPage({
 
   return (
     <AdminShell title={t('title')}>
-      <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+      <p className="text-muted-foreground text-sm">{t('subtitle')}</p>
 
       {/* KPI grid */}
       <section
@@ -68,17 +68,10 @@ export default async function AdminOverviewPage({
           delta={`+${kpis.testimonials.last30d}`}
           hint={t('last30d')}
         />
-        <KpiCard
-          label={t('photosLabel')}
-          value={kpis.photos.total.toLocaleString(locale)}
-        />
+        <KpiCard label={t('photosLabel')} value={kpis.photos.total.toLocaleString(locale)} />
         <KpiCard
           label={t('donationsLabel')}
-          value={formatMoney(
-            kpis.donations.grossAmountCents,
-            kpis.donations.currency,
-            locale,
-          )}
+          value={formatMoney(kpis.donations.grossAmountCents, kpis.donations.currency, locale)}
           delta={`+${formatMoney(
             kpis.donations.last30dAmountCents,
             kpis.donations.currency,
@@ -90,27 +83,20 @@ export default async function AdminOverviewPage({
       </section>
 
       {/* Recent activity */}
-      <section
-        aria-label={t('recentSectionAria')}
-        className="mt-10 grid gap-6 lg:grid-cols-2"
-      >
-        <article className="rounded-lg border border-border bg-white p-5 shadow-[var(--shadow-card)]">
+      <section aria-label={t('recentSectionAria')} className="mt-10 grid gap-6 lg:grid-cols-2">
+        <article className="border-border rounded-lg border bg-white p-5 shadow-[var(--shadow-card)]">
           <header className="flex items-center justify-between">
-            <h2 className="font-display text-base font-bold text-foreground">
-              {t('recentUsers')}
-            </h2>
+            <h2 className="font-display text-foreground text-base font-bold">{t('recentUsers')}</h2>
             <Link
               href="/admin/users"
-              className="font-display text-xs font-bold uppercase tracking-wide text-primary hover:underline"
+              className="font-display text-primary text-xs font-bold uppercase tracking-wide hover:underline"
             >
               {t('viewAll')}
             </Link>
           </header>
-          <ul className="mt-4 divide-y divide-border">
+          <ul className="divide-border mt-4 divide-y">
             {recentUsers.length === 0 ? (
-              <li className="py-4 text-sm italic text-muted-foreground">
-                {t('emptyUsers')}
-              </li>
+              <li className="text-muted-foreground py-4 text-sm italic">{t('emptyUsers')}</li>
             ) : (
               recentUsers.map((u) => (
                 <li
@@ -118,14 +104,14 @@ export default async function AdminOverviewPage({
                   className="flex flex-wrap items-baseline justify-between gap-2 py-3 text-sm"
                 >
                   <span className="flex flex-col">
-                    <span className="font-display font-bold text-foreground">
+                    <span className="font-display text-foreground font-bold">
                       {u.fullName || u.email || u.id.slice(0, 8)}
                     </span>
                     {u.fullName && u.email && (
-                      <span className="text-xs text-muted-foreground">{u.email}</span>
+                      <span className="text-muted-foreground text-xs">{u.email}</span>
                     )}
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-muted-foreground text-xs">
                     {formatRelative(u.createdAt, locale)}
                   </span>
                 </li>
@@ -134,23 +120,21 @@ export default async function AdminOverviewPage({
           </ul>
         </article>
 
-        <article className="rounded-lg border border-border bg-white p-5 shadow-[var(--shadow-card)]">
+        <article className="border-border rounded-lg border bg-white p-5 shadow-[var(--shadow-card)]">
           <header className="flex items-center justify-between">
-            <h2 className="font-display text-base font-bold text-foreground">
+            <h2 className="font-display text-foreground text-base font-bold">
               {t('recentMemorials')}
             </h2>
             <Link
               href="/admin/memorials"
-              className="font-display text-xs font-bold uppercase tracking-wide text-primary hover:underline"
+              className="font-display text-primary text-xs font-bold uppercase tracking-wide hover:underline"
             >
               {t('viewAll')}
             </Link>
           </header>
-          <ul className="mt-4 divide-y divide-border">
+          <ul className="divide-border mt-4 divide-y">
             {recentMemorials.length === 0 ? (
-              <li className="py-4 text-sm italic text-muted-foreground">
-                {t('emptyMemorials')}
-              </li>
+              <li className="text-muted-foreground py-4 text-sm italic">{t('emptyMemorials')}</li>
             ) : (
               recentMemorials.map((m) => (
                 <li
@@ -160,15 +144,15 @@ export default async function AdminOverviewPage({
                   <span className="flex flex-col">
                     <Link
                       href={`/memorial/${m.slug}`}
-                      className="font-display font-bold text-foreground hover:text-primary"
+                      className="font-display text-foreground hover:text-primary font-bold"
                     >
                       {m.firstname} {m.lastname}
                     </Link>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-muted-foreground text-xs">
                       {m.isPublic ? t('publicMemorial') : t('privateMemorial')}
                     </span>
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-muted-foreground text-xs">
                     {formatRelative(m.createdAt, locale)}
                   </span>
                 </li>

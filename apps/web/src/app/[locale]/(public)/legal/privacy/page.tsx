@@ -15,7 +15,7 @@ export default async function LegalPrivacyPage({
       <h1 className="font-display text-3xl font-semibold">
         {locale === 'en' ? 'Privacy policy' : 'Politique de confidentialité'}
       </h1>
-      <p className="mt-4 text-muted-foreground">
+      <p className="text-muted-foreground mt-4">
         {locale === 'en'
           ? 'This page will host the privacy policy. Contact: hello@testimona.com'
           : 'Cette page accueillera la politique de confidentialité. Contact : hello@testimona.com'}

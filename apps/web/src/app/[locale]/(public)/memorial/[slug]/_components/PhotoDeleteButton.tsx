@@ -36,7 +36,7 @@ export function PhotoDeleteButton({ photoId, slug }: { photoId: string; slug: st
         onClick={remove}
         disabled={pending}
         title={t('deleteTitle')}
-        className="press-scale flex w-full items-center justify-center gap-1 px-2 py-1 font-display text-[10px] font-bold uppercase tracking-wider text-muted-foreground transition-colors hover:text-destructive disabled:opacity-50"
+        className="press-scale font-display text-muted-foreground hover:text-destructive flex w-full items-center justify-center gap-1 px-2 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors disabled:opacity-50"
       >
         <svg
           width="11"
@@ -53,7 +53,7 @@ export function PhotoDeleteButton({ photoId, slug }: { photoId: string; slug: st
         </svg>
         {pending ? '…' : t('delete')}
       </button>
-      {error && <p className="px-2 pb-1 text-center text-[10px] text-destructive">{error}</p>}
+      {error && <p className="text-destructive px-2 pb-1 text-center text-[10px]">{error}</p>}
     </div>
   );
 }

@@ -41,13 +41,11 @@ export function TestimonialBubble({
   viewMemorialLabel,
 }: TestimonialBubbleProps) {
   const memorialHref = `/memorial/${memorialSlug}`;
-  const anchorHref = testimonialId
-    ? `${memorialHref}#testimonial-${testimonialId}`
-    : memorialHref;
+  const anchorHref = testimonialId ? `${memorialHref}#testimonial-${testimonialId}` : memorialHref;
 
   return (
     <li
-      className="rounded-lg border border-border bg-white p-5 shadow-sm"
+      className="border-border rounded-lg border bg-white p-5 shadow-sm"
       // Entrance is handled by the <Reveal> wrapper (GSAP) where this bubble
       // is listed, so no CSS entrance animation here.
     >
@@ -55,19 +53,19 @@ export function TestimonialBubble({
         <div className="flex items-center gap-3">
           <Avatar src={authorAvatarUrl ?? undefined} name={authorName} size="sm" />
           <div>
-            <p className="font-display text-sm font-semibold text-foreground">
+            <p className="font-display text-foreground text-sm font-semibold">
               {authorName}
               {authorRelation && (
-                <span className="font-body font-bold italic text-muted-foreground">
+                <span className="font-body text-muted-foreground font-bold italic">
                   , {authorRelation}
                 </span>
               )}
             </p>
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">
+            <p className="text-muted-foreground text-xs uppercase tracking-wide">
               {publishedOnLabel}{' '}
               <Link
                 href={memorialHref as '/'}
-                className="font-display font-semibold text-foreground hover:text-primary hover:underline"
+                className="font-display text-foreground hover:text-primary font-semibold hover:underline"
               >
                 {memorialName}
               </Link>
@@ -76,7 +74,7 @@ export function TestimonialBubble({
         </div>
         <time
           dateTime={createdAt}
-          className="tabular shrink-0 text-xs text-muted-foreground"
+          className="tabular text-muted-foreground shrink-0 text-xs"
           suppressHydrationWarning
         >
           {new Date(createdAt).toLocaleDateString('fr-FR')}
@@ -91,17 +89,14 @@ export function TestimonialBubble({
           height={22}
           className="absolute left-0 top-0 h-5 w-5 opacity-60"
         />
-        <p className="line-clamp-4 whitespace-pre-line text-sm italic leading-relaxed text-foreground/90">
+        <p className="text-foreground/90 line-clamp-4 whitespace-pre-line text-sm italic leading-relaxed">
           {message}
         </p>
       </div>
 
-      <footer className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-3 text-xs">
+      <footer className="border-border mt-4 flex items-center justify-between gap-3 border-t pt-3 text-xs">
         <span className="tabular text-muted-foreground">{footerNote ?? ''}</span>
-        <Link
-          href={anchorHref as '/'}
-          className="font-medium text-primary hover:underline"
-        >
+        <Link href={anchorHref as '/'} className="text-primary font-medium hover:underline">
           {viewMemorialLabel} →
         </Link>
       </footer>

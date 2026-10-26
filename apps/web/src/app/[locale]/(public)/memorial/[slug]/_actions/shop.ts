@@ -3,10 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
-import {
-  falSubmitImage,
-  isFalImageConfigured,
-} from '@/lib/fal/image';
+import { falSubmitImage, isFalImageConfigured } from '@/lib/fal/image';
 import { canManageMemorial } from '@/lib/memorial/access';
 import { findProduct, type ShopProduct } from '@/lib/shop/catalog';
 
@@ -50,7 +47,9 @@ export async function generateMemorialVisualAction(
 
   const memorialId = String(formData.get('memorialId') ?? '').trim();
   const photoId = String(formData.get('photoId') ?? '').trim();
-  const extraPrompt = String(formData.get('extraPrompt') ?? '').trim().slice(0, 400);
+  const extraPrompt = String(formData.get('extraPrompt') ?? '')
+    .trim()
+    .slice(0, 400);
   if (!memorialId) return { error: 'memorialId requis.' };
   if (!photoId) return { error: 'Photo requise.' };
 
@@ -63,13 +62,11 @@ export async function generateMemorialVisualAction(
     .select('id, url, memorialId')
     .eq('id', photoId)
     .maybeSingle<{ id: string; url: string; memorialId: string }>();
-  if (!photo || photo.memorialId !== memorialId)
-    return { error: 'Photo invalide.' };
+  if (!photo || photo.memorialId !== memorialId) return { error: 'Photo invalide.' };
 
   if (!isFalImageConfigured()) {
     return {
-      error:
-        'Service de génération indisponible. L\'admin doit configurer le fournisseur.',
+      error: "Service de génération indisponible. L'admin doit configurer le fournisseur.",
     };
   }
 
@@ -252,7 +249,10 @@ export async function addShopItemAction(
   const unitPriceCents = Math.round(unitPriceEuros * 100);
   const visualIdRaw = String(formData.get('visualId') ?? '').trim();
   const visualId = visualIdRaw || null;
-  const notes = String(formData.get('notes') ?? '').trim().slice(0, 300) || null;
+  const notes =
+    String(formData.get('notes') ?? '')
+      .trim()
+      .slice(0, 300) || null;
 
   if (!memorialId) return { error: 'memorialId requis.' };
   const product = findProduct(productId);
@@ -331,9 +331,7 @@ interface ShopItemForMockup {
   visualUrl: string | null;
 }
 
-async function loadShopItemForMockup(
-  itemId: string,
-): Promise<ShopItemForMockup | null> {
+async function loadShopItemForMockup(itemId: string): Promise<ShopItemForMockup | null> {
   const supabase = getSupabaseAdminClient();
   const { data } = await supabase
     .from('MemorialShopItem')
@@ -349,10 +347,7 @@ async function loadShopItemForMockup(
       MemorialVisual: { imageUrl: string | null; status: string } | null;
     }>();
   if (!data) return null;
-  const visualUrl =
-    data.MemorialVisual?.status === 'ready'
-      ? data.MemorialVisual.imageUrl
-      : null;
+  const visualUrl = data.MemorialVisual?.status === 'ready' ? data.MemorialVisual.imageUrl : null;
   return {
     id: data.id,
     memorialId: data.memorialId,
@@ -361,10 +356,7 @@ async function loadShopItemForMockup(
   };
 }
 
-async function triggerShopItemMockupInternal(
-  itemId: string,
-  product: ShopProduct,
-): Promise<void> {
+async function triggerShopItemMockupInternal(itemId: string, product: ShopProduct): Promise<void> {
   const supabase = getSupabaseAdminClient();
 
   if (!product.mockupPromptSuffix) {
@@ -501,15 +493,23 @@ export async function contributeToShopItemAction(
 ): Promise<ShopActionState> {
   const shopItemId = String(formData.get('shopItemId') ?? '').trim();
   const amountEuros = parseFloat(String(formData.get('amount') ?? '0'));
-  const donorName = String(formData.get('donorName') ?? '').trim().slice(0, 80) || null;
-  const donorEmail = String(formData.get('donorEmail') ?? '').trim().slice(0, 200) || null;
-  const message = String(formData.get('message') ?? '').trim().slice(0, 280) || null;
+  const donorName =
+    String(formData.get('donorName') ?? '')
+      .trim()
+      .slice(0, 80) || null;
+  const donorEmail =
+    String(formData.get('donorEmail') ?? '')
+      .trim()
+      .slice(0, 200) || null;
+  const message =
+    String(formData.get('message') ?? '')
+      .trim()
+      .slice(0, 280) || null;
   const isAnonymous = String(formData.get('isAnonymous') ?? '') === '1';
   const wantsItem = String(formData.get('wantsItem') ?? '') === '1';
 
   if (!shopItemId) return { error: 'shopItemId requis.' };
-  if (!Number.isFinite(amountEuros) || amountEuros < 1)
-    return { error: 'Montant minimum : 1€.' };
+  if (!Number.isFinite(amountEuros) || amountEuros < 1) return { error: 'Montant minimum : 1€.' };
 
   const amountCents = Math.round(amountEuros * 100);
   const user = await getCurrentUser();

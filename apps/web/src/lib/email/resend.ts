@@ -14,8 +14,7 @@ function getClient(): Resend | null {
   return new Resend(key);
 }
 
-const FROM =
-  process.env.RESEND_FROM_EMAIL ?? 'Testimona <no-reply@testimona.com>';
+const FROM = process.env.RESEND_FROM_EMAIL ?? 'Testimona <no-reply@testimona.com>';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://testimona.com';
 
 /**
@@ -67,13 +66,11 @@ interface WelcomeArgs extends BaseI18n {
 export function welcomeEmail({ to, displayName, locale }: WelcomeArgs) {
   const isFr = locale === 'fr';
   const name = displayName?.trim() || (isFr ? 'à toi' : 'there');
-  const subject = isFr
-    ? 'Bienvenue sur Testimona'
-    : 'Welcome to Testimona';
+  const subject = isFr ? 'Bienvenue sur Testimona' : 'Welcome to Testimona';
   const greeting = isFr ? `Bonjour ${name},` : `Hi ${name},`;
   const lead = isFr
     ? "Merci d'avoir rejoint Testimona. Tu peux dès maintenant créer une page mémorielle pour honorer un proche, ou ajouter ton premier témoignage."
-    : "Thank you for joining Testimona. You can now create a memorial page to honor a loved one, or post your first testimonial.";
+    : 'Thank you for joining Testimona. You can now create a memorial page to honor a loved one, or post your first testimonial.';
   const ctaText = isFr ? 'Ouvrir mon tableau de bord' : 'Open my dashboard';
   return {
     subject,
@@ -114,9 +111,7 @@ export function newTestimonialEmail({
   const subject = isFr
     ? `Nouveau témoignage sur la page de ${memorialName}`
     : `New testimonial on ${memorialName}'s memorial`;
-  const greeting = isFr
-    ? `Bonjour ${ownerName ?? ''},`.trim()
-    : `Hi ${ownerName ?? ''},`.trim();
+  const greeting = isFr ? `Bonjour ${ownerName ?? ''},`.trim() : `Hi ${ownerName ?? ''},`.trim();
   const intro = isFr
     ? `<strong>${escapeHtml(authorName)}</strong> vient de publier un témoignage sur la page mémorielle de <strong>${escapeHtml(memorialName)}</strong>.`
     : `<strong>${escapeHtml(authorName)}</strong> just posted a testimonial on <strong>${escapeHtml(memorialName)}</strong>'s memorial page.`;
@@ -164,9 +159,7 @@ export function donationReceiptEmail({
     style: 'currency',
     currency,
   }).format(amount / 100);
-  const subject = isFr
-    ? 'Reçu de votre don'
-    : 'Donation receipt';
+  const subject = isFr ? 'Reçu de votre don' : 'Donation receipt';
   const body = isFr
     ? `Merci pour votre don de <strong>${formattedAmount}</strong> en hommage à <strong>${escapeHtml(memorialName)}</strong>. Les proches en seront informés.`
     : `Thank you for your <strong>${formattedAmount}</strong> donation in memory of <strong>${escapeHtml(memorialName)}</strong>. The family has been notified.`;

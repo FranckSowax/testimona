@@ -1,0 +1,570 @@
+<title>Testimona Accompagnement</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=PT+Sans:ital,wght@0,400;0,700;1,400&family=Caveat+Brush&display=swap">
+<style>
+/* Layout: document à colonne unique (max 1080px), bandes pleine largeur pour les écrans maquettés, thème Testimona V2 conservé */
+:root {
+  --bg: #ffffff;
+  --fg: #2d3250;          /* martinique */
+  --muted: #69718c;
+  --primary: #50aac3;     /* fountain blue */
+  --primary-ink: #2f7f96;
+  --accent: #db8186;      /* new york pink */
+  --accent-soft: #fcdbdb;
+  --surface: #f0f2ff;
+  --surface-2: #fafafa;
+  --line: #e4e6f2;
+  --navy: #2d3250;
+  --navy-fg: #ffffff;
+  --ok: #2e8b57;
+  --warn: #b7791f;
+  --risk: #b4444a;
+  --font-display: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "PT Sans", "Helvetica Neue", system-ui, sans-serif;
+  --font-hand: "Caveat Brush", "Segoe Print", cursive;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171a2b; --fg: #e9ebf7; --muted: #a3a9c4; --primary: #6cc0d8; --primary-ink: #8fd3e6;
+    --accent: #e8989c; --accent-soft: #4a2c35; --surface: #22263d; --surface-2: #1d2034; --line: #33385a;
+    --navy: #0f1120; --navy-fg: #f2f3fb; --ok: #5cc28a; --warn: #e0a84a; --risk: #e07a80; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171a2b; --fg: #e9ebf7; --muted: #a3a9c4; --primary: #6cc0d8; --primary-ink: #8fd3e6;
+  --accent: #e8989c; --accent-soft: #4a2c35; --surface: #22263d; --surface-2: #1d2034; --line: #33385a;
+  --navy: #0f1120; --navy-fg: #f2f3fb; --ok: #5cc28a; --warn: #e0a84a; --risk: #e07a80; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 17px; line-height: 1.6; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.band { background: var(--surface); padding-block: 56px; }
+section.wrap { padding-block: 48px; }
+h1, h2, h3, h4 { font-family: var(--font-display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(30px, 5vw, 46px); font-weight: 700; }
+h2 { font-size: clamp(24px, 3.2vw, 32px); font-weight: 700; margin-bottom: 8px; }
+h3 { font-size: 19px; font-weight: 600; }
+h4 { font-size: 15px; font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+.lede { color: var(--muted); font-size: 18px; margin-top: 10px; }
+.eyebrow { font-family: var(--font-display); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--primary-ink); font-weight: 600; }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 28px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 28px; }
+.grid2 > *, .grid3 > * { min-width: 0; }
+code, .mono { font-family: var(--font-mono); font-size: .86em; }
+a { color: var(--primary-ink); }
+
+/* Hero */
+.hero { padding-block: 64px 44px; }
+.hero .hand { font-family: var(--font-hand); color: var(--accent); font-size: clamp(26px, 4vw, 36px); display: block; margin-bottom: 6px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 14px; color: var(--muted); background: var(--bg); }
+.chip b { color: var(--fg); font-weight: 700; }
+
+/* Shift */
+.shift { display: grid; grid-template-columns: 1fr auto 1fr; gap: 18px; align-items: stretch; margin-top: 28px; }
+.shift > div { min-width: 0; }
+.shift .card { height: 100%; }
+.arrow { align-self: center; font-family: var(--font-display); color: var(--accent); font-size: 28px; }
+@media (max-width: 720px) { .shift { grid-template-columns: 1fr; } .arrow { transform: rotate(90deg); justify-self: center; } }
+.card { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+.card.quiet { background: var(--surface-2); }
+.card ul { margin: 10px 0 0; padding-left: 18px; }
+.card li { margin-bottom: 4px; }
+
+/* Verdicts */
+.verdict { display: grid; grid-template-columns: 8px 1fr; gap: 14px; padding: 16px 0; border-top: 1px solid var(--line); }
+.verdict:first-of-type { border-top: 0; }
+.verdict .bar { border-radius: 4px; }
+.v-ok .bar { background: var(--ok); } .v-warn .bar { background: var(--warn); } .v-risk .bar { background: var(--risk); }
+.verdict p { color: var(--muted); margin-top: 4px; }
+.tag { font-family: var(--font-display); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; margin-right: 8px; }
+.v-ok .tag { color: var(--ok); } .v-warn .tag { color: var(--warn); } .v-risk .tag { color: var(--risk); }
+
+/* Journey track */
+.track { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
+@media (max-width: 860px) { .track { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .track { grid-template-columns: 1fr; } }
+.phase { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.phase .num { font-family: var(--font-display); font-weight: 700; color: var(--primary-ink); font-size: 13px; letter-spacing: .06em; }
+.phase ol { margin: 0; padding-left: 0; list-style: none; font-size: 15px; display: flex; flex-direction: column; gap: 3px; }
+.phase li span { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-right: 6px; }
+.mvp { color: var(--accent); font-weight: 700; }
+.budget-band { margin-top: 12px; border: 1px dashed var(--accent); border-radius: 14px; padding: 14px 16px; background: var(--bg); display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: baseline; }
+.budget-band b { font-family: var(--font-display); }
+.budget-band .note { color: var(--muted); }
+.legend { margin-top: 12px; font-size: 14px; color: var(--muted); }
+
+/* Phones */
+.phones { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px; margin-top: 30px; }
+.phone-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.phone { aspect-ratio: 9 / 18.5; max-width: 300px; width: 100%; margin: 0 auto; border-radius: 34px; border: 8px solid #1e2133; background: var(--bg); overflow: hidden; display: flex; flex-direction: column; font-size: 13px; line-height: 1.4; box-shadow: 0 18px 40px rgba(45,50,80,.18); }
+.phone.navy { background: #2d3250; color: #fff; }
+.ph-top { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px 8px; font-family: var(--font-display); font-weight: 700; font-size: 12px; }
+.ph-body { padding: 6px 14px 14px; display: flex; flex-direction: column; gap: 9px; flex: 1; min-height: 0; overflow: hidden; }
+.logo { display: inline-flex; align-items: center; gap: 6px; color: var(--primary-ink); }
+.dove { width: 16px; height: 16px; }
+.ph-h { font-family: var(--font-display); font-weight: 700; font-size: 17px; line-height: 1.25; }
+.ph-sub { color: var(--muted); font-size: 12px; }
+.navy .ph-sub { color: #b9bfdc; }
+.door { border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 2px; background: var(--bg); }
+.door b { font-family: var(--font-display); font-size: 13px; }
+.door.hot { border-color: var(--accent); background: var(--accent-soft); }
+.door small { color: var(--muted); font-size: 11px; }
+.ph-field { border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px; font-size: 12px; display: flex; justify-content: space-between; color: var(--muted); }
+.ph-field b { color: var(--fg); }
+.ring-row { display: flex; gap: 8px; }
+.ring { flex: 1; text-align: center; font-size: 10px; color: var(--muted); }
+.ring i { display: block; width: 40px; height: 40px; margin: 0 auto 4px; border-radius: 50%; background: conic-gradient(var(--primary) var(--p), var(--line) 0); position: relative; }
+.ring i::after { content: ""; position: absolute; inset: 6px; border-radius: 50%; background: var(--bg); }
+.next { background: #2d3250; color: #fff; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.next .ph-sub { color: #b9bfdc; }
+.next b, .mini-h { font-family: var(--font-display); }
+.mini-h { font-size: 12px; font-weight: 700; }
+.btn { border-radius: 999px; padding: 7px 12px; font-family: var(--font-display); font-weight: 700; font-size: 11px; text-align: center; letter-spacing: .02em; }
+.btn.rose { background: var(--accent); color: #fff; }
+.btn.ghost { border: 1px solid currentColor; color: var(--primary-ink); }
+.push { margin-top: auto; }
+.task { display: flex; gap: 8px; align-items: center; font-size: 12px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.av { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 10px; font-weight: 700; color: #fff; flex: none; border: 2px solid var(--accent); }
+.av.c1 { background: #50aac3; } .av.c2 { background: #2d3250; } .av.c3 { background: #db8186; }
+.avs { display: flex; }
+.avs .av { margin-left: -6px; }
+.choice { border: 1px solid rgba(255,255,255,.35); border-radius: 12px; padding: 9px 11px; font-size: 13px; }
+.choice.on { background: #fff; color: #2d3250; border-color: #fff; font-weight: 700; }
+.prov { background: rgba(255,255,255,.08); border-radius: 12px; padding: 9px 10px; display: flex; flex-direction: column; gap: 3px; font-size: 11px; }
+.prov b { font-family: var(--font-display); font-size: 12px; }
+.prov .ph-sub { font-size: 11px; }
+.ia { border: 1px dashed #7dbed2; border-radius: 12px; padding: 9px 10px; font-size: 11px; color: #d7f0f7; }
+.qfoot { display: flex; justify-content: space-between; font-size: 11px; color: #b9bfdc; margin-top: auto; }
+.step-tag { color: #b9bfdc; }
+.meter { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; display: flex; }
+.meter span { display: block; height: 100%; }
+.kv { display: flex; justify-content: space-between; font-size: 12px; }
+.kv b { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+.kv .in { color: var(--primary-ink); } .kv .pl { color: var(--accent); }
+.receipt { display: flex; justify-content: space-between; font-size: 11px; padding: 5px 0; border-bottom: 1px solid var(--line); color: var(--muted); }
+.receipt b { color: var(--fg); font-weight: 700; font-variant-numeric: tabular-nums; }
+.phone-cap h4 { margin-bottom: 4px; }
+.phone-cap p { font-size: 15px; color: var(--muted); }
+
+/* Principles → design */
+.prin { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 4px 20px; padding: 12px 0; border-top: 1px solid var(--line); }
+.prin:first-child { border-top: 0; }
+.prin b { font-family: var(--font-display); font-size: 15px; }
+.prin span { color: var(--muted); font-size: 16px; }
+@media (max-width: 640px) { .prin { grid-template-columns: 1fr; } }
+
+/* Tables */
+.tbl { overflow-x: auto; margin-top: 24px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 15px; }
+.tbl.compact { margin-top: 0; }
+.tbl.compact table { min-width: 0; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--font-display); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); }
+tr:last-child td { border-bottom: 0; }
+.pill { display: inline-block; font-family: var(--font-display); font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+.p-keep { background: color-mix(in srgb, var(--ok) 16%, transparent); color: var(--ok); }
+.p-adapt { background: color-mix(in srgb, var(--primary) 18%, transparent); color: var(--primary-ink); }
+.p-cut { background: color-mix(in srgb, var(--risk) 16%, transparent); color: var(--risk); }
+.small-muted { color: var(--muted); font-size: 15px; }
+.mt-lg { margin-top: 40px; }
+
+/* Code */
+pre { background: var(--navy); color: var(--navy-fg); border-radius: 14px; padding: 18px; overflow-x: auto; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.55; margin: 0; }
+pre .c { color: #9aa3c7; } pre .k { color: #f4a7ab; } pre .s { color: #8fd3e6; }
+
+/* Lines chart */
+.bars { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+.bar-row { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 12px; align-items: center; }
+@media (max-width: 560px) { .bar-row { grid-template-columns: 1fr; gap: 4px; } }
+.bar-row .lbl { font-size: 15px; }
+.bar-pair { display: flex; flex-direction: column; gap: 3px; padding-right: 130px; }
+.b { height: 14px; border-radius: 3px; position: relative; }
+.b em { position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); font-style: normal; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+.b.before { background: var(--line); }
+.b.after { background: var(--primary); }
+.b.new { background: var(--accent); }
+.bar-key { display: flex; flex-wrap: wrap; gap: 16px; font-size: 14px; color: var(--muted); margin-top: 18px; }
+.bar-key i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.k-before { background: var(--line); } .k-after { background: var(--primary); } .k-new { background: var(--accent); }
+.totals { display: flex; flex-wrap: wrap; gap: 28px; margin-top: 24px; }
+.totals div { display: flex; flex-direction: column; }
+.totals b { font-family: var(--font-display); font-size: 30px; font-variant-numeric: tabular-nums; }
+.totals span { color: var(--muted); font-size: 14px; }
+
+/* Roadmap */
+.lots { display: flex; flex-direction: column; margin-top: 26px; }
+.lot { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 18px; padding: 16px 0; border-top: 1px solid var(--line); }
+.lot:first-child { border-top: 0; }
+.lot .when { font-family: var(--font-display); font-weight: 700; color: var(--primary-ink); font-size: 14px; }
+.lot .when small { display: block; color: var(--muted); font-weight: 500; }
+.lot p { color: var(--muted); margin-top: 4px; }
+@media (max-width: 560px) { .lot { grid-template-columns: 1fr; gap: 4px; } }
+
+.qs { counter-reset: q; display: flex; flex-direction: column; gap: 14px; margin-top: 24px; padding: 0; list-style: none; }
+.qs li { counter-increment: q; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; }
+.qs li::before { content: counter(q); font-family: var(--font-display); font-weight: 700; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: #fff; font-size: 14px; }
+.qs p { color: var(--muted); }
+footer { color: var(--muted); font-size: 14px; padding-block: 32px 48px; border-top: 1px solid var(--line); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<header class="wrap hero">
+  <span class="hand">Accompagner, une question à la fois</span>
+  <h1>Testimona devient un parcours d'accompagnement, de la fin de vie au deuil</h1>
+  <p class="lede">Analyse de la stratégie du 26 septembre 2026, proposition de parcours produit dans le thème actuel, corrections techniques et architecture qui sécurise l'application tout en répartissant mieux le code.</p>
+  <div class="hero-meta">
+    <span class="chip">Marché pilote <b>Libreville, Gabon</b></span>
+    <span class="chip">Base <b>Next.js 15 + Supabase</b> conservée</span>
+    <span class="chip">Thème <b>Testimona V2</b> conservé</span>
+    <span class="chip">Document de travail, <b>26 octobre 2026</b></span>
+  </div>
+</header>
+
+<div class="band">
+  <div class="wrap">
+    <p class="eyebrow">1 · Ce qui change</p>
+    <h2>Le mémorial n'est plus l'entrée, c'est l'un des livrables</h2>
+    <p class="lede">Le cahier des charges initial décrivait un réseau social public de mémoire. La nouvelle stratégie décrit un espace de travail privé où une famille, souvent dispersée, prend des décisions ensemble et reçoit l'aide d'un prestataire ou de l'IA au moment exact du besoin.</p>
+    <div class="shift">
+      <div class="card quiet">
+        <h3>Aujourd'hui</h3>
+        <ul>
+          <li>Page publique d'un défunt, ouverte aux témoignages</li>
+          <li>Dons par carte (Stripe)</li>
+          <li>Boutique codée en dur, pub, clips vidéo IA</li>
+          <li>Chaque fonction a sa modale et son code</li>
+        </ul>
+      </div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="card">
+        <h3>Stratégie cible</h3>
+        <ul>
+          <li>Un <b>dossier familial privé</b>, en 4 phases et un budget transversal</li>
+          <li>Une question par écran, que l'on peut passer et reprendre</li>
+          <li>Prestataires géolocalisés et IA <b>dans</b> le parcours, pas dans un annuaire à part</li>
+          <li>Cotisations suivies (espèces, Mobile Money, virement)</li>
+          <li>Espace mémoriel public alimenté par ce que la famille a déjà saisi</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="wrap">
+  <p class="eyebrow">2 · Analyse de la stratégie</p>
+  <h2>Une bonne stratégie, à condition de choisir la bonne porte d'entrée</h2>
+  <div class="grid2">
+    <div>
+      <div class="verdict v-ok"><div class="bar"></div><div><h4><span class="tag">Force</span>Un besoin réel, urgent et mal servi</h4><p>La veillée, le retour au village et les cotisations familiales ne sont couverts par aucun outil importé. C'est un vrai avantage local.</p></div></div>
+      <div class="verdict v-ok"><div class="bar"></div><div><h4><span class="tag">Force</span>Des revenus qui naissent du parcours</h4><p>Commissions prestataires, services IA, impression et formalités déléguées arrivent au moment où la famille en a besoin. Pas besoin de publicité intrusive.</p></div></div>
+      <div class="verdict v-ok"><div class="bar"></div><div><h4><span class="tag">Force</span>« Saisir une fois, réutiliser partout »</h4><p>La biographie nourrit l'annonce, le livret, l'avis de presse et l'espace mémoriel. C'est ce qui rend l'outil plus rapide qu'un groupe WhatsApp.</p></div></div>
+      <div class="verdict v-ok"><div class="bar"></div><div><h4><span class="tag">Force</span>Une relation qui dure</h4><p>La phase 4 (40ᵉ jour, anniversaires, soutien) garde la famille après les funérailles, là où les autres s'arrêtent.</p></div></div>
+    </div>
+    <div>
+      <div class="verdict v-risk"><div class="bar"></div><div><h4><span class="tag">Risque</span>Le périmètre est énorme</h4><p>Une trentaine d'étapes, 15 catégories de prestataires et 7 familles de services IA. Tout livrer d'un coup n'est pas réaliste ; il faut un premier lot qui se suffit à lui-même.</p></div></div>
+      <div class="verdict v-risk"><div class="bar"></div><div><h4><span class="tag">Risque</span>Les familles arrivent au décès, pas avant</h4><p>La phase 1 (« avant ») est de la prévoyance : forte valeur, faible conversion. L'entrée du pilote doit être « un décès vient de survenir », qui ramène vers les volontés en mode « répondre à sa place ».</p></div></div>
+      <div class="verdict v-warn"><div class="bar"></div><div><h4><span class="tag">Attention</span>Sans prestataires, les encadrés sont vides</h4><p>Le réseau de Libreville se construit à la main : une trentaine de prestataires vérifiés, prix de référence, contact WhatsApp. La mise en relation passe avant le paiement en ligne.</p></div></div>
+      <div class="verdict v-warn"><div class="bar"></div><div><h4><span class="tag">Attention</span>Le paiement local n'est pas Stripe</h4><p>Les cotisations se font souvent en espèces ou en Mobile Money (Airtel Money, Moov Money). La v1 est un registre fiable (promis / reçu / dépensé) ; Stripe reste pour la diaspora.</p></div></div>
+      <div class="verdict v-warn"><div class="bar"></div><div><h4><span class="tag">Attention</span>Des données très sensibles</h4><p>Foi, cause du décès, testament, contacts de toute la famille. Il faut minimiser ce qu'on stocke et faire valider le cadre par un juriste au regard de la loi gabonaise sur les données personnelles.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="band">
+  <div class="wrap">
+    <p class="eyebrow">3 · Le parcours produit</p>
+    <h2>Quatre phases, un budget qui les traverse</h2>
+    <p class="lede">Les étapes sont celles du document. Les étapes en rose forment le premier lot du pilote : elles couvrent la première semaine après un décès, quand la famille a le plus besoin d'aide.</p>
+    <div class="track">
+      <div class="phase"><span class="num">PHASE 1 · AVANT</span><h3>Recueillir les volontés</h3><ol><li><span>1.1</span>Volontés spirituelles</li><li><span>1.2</span>Le corps</li><li><span>1.3</span>Esthétique</li><li><span>1.4</span>Les messages</li><li><span>1.5</span>Pratique et juridique</li><li class="mvp"><span>1.6</span>La biographie</li><li class="mvp"><span>1.7</span>Photos et diaporama</li></ol></div>
+      <div class="phase"><span class="num">PHASE 2 · ANNONCER</span><h3>Annoncer le décès</h3><ol><li class="mvp"><span>2.1</span>Liste de diffusion</li><li class="mvp"><span>2.2</span>Message WhatsApp / SMS</li><li class="mvp"><span>2.3</span>Annonce par e-mail</li><li><span>2.4</span>Avis de presse</li></ol></div>
+      <div class="phase"><span class="num">PHASE 3 · FUNÉRAILLES</span><h3>Veillée, cérémonie, village</h3><ol><li class="mvp"><span>3.1</span>Veillée : installation</li><li class="mvp"><span>3.2</span>Veillée : restauration</li><li><span>3.3</span>Animation</li><li class="mvp"><span>3.4</span>Déroulé de la cérémonie</li><li class="mvp"><span>3.5</span>Livret et affiches</li><li><span>3.6</span>Logistique</li><li><span>3.7</span>Retour au village</li><li><span>3.8</span>Réception, livre d'or</li></ol></div>
+      <div class="phase"><span class="num">PHASE 4 · APRÈS</span><h3>Le deuil dans la durée</h3><ol><li><span>4.1</span>Remerciements</li><li class="mvp"><span>4.2</span>Clôture des cotisations</li><li><span>4.3</span>Formalités déléguées</li><li><span>4.4</span>Rappels et espace mémoriel</li></ol></div>
+    </div>
+    <div class="budget-band"><b>Budget transversal</b><span class="mvp">B.1 Affluence</span><span class="mvp">B.2 Budget prévisionnel</span><span class="mvp">B.3 Suivi des cotisations</span><span class="note">Alimenté par les choix de chaque phase</span></div>
+    <p class="legend">En rose : premier lot du pilote. Les autres étapes s'ajoutent sans nouveau code d'écran, grâce au moteur de parcours décrit en section 5.</p>
+  </div>
+</div>
+
+<section class="wrap">
+  <p class="eyebrow">4 · Les écrans clés</p>
+  <h2>Moderne et sobre, dans les couleurs Testimona</h2>
+  <p class="lede">Bleu fountain pour l'action, rose pour l'humain, navy pour les moments de décision. Montserrat pour les titres, PT Sans pour le texte, la colombe et l'écriture manuscrite gardées pour les instants de recueillement. Les animations actuelles (parallaxe, cartes qui basculent) sont calmées : le ton demandé est sobre.</p>
+
+  <div class="phones">
+    <div class="phone-col">
+      <div class="phone" role="img" aria-label="Maquette : écran d'accueil avec trois entrées">
+        <div class="ph-top"><span class="logo"><svg class="dove" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 4c-3 0-6 2-7.5 4.5C12 7 10 6 7 6c1 2 2 3 3.5 3.5C7 10 4 12 3 15c2-1 4-1.5 6-1-1 1.5-1.5 3-1.5 5 2-2.5 5-4 8-5 3-1 5-4 5.5-10z"/></svg>Testimona</span><span>FR</span></div>
+        <div class="ph-body">
+          <div class="ph-h">Que vivez-vous en ce moment ?</div>
+          <div class="ph-sub">Nous adaptons le parcours à votre situation.</div>
+          <div class="door hot"><b>Un proche vient de nous quitter</b><small>Annoncer, organiser, financer</small></div>
+          <div class="door"><b>Préparer avec un proche</b><small>Recueillir ses volontés, pendant qu'il est là</small></div>
+          <div class="door"><b>Après les funérailles</b><small>Remercier, clôturer, se souvenir</small></div>
+          <div class="ph-field"><span>Pays</span><b>Gabon</b></div>
+          <div class="ph-field"><span>Ville</span><b>Libreville</b></div>
+          <div class="btn rose push">Commencer</div>
+        </div>
+      </div>
+      <div class="phone-cap"><h4>Accueil : trois portes</h4><p>Une seule décision, puis pays et ville pour géolocaliser les suggestions. La porte « décès » est mise en avant.</p></div>
+    </div>
+
+    <div class="phone-col">
+      <div class="phone" role="img" aria-label="Maquette : tableau de bord du dossier familial">
+        <div class="ph-top"><span>Dossier · Papa Jean</span><span class="avs"><span class="av c1">A</span><span class="av c2">M</span><span class="av c3">+3</span></span></div>
+        <div class="ph-body">
+          <div class="ring-row">
+            <div class="ring"><i style="--p:40%"></i>Volontés</div>
+            <div class="ring"><i style="--p:85%"></i>Annonce</div>
+            <div class="ring"><i style="--p:20%"></i>Funérailles</div>
+            <div class="ring"><i style="--p:0%"></i>Après</div>
+          </div>
+          <div class="next">
+            <span class="ph-sub">Prochaine question</span>
+            <b>Combien de personnes à la veillée ?</b>
+            <div class="btn rose">Répondre</div>
+          </div>
+          <span class="mini-h">Mes tâches</span>
+          <div class="task"><span class="av c1">A</span>Appeler la paroisse Saint-Michel</div>
+          <div class="task"><span class="av c2">M</span>Envoyer les photos d'avant 1990</div>
+          <div class="task"><span class="av c3">L</span>Valider le texte de l'annonce</div>
+          <div class="kv push"><span>Cotisations reçues</span><b>1 850 000 XAF</b></div>
+        </div>
+      </div>
+      <div class="phone-cap"><h4>Le dossier familial</h4><p>Avancement par phase, une seule « prochaine question » et les tâches de chacun. Tout le monde voit la même chose, même à distance.</p></div>
+    </div>
+
+    <div class="phone-col">
+      <div class="phone navy" role="img" aria-label="Maquette : écran question avec suggestion de prestataire et aide IA">
+        <div class="ph-top"><span>3.1 · Veillée</span><span class="step-tag">2 / 4</span></div>
+        <div class="ph-body">
+          <div class="ph-h">Combien de nuits dure la veillée ?</div>
+          <div class="ph-sub">Nous en déduirons le matériel et la restauration.</div>
+          <div class="choice">1 nuit</div>
+          <div class="choice on">2 nuits</div>
+          <div class="choice">3 nuits ou plus</div>
+          <div class="prov"><span class="ph-sub">Prestataire près de vous (exemple)</span><b>Loueur de tentes et chaises, Akanda</b><span>Tente 5×10 m, prix de référence · Contacter sur WhatsApp</span></div>
+          <div class="ia">IA : pour 250 personnes sur 2 nuits, prévoir 3 tentes et 260 chaises. À vérifier.</div>
+          <div class="qfoot"><span>← Revenir</span><span>Demander à un proche</span><span>Passer →</span></div>
+        </div>
+      </div>
+      <div class="phone-cap"><h4>Une question à la fois</h4><p>Écran plein navy (le style des overlays actuels). Le prestataire et l'aide IA apparaissent seulement quand ils servent. « Demander à un proche » envoie cette question par WhatsApp.</p></div>
+    </div>
+
+    <div class="phone-col">
+      <div class="phone" role="img" aria-label="Maquette : suivi des cotisations promis, reçu, dépensé">
+        <div class="ph-top"><span>Cotisations</span><span class="ph-sub">Trésorière : Marie</span></div>
+        <div class="ph-body">
+          <div class="kv"><span>Budget retenu (intermédiaire)</span><b>3 200 000</b></div>
+          <div class="meter" aria-hidden="true"><span style="width:58%;background:var(--primary)"></span><span style="width:20%;background:var(--accent-soft)"></span></div>
+          <div class="kv"><span class="in">Reçu</span><b>1 850 000</b></div>
+          <div class="kv"><span class="pl">Promis, non versé</span><b>650 000</b></div>
+          <div class="kv"><span>Dépensé</span><b>1 120 000</b></div>
+          <span class="mini-h">Derniers mouvements</span>
+          <div class="receipt"><span>Oncle Paul · Airtel Money</span><b>+200 000</b></div>
+          <div class="receipt"><span>Famille Ndong · espèces</span><b>+150 000</b></div>
+          <div class="receipt"><span>Traiteur · reçu lu par l'IA</span><b>−380 000</b></div>
+          <div class="receipt"><span>Cousine Léa · carte (Paris)</span><b>+120 000</b></div>
+          <div class="btn ghost push">Photographier un reçu</div>
+        </div>
+      </div>
+      <div class="phone-cap"><h4>Les cotisations, en clair</h4><p>Promis, reçu, dépensé. Espèces, Mobile Money et carte dans un seul registre. La famille choisit si les montants individuels sont visibles.</p></div>
+    </div>
+  </div>
+
+  <h3 class="mt-lg">Des principes du document aux choix d'interface</h3>
+  <div class="card" style="margin-top:16px">
+    <div class="prin"><b>Une question à la fois</b><span>Un composant d'écran unique, plein écran, avec une barre de progression par étape.</span></div>
+    <div class="prin"><b>Sauter et revenir</b><span>Chaque réponse est enregistrée à la saisie. « Passer » ne bloque rien, la question revient dans « À compléter ».</span></div>
+    <div class="prin"><b>Le site propose, la famille décide</b><span>Tout texte IA est un brouillon avec trois actions : garder, modifier, refaire. Rien n'est publié sans validation.</span></div>
+    <div class="prin"><b>Prestataire au moment du besoin</b><span>Chaque étape déclare ses catégories de prestataires ; la carte apparaît dans l'écran, filtrée par ville.</span></div>
+    <div class="prin"><b>Saisir une fois</b><span>Les réponses ont une clé stable (<code>person.birthPlace</code>, <code>attendance.vigil</code>) réutilisée par les étapes suivantes et les documents générés.</span></div>
+    <div class="prin"><b>Travail collectif à distance</b><span>Rôles par dossier, tâches assignées, questions déléguées par lien WhatsApp à usage unique.</span></div>
+    <div class="prin"><b>Réseau variable</b><span>Application installable (PWA), pages légères, brouillons gardés sur le téléphone, photos compressées avant envoi.</span></div>
+  </div>
+</section>
+
+<div class="band">
+  <div class="wrap">
+    <p class="eyebrow">5 · Architecture</p>
+    <h2>Un moteur de parcours au lieu de cent modales</h2>
+    <p class="lede">Aujourd'hui, chaque fonction a sa modale, son action serveur et ses requêtes. La stratégie compte une trentaine d'étapes : les coder une par une doublerait le code. On écrit un moteur générique une fois, puis chaque étape devient une courte définition.</p>
+    <div class="grid2">
+      <div class="stack">
+        <pre><span class="c">// src/journey/steps/2-2-immediate-message.ts</span>
+<span class="k">export default</span> defineStep({
+  id: <span class="s">"2.2"</span>,
+  phase: <span class="s">"announce"</span>,
+  title: <span class="s">"Message immédiat"</span>,
+  questions: [
+    q.date(<span class="s">"death.date"</span>, <span class="s">"Quelle date annoncer ?"</span>),
+    q.choice(<span class="s">"death.mentionCause"</span>,
+      <span class="s">"Faut-il mentionner la cause ?"</span>, [<span class="s">"non"</span>, <span class="s">"oui"</span>]),
+    q.choice(<span class="s">"announce.tone"</span>, <span class="s">"Registre"</span>,
+      [<span class="s">"croyant"</span>, <span class="s">"neutre"</span>]),
+  ],
+  ai: { task: <span class="s">"draft.shortAnnouncement"</span>, variants: 3,
+        reads: [<span class="s">"person"</span>, <span class="s">"biography.summary"</span>] },
+  output: <span class="s">"share.whatsapp"</span>,
+});</pre>
+        <p class="small-muted">Environ 25 à 80 lignes par étape, validées par Zod, testées sans navigateur. Ajouter une étape ne demande ni nouvel écran ni nouvelle table.</p>
+      </div>
+      <div class="stack">
+        <h3>Organisation du code</h3>
+        <div class="tbl compact">
+          <table>
+            <tbody>
+              <tr><td><code>journey/</code></td><td>Moteur, écran question, définitions d'étapes</td></tr>
+              <tr><td><code>modules/dossier</code></td><td>Dossier, membres, rôles, tâches, invitations</td></tr>
+              <tr><td><code>modules/budget</code></td><td>Affluence, scénarios, registre des cotisations</td></tr>
+              <tr><td><code>modules/providers</code></td><td>Prestataires, catégories, demandes de devis</td></tr>
+              <tr><td><code>modules/ai</code></td><td>Rédaction, visuels, lecture de reçus, quotas</td></tr>
+              <tr><td><code>modules/memorial</code></td><td>Espace mémoriel public, livre d'or</td></tr>
+              <tr><td><code>server/privileged</code></td><td>Seul endroit autorisé à contourner la RLS</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small-muted">Chaque module suit le même découpage : <code>schema.ts</code> (Zod), <code>repo.ts</code> (seul fichier qui parle à la base), <code>service.ts</code> (règles métier testées), <code>actions.ts</code>, <code>ui/</code>.</p>
+      </div>
+    </div>
+
+    <h3 class="mt-lg">Modèle de données cible</h3>
+    <p class="small-muted" style="margin-top:6px">Environ 16 tables au lieu de 27, chacune rattachée à un dossier.</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Table</th><th>Rôle</th><th>Point de sécurité</th></tr></thead>
+        <tbody>
+          <tr><td><code>dossier</code>, <code>dossier_member</code></td><td>Le dossier familial et ses membres (propriétaire, coordinateur, trésorier, contributeur, lecteur)</td><td>Toute la RLS passe par <code>is_dossier_member(dossier_id, rôle_min)</code></td></tr>
+          <tr><td><code>person</code></td><td>La personne accompagnée : identité, dates, ville, vivante ou décédée</td><td>Jamais publique tant qu'un espace mémoriel n'est pas publié</td></tr>
+          <tr><td><code>journey_answer</code></td><td>Une ligne par réponse (clé, valeur JSON, auteur, visibilité)</td><td>Visibilité « privée » pour les volontés que la personne réserve à sa personne de confiance</td></tr>
+          <tr><td><code>task</code>, <code>contact</code>, <code>circle</code></td><td>Qui prévient qui, listes par cercle, tâches assignées</td><td>Contacts visibles par les seuls coordinateurs</td></tr>
+          <tr><td><code>ledger_entry</code>, <code>pledge</code>, <code>receipt</code></td><td>Cotisations promises, reçues, dépenses et reçus</td><td>Registre en ajout seul, corrections par écriture inverse, reçus en stockage privé</td></tr>
+          <tr><td><code>provider</code>, <code>provider_category</code>, <code>quote_request</code></td><td>Prestataires vérifiés par ville, demandes de devis</td><td>Écriture réservée à l'équipe Testimona</td></tr>
+          <tr><td><code>generated_doc</code>, <code>media</code></td><td>Brouillons IA (annonce, livret, affiche), photos et vidéos</td><td>Statut brouillon tant qu'un membre n'a pas validé</td></tr>
+          <tr><td><code>memorial_page</code>, <code>guestbook_entry</code></td><td>Espace mémoriel public et livre d'or (QR code)</td><td>Projection publique explicite des seuls champs choisis</td></tr>
+          <tr><td><code>reminder</code>, <code>notification</code>, <code>audit_log</code></td><td>Rappels à 40 jours, 3, 6, 12 mois ; journal des actions sensibles</td><td>Journal en ajout seul</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<section class="wrap">
+  <p class="eyebrow">6 · Corrections techniques</p>
+  <h2>Sécuriser d'abord, sans tout réécrire</h2>
+  <p class="lede">Les corrections reprennent le diagnostic du repo. La plupart deviennent des règles vérifiées automatiquement, pour que le problème ne revienne pas.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Problème actuel</th><th>Correction</th><th>Garde automatique</th></tr></thead>
+      <tbody>
+        <tr><td>Clé qui contourne la RLS utilisée dans 62 fichiers</td><td>Client utilisateur partout ; contournement limité aux webhooks, à l'admin et aux tâches IA</td><td>Règle ESLint <code>no-restricted-imports</code> hors de <code>server/privileged/</code></td></tr>
+        <tr><td>Aucune preuve automatique que la RLS couvre toutes les tables (elle les couvre dans le repo, vérifié au lot 0)</td><td>RLS et politiques par appartenance au dossier pour toutes les nouvelles tables</td><td>Test SQL en CI qui échoue si une table n'a pas de RLS</td></tr>
+        <tr><td>72 fichiers interrogent la base directement</td><td>Seuls les <code>repo.ts</code> parlent à la base, avec les types générés par Supabase</td><td>Règle ESLint qui interdit <code>.from(</code> ailleurs</td></tr>
+        <tr><td>Prisma inutilisé, 24 migrations SQL appliquées à la main</td><td>Suppression de Prisma ; migrations Supabase versionnées depuis une photo de la base actuelle</td><td><code>supabase db diff</code> en CI</td></tr>
+        <tr><td>Aucun test unitaire, CI qui n'échoue jamais</td><td>Tests Vitest sur le moteur, le budget, le registre et les droits ; tests des politiques RLS</td><td>CI bloquante, couverture minimale sur <code>journey/</code> et <code>modules/*/service.ts</code></td></tr>
+        <tr><td>Bouton qui crée de faux dons réussis en production</td><td>Supprimé ; données de démo par script de seed uniquement</td><td>Variable <code>DEMO_MODE</code> refusée en production au démarrage</td></tr>
+        <tr><td>Fichiers de 550 à 700 lignes mêlant UI et métier</td><td>Logique déplacée dans les services, écrans découpés</td><td>Règle <code>max-lines</code> à 300</td></tr>
+        <tr><td>Deux fournisseurs vidéo IA, crédits et solde « Studia » séparés</td><td>Un seul fournisseur IA par usage, un seul registre de crédits</td><td>Quota IA par dossier, contrôlé côté serveur</td></tr>
+        <tr><td>Résidus : docker-compose Angular, variables Cloudinary</td><td>Supprimés</td><td>Knip (détection de code mort) en CI</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="mt-lg">Sécurité propre au nouveau parcours</h3>
+  <div class="grid3">
+    <div class="card"><h4>Données sensibles minimisées</h4><p class="small-muted" style="margin-top:6px">On ne stocke pas le testament : seulement « où se trouvent les papiers ». La cause du décès est facultative et n'apparaît jamais dans un document public.</p></div>
+    <div class="card"><h4>Liens d'invitation sûrs</h4><p class="small-muted" style="margin-top:6px">Les questions déléguées par WhatsApp utilisent un jeton à usage unique, limité à une question, qui expire en 72 h. Seule son empreinte est stockée.</p></div>
+    <div class="card"><h4>Argent traçable</h4><p class="small-muted" style="margin-top:6px">Registre en ajout seul, rôle trésorier requis pour une dépense, clé d'idempotence sur chaque paiement Mobile Money ou Stripe, journal d'audit.</p></div>
+    <div class="card"><h4>IA encadrée</h4><p class="small-muted" style="margin-top:6px">Appels uniquement côté serveur, seules les réponses utiles envoyées au modèle, quotas par dossier, résultat toujours en brouillon.</p></div>
+    <div class="card"><h4>Fichiers privés</h4><p class="small-muted" style="margin-top:6px">Photos, reçus et documents dans des espaces de stockage privés, servis par liens signés de courte durée.</p></div>
+    <div class="card"><h4>Prestataires vérifiés</h4><p class="small-muted" style="margin-top:6px">Ajoutés et validés par l'équipe. Aucun paiement à un prestataire via la plateforme dans le premier lot.</p></div>
+  </div>
+</section>
+
+<div class="band">
+  <div class="wrap">
+    <p class="eyebrow">7 · Ce que devient le code actuel</p>
+    <h2>On garde l'essentiel, on transforme le reste</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Existant</th><th>Devient</th><th>Décision</th></tr></thead>
+        <tbody>
+          <tr><td>Co-propriétaires et invitations (<code>MemorialMember</code>)</td><td>Membres du dossier avec rôles étendus</td><td><span class="pill p-adapt">Adapter</span></td></tr>
+          <tr><td>Biographie et chapitres de vie</td><td>Étape 1.6, alimentée par les questions</td><td><span class="pill p-keep">Garder</span></td></tr>
+          <tr><td>Photos, envoi, visionneuse « story »</td><td>Étape 1.7, album partagé de la famille</td><td><span class="pill p-keep">Garder</span></td></tr>
+          <tr><td>Funérailles, événements, liens Maps</td><td>Étapes 3.4 et 3.6, programme et lieux</td><td><span class="pill p-keep">Garder</span></td></tr>
+          <tr><td>Dons Stripe, webhook, e-mails Resend</td><td>Une source du registre des cotisations (diaspora)</td><td><span class="pill p-adapt">Adapter</span></td></tr>
+          <tr><td>Témoignages, likes, commentaires</td><td>Livre d'or et espace mémoriel (3.8, 4.4)</td><td><span class="pill p-adapt">Simplifier</span></td></tr>
+          <tr><td>Boutique avec catalogue codé en dur</td><td>Catalogue de prestataires en base</td><td><span class="pill p-adapt">Remplacer</span></td></tr>
+          <tr><td>Espaces publicitaires</td><td>Mise en avant d'un prestataire dans une étape</td><td><span class="pill p-adapt">Fusionner</span></td></tr>
+          <tr><td>Client fal.ai (images, vidéo)</td><td>Service IA visuel : restauration du portrait, affiches</td><td><span class="pill p-keep">Garder</span></td></tr>
+          <tr><td>Client Higgsfield, solde « Studia »</td><td>Doublons</td><td><span class="pill p-cut">Supprimer</span></td></tr>
+          <tr><td>Page notifications de 580 lignes calculée à la lecture</td><td>Table de notifications et rappels</td><td><span class="pill p-adapt">Réécrire</span></td></tr>
+          <tr><td>11 popups V2 et 4 variantes de bouton</td><td>Écran question générique, un seul bouton à variantes</td><td><span class="pill p-adapt">Fusionner</span></td></tr>
+          <tr><td>Design tokens, polices, a11y, i18n FR/EN</td><td>Base du nouveau parcours</td><td><span class="pill p-keep">Garder</span></td></tr>
+          <tr><td><code>packages/database</code> (Prisma)</td><td>Types générés par Supabase</td><td><span class="pill p-cut">Supprimer</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<section class="wrap">
+  <p class="eyebrow">8 · Les lignes de code</p>
+  <h2>Plus de fonctions, un peu moins de lignes, mieux réparties</h2>
+  <p class="lede">Le total baisse peu, car le périmètre grandit fortement. Ce qui change : la page mémorielle cesse de porter un tiers du code, et une nouvelle étape coûte quelques dizaines de lignes au lieu de plusieurs centaines. Les chiffres « après » sont des estimations.</p>
+  <div class="bars" role="img" aria-label="Lignes de code par zone, mesurées aujourd'hui et estimées après refonte">
+    <div class="bar-row"><span class="lbl">Page mémorielle</span><div class="bar-pair"><div class="b before" style="width:100%"><em>12 400</em></div><div class="b after" style="width:32%"><em>≈ 4 000</em></div></div></div>
+    <div class="bar-row"><span class="lbl">Auth, layout, lib</span><div class="bar-pair"><div class="b before" style="width:50%"><em>6 200</em></div><div class="b after" style="width:28%"><em>≈ 3 500</em></div></div></div>
+    <div class="bar-row"><span class="lbl">Back-office admin</span><div class="bar-pair"><div class="b before" style="width:47.6%"><em>5 900</em></div><div class="b after" style="width:24.2%"><em>≈ 3 000</em></div></div></div>
+    <div class="bar-row"><span class="lbl">Composants UI et popups</span><div class="bar-pair"><div class="b before" style="width:43.5%"><em>5 400</em></div><div class="b after" style="width:28%"><em>≈ 3 500</em></div></div></div>
+    <div class="bar-row"><span class="lbl">Dashboard → dossier</span><div class="bar-pair"><div class="b before" style="width:32.3%"><em>4 000</em></div><div class="b after" style="width:24.2%"><em>≈ 3 000</em></div></div></div>
+    <div class="bar-row"><span class="lbl">Services IA</span><div class="bar-pair"><div class="b before" style="width:8.9%"><em>1 100</em></div><div class="b after" style="width:12.1%"><em>≈ 1 500</em></div></div></div>
+    <div class="bar-row"><span class="lbl">Moteur et étapes</span><div class="bar-pair"><div class="b new" style="width:44.4%"><em>≈ 5 500 (nouveau)</em></div></div></div>
+    <div class="bar-row"><span class="lbl">Budget et cotisations</span><div class="bar-pair"><div class="b new" style="width:24.2%"><em>≈ 3 000 (nouveau)</em></div></div></div>
+    <div class="bar-row"><span class="lbl">Prestataires</span><div class="bar-pair"><div class="b new" style="width:16.1%"><em>≈ 2 000 (nouveau)</em></div></div></div>
+  </div>
+  <div class="bar-key"><span><i class="k-before"></i>Aujourd'hui (mesuré)</span><span><i class="k-after"></i>Après (estimé)</span><span><i class="k-new"></i>Nouveau module (estimé)</span></div>
+  <div class="totals">
+    <div><b>35 000</b><span>lignes aujourd'hui</span></div>
+    <div><b>≈ 29 000</b><span>lignes après, périmètre élargi</span></div>
+    <div><b>≤ 300</b><span>lignes par fichier, vérifié en CI</span></div>
+  </div>
+</section>
+
+<div class="band">
+  <div class="wrap">
+    <p class="eyebrow">9 · Feuille de route du pilote</p>
+    <h2>Un premier lot utile dès la semaine du décès</h2>
+    <div class="lots">
+      <div class="lot"><div class="when">Lot 0<small>1 à 2 sem.</small></div><div><h3>Socle sécurisé</h3><p>Reclone du dépôt, migrations versionnées, types générés, RLS par dossier, règles ESLint de garde, CI bloquante, nettoyage (démo, Prisma, doublons IA).</p></div></div>
+      <div class="lot"><div class="when">Lot 1<small>3 sem.</small></div><div><h3>Entrer et annoncer</h3><p>Accueil à trois portes, dossier et membres, moteur de questions, étapes 2.1 à 2.3 avec rédaction IA et partage WhatsApp, biographie 1.6 en mode « répondre à sa place ».</p></div></div>
+      <div class="lot"><div class="when">Lot 2<small>3 sem.</small></div><div><h3>Financer</h3><p>B.1 à B.3 : affluence, scénarios sobre / intermédiaire / complet, registre des cotisations, lecture des reçus par l'IA, bilan partageable (4.2).</p></div></div>
+      <div class="lot"><div class="when">Lot 3<small>3 sem.</small></div><div><h3>Organiser les funérailles</h3><p>Étapes 3.1, 3.2, 3.4, 3.5 : quantités, programme minute par minute, livret et affiche. Prestataires vérifiés de Libreville et demandes de devis.</p></div></div>
+      <div class="lot"><div class="when">Lot 4<small>2 sem.</small></div><div><h3>Se souvenir</h3><p>Espace mémoriel public issu de la page actuelle simplifiée, livre d'or par QR code, remerciements (4.1).</p></div></div>
+      <div class="lot"><div class="when">Ensuite</div><div><h3>Élargir</h3><p>Phase 1 complète, avis de presse, retour au village, formalités déléguées avec partenaires, rappels à 40 jours et 3, 6, 12 mois, paiement Mobile Money en ligne, diaporama automatique.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<section class="wrap">
+  <p class="eyebrow">10 · Décisions à prendre</p>
+  <h2>Cinq choix avant d'écrire le code</h2>
+  <ol class="qs">
+    <li><div><h4>Porte d'entrée du pilote</h4><p>« Un décès vient de survenir » (recommandé) ou « Préparer avec un proche » ?</p></div></li>
+    <li><div><h4>Modèle de revenus prestataires</h4><p>Commission sur devis signé, abonnement de référencement ou mise en avant payante ?</p></div></li>
+    <li><div><h4>Paiement au pilote</h4><p>Registre seul (recommandé), ou collecte Mobile Money en ligne dès le départ via un agrégateur ?</p></div></li>
+    <li><div><h4>Le Testimona public</h4><p>On garde la recherche de défunts et les témoignages ouverts à tous, ou seulement un espace mémoriel publié par la famille ?</p></div></li>
+    <li><div><h4>Données en production</h4><p>Conserver les mémoriaux existants (migration vers des dossiers) ou repartir d'une base vide ?</p></div></li>
+  </ol>
+</section>
+
+<footer class="wrap">
+  Sources : « Parcours d'accompagnement de la fin de vie au deuil », version de travail du 26 septembre 2026 ; analyse du dépôt Testimona (archive locale) du 26 octobre 2026. Lignes de code mesurées sur <code>apps/web/src</code> ; les volumes cibles sont des estimations. Les noms, montants et prestataires des maquettes sont des exemples.
+</footer>

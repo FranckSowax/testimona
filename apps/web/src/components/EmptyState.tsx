@@ -16,7 +16,7 @@ export function EmptyState({
 }) {
   return (
     <div
-      className={`mx-auto flex max-w-md flex-col items-center rounded-lg border border-dashed border-border bg-surface px-6 py-12 text-center ${className}`}
+      className={`border-border bg-surface mx-auto flex max-w-md flex-col items-center rounded-lg border border-dashed px-6 py-12 text-center ${className}`}
     >
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-[0_1px_2px_rgba(45,50,80,0.04),0_1px_3px_rgba(45,50,80,0.06)]">
         {icon ?? (
@@ -29,11 +29,9 @@ export function EmptyState({
           />
         )}
       </div>
-      <h3 className="font-display text-xl font-semibold text-foreground">{title}</h3>
+      <h3 className="font-display text-foreground text-xl font-semibold">{title}</h3>
       {description && (
-        <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
-          {description}
-        </p>
+        <p className="text-muted-foreground mt-2 max-w-sm text-sm leading-relaxed">{description}</p>
       )}
       {action && <div className="mt-5">{action}</div>}
     </div>

@@ -45,7 +45,7 @@ export function SettingsAccordion({
       role="region"
       aria-label={ariaLabel}
       className={[
-        'divide-y divide-border rounded-lg border border-border bg-white',
+        'divide-border border-border divide-y rounded-lg border bg-white',
         className ?? '',
       ]
         .filter(Boolean)
@@ -63,21 +63,21 @@ export function SettingsAccordion({
                 aria-expanded={isOpen}
                 aria-controls={panelId}
                 onClick={() => toggle(section.id)}
-                className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-[var(--color-bg-hover-gray)] focus-visible:outline-none focus-visible:bg-[var(--color-bg-hover-gray)]"
+                className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-[var(--color-bg-hover-gray)] focus-visible:bg-[var(--color-bg-hover-gray)] focus-visible:outline-none"
               >
                 <span className="min-w-0">
-                  <span className="block font-display text-base font-bold text-foreground">
+                  <span className="font-display text-foreground block text-base font-bold">
                     {section.title}
                   </span>
                   {section.description && (
-                    <span className="mt-0.5 block text-xs italic text-muted-foreground">
+                    <span className="text-muted-foreground mt-0.5 block text-xs italic">
                       {section.description}
                     </span>
                   )}
                 </span>
                 <span
                   aria-hidden="true"
-                  className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface text-foreground/60"
+                  className="bg-surface text-foreground/60 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
                 >
                   <svg
                     width="14"

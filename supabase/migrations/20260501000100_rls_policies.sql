@@ -1,7 +1,7 @@
 -- ============================================================================
 -- Testimona — Supabase Row Level Security policies
 -- ============================================================================
--- Apply with: psql $SUPABASE_DEV_DB -f infra/supabase/rls/policies.sql
+-- Fichier versionné : supabase/migrations (appliqué via supabase db push).
 -- Or via Supabase Dashboard SQL editor.
 --
 -- Conventions:

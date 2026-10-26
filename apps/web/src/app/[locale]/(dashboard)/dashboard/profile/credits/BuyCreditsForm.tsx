@@ -1,10 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import {
-  buyCreditsDemoAction,
-  type BuyCreditsActionState,
-} from './actions';
+import { buyCreditsDemoAction, type BuyCreditsActionState } from './actions';
 
 interface Props {
   packId: string;
@@ -37,10 +34,10 @@ export function BuyCreditsForm({
   baselinePerCreditCents,
   highlight,
 }: Props) {
-  const [state, formAction, isPending] = useActionState<
-    BuyCreditsActionState | null,
-    FormData
-  >(buyCreditsDemoAction, null);
+  const [state, formAction, isPending] = useActionState<BuyCreditsActionState | null, FormData>(
+    buyCreditsDemoAction,
+    null,
+  );
 
   const perCreditCents = priceCents / credits;
   const savingsPercent =
@@ -60,24 +57,22 @@ export function BuyCreditsForm({
     >
       <input type="hidden" name="packId" value={packId} />
       {highlight && (
-        <span className="inline-flex w-fit rounded-full bg-primary px-2.5 py-0.5 font-display text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+        <span className="bg-primary font-display text-primary-foreground inline-flex w-fit rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
           Recommandé
         </span>
       )}
-      <p className="font-display text-lg font-bold text-foreground">{label}</p>
+      <p className="font-display text-foreground text-lg font-bold">{label}</p>
       <div className="flex items-baseline gap-1">
-        <span className="tabular font-display text-3xl font-bold text-foreground">
-          {credits}
-        </span>
-        <span className="text-sm text-muted-foreground">crédits</span>
+        <span className="tabular font-display text-foreground text-3xl font-bold">{credits}</span>
+        <span className="text-muted-foreground text-sm">crédits</span>
       </div>
       <div className="space-y-0.5">
         <p>
-          <span className="tabular font-display text-2xl font-bold text-foreground">
+          <span className="tabular font-display text-foreground text-2xl font-bold">
             {eurFmt.format(priceCents / 100)}
           </span>
         </p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           {perCreditFmt.format(perCreditCents / 100)} par crédit
           {savingsPercent > 0 && (
             <span className="ml-2 inline-flex rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700">
@@ -89,12 +84,12 @@ export function BuyCreditsForm({
       <button
         type="submit"
         disabled={isPending}
-        className="press-scale mt-2 rounded-md bg-primary px-4 py-2.5 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="press-scale bg-primary font-display text-primary-foreground mt-2 rounded-md px-4 py-2.5 text-sm font-bold transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {isPending ? 'Crédit en cours…' : state?.ok ? 'Crédité ✓' : 'Choisir ce pack'}
       </button>
       {state?.error && (
-        <p role="alert" className="text-xs text-destructive">
+        <p role="alert" className="text-destructive text-xs">
           {state.error}
         </p>
       )}

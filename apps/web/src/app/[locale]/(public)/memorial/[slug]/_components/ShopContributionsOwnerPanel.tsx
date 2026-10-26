@@ -37,7 +37,10 @@ async function getContributionDetails(
     .select(
       'shopItemId, donorName, donorEmail, message, amountCents, isAnonymous, wantsItem, createdAt',
     )
-    .in('shopItemId', items.map((it) => it.id))
+    .in(
+      'shopItemId',
+      items.map((it) => it.id),
+    )
     .eq('status', 'Succeeded')
     .order('createdAt', { ascending: false })
     .limit(100)
@@ -74,45 +77,45 @@ export async function ShopContributionsOwnerPanel({
   ]);
 
   return (
-    <div className="rounded-xl border border-border bg-white shadow-[var(--shadow-card)]">
-      <div className="border-b border-border px-4 py-3 sm:px-5">
-        <h3 className="font-display text-sm font-semibold uppercase tracking-widest text-foreground/70">
+    <div className="border-border rounded-xl border bg-white shadow-[var(--shadow-card)]">
+      <div className="border-border border-b px-4 py-3 sm:px-5">
+        <h3 className="font-display text-foreground/70 text-sm font-semibold uppercase tracking-widest">
           {t('contributionsTitle')}
         </h3>
-        <p className="mt-0.5 text-xs text-muted-foreground">{t('subtitle')}</p>
+        <p className="text-muted-foreground mt-0.5 text-xs">{t('subtitle')}</p>
       </div>
       {rows.length === 0 ? (
-        <p className="px-4 py-6 text-center text-sm italic text-muted-foreground sm:px-5">
+        <p className="text-muted-foreground px-4 py-6 text-center text-sm italic sm:px-5">
           {t('empty')}
         </p>
       ) : (
-        <ul className="divide-y divide-border">
+        <ul className="divide-border divide-y">
           {rows.map(({ contribution: c, productName }, i) => (
             <li key={`${c.createdAt}-${i}`} className="space-y-1 px-4 py-3 text-sm sm:px-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="font-medium text-foreground">
+                <p className="text-foreground font-medium">
                   {c.donorName?.trim() || t('noEmail')}
                   {c.isAnonymous && (
-                    <span className="ml-2 rounded-full bg-surface px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <span className="bg-surface font-display text-muted-foreground ml-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                       {t('anonymousBadge')}
                     </span>
                   )}
                   {c.wantsItem && (
-                    <span className="ml-2 rounded-full bg-accent/10 px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wider text-accent">
+                    <span className="bg-accent/10 font-display text-accent ml-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                       {t('wantsItemBadge')}
                     </span>
                   )}
                 </p>
-                <span className="font-semibold text-foreground">
+                <span className="text-foreground font-semibold">
                   {formatMoney(c.amountCents, currency, locale)}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">{t('itemLabel', { name: productName })}</p>
-              <p className="text-xs text-muted-foreground">{c.donorEmail || t('noEmail')}</p>
-              <p className="text-xs italic text-muted-foreground">
-                {c.message || t('noMessage')}
+              <p className="text-muted-foreground text-xs">
+                {t('itemLabel', { name: productName })}
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">{c.donorEmail || t('noEmail')}</p>
+              <p className="text-muted-foreground text-xs italic">{c.message || t('noMessage')}</p>
+              <p className="text-muted-foreground text-xs">
                 {new Date(c.createdAt).toLocaleString(locale)}
               </p>
             </li>

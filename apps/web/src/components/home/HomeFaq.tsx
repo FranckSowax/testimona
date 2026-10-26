@@ -18,17 +18,17 @@ export async function HomeFaq() {
       <header className="text-center">
         <h2
           id="faq-heading"
-          className="font-display text-3xl font-semibold text-foreground sm:text-4xl"
+          className="font-display text-foreground text-3xl font-semibold sm:text-4xl"
         >
           {t('title')}
         </h2>
       </header>
 
-      <ul className="mt-10 divide-y divide-border overflow-hidden rounded-lg border border-border bg-white">
+      <ul className="divide-border border-border mt-10 divide-y overflow-hidden rounded-lg border bg-white">
         {items.map((item, i) => (
           <li key={i}>
             <details className="group">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-display text-base font-bold text-foreground transition-colors hover:bg-surface">
+              <summary className="font-display text-foreground hover:bg-surface flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-base font-bold transition-colors">
                 <span>{item.q}</span>
                 <svg
                   width="18"
@@ -44,9 +44,7 @@ export async function HomeFaq() {
                   <path d="M6 9l6 6 6-6" />
                 </svg>
               </summary>
-              <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">
-                {item.a}
-              </p>
+              <p className="text-muted-foreground px-5 pb-5 text-sm leading-relaxed">{item.a}</p>
             </details>
           </li>
         ))}

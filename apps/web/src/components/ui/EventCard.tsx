@@ -22,7 +22,7 @@ interface RowProps {
 function Row({ label, children }: RowProps) {
   return (
     <div className="grid grid-cols-[100px_1fr] gap-3 text-sm">
-      <dt className="font-display font-semibold text-foreground/70">{label}</dt>
+      <dt className="font-display text-foreground/70 font-semibold">{label}</dt>
       <dd className="text-foreground">{children}</dd>
     </div>
   );
@@ -48,7 +48,7 @@ export function EventCard({
   return (
     <article
       className={[
-        'flex flex-col gap-4 rounded-lg border border-border bg-white p-5 shadow-[var(--shadow-card)]',
+        'border-border flex flex-col gap-4 rounded-lg border bg-white p-5 shadow-[var(--shadow-card)]',
         className ?? '',
       ]
         .filter(Boolean)
@@ -56,10 +56,10 @@ export function EventCard({
     >
       <header className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="font-display text-lg font-bold text-foreground">{title}</h3>
-          <p className="mt-0.5 text-xs italic text-muted-foreground tabular">
+          <h3 className="font-display text-foreground text-lg font-bold">{title}</h3>
+          <p className="text-muted-foreground tabular mt-0.5 text-xs italic">
             Posted on {postedDate} by{' '}
-            <span className="font-display font-semibold not-italic text-foreground">
+            <span className="font-display text-foreground font-semibold not-italic">
               {authorName}
             </span>
           </p>
@@ -88,7 +88,7 @@ export function EventCard({
       </dl>
 
       {mapEmbedUrl && (
-        <div className="overflow-hidden rounded-md border border-border">
+        <div className="border-border overflow-hidden rounded-md border">
           <iframe
             src={mapEmbedUrl}
             title={`Map: ${title}`}

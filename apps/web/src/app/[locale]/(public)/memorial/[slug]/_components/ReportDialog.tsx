@@ -80,14 +80,14 @@ export function ReportDialog({
       onClose={onClose}
       onClick={handleBackdropClick}
       aria-labelledby="report-title"
-      className="m-0 w-full max-w-md rounded-lg border border-border bg-white p-0 shadow-xl backdrop:bg-black/40 sm:m-auto"
+      className="border-border m-0 w-full max-w-md rounded-lg border bg-white p-0 shadow-xl backdrop:bg-black/40 sm:m-auto"
     >
       <form onSubmit={handleSubmit} className="relative space-y-4 p-6">
         <button
           type="button"
           aria-label={t('close')}
           onClick={onClose}
-          className="absolute right-3 top-3 rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-primary absolute right-3 top-3 rounded-md p-1.5 focus:outline-none focus-visible:ring-2"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
             <path
@@ -100,18 +100,18 @@ export function ReportDialog({
           </svg>
         </button>
         <div>
-          <h2 id="report-title" className="font-display text-xl font-semibold text-foreground">
+          <h2 id="report-title" className="font-display text-foreground text-xl font-semibold">
             {t('title')}
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">{t('description')}</p>
+          <p className="text-muted-foreground mt-1 text-sm">{t('description')}</p>
         </div>
 
         <fieldset className="space-y-2">
-          <legend className="text-sm font-medium text-foreground">{t('reasonLegend')}</legend>
+          <legend className="text-foreground text-sm font-medium">{t('reasonLegend')}</legend>
           {REASON_KEYS.map((key) => (
             <label
               key={key}
-              className="flex cursor-pointer items-center gap-2 rounded-md border border-border bg-white px-3 py-2 text-sm hover:bg-surface"
+              className="border-border hover:bg-surface flex cursor-pointer items-center gap-2 rounded-md border bg-white px-3 py-2 text-sm"
             >
               <input
                 type="radio"
@@ -137,12 +137,12 @@ export function ReportDialog({
             rows={3}
             maxLength={500}
             required={reason === 'other'}
-            className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2 text-base focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
+            className="border-border focus:border-primary focus:ring-primary mt-1 w-full rounded-md border bg-white px-3 py-2 text-base focus:outline-none focus:ring-1 sm:text-sm"
           />
         </div>
 
         {error && (
-          <p role="alert" className="text-xs text-destructive">
+          <p role="alert" className="text-destructive text-xs">
             {error}
           </p>
         )}
@@ -151,14 +151,14 @@ export function ReportDialog({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted"
+            className="border-border hover:bg-muted rounded-md border px-3 py-1.5 text-sm"
           >
             {t('close')}
           </button>
           <button
             type="submit"
             disabled={pending}
-            className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+            className="bg-primary text-primary-foreground rounded-md px-3 py-1.5 text-sm font-medium hover:opacity-90 disabled:opacity-50"
           >
             {pending ? t('submitting') : t('submit')}
           </button>

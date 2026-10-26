@@ -22,19 +22,18 @@ test.describe('Mobile (375x812 iPhone SE)', () => {
 
   test('hamburger opens drawer with primary nav', async ({ page }) => {
     await page.goto('/');
-    const hamburger = page
-      .getByRole('button', { name: /Accueil|Home/i })
-      .first();
+    const hamburger = page.getByRole('button', { name: /Accueil|Home/i }).first();
     await hamburger.click();
     await expect(page.getByRole('dialog')).toBeVisible();
-    await expect(
-      page.getByRole('link', { name: /Se connecter|Sign in/i }).first(),
-    ).toBeVisible();
+    await expect(page.getByRole('link', { name: /Se connecter|Sign in/i }).first()).toBeVisible();
   });
 
   test('drawer closes on Escape', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: /Accueil|Home/i }).first().click();
+    await page
+      .getByRole('button', { name: /Accueil|Home/i })
+      .first()
+      .click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(page.getByRole('dialog')).toBeHidden();
@@ -42,9 +41,7 @@ test.describe('Mobile (375x812 iPhone SE)', () => {
 
   test('no horizontal scroll on home', async ({ page }) => {
     await page.goto('/');
-    const docWidth = await page.evaluate(
-      () => document.documentElement.scrollWidth,
-    );
+    const docWidth = await page.evaluate(() => document.documentElement.scrollWidth);
     const winWidth = await page.evaluate(() => window.innerWidth);
     expect(docWidth).toBeLessThanOrEqual(winWidth + 1);
   });

@@ -36,7 +36,12 @@ export default async function AdminAdsListPage({
     getAdsList(),
   ]);
 
-  const labels = { delete: t('delete'), confirmDelete: t('confirmDelete'), activate: t('activate'), deactivate: t('deactivate') };
+  const labels = {
+    delete: t('delete'),
+    confirmDelete: t('confirmDelete'),
+    activate: t('activate'),
+    deactivate: t('deactivate'),
+  };
 
   return (
     <AdminShell
@@ -44,35 +49,30 @@ export default async function AdminAdsListPage({
       action={
         <Link
           href="/admin/ads/new"
-          className="rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+          className="bg-primary font-display text-primary-foreground rounded-md px-4 py-2 text-sm font-bold transition-opacity hover:opacity-90"
         >
           {t('newCta')}
         </Link>
       }
     >
-      <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+      <p className="text-muted-foreground text-sm">{t('subtitle')}</p>
 
-      <div className="mt-6 overflow-hidden rounded-lg border border-border bg-white">
+      <div className="border-border mt-6 overflow-hidden rounded-lg border bg-white">
         {ads.length === 0 ? (
-          <p className="p-8 text-center text-sm italic text-muted-foreground">
-            {t('empty')}
-          </p>
+          <p className="text-muted-foreground p-8 text-center text-sm italic">{t('empty')}</p>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-border divide-y">
             {ads.map((ad) => (
-              <li
-                key={ad.id}
-                className="flex flex-wrap items-center gap-4 p-4 sm:flex-nowrap"
-              >
+              <li key={ad.id} className="flex flex-wrap items-center gap-4 p-4 sm:flex-nowrap">
                 <div className="min-w-0 flex-1">
                   <Link
                     href={`/admin/ads/${ad.id}`}
-                    className="font-display text-sm font-bold text-foreground hover:text-primary"
+                    className="font-display text-foreground hover:text-primary text-sm font-bold"
                   >
                     {ad.name}
                   </Link>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    <span className="rounded-full bg-surface px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wide text-foreground/70">
+                  <p className="text-muted-foreground mt-0.5 text-xs">
+                    <span className="bg-surface font-display text-foreground/70 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
                       {SLOT_LABELS[ad.slot] ?? ad.slot}
                     </span>
                     {' · '}
@@ -94,7 +94,7 @@ export default async function AdminAdsListPage({
                 <div className="flex shrink-0 items-center gap-2">
                   <span
                     className={[
-                      'rounded-full px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wide',
+                      'font-display rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide',
                       ad.isActive
                         ? 'bg-primary/10 text-primary'
                         : 'bg-foreground/10 text-foreground/70',

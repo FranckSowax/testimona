@@ -15,12 +15,7 @@ interface Props {
 
 const PRESET_MULTIPLIERS = [1, 2, 5];
 
-export function ShopContributeButton({
-  shopItemId,
-  productName,
-  unitPriceCents,
-  currency,
-}: Props) {
+export function ShopContributeButton({ shopItemId, productName, unitPriceCents, currency }: Props) {
   const t = useTranslations('memorial.shopContribute');
   const fmt = (n: number) =>
     new Intl.NumberFormat('fr-FR', { style: 'currency', currency }).format(n);
@@ -81,12 +76,13 @@ export function ShopContributeButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="press-scale rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+        className="press-scale bg-primary font-display text-primary-foreground rounded-md px-4 py-2 text-sm font-bold transition-opacity hover:opacity-90"
       >
         {t('contribute')}
       </button>
 
-      {open && mounted &&
+      {open &&
+        mounted &&
         createPortal(
           <div
             role="dialog"
@@ -98,24 +94,22 @@ export function ShopContributeButton({
               type="button"
               aria-label={t('close')}
               onClick={() => setOpen(false)}
-              className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
+              className="bg-foreground/40 absolute inset-0 backdrop-blur-sm"
             />
             <div className="animate-slide-in-up relative z-10 w-full max-w-md rounded-t-2xl bg-white p-5 shadow-[var(--shadow-overlay)] sm:my-auto sm:rounded-2xl">
               <header className="mb-4">
-                <p className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <p className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
                   {t('header')}
                 </p>
-                <h3 className="font-display text-lg font-bold text-foreground">
-                  {productName}
-                </h3>
-                <p className="text-xs text-muted-foreground">
+                <h3 className="font-display text-foreground text-lg font-bold">{productName}</h3>
+                <p className="text-muted-foreground text-xs">
                   {t('itemPrice', { price: fmt(unitPriceEur) })}
                 </p>
               </header>
 
               <div className="space-y-3">
                 <fieldset className="block">
-                  <legend className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <legend className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
                     {t('amountLegend')}
                   </legend>
                   <div className="mt-1 flex flex-wrap gap-2">
@@ -128,7 +122,7 @@ export function ShopContributeButton({
                           onClick={() => setPreset(multiplier)}
                           aria-pressed={active}
                           className={[
-                            'press-scale rounded-full border-2 px-4 py-1.5 font-display text-sm font-bold transition-colors',
+                            'press-scale font-display rounded-full border-2 px-4 py-1.5 text-sm font-bold transition-colors',
                             active
                               ? 'border-primary bg-primary text-primary-foreground'
                               : 'border-border text-foreground hover:bg-muted',
@@ -143,7 +137,7 @@ export function ShopContributeButton({
                       onClick={() => setPreset('custom')}
                       aria-pressed={preset === 'custom'}
                       className={[
-                        'press-scale rounded-full border-2 px-4 py-1.5 font-display text-sm font-bold transition-colors',
+                        'press-scale font-display rounded-full border-2 px-4 py-1.5 text-sm font-bold transition-colors',
                         preset === 'custom'
                           ? 'border-primary bg-primary text-primary-foreground'
                           : 'border-border text-foreground hover:bg-muted',
@@ -161,12 +155,12 @@ export function ShopContributeButton({
                       onChange={(e) => setCustomAmount(e.target.value)}
                       placeholder={t('enterAmount')}
                       autoFocus
-                      className="mt-2 h-12 w-full rounded-md border border-border bg-white px-3 text-center text-2xl font-display font-bold text-foreground focus:border-primary focus:outline-none"
+                      className="border-border font-display text-foreground focus:border-primary mt-2 h-12 w-full rounded-md border bg-white px-3 text-center text-2xl font-bold focus:outline-none"
                     />
                   )}
                 </fieldset>
                 <label className="block">
-                  <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
                     {t('name')}
                   </span>
                   <input
@@ -175,11 +169,11 @@ export function ShopContributeButton({
                     onChange={(e) => setDonorName(e.target.value)}
                     maxLength={80}
                     placeholder={t('namePlaceholder')}
-                    className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+                    className="border-border text-foreground focus:border-primary mt-1 h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none sm:text-sm"
                   />
                 </label>
                 <label className="block">
-                  <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
                     {t('message')}
                   </span>
                   <textarea
@@ -187,7 +181,7 @@ export function ShopContributeButton({
                     onChange={(e) => setMessage(e.target.value)}
                     maxLength={280}
                     rows={2}
-                    className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+                    className="border-border text-foreground focus:border-primary mt-1 w-full rounded-md border bg-white px-3 py-2 text-base focus:outline-none sm:text-sm"
                   />
                 </label>
                 <label className="flex items-start gap-2.5 text-sm">
@@ -195,7 +189,7 @@ export function ShopContributeButton({
                     type="checkbox"
                     checked={isAnonymous}
                     onChange={(e) => setIsAnonymous(e.target.checked)}
-                    className="mt-0.5 h-5 w-5 cursor-pointer rounded border-2 border-border accent-primary"
+                    className="border-border accent-primary mt-0.5 h-5 w-5 cursor-pointer rounded border-2"
                   />
                   <span className="text-foreground">{t('anonymousOption')}</span>
                 </label>
@@ -204,19 +198,19 @@ export function ShopContributeButton({
                     type="checkbox"
                     checked={wantsItem}
                     onChange={(e) => setWantsItem(e.target.checked)}
-                    className="mt-0.5 h-5 w-5 cursor-pointer rounded border-2 border-border accent-primary"
+                    className="border-border accent-primary mt-0.5 h-5 w-5 cursor-pointer rounded border-2"
                   />
                   <span className="text-foreground">{t('wantsItemOption')}</span>
                 </label>
                 {wantsItem && (
-                  <p className="rounded-md border border-accent/30 bg-accent/5 px-2.5 py-1.5 text-xs text-foreground/80">
+                  <p className="border-accent/30 bg-accent/5 text-foreground/80 rounded-md border px-2.5 py-1.5 text-xs">
                     {t('wantsItemHint')}
                   </p>
                 )}
               </div>
 
               {error && (
-                <p role="alert" className="mt-3 text-xs text-destructive">
+                <p role="alert" className="text-destructive mt-3 text-xs">
                   {error}
                 </p>
               )}
@@ -230,7 +224,7 @@ export function ShopContributeButton({
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="press-scale rounded-md border border-border bg-white px-3 py-2 font-display text-sm font-bold text-foreground hover:bg-muted"
+                  className="press-scale border-border font-display text-foreground hover:bg-muted rounded-md border bg-white px-3 py-2 text-sm font-bold"
                 >
                   {t('cancel')}
                 </button>
@@ -238,17 +232,13 @@ export function ShopContributeButton({
                   type="button"
                   onClick={submit}
                   disabled={isPending || ok || amount < 1}
-                  className="press-scale rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+                  className="press-scale bg-primary font-display text-primary-foreground rounded-md px-4 py-2 text-sm font-bold transition-opacity hover:opacity-90 disabled:opacity-50"
                 >
-                  {isPending
-                    ? t('sending')
-                    : t('contributeAmount', { amount: `${fmt(amount)}` })}
+                  {isPending ? t('sending') : t('contributeAmount', { amount: `${fmt(amount)}` })}
                 </button>
               </div>
 
-              <p className="mt-3 text-[11px] italic text-muted-foreground">
-                {t('demoNote')}
-              </p>
+              <p className="text-muted-foreground mt-3 text-[11px] italic">{t('demoNote')}</p>
             </div>
           </div>,
           document.body,

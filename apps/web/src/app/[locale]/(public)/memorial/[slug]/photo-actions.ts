@@ -23,7 +23,10 @@ export async function uploadMemorialPhotoAction(
 ): Promise<PhotoActionState> {
   const memorialId = String(formData.get('memorialId') ?? '');
   const slug = String(formData.get('slug') ?? '');
-  const caption = String(formData.get('caption') ?? '').trim().slice(0, 500) || null;
+  const caption =
+    String(formData.get('caption') ?? '')
+      .trim()
+      .slice(0, 500) || null;
   const file = formData.get('file');
 
   if (!memorialId) return { error: 'missing memorialId' };
@@ -44,8 +47,7 @@ export async function uploadMemorialPhotoAction(
     .eq('id', memorialId)
     .maybeSingle<{ ownerId: string }>();
   if (!memorial) return { error: 'memorial not found' };
-  if (!(await canManageMemorial(memorialId, userData.user.id)))
-    return { error: 'forbidden' };
+  if (!(await canManageMemorial(memorialId, userData.user.id))) return { error: 'forbidden' };
 
   const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
@@ -127,9 +129,16 @@ export async function submitPublicPhotoAction(
 ): Promise<PhotoActionState> {
   const memorialId = String(formData.get('memorialId') ?? '');
   const slug = String(formData.get('slug') ?? '');
-  const caption = String(formData.get('caption') ?? '').trim().slice(0, 500) || null;
-  const submitterName = String(formData.get('submitterName') ?? '').trim().slice(0, 80);
-  const submitterEmail = String(formData.get('submitterEmail') ?? '').trim().slice(0, 200);
+  const caption =
+    String(formData.get('caption') ?? '')
+      .trim()
+      .slice(0, 500) || null;
+  const submitterName = String(formData.get('submitterName') ?? '')
+    .trim()
+    .slice(0, 80);
+  const submitterEmail = String(formData.get('submitterEmail') ?? '')
+    .trim()
+    .slice(0, 200);
   const file = formData.get('file');
 
   const fieldErrors: Record<string, string> = {};
@@ -142,13 +151,9 @@ export async function submitPublicPhotoAction(
     if (file.size === 0) fieldErrors.file = 'Fichier vide';
     if (file.size > MAX_BYTES) fieldErrors.file = 'Fichier trop lourd (10 Mo max)';
   }
-  if (
-    submitterEmail &&
-    !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(submitterEmail)
-  )
+  if (submitterEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(submitterEmail))
     fieldErrors.submitterEmail = 'Email invalide';
-  if (Object.keys(fieldErrors).length)
-    return { error: 'Validation', fieldErrors };
+  if (Object.keys(fieldErrors).length) return { error: 'Validation', fieldErrors };
 
   const photo = file as File;
 
@@ -165,8 +170,7 @@ export async function submitPublicPhotoAction(
     .eq('id', memorialId)
     .maybeSingle<{ ownerId: string; isPublic: boolean }>();
   if (!memorial) return { error: 'Mémorial introuvable.' };
-  if (!memorial.isPublic && !userId)
-    return { error: 'Mémorial privé — connexion requise.' };
+  if (!memorial.isPublic && !userId) return { error: 'Mémorial privé — connexion requise.' };
 
   // Décision recette p26 (P2) : les photos/vidéos sont publiées
   // immédiatement et revues a posteriori par la famille (qui peut les
@@ -175,12 +179,7 @@ export async function submitPublicPhotoAction(
 
   // Upload file via the admin client so anon visitors can write to
   // the bucket without an RLS storage policy gymnastic.
-  const ext =
-    photo.type === 'image/png'
-      ? 'png'
-      : photo.type === 'image/webp'
-      ? 'webp'
-      : 'jpg';
+  const ext = photo.type === 'image/png' ? 'png' : photo.type === 'image/webp' ? 'webp' : 'jpg';
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const path = `${memorialId}/${filename}`;
 
@@ -189,9 +188,7 @@ export async function submitPublicPhotoAction(
     .upload(path, photo, { contentType: photo.type, cacheControl: '3600' });
   if (uploadError) return { error: uploadError.message };
 
-  const { data: publicData } = adminDb.storage
-    .from('memorial-photos')
-    .getPublicUrl(path);
+  const { data: publicData } = adminDb.storage.from('memorial-photos').getPublicUrl(path);
   const url = publicData.publicUrl;
 
   // Compute next position over APPROVED photos so pending ones don't
@@ -231,8 +228,7 @@ export async function moderatePhotoAction(
   const decision = String(formData.get('decision') ?? '').trim();
   const slug = String(formData.get('slug') ?? '').trim();
   if (!id) return { error: 'id requis.' };
-  if (decision !== 'approved' && decision !== 'rejected')
-    return { error: 'Décision invalide.' };
+  if (decision !== 'approved' && decision !== 'rejected') return { error: 'Décision invalide.' };
 
   const supabase = await getSupabaseServer();
   const { data: userData } = await supabase.auth.getUser();
@@ -299,8 +295,7 @@ export async function setCoverPhotoAction(
     .select('id, memorialId, status')
     .eq('id', photoId)
     .maybeSingle<{ id: string; memorialId: string; status: string }>();
-  if (!photo || photo.memorialId !== memorialId)
-    return { error: 'Photo invalide.' };
+  if (!photo || photo.memorialId !== memorialId) return { error: 'Photo invalide.' };
   if (photo.status !== 'approved')
     return { error: 'La photo doit être publiée avant de devenir la couverture.' };
 
@@ -350,9 +345,7 @@ export async function togglePhotoLikeAction(
   if (existing) {
     await adminDb.from('PhotoLike').delete().eq('id', existing.id);
   } else {
-    const { error } = await adminDb
-      .from('PhotoLike')
-      .insert({ photoId, userId });
+    const { error } = await adminDb.from('PhotoLike').insert({ photoId, userId });
     if (error) return { error: error.message };
   }
 
@@ -376,7 +369,9 @@ export async function reportPhotoAction(
   formData: FormData,
 ): Promise<PhotoReportState> {
   const photoId = String(formData.get('photoId') ?? '').trim();
-  const reason = String(formData.get('reason') ?? '').trim().slice(0, 500);
+  const reason = String(formData.get('reason') ?? '')
+    .trim()
+    .slice(0, 500);
   if (!photoId) return { error: 'photoId requis.' };
   if (reason.length === 0) return { error: 'Motif requis.' };
 
@@ -406,7 +401,9 @@ export async function addPhotoCommentAction(
 ): Promise<PhotoCommentState> {
   const photoId = String(formData.get('photoId') ?? '').trim();
   const slug = String(formData.get('slug') ?? '').trim();
-  const message = String(formData.get('message') ?? '').trim().slice(0, 2000);
+  const message = String(formData.get('message') ?? '')
+    .trim()
+    .slice(0, 2000);
   if (!photoId) return { error: 'photoId requis.' };
   if (message.length === 0) return { error: 'Message requis.' };
 
@@ -414,9 +411,7 @@ export async function addPhotoCommentAction(
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return { error: 'Connecte-toi pour commenter.' };
 
-  const meta = userData.user.user_metadata as
-    | { full_name?: string; nickname?: string }
-    | null;
+  const meta = userData.user.user_metadata as { full_name?: string; nickname?: string } | null;
   const authorName =
     meta?.nickname || meta?.full_name || userData.user.email?.split('@')[0] || 'Anonyme';
 

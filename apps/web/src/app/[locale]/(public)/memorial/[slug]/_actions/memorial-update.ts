@@ -62,9 +62,7 @@ export async function updateMemorialAction(
   // http(s) only — the value feeds <audio src> / a YouTube iframe on the
   // public story viewer; reject other schemes.
   const musicUrl =
-    musicUrlRaw && /^https?:\/\//i.test(musicUrlRaw)
-      ? musicUrlRaw.slice(0, 500)
-      : null;
+    musicUrlRaw && /^https?:\/\//i.test(musicUrlRaw) ? musicUrlRaw.slice(0, 500) : null;
 
   const { error } = await supabase
     .from('Memorial')
@@ -89,11 +87,7 @@ export async function updateMemorialAction(
     formData.get('portraitPhoto'),
     'portrait',
   );
-  const coverUrl = await uploadMemorialImage(
-    memorialId,
-    formData.get('coverPhoto'),
-    'cover',
-  );
+  const coverUrl = await uploadMemorialImage(memorialId, formData.get('coverPhoto'), 'cover');
   if (portraitUrl || coverUrl) {
     const art: Record<string, string | null> = {};
     if (portraitUrl) art.portraitUrl = portraitUrl;
@@ -103,10 +97,7 @@ export async function updateMemorialAction(
       // star-picked gallery cover so the upload actually shows.
       art.coverPhotoId = null;
     }
-    const { error: artError } = await supabase
-      .from('Memorial')
-      .update(art)
-      .eq('id', memorialId);
+    const { error: artError } = await supabase.from('Memorial').update(art).eq('id', memorialId);
     if (artError) return { error: artError.message };
   }
 

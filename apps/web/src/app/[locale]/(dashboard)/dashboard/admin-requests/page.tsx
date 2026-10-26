@@ -123,22 +123,17 @@ export default async function AdminRequestsInboxPage({
   const labels = { accept: t('accept'), decline: t('decline') };
 
   // G3 — invitations the current user has received (by linked id or email).
-  const { invites, memorials: inviteMemorials } = await getMyInvites(
-    user.id,
-    user.email ?? null,
-  );
+  const { invites, memorials: inviteMemorials } = await getMyInvites(user.id, user.email ?? null);
 
   return (
     <DashboardShell title={t('title')}>
-      <p className="-mt-4 mb-6 text-sm text-muted-foreground">{t('subtitle')}</p>
+      <p className="text-muted-foreground -mt-4 mb-6 text-sm">{t('subtitle')}</p>
 
       {invites.length > 0 && (
         <section className="mb-10 space-y-4">
           <header className="flex items-baseline justify-between">
-            <h2 className="font-display text-base font-bold text-foreground">
-              Invitations reçues
-            </h2>
-            <span className="rounded-full bg-accent/15 px-2.5 py-0.5 font-display text-[11px] font-bold tabular text-accent">
+            <h2 className="font-display text-foreground text-base font-bold">Invitations reçues</h2>
+            <span className="bg-accent/15 font-display tabular text-accent rounded-full px-2.5 py-0.5 text-[11px] font-bold">
               {invites.length}
             </span>
           </header>
@@ -148,15 +143,15 @@ export default async function AdminRequestsInboxPage({
               return (
                 <li
                   key={inv.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-accent/30 bg-accent/5 p-4"
+                  className="border-accent/30 bg-accent/5 flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4"
                 >
-                  <p className="text-sm text-foreground">
+                  <p className="text-foreground text-sm">
                     Invitation à co-administrer{' '}
                     {memorial ? (
                       <Link
                         href={`/memorial/${memorial.slug}`}
                         target="_blank"
-                        className="font-display font-bold text-foreground hover:text-primary"
+                        className="font-display text-foreground hover:text-primary font-bold"
                       >
                         {memorial.firstname} {memorial.lastname}
                       </Link>
@@ -174,11 +169,9 @@ export default async function AdminRequestsInboxPage({
 
       <section className="space-y-4">
         <header className="flex items-baseline justify-between">
-          <h2 className="font-display text-base font-bold text-foreground">
-            {t('pendingTitle')}
-          </h2>
+          <h2 className="font-display text-foreground text-base font-bold">{t('pendingTitle')}</h2>
           {pending.length > 0 && (
-            <span className="rounded-full bg-primary/10 px-2.5 py-0.5 font-display text-[11px] font-bold tabular text-primary">
+            <span className="bg-primary/10 font-display tabular text-primary rounded-full px-2.5 py-0.5 text-[11px] font-bold">
               {pending.length}
             </span>
           )}
@@ -189,15 +182,11 @@ export default async function AdminRequestsInboxPage({
           <ul className="space-y-3">
             {pending.map((r) => {
               const memorial = memorialMap.get(r.memorialId);
-              const requesterEmail =
-                requesterEmails.get(r.userId) ?? r.userId.slice(0, 8);
+              const requesterEmail = requesterEmails.get(r.userId) ?? r.userId.slice(0, 8);
               return (
-                <li
-                  key={r.id}
-                  className="rounded-lg border border-border bg-white p-4 shadow-sm"
-                >
+                <li key={r.id} className="border-border rounded-lg border bg-white p-4 shadow-sm">
                   <header className="flex flex-wrap items-baseline justify-between gap-2">
-                    <p className="font-display text-sm font-bold text-foreground">
+                    <p className="font-display text-foreground text-sm font-bold">
                       {requesterEmail}
                       {memorial && (
                         <>
@@ -206,25 +195,25 @@ export default async function AdminRequestsInboxPage({
                           <Link
                             href={`/memorial/${memorial.slug}`}
                             target="_blank"
-                            className="font-normal italic text-muted-foreground hover:text-primary"
+                            className="text-muted-foreground hover:text-primary font-normal italic"
                           >
                             {memorial.firstname} {memorial.lastname}
                           </Link>
                         </>
                       )}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       {formatDate(r.createdAt, locale)}
                     </p>
                   </header>
                   <p className="mt-2 text-sm">
-                    <span className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                    <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wide">
                       {t('relationship')}
                     </span>{' '}
                     <span className="text-foreground">{r.relationship}</span>
                   </p>
                   {r.note && (
-                    <blockquote className="mt-2 border-l-2 border-border pl-3 text-sm italic text-muted-foreground">
+                    <blockquote className="border-border text-muted-foreground mt-2 border-l-2 pl-3 text-sm italic">
                       {r.note}
                     </blockquote>
                   )}
@@ -245,32 +234,27 @@ export default async function AdminRequestsInboxPage({
 
       {resolved.length > 0 && (
         <section className="mt-10 space-y-3">
-          <h2 className="font-display text-base font-bold text-foreground">
-            {t('historyTitle')}
-          </h2>
-          <ul className="divide-y divide-border overflow-hidden rounded-md border border-border bg-white">
+          <h2 className="font-display text-foreground text-base font-bold">{t('historyTitle')}</h2>
+          <ul className="divide-border border-border divide-y overflow-hidden rounded-md border bg-white">
             {resolved.slice(0, 20).map((r) => {
               const memorial = memorialMap.get(r.memorialId);
-              const requesterEmail =
-                requesterEmails.get(r.userId) ?? r.userId.slice(0, 8);
+              const requesterEmail = requesterEmails.get(r.userId) ?? r.userId.slice(0, 8);
               return (
                 <li
                   key={r.id}
                   className="flex flex-wrap items-baseline justify-between gap-2 p-3 text-sm"
                 >
                   <span>
-                    <span className="font-display font-bold text-foreground">
-                      {requesterEmail}
-                    </span>
+                    <span className="font-display text-foreground font-bold">{requesterEmail}</span>
                     {memorial && (
-                      <span className="ml-2 text-xs italic text-muted-foreground">
+                      <span className="text-muted-foreground ml-2 text-xs italic">
                         {memorial.firstname} {memorial.lastname}
                       </span>
                     )}
                   </span>
                   <span
                     className={[
-                      'rounded-full px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wide',
+                      'font-display rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide',
                       r.status === 'accepted'
                         ? 'bg-primary/10 text-primary'
                         : 'bg-foreground/10 text-foreground/70',

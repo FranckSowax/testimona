@@ -56,13 +56,14 @@ export async function DonateSection({
   ]);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
   const shareUrl = `${siteUrl}/memorial/${slug}#donate`;
-  const userMeta = (user?.user_metadata ?? null) as
-    | { avatar_url?: string | null; nickname?: string | null; full_name?: string | null }
-    | null;
+  const userMeta = (user?.user_metadata ?? null) as {
+    avatar_url?: string | null;
+    nickname?: string | null;
+    full_name?: string | null;
+  } | null;
   const donorName =
     userMeta?.nickname || userMeta?.full_name || (user?.email ? user.email.split('@')[0] : '');
-  const donorAvatarUrl =
-    userMeta?.avatar_url ?? (donorName ? unsplashAvatarFor(donorName) : null);
+  const donorAvatarUrl = userMeta?.avatar_url ?? (donorName ? unsplashAvatarFor(donorName) : null);
 
   return (
     <section aria-labelledby="donate-heading" className="space-y-6">
@@ -83,12 +84,7 @@ export async function DonateSection({
         />
       </div>
 
-      <DonationGoal
-        memorialId={memorialId}
-        slug={slug}
-        isOwner={isOwner}
-        shareUrl={shareUrl}
-      />
+      <DonationGoal memorialId={memorialId} slug={slug} isOwner={isOwner} shareUrl={shareUrl} />
 
       <DonorsList memorialId={memorialId} />
 

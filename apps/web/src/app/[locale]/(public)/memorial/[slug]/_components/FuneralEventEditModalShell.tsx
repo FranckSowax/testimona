@@ -45,9 +45,7 @@ export function FuneralEventEditModalShell({ id, slug, initial }: Props) {
 
         const result = await updateFuneralEventAction(null, fd);
         if (result?.error) {
-          setError(
-            result.error === 'Validation' ? tActions('checkRequiredFields') : result.error,
-          );
+          setError(result.error === 'Validation' ? tActions('checkRequiredFields') : result.error);
           resolve();
           return;
         }
@@ -66,7 +64,7 @@ export function FuneralEventEditModalShell({ id, slug, initial }: Props) {
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t('editEventAria')}
-        className="inline-flex h-8 items-center gap-1 rounded-md border border-border bg-white px-2.5 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
+        className="border-border text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-primary inline-flex h-8 items-center gap-1 rounded-md border bg-white px-2.5 text-xs transition-colors"
       >
         <svg
           width="13"
@@ -93,7 +91,7 @@ export function FuneralEventEditModalShell({ id, slug, initial }: Props) {
         initial={initial}
       />
       {error && (
-        <p role="alert" className="mt-1 text-[11px] text-destructive">
+        <p role="alert" className="text-destructive mt-1 text-[11px]">
           {error}
         </p>
       )}

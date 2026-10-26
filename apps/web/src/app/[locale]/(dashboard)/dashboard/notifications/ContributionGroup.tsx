@@ -62,7 +62,7 @@ export function ContributionGroup({
       : fmt(totalCents, currency);
 
   return (
-    <div className="rounded-lg border border-border bg-surface/40">
+    <div className="border-border bg-surface/40 rounded-lg border">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -78,23 +78,42 @@ export function ContributionGroup({
             ].join(' ')}
           >
             {icon === 'donation' ? (
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                aria-hidden="true"
+              >
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             ) : (
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
                 <path d="M3 6h18M16 10a4 4 0 0 1-8 0" />
               </svg>
             )}
           </span>
-          <span className="font-display text-sm font-bold text-foreground">{label}</span>
+          <span className="font-display text-foreground text-sm font-bold">{label}</span>
         </span>
         <span className="flex items-center gap-2">
-          <span className="font-display text-sm font-bold text-foreground tabular">
+          <span className="font-display text-foreground tabular text-sm font-bold">
             {totalDisplay}
           </span>
-          <span className="rounded-full bg-white px-2 py-0.5 font-display text-[10px] font-bold tabular text-muted-foreground ring-1 ring-border">
+          <span className="font-display tabular text-muted-foreground ring-border rounded-full bg-white px-2 py-0.5 text-[10px] font-bold ring-1">
             {count}
           </span>
           <svg
@@ -107,7 +126,10 @@ export function ContributionGroup({
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden="true"
-            className={['text-muted-foreground transition-transform', open ? 'rotate-180' : ''].join(' ')}
+            className={[
+              'text-muted-foreground transition-transform',
+              open ? 'rotate-180' : '',
+            ].join(' ')}
           >
             <path d="M6 9l6 6 6-6" />
           </svg>
@@ -115,32 +137,31 @@ export function ContributionGroup({
       </button>
 
       {open && (
-        <div className="border-t border-border px-4 py-2">
+        <div className="border-border border-t px-4 py-2">
           {contributors.length === 0 ? (
-            <p className="py-2 text-xs italic text-muted-foreground">
-              {t('contribEmpty')}
-            </p>
+            <p className="text-muted-foreground py-2 text-xs italic">{t('contribEmpty')}</p>
           ) : (
             <>
-              <ul className="divide-y divide-border/60">
+              <ul className="divide-border/60 divide-y">
                 {visible.map((c, i) => (
-                  <li key={`${c.createdAt}-${i}`} className="flex items-center justify-between gap-2 py-2">
+                  <li
+                    key={`${c.createdAt}-${i}`}
+                    className="flex items-center justify-between gap-2 py-2"
+                  >
                     <span className="flex min-w-0 flex-col">
-                      <span className="truncate text-sm text-foreground">{c.name}</span>
+                      <span className="text-foreground truncate text-sm">{c.name}</span>
                       {c.detail && (
-                        <span className="truncate text-xs text-muted-foreground">
-                          {c.detail}
-                        </span>
+                        <span className="text-muted-foreground truncate text-xs">{c.detail}</span>
                       )}
                     </span>
                     <span className="flex shrink-0 items-center gap-2">
-                      <span className="font-display text-sm font-bold text-foreground tabular">
+                      <span className="font-display text-foreground tabular text-sm font-bold">
                         {fmt(c.amountCents, c.currency)}
                       </span>
                       <time
                         dateTime={c.createdAt}
                         suppressHydrationWarning
-                        className="tabular text-[11px] text-muted-foreground"
+                        className="tabular text-muted-foreground text-[11px]"
                       >
                         {new Date(c.createdAt).toLocaleDateString('fr-FR')}
                       </time>
@@ -152,7 +173,7 @@ export function ContributionGroup({
                 <button
                   type="button"
                   onClick={() => setShowAll((v) => !v)}
-                  className="mt-1 w-full rounded-md py-1.5 text-center font-display text-xs font-bold text-primary hover:underline"
+                  className="font-display text-primary mt-1 w-full rounded-md py-1.5 text-center text-xs font-bold hover:underline"
                 >
                   {showAll ? t('collapse') : t('seeAll', { count })}
                 </button>

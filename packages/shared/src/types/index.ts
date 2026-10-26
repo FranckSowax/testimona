@@ -1,6 +1,4 @@
-export type Result<T, E = Error> =
-  | { ok: true; data: T }
-  | { ok: false; error: E };
+export type Result<T, E = Error> = { ok: true; data: T } | { ok: false; error: E };
 
 export type Brand<T, B> = T & { readonly __brand: B };
 export type MemorialId = Brand<string, 'MemorialId'>;

@@ -2,10 +2,7 @@
 
 import { useActionState } from 'react';
 import { useTranslations } from 'next-intl';
-import {
-  moderateTestimonialAction,
-  type TestimonialActionState,
-} from '../actions';
+import { moderateTestimonialAction, type TestimonialActionState } from '../actions';
 
 /**
  * Owner-only approve/reject inline controls for a pending testimonial.
@@ -21,10 +18,10 @@ export function TestimonialModerateButtons({
   slug: string;
 }) {
   const t = useTranslations('memorial.moderate');
-  const [state, formAction, isPending] = useActionState<
-    TestimonialActionState | null,
-    FormData
-  >(moderateTestimonialAction, null);
+  const [state, formAction, isPending] = useActionState<TestimonialActionState | null, FormData>(
+    moderateTestimonialAction,
+    null,
+  );
   return (
     <div className="space-y-1.5">
       <div className="flex gap-2">
@@ -35,9 +32,19 @@ export function TestimonialModerateButtons({
           <button
             type="submit"
             disabled={isPending}
-            className="press-scale flex w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wide text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="press-scale font-display flex w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="M20 6 9 17l-5-5" />
             </svg>
             {t('approve')}
@@ -50,9 +57,19 @@ export function TestimonialModerateButtons({
           <button
             type="submit"
             disabled={isPending}
-            className="press-scale flex w-full items-center justify-center gap-1.5 rounded-md border border-destructive/40 bg-white px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wide text-destructive transition-colors hover:bg-destructive/5 disabled:opacity-50"
+            className="press-scale border-destructive/40 font-display text-destructive hover:bg-destructive/5 flex w-full items-center justify-center gap-1.5 rounded-md border bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition-colors disabled:opacity-50"
           >
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
             {t('reject')}
@@ -60,7 +77,7 @@ export function TestimonialModerateButtons({
         </form>
       </div>
       {state?.error && (
-        <p role="alert" className="text-[11px] text-destructive">
+        <p role="alert" className="text-destructive text-[11px]">
           {state.error}
         </p>
       )}

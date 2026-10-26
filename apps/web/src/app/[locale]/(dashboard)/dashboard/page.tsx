@@ -90,25 +90,15 @@ export default async function DashboardPage() {
   ]);
 
   const ctaCreate = (
-    <Link
-      href="/dashboard/new"
-      className={buttonClasses({ variant: 'primary', size: 'md' })}
-    >
+    <Link href="/dashboard/new" className={buttonClasses({ variant: 'primary', size: 'md' })}>
       {t('create')}
     </Link>
   );
 
   return (
-    <DashboardShell
-      title={t('title')}
-      action={memorials.length > 0 ? ctaCreate : undefined}
-    >
+    <DashboardShell title={t('title')} action={memorials.length > 0 ? ctaCreate : undefined}>
       {memorials.length === 0 ? (
-        <EmptyState
-          title={t('emptyTitle')}
-          description={t('emptyBody')}
-          action={ctaCreate}
-        />
+        <EmptyState title={t('emptyTitle')} description={t('emptyBody')} action={ctaCreate} />
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {memorials.map((m, i) => {
@@ -134,7 +124,7 @@ export default async function DashboardPage() {
       )}
       {favorites.length > 0 && (
         <section className="mt-10">
-          <h2 className="mb-4 font-display text-lg font-bold text-foreground">
+          <h2 className="font-display text-foreground mb-4 text-lg font-bold">
             {t('favoritesTitle')}
           </h2>
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

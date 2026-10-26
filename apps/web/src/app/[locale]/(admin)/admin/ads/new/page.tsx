@@ -12,10 +12,7 @@ export const metadata: Metadata = {
 
 export default async function AdminAdNewPage() {
   await requireAdmin();
-  const [t, tNav] = await Promise.all([
-    getTranslations('admin.ads'),
-    getTranslations('admin.nav'),
-  ]);
+  const [t, tNav] = await Promise.all([getTranslations('admin.ads'), getTranslations('admin.nav')]);
   const labels = {
     name: t('form.name'),
     slot: t('form.slot'),
@@ -38,7 +35,7 @@ export default async function AdminAdNewPage() {
   return (
     <AdminShell title={t('newTitle')}>
       <p className="mb-6 text-sm">
-        <Link href="/admin/ads" className="font-display font-bold text-primary hover:underline">
+        <Link href="/admin/ads" className="font-display text-primary font-bold hover:underline">
           ← {tNav('ads')}
         </Link>
       </p>

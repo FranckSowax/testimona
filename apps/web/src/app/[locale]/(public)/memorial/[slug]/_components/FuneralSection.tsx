@@ -54,9 +54,9 @@ async function getFuneralEvents(memorialId: string): Promise<FuneralEventRow[]> 
   ).returns<FuneralEventRow[]>();
   if (!full.error) return full.data ?? [];
 
-  const fallback = await ordered(
-    'id, title, date, hour, location, address, position',
-  ).returns<Omit<FuneralEventRow, 'url' | 'note'>[]>();
+  const fallback = await ordered('id, title, date, hour, location, address, position').returns<
+    Omit<FuneralEventRow, 'url' | 'note'>[]
+  >();
   return (fallback.data ?? []).map((e) => ({ ...e, url: null, note: null }));
 }
 
@@ -104,15 +104,10 @@ export async function FuneralSection({
     <section aria-labelledby="funeral-heading" className="space-y-6">
       <header className="flex flex-wrap items-baseline justify-between gap-3">
         <div>
-          <h2
-            id="funeral-heading"
-            className="font-display text-2xl font-bold text-foreground"
-          >
+          <h2 id="funeral-heading" className="font-display text-foreground text-2xl font-bold">
             {t('heading')}
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t('subtitle')}
-          </p>
+          <p className="text-muted-foreground mt-1 text-sm">{t('subtitle')}</p>
         </div>
         {isOwner && slug && (
           <FuneralEventCreateModalShell
@@ -124,7 +119,7 @@ export async function FuneralSection({
       </header>
 
       {events.length === 0 ? (
-        <p className="rounded-md border border-dashed border-border bg-surface px-6 py-12 text-center text-sm italic text-muted-foreground">
+        <p className="border-border bg-surface text-muted-foreground rounded-md border border-dashed px-6 py-12 text-center text-sm italic">
           {isOwner ? t('emptyOwner') : t('emptyPublic')}
         </p>
       ) : (
@@ -135,12 +130,12 @@ export async function FuneralSection({
               <li
                 id={`funeral-event-${event.id}`}
                 key={event.id}
-                className="overflow-hidden rounded-2xl border border-border bg-white shadow-[var(--shadow-card)]"
+                className="border-border overflow-hidden rounded-2xl border bg-white shadow-[var(--shadow-card)]"
               >
                 <div className="grid gap-0 sm:grid-cols-[1fr_320px]">
                   <div className="p-5 sm:p-6">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      <p className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
                         {t('step', { n: i + 1 })}
                       </p>
                       <div className="flex flex-wrap items-center gap-1.5">
@@ -163,19 +158,17 @@ export async function FuneralSection({
                             }}
                           />
                         )}
-                        {isOwner && slug && (
-                          <FuneralEventDeleteButton id={event.id} slug={slug} />
-                        )}
+                        {isOwner && slug && <FuneralEventDeleteButton id={event.id} slug={slug} />}
                       </div>
                     </div>
-                    <h3 className="mt-1 font-display text-xl font-bold text-foreground">
+                    <h3 className="font-display text-foreground mt-1 text-xl font-bold">
                       {event.title}
                     </h3>
 
                     <dl className="mt-4 space-y-2 text-sm">
                       {formattedDate && (
                         <div className="flex items-baseline gap-2">
-                          <dt className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground sm:w-16">
+                          <dt className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider sm:w-16">
                             {t('date')}
                           </dt>
                           <dd className="text-foreground">{formattedDate}</dd>
@@ -183,7 +176,7 @@ export async function FuneralSection({
                       )}
                       {event.hour && (
                         <div className="flex items-baseline gap-2">
-                          <dt className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground sm:w-16">
+                          <dt className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider sm:w-16">
                             {t('time')}
                           </dt>
                           <dd className="text-foreground">{event.hour}</dd>
@@ -191,7 +184,7 @@ export async function FuneralSection({
                       )}
                       {event.location && (
                         <div className="flex items-baseline gap-2">
-                          <dt className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground sm:w-16">
+                          <dt className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider sm:w-16">
                             {t('location')}
                           </dt>
                           <dd className="text-foreground">{event.location}</dd>
@@ -199,7 +192,7 @@ export async function FuneralSection({
                       )}
                       {event.address && (
                         <div className="flex items-baseline gap-2">
-                          <dt className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground sm:w-16">
+                          <dt className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider sm:w-16">
                             {t('address')}
                           </dt>
                           <dd className="text-foreground">
@@ -208,7 +201,7 @@ export async function FuneralSection({
                               href={mapsDirectionsHref(event.address)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="ml-2 inline-block font-display text-xs font-bold text-primary hover:underline"
+                              className="font-display text-primary ml-2 inline-block text-xs font-bold hover:underline"
                             >
                               {t('directions')}
                             </a>
@@ -217,15 +210,15 @@ export async function FuneralSection({
                       )}
                       {event.url && (
                         <div className="flex items-baseline gap-2">
-                          <dt className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground sm:w-16">
+                          <dt className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider sm:w-16">
                             {t('link')}
                           </dt>
-                          <dd className="min-w-0 text-foreground">
+                          <dd className="text-foreground min-w-0">
                             <a
                               href={event.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="break-all font-display text-sm font-bold text-primary hover:underline"
+                              className="font-display text-primary break-all text-sm font-bold hover:underline"
                             >
                               {event.url}
                             </a>
@@ -234,17 +227,17 @@ export async function FuneralSection({
                       )}
                       {event.note && (
                         <div className="flex items-baseline gap-2">
-                          <dt className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground sm:w-16">
+                          <dt className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider sm:w-16">
                             {t('note')}
                           </dt>
-                          <dd className="whitespace-pre-line text-foreground">{event.note}</dd>
+                          <dd className="text-foreground whitespace-pre-line">{event.note}</dd>
                         </div>
                       )}
                     </dl>
                   </div>
 
                   {event.address && mapsEmbedSrc(event.address) && (
-                    <div className="relative min-h-[220px] border-t border-border sm:border-l sm:border-t-0">
+                    <div className="border-border relative min-h-[220px] border-t sm:border-l sm:border-t-0">
                       <iframe
                         src={mapsEmbedSrc(event.address)}
                         title={t('mapTitle', { title: event.title })}

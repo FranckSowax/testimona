@@ -70,9 +70,7 @@ export function TestimonialModalShell({
 
         const result = await submitTestimonialAction(null, fd);
         if (result?.error) {
-          setError(
-            result.error === 'Validation' ? tActions('checkRequiredFields') : result.error,
-          );
+          setError(result.error === 'Validation' ? tActions('checkRequiredFields') : result.error);
           resolve();
           return;
         }
@@ -120,7 +118,7 @@ export function TestimonialModalShell({
         }}
       />
       {error && (
-        <p role="alert" className="mt-3 text-sm text-destructive">
+        <p role="alert" className="text-destructive mt-3 text-sm">
           {error}
         </p>
       )}

@@ -1,9 +1,5 @@
 import 'server-only';
-import {
-  isFalConfigured,
-  falSubmitImageToVideo,
-  falGetJobStatus,
-} from '@/lib/fal/client';
+import { isFalConfigured, falSubmitImageToVideo, falGetJobStatus } from '@/lib/fal/client';
 
 /**
  * Video provider abstraction. Routes the request based on which provider
@@ -34,7 +30,7 @@ export const TESTIMONA_VIDEO_PROMPT =
   'Subtle, simple, emotive gestures only — a tilt of the head, a kind look, ' +
   'a tender expression. No background change. Cinematic lighting, gentle slow ' +
   'camera drift. Solemn, noble, peaceful atmosphere. Photorealistic, preserve ' +
-  'the subject\'s identity and features faithfully.';
+  "the subject's identity and features faithfully.";
 
 export interface SubmitJobParams {
   imageUrl: string;
@@ -63,11 +59,7 @@ function readCreds(): { id: string; secret: string } | null {
   // Trim defensively — Railway's UI sometimes adds trailing whitespace
   // or newlines when pasting, and Higgsfield's auth rejects those
   // silently with a 401 "Invalid credentials".
-  const id = (
-    process.env.HIGGSFIELD_API_ID ??
-    process.env.HIGGSFIELD_KEY_ID ??
-    ''
-  ).trim();
+  const id = (process.env.HIGGSFIELD_API_ID ?? process.env.HIGGSFIELD_KEY_ID ?? '').trim();
   const secret = (
     process.env.HIGGSFIELD_API_SECRET ??
     process.env.HIGGSFIELD_KEY_SECRET ??
@@ -161,7 +153,7 @@ export async function pingHiggsfield(): Promise<
       secretLen: creds.secret.length,
       verdict:
         primary.status === 401
-          ? 'Tous les schémas d\'auth ont été rejetés. Cause la plus probable : les credentials ne sont pas activés pour l\'API REST (uniquement MCP), ou ton plan ne donne pas accès à l\'API. Va sur cloud.higgsfield.ai → API Keys et vérifie qu\'ils sont actifs.'
+          ? "Tous les schémas d'auth ont été rejetés. Cause la plus probable : les credentials ne sont pas activés pour l'API REST (uniquement MCP), ou ton plan ne donne pas accès à l'API. Va sur cloud.higgsfield.ai → API Keys et vérifie qu'ils sont actifs."
           : `Status inattendu (${primary.status}). Body: ${primary.body}`,
       attempts,
     };
@@ -226,7 +218,7 @@ export async function submitImageToVideo(
       if (res.status === 403 && text.includes('credits')) {
         return {
           error:
-            'Crédits compute insuffisants côté fournisseur. L\'admin doit recharger le solde Studia.',
+            "Crédits compute insuffisants côté fournisseur. L'admin doit recharger le solde Studia.",
         };
       }
       return { error: `submit ${res.status}: ${text.slice(0, 200)}` };
@@ -259,11 +251,7 @@ export async function getJobStatus(jobId: string): Promise<JobStatus> {
   // is `falurl2:<status_url>||<response_url>`; the older `falurl:<status_url>`
   // and legacy `fal_<request_id>` are still supported by falGetJobStatus for
   // in-flight jobs.
-  if (
-    jobId.startsWith('falurl2:') ||
-    jobId.startsWith('falurl:') ||
-    jobId.startsWith('fal_')
-  ) {
+  if (jobId.startsWith('falurl2:') || jobId.startsWith('falurl:') || jobId.startsWith('fal_')) {
     const realId = jobId.startsWith('fal_') ? jobId.slice(4) : jobId;
     return falGetJobStatus(realId);
   }
@@ -286,18 +274,11 @@ export async function getJobStatus(jobId: string): Promise<JobStatus> {
     };
 
     if (json.status === 'completed') {
-      const url =
-        json.video?.url ??
-        json.videos?.[0]?.url ??
-        null;
+      const url = json.video?.url ?? json.videos?.[0]?.url ?? null;
       if (!url) return { status: 'failed', error: 'no video url in response' };
       return { status: 'ready', videoUrl: url };
     }
-    if (
-      json.status === 'failed' ||
-      json.status === 'nsfw' ||
-      json.status === 'error'
-    ) {
+    if (json.status === 'failed' || json.status === 'nsfw' || json.status === 'error') {
       return {
         status: 'failed',
         error: json.error ?? json.status ?? 'unknown',

@@ -117,7 +117,7 @@ export async function getReportsList(): Promise<AdminReportRow[]> {
 
   return reportRows.map((r) => {
     const tt = testimonialsById.get(r.testimonialId) ?? null;
-    const mem = tt ? memorialsById.get(tt.memorialId) ?? null : null;
+    const mem = tt ? (memorialsById.get(tt.memorialId) ?? null) : null;
     return {
       id: r.id,
       testimonialId: r.testimonialId,
@@ -132,9 +132,7 @@ export async function getReportsList(): Promise<AdminReportRow[]> {
             memorialId: tt.memorialId,
           }
         : null,
-      memorial: mem
-        ? { slug: mem.slug, firstname: mem.firstname, lastname: mem.lastname }
-        : null,
+      memorial: mem ? { slug: mem.slug, firstname: mem.firstname, lastname: mem.lastname } : null,
       reporterEmail: reporterEmails.get(r.reporterId) ?? null,
     };
   });
@@ -205,9 +203,7 @@ export async function getTestimonialsAdminList(
   });
 
   const filtered =
-    params.hasReports === 'reported'
-      ? mapped.filter((t) => t.reportsCount > 0)
-      : mapped;
+    params.hasReports === 'reported' ? mapped.filter((t) => t.reportsCount > 0) : mapped;
 
   return {
     testimonials: filtered,

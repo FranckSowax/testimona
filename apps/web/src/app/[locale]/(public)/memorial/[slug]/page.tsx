@@ -115,18 +115,16 @@ async function getMemorialArt(
   return { bannerUrl: banner, avatarUrl: art?.portraitUrl ?? banner };
 }
 
-async function getMemorialPhotos(memorialId: string): Promise<
-  { id: string; url: string; caption: string | null; durationMs: number | null }[]
-> {
+async function getMemorialPhotos(
+  memorialId: string,
+): Promise<{ id: string; url: string; caption: string | null; durationMs: number | null }[]> {
   const supabase = await getSupabaseServer();
   const { data } = await supabase
     .from('Photo')
     .select('id, url, caption, durationMs')
     .eq('memorialId', memorialId)
     .order('position', { ascending: true })
-    .returns<
-      { id: string; url: string; caption: string | null; durationMs: number | null }[]
-    >();
+    .returns<{ id: string; url: string; caption: string | null; durationMs: number | null }[]>();
   return data ?? [];
 }
 
@@ -137,9 +135,7 @@ interface ReadyClipRow {
   durationMs: number | null;
 }
 
-async function getReadyClipsByPhoto(memorialId: string): Promise<
-  Map<string, ReadyClipRow>
-> {
+async function getReadyClipsByPhoto(memorialId: string): Promise<Map<string, ReadyClipRow>> {
   const supabase = await getSupabaseServer();
   const { data } = await supabase
     .from('MemorialClip')
@@ -167,9 +163,7 @@ export async function generateMetadata({
   if (!memorial) return { title: 'Mémorial introuvable', robots: { index: false } };
 
   const fullName = [memorial.firstname, memorial.lastname].filter(Boolean).join(' ');
-  const displayName = memorial.nickname
-    ? `${fullName} « ${memorial.nickname} »`
-    : fullName;
+  const displayName = memorial.nickname ? `${fullName} « ${memorial.nickname} »` : fullName;
   const yearLine = (() => {
     const birth = memorial.birthDate ? new Date(memorial.birthDate).getFullYear() : null;
     const death = memorial.deathDate ? new Date(memorial.deathDate).getFullYear() : null;
@@ -255,10 +249,7 @@ const RELATIONSHIP_LABELS: Record<string, string> = {
   colleague: 'Colleague',
 };
 
-async function getIsFavorite(
-  memorialId: string,
-  userId: string | undefined,
-): Promise<boolean> {
+async function getIsFavorite(memorialId: string, userId: string | undefined): Promise<boolean> {
   if (!userId) return false;
   const supabase = await getSupabaseServer();
   // Tolerant: if migration v21 hasn't run the table doesn't exist and
@@ -296,15 +287,16 @@ export default async function MemorialPage({
   if (!memorial) notFound();
 
   const fullName = [memorial.firstname, memorial.lastname].filter(Boolean).join(' ');
-  const [art, memorialPhotos, readyClipsByPhoto, tTabs, tBadge, tCover, currentUser] = await Promise.all([
-    getMemorialArt(memorial.id),
-    getMemorialPhotos(memorial.id),
-    getReadyClipsByPhoto(memorial.id),
-    getTranslations('tabs'),
-    getTranslations('memorial.adminBadge'),
-    getTranslations('memorial.coverSidebar'),
-    getCurrentUser(),
-  ]);
+  const [art, memorialPhotos, readyClipsByPhoto, tTabs, tBadge, tCover, currentUser] =
+    await Promise.all([
+      getMemorialArt(memorial.id),
+      getMemorialPhotos(memorial.id),
+      getReadyClipsByPhoto(memorial.id),
+      getTranslations('tabs'),
+      getTranslations('memorial.adminBadge'),
+      getTranslations('memorial.coverSidebar'),
+      getCurrentUser(),
+    ]);
   // Merge ready Higgsfield clips into the photo list. The viewer reads
   // videoUrl + caption when present and falls back to the still image.
   const storyPhotos = memorialPhotos.map((p) => {
@@ -398,18 +390,14 @@ export default async function MemorialPage({
   const yearLine = formatYearLine(memorial.birthDate, memorial.deathDate, locale);
   const birthLine =
     [
-      memorial.birthDate
-        ? new Date(memorial.birthDate).toLocaleDateString(dateLocale)
-        : '',
+      memorial.birthDate ? new Date(memorial.birthDate).toLocaleDateString(dateLocale) : '',
       birthPlace,
     ]
       .filter(Boolean)
       .join(' · ') || undefined;
   const deathLine =
     [
-      memorial.deathDate
-        ? new Date(memorial.deathDate).toLocaleDateString(dateLocale)
-        : '',
+      memorial.deathDate ? new Date(memorial.deathDate).toLocaleDateString(dateLocale) : '',
       deathPlace,
     ]
       .filter(Boolean)
@@ -418,95 +406,92 @@ export default async function MemorialPage({
   const memorialContent = (
     <>
       <Breadcrumb
-        items={[
-          { label: 'Home', href: '/' },
-          { label: `${fullName} Memorial` },
-        ]}
+        items={[{ label: 'Home', href: '/' }, { label: `${fullName} Memorial` }]}
         className="mb-4"
       />
 
       <TiltCard>
         <MemorialHeaderCard
-        fullName={fullName}
-        yearLine={yearLine}
-        nickname={memorial.nickname}
-        bio={memorial.description}
-        birthLine={birthLine}
-        deathLine={deathLine}
-        coverUrl={art.bannerUrl}
-        avatarUrl={art.avatarUrl}
-        adminBadge={
-          <span>
-            {tBadge('administeredBy')}{' '}
-            <span className="font-display font-bold not-italic text-foreground">
-              {isOwner ? tBadge('you') : tBadge('family')}
-            </span>
-            {places.relationship && RELATIONSHIP_LABELS[places.relationship] && (
-              <span className="text-muted-foreground">
-                {' · '}
-                {RELATIONSHIP_LABELS[places.relationship]}
+          fullName={fullName}
+          yearLine={yearLine}
+          nickname={memorial.nickname}
+          bio={memorial.description}
+          birthLine={birthLine}
+          deathLine={deathLine}
+          coverUrl={art.bannerUrl}
+          avatarUrl={art.avatarUrl}
+          adminBadge={
+            <span>
+              {tBadge('administeredBy')}{' '}
+              <span className="font-display text-foreground font-bold not-italic">
+                {isOwner ? tBadge('you') : tBadge('family')}
               </span>
-            )}
-          </span>
-        }
-        adminAction={
-          isOwner ? (
-            <MemorialEditModalShell
-              memorialId={memorial.id}
+              {places.relationship && RELATIONSHIP_LABELS[places.relationship] && (
+                <span className="text-muted-foreground">
+                  {' · '}
+                  {RELATIONSHIP_LABELS[places.relationship]}
+                </span>
+              )}
+            </span>
+          }
+          adminAction={
+            isOwner ? (
+              <MemorialEditModalShell
+                memorialId={memorial.id}
+                slug={memorial.slug}
+                initial={{
+                  firstname: memorial.firstname,
+                  lastname: memorial.lastname,
+                  // Full date parts so the single native date field can prefill
+                  // ("YYYY-MM-DD" split on '-' avoids timezone shifts).
+                  ...(memorial.birthDate
+                    ? (() => {
+                        const [y, m, d] = memorial.birthDate.slice(0, 10).split('-');
+                        return { birthYear: y, birthMonth: m, birthDay: d };
+                      })()
+                    : { birthYear: '' }),
+                  ...(memorial.deathDate
+                    ? (() => {
+                        const [y, m, d] = memorial.deathDate.slice(0, 10).split('-');
+                        return { deathYear: y, deathMonth: m, deathDay: d };
+                      })()
+                    : { deathYear: '' }),
+                  deathCountry: '',
+                  relationship: '',
+                  bio: memorial.description ?? '',
+                  musicUrl: memorial.musicUrl ?? '',
+                }}
+              />
+            ) : currentUser ? (
+              <AdminRequestModalShell memorialId={memorial.id} slug={memorial.slug} />
+            ) : null
+          }
+          sideActions={
+            <MemorialCoverSidebar
               slug={memorial.slug}
-              initial={{
-                firstname: memorial.firstname,
-                lastname: memorial.lastname,
-                // Full date parts so the single native date field can prefill
-                // ("YYYY-MM-DD" split on '-' avoids timezone shifts).
-                ...(memorial.birthDate
-                  ? (() => {
-                      const [y, m, d] = memorial.birthDate.slice(0, 10).split('-');
-                      return { birthYear: y, birthMonth: m, birthDay: d };
-                    })()
-                  : { birthYear: '' }),
-                ...(memorial.deathDate
-                  ? (() => {
-                      const [y, m, d] = memorial.deathDate.slice(0, 10).split('-');
-                      return { deathYear: y, deathMonth: m, deathDay: d };
-                    })()
-                  : { deathYear: '' }),
-                deathCountry: '',
-                relationship: '',
-                bio: memorial.description ?? '',
-                musicUrl: memorial.musicUrl ?? '',
-              }}
+              memorialId={memorial.id}
+              fullName={fullName}
+              shareUrl={shareUrl}
+              photos={storyPhotos}
+              musicUrl={memorial.musicUrl}
+              isOwner={isOwner}
+              isLoggedIn={!!currentUser}
+              isFavoriteInitial={isFavoriteInitial}
+              favoritesCountInitial={favoritesCount}
+              labels={coverLabels}
             />
-          ) : currentUser ? (
-            <AdminRequestModalShell memorialId={memorial.id} slug={memorial.slug} />
-          ) : null
-        }
-        sideActions={
-          <MemorialCoverSidebar
-            slug={memorial.slug}
-            memorialId={memorial.id}
-            fullName={fullName}
-            shareUrl={shareUrl}
-            photos={storyPhotos}
-            musicUrl={memorial.musicUrl}
-            isOwner={isOwner}
-            isLoggedIn={!!currentUser}
-            isFavoriteInitial={isFavoriteInitial}
-            favoritesCountInitial={favoritesCount}
-            labels={coverLabels}
-          />
-        }
-        bioActions={
-          <>
-            <ShareButtons
-              url={`${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/memorial/${memorial.slug}`}
-              title={`Mémorial de ${fullName}`}
-            />
-            <ButtonText variant="action" type="button">
-              Report
-            </ButtonText>
-          </>
-        }
+          }
+          bioActions={
+            <>
+              <ShareButtons
+                url={`${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/memorial/${memorial.slug}`}
+                title={`Mémorial de ${fullName}`}
+              />
+              <ButtonText variant="action" type="button">
+                Report
+              </ButtonText>
+            </>
+          }
         />
       </TiltCard>
 
@@ -524,9 +509,7 @@ export default async function MemorialPage({
         />
       )}
 
-      {isOwner && (
-        <MemorialMembersSection memorialId={memorial.id} slug={memorial.slug} />
-      )}
+      {isOwner && <MemorialMembersSection memorialId={memorial.id} slug={memorial.slug} />}
 
       <div className="mt-8">
         <MemorialTabs
@@ -540,44 +523,28 @@ export default async function MemorialPage({
               id: 'photos',
               label: tTabs('photos'),
               panel: (
-                <PhotosSection
-                  memorialId={memorial.id}
-                  slug={memorial.slug}
-                  isOwner={isOwner}
-                />
+                <PhotosSection memorialId={memorial.id} slug={memorial.slug} isOwner={isOwner} />
               ),
             },
             {
               id: 'donate',
               label: tTabs('donation'),
               panel: (
-                <DonateSection
-                  memorialId={memorial.id}
-                  slug={memorial.slug}
-                  isOwner={isOwner}
-                />
+                <DonateSection memorialId={memorial.id} slug={memorial.slug} isOwner={isOwner} />
               ),
             },
             {
               id: 'life-details',
               label: tTabs('lifeDetails'),
               panel: (
-                <BiographySection
-                  memorialId={memorial.id}
-                  slug={memorial.slug}
-                  isOwner={isOwner}
-                />
+                <BiographySection memorialId={memorial.id} slug={memorial.slug} isOwner={isOwner} />
               ),
             },
             {
               id: 'funeral',
               label: tTabs('funeral'),
               panel: (
-                <FuneralSection
-                  memorialId={memorial.id}
-                  slug={memorial.slug}
-                  isOwner={isOwner}
-                />
+                <FuneralSection memorialId={memorial.id} slug={memorial.slug} isOwner={isOwner} />
               ),
             },
             // Boutique placée en dernier onglet (recette PDF p22).
@@ -615,18 +582,10 @@ export default async function MemorialPage({
     );
   }
 
-  return (
-    <article className="mx-auto max-w-5xl px-4 pb-16 pt-6 sm:px-6">
-      {memorialContent}
-    </article>
-  );
+  return <article className="mx-auto max-w-5xl px-4 pb-16 pt-6 sm:px-6">{memorialContent}</article>;
 }
 
-function formatYearLine(
-  birth: string | null,
-  death: string | null,
-  locale: string,
-): string {
+function formatYearLine(birth: string | null, death: string | null, locale: string): string {
   const year = (d: string | null) => (d ? new Date(d).getFullYear().toString() : '?');
   if (!birth && !death) return '';
   const base = `${year(birth)} – ${year(death)}`;
@@ -634,8 +593,7 @@ function formatYearLine(
   // when there is no photo.
   const age = computeAge(birth, death);
   if (age == null) return base;
-  const ageStr =
-    locale === 'en' ? `at the age of ${age}` : `à l'âge de ${age} ans`;
+  const ageStr = locale === 'en' ? `at the age of ${age}` : `à l'âge de ${age} ans`;
   return `${base} · ${ageStr}`;
 }
 

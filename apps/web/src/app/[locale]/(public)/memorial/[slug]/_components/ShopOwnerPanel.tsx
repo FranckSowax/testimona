@@ -84,11 +84,8 @@ export function ShopOwnerPanel({
   }, [shouldPoll, router]);
 
   return (
-    <details
-      open
-      className="rounded-xl border border-dashed border-primary/40 bg-primary/5 p-5"
-    >
-      <summary className="cursor-pointer font-display text-sm font-bold uppercase tracking-wider text-primary">
+    <details open className="border-primary/40 bg-primary/5 rounded-xl border border-dashed p-5">
+      <summary className="font-display text-primary cursor-pointer text-sm font-bold uppercase tracking-wider">
         {t('title')}
       </summary>
 
@@ -125,25 +122,19 @@ function GenerateVisualBlock({
   readyVisuals: VisualMin[];
 }) {
   const t = useTranslations('memorial.shopOwner');
-  const [state, formAction, isPending] = useActionState<
-    ShopActionState | null,
-    FormData
-  >(generateMemorialVisualAction, null);
-  const [selectedPhotoId, setSelectedPhotoId] = useState<string>(
-    photos[0]?.id ?? '',
+  const [state, formAction, isPending] = useActionState<ShopActionState | null, FormData>(
+    generateMemorialVisualAction,
+    null,
   );
+  const [selectedPhotoId, setSelectedPhotoId] = useState<string>(photos[0]?.id ?? '');
 
   return (
     <div className="rounded-lg bg-white p-4">
-      <h3 className="font-display text-base font-bold text-foreground">
-        {t('step1Title')}
-      </h3>
-      <p className="mt-1 text-xs text-muted-foreground">
-        {t('step1Desc')}
-      </p>
+      <h3 className="font-display text-foreground text-base font-bold">{t('step1Title')}</h3>
+      <p className="text-muted-foreground mt-1 text-xs">{t('step1Desc')}</p>
 
       {photos.length === 0 ? (
-        <p className="mt-3 rounded-md border border-dashed border-border bg-surface px-3 py-2 text-xs italic text-muted-foreground">
+        <p className="border-border bg-surface text-muted-foreground mt-3 rounded-md border border-dashed px-3 py-2 text-xs italic">
           {t('noPhotos')}
         </p>
       ) : (
@@ -165,17 +156,11 @@ function GenerateVisualBlock({
                       'press-scale relative block w-full overflow-hidden rounded-md border-2 transition-all',
                       picked
                         ? 'border-primary shadow-[0_0_0_3px_var(--color-primary-soft)]'
-                        : 'border-transparent hover:border-primary/40',
+                        : 'hover:border-primary/40 border-transparent',
                     ].join(' ')}
                   >
                     <span className="relative block aspect-square">
-                      <Image
-                        src={p.url}
-                        alt=""
-                        fill
-                        sizes="100px"
-                        className="object-cover"
-                      />
+                      <Image src={p.url} alt="" fill sizes="100px" className="object-cover" />
                     </span>
                   </button>
                 </li>
@@ -184,7 +169,7 @@ function GenerateVisualBlock({
           </ul>
 
           <label className="block">
-            <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
               {t('precision')}
             </span>
             <input
@@ -192,26 +177,26 @@ function GenerateVisualBlock({
               name="extraPrompt"
               maxLength={200}
               placeholder={t('precisionPlaceholder')}
-              className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+              className="border-border text-foreground focus:border-primary mt-1 h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none sm:text-sm"
             />
           </label>
 
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               {t('visualsReady', { count: readyVisuals.length })}
               {hasProcessing && ` · ${t('generating')}`}
             </p>
             <button
               type="submit"
               disabled={isPending || !selectedPhotoId}
-              className="press-scale rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="press-scale bg-primary font-display text-primary-foreground rounded-md px-4 py-2 text-sm font-bold transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {isPending ? t('sending') : t('generateNew')}
             </button>
           </div>
 
           {state?.error && (
-            <p role="alert" className="text-xs text-destructive">
+            <p role="alert" className="text-destructive text-xs">
               {state.error}
             </p>
           )}
@@ -220,31 +205,20 @@ function GenerateVisualBlock({
 
       {readyVisuals.length > 0 && (
         <div className="mt-4">
-          <p className="mb-2 font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="font-display text-muted-foreground mb-2 text-xs font-bold uppercase tracking-wider">
             {t('availableVisuals')}
           </p>
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {readyVisuals.map((v) => (
-              <li
-                key={v.id}
-                className="overflow-hidden rounded-md border border-border bg-white"
-              >
+              <li key={v.id} className="border-border overflow-hidden rounded-md border bg-white">
                 <div className="relative aspect-[3/4]">
-                  <Image
-                    src={v.imageUrl}
-                    alt=""
-                    fill
-                    sizes="200px"
-                    className="object-cover"
-                  />
+                  <Image src={v.imageUrl} alt="" fill sizes="200px" className="object-cover" />
                 </div>
                 <VisualActions visualId={v.id} />
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-[11px] italic text-muted-foreground">
-            {t('visualsHelp')}
-          </p>
+          <p className="text-muted-foreground mt-2 text-[11px] italic">{t('visualsHelp')}</p>
         </div>
       )}
     </div>
@@ -261,10 +235,10 @@ function AddShopItemBlock({
   existingProductIds: string[];
 }) {
   const t = useTranslations('memorial.shopOwner');
-  const [state, formAction, isPending] = useActionState<
-    ShopActionState | null,
-    FormData
-  >(addShopItemAction, null);
+  const [state, formAction, isPending] = useActionState<ShopActionState | null, FormData>(
+    addShopItemAction,
+    null,
+  );
   const [productId, setProductId] = useState(SHOP_PRODUCTS[0]!.id);
   const product = findProduct(productId);
   const inUse = existingProductIds.includes(productId);
@@ -278,25 +252,21 @@ function AddShopItemBlock({
 
   return (
     <div className="rounded-lg bg-white p-4">
-      <h3 className="font-display text-base font-bold text-foreground">
-        {t('step2Title')}
-      </h3>
-      <p className="mt-1 text-xs text-muted-foreground">
-        {t('step2Desc')}
-      </p>
+      <h3 className="font-display text-foreground text-base font-bold">{t('step2Title')}</h3>
+      <p className="text-muted-foreground mt-1 text-xs">{t('step2Desc')}</p>
 
       <form action={formAction} className="mt-3 space-y-3">
         <input type="hidden" name="memorialId" value={memorialId} />
 
         <label className="block">
-          <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
             {t('product')}
           </span>
           <select
             name="productId"
             value={productId}
             onChange={(e) => setProductId(e.target.value)}
-            className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+            className="border-border text-foreground focus:border-primary mt-1 h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none sm:text-sm"
           >
             {SHOP_PRODUCTS.map((p) => (
               <option key={p.id} value={p.id}>
@@ -307,14 +277,14 @@ function AddShopItemBlock({
         </label>
 
         {product && (
-          <p className="rounded-md bg-surface/60 p-3 text-xs text-muted-foreground">
+          <p className="bg-surface/60 text-muted-foreground rounded-md p-3 text-xs">
             <ShopProductIcon
               iconKey={product.iconKey}
-              className="mr-2 inline-block h-4 w-4 align-text-bottom text-primary"
+              className="text-primary mr-2 inline-block h-4 w-4 align-text-bottom"
             />
             {product.description}
             {inUse && (
-              <span className="ml-2 inline-flex rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
+              <span className="bg-accent/15 text-accent ml-2 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                 {t('alreadyInShop')}
               </span>
             )}
@@ -323,7 +293,7 @@ function AddShopItemBlock({
 
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
-            <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
               {t('targetQuantity')}
             </span>
             <input
@@ -332,21 +302,19 @@ function AddShopItemBlock({
               min={1}
               defaultValue={50}
               required
-              className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+              className="border-border text-foreground focus:border-primary mt-1 h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none sm:text-sm"
             />
           </label>
           <label className="block">
-            <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
               {t('unitPrice')}
             </span>
             <select
               key={productId}
               name="unitPriceEuros"
-              defaultValue={String(
-                product ? Math.round(product.defaultPriceCents / 100) : 10,
-              )}
+              defaultValue={String(product ? Math.round(product.defaultPriceCents / 100) : 10)}
               required
-              className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+              className="border-border text-foreground focus:border-primary mt-1 h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none sm:text-sm"
             >
               {Array.from(
                 new Set([
@@ -366,13 +334,13 @@ function AddShopItemBlock({
 
         {readyVisuals.length > 0 && (
           <label className="block">
-            <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
               {t('associatedVisual')}
             </span>
             <select
               name="visualId"
               defaultValue={readyVisuals[0]?.id ?? ''}
-              className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+              className="border-border text-foreground focus:border-primary mt-1 h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none sm:text-sm"
             >
               <option value="">{t('none')}</option>
               {readyVisuals.map((v, i) => (
@@ -385,7 +353,7 @@ function AddShopItemBlock({
         )}
 
         <label className="block">
-          <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
             {t('notes')}
           </span>
           <input
@@ -393,7 +361,7 @@ function AddShopItemBlock({
             name="notes"
             maxLength={200}
             placeholder={t('notesPlaceholder')}
-            className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+            className="border-border text-foreground focus:border-primary mt-1 h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none sm:text-sm"
           />
         </label>
 
@@ -401,14 +369,14 @@ function AddShopItemBlock({
           <button
             type="submit"
             disabled={isPending || inUse}
-            className="press-scale rounded-md bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="press-scale bg-primary font-display text-primary-foreground rounded-md px-4 py-2 text-sm font-bold transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {isPending ? t('adding') : inUse ? t('alreadyInShopBtn') : t('addToShop')}
           </button>
         </div>
 
         {state?.error && (
-          <p role="alert" className="text-xs text-destructive">
+          <p role="alert" className="text-destructive text-xs">
             {state.error}
           </p>
         )}

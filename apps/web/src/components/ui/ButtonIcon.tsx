@@ -52,7 +52,7 @@ export const ButtonIcon = forwardRef<HTMLButtonElement, ButtonIconProps>(functio
       className={[
         'inline-flex shrink-0 items-center justify-center rounded-full',
         'transition-[background-color,color,transform] duration-150 ease-[var(--motion-ease-out)]',
-        'focus-visible:outline-none focus-visible:shadow-[var(--shadow-glow-primary)]',
+        'focus-visible:shadow-[var(--shadow-glow-primary)] focus-visible:outline-none',
         'disabled:cursor-not-allowed disabled:opacity-50',
         'active:scale-95',
         SIZE[size],

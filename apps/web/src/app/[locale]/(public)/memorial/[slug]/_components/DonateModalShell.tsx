@@ -76,12 +76,7 @@ export function DonateModalShell({
 
   return (
     <>
-      <ButtonOutlined
-        variant="page-gray"
-        size="lg"
-        onClick={() => setOpen(true)}
-        type="button"
-      >
+      <ButtonOutlined variant="page-gray" size="lg" onClick={() => setOpen(true)} type="button">
         {label}
       </ButtonOutlined>
       <MyDonationCreateModal
@@ -97,7 +92,7 @@ export function DonateModalShell({
         submitting={pending}
       />
       {error && (
-        <p role="alert" className="mt-3 text-sm text-destructive">
+        <p role="alert" className="text-destructive mt-3 text-sm">
           {error}
         </p>
       )}

@@ -4,10 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { ButtonText } from '@/components/ui/ButtonText';
-import {
-  BiographyEditPopup,
-  type BiographyInfoValues,
-} from '@/components/popups/BiographyModals';
+import { BiographyEditPopup, type BiographyInfoValues } from '@/components/popups/BiographyModals';
 import { FuneralsEditPopup } from '@/components/popups/FuneralsModals';
 import {
   DonationsEditModal,
@@ -184,13 +181,7 @@ export function DonationsEditModalShell({
 // =============================================================================
 // AdminRequestModalShell
 // =============================================================================
-export function AdminRequestModalShell({
-  memorialId,
-  slug,
-}: {
-  memorialId: string;
-  slug: string;
-}) {
+export function AdminRequestModalShell({ memorialId, slug }: { memorialId: string; slug: string }) {
   const tActions = useTranslations('memorial.actions');
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -218,12 +209,7 @@ export function AdminRequestModalShell({
 
   return (
     <>
-      <ButtonText
-        variant="action"
-        type="button"
-        onClick={() => setOpen(true)}
-        disabled={submitted}
-      >
+      <ButtonText variant="action" type="button" onClick={() => setOpen(true)} disabled={submitted}>
         {submitted ? tActions('requestSent') : tActions('beAnAdmin')}
       </ButtonText>
       <MemorialAdminRequestPopup

@@ -29,9 +29,9 @@ export async function AppSidebar() {
         fallback={
           <div
             aria-label="Advertisement placeholder"
-            className="h-[420px] rounded-md border border-dashed border-border bg-white p-4"
+            className="border-border h-[420px] rounded-md border border-dashed bg-white p-4"
           >
-            <p className="text-xs text-muted-foreground">Ads slot · home-sidebar</p>
+            <p className="text-muted-foreground text-xs">Ads slot · home-sidebar</p>
           </div>
         }
       />

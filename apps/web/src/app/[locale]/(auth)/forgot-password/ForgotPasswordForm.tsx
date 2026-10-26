@@ -34,7 +34,7 @@ export function ForgotPasswordForm() {
       {state?.error && state.error !== 'Validation' && (
         <p
           role="alert"
-          className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+          className="border-destructive/30 bg-destructive/5 text-destructive rounded-md border px-3 py-2 text-sm"
         >
           {state.error}
         </p>

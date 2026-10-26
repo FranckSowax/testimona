@@ -27,11 +27,7 @@ export function Badge({
 }: BadgeProps) {
   if (typeof count === 'number' && count <= 0) return null;
   const display =
-    typeof count === 'number'
-      ? count > max
-        ? `${max}+`
-        : count.toString()
-      : children;
+    typeof count === 'number' ? (count > max ? `${max}+` : count.toString()) : children;
   return (
     <span
       className={[

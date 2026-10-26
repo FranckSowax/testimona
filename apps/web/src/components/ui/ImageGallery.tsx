@@ -84,7 +84,7 @@ export function ImageGallery({
         if (e.target === dialogRef.current) onClose();
       }}
       className={[
-        'm-0 w-full max-w-[1191px] max-h-[962px] rounded-2xl bg-white p-0',
+        'm-0 max-h-[962px] w-full max-w-[1191px] rounded-2xl bg-white p-0',
         'backdrop:bg-foreground/60 backdrop:backdrop-blur-sm',
         'sm:m-auto',
         className ?? '',
@@ -93,15 +93,15 @@ export function ImageGallery({
         .join(' ')}
     >
       <div className="flex max-h-[90vh] flex-col">
-        <header className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
+        <header className="border-border flex items-center justify-between gap-3 border-b px-5 py-3">
           <div className="min-w-0">
             {title && (
-              <p className="truncate font-display text-sm font-bold text-foreground">{title}</p>
+              <p className="font-display text-foreground truncate text-sm font-bold">{title}</p>
             )}
             {item.authorName && (
-              <p className="truncate text-xs italic text-muted-foreground tabular">
+              <p className="text-muted-foreground tabular truncate text-xs italic">
                 Posted by{' '}
-                <span className="font-display not-italic font-semibold text-foreground">
+                <span className="font-display text-foreground font-semibold not-italic">
                   {item.authorName}
                 </span>
                 {item.postedDate && ` — ${item.postedDate}`}
@@ -114,7 +114,7 @@ export function ImageGallery({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-[var(--color-bg-hover-gray)] hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-[var(--color-bg-hover-gray)]"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
                 <path
@@ -129,7 +129,10 @@ export function ImageGallery({
           </div>
         </header>
 
-        <div className="relative flex items-center justify-center bg-secondary" style={{ height: 502 }}>
+        <div
+          className="bg-secondary relative flex items-center justify-center"
+          style={{ height: 502 }}
+        >
           <Image
             src={item.src}
             alt={item.alt}
@@ -144,7 +147,7 @@ export function ImageGallery({
                 type="button"
                 onClick={onPrev}
                 aria-label="Previous"
-                className="absolute left-3 top-1/2 -translate-y-1/2 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-foreground shadow-md transition hover:bg-white"
+                className="text-foreground absolute left-3 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-md transition hover:bg-white"
               >
                 <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
                   <path
@@ -161,7 +164,7 @@ export function ImageGallery({
                 type="button"
                 onClick={onNext}
                 aria-label="Next"
-                className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-foreground shadow-md transition hover:bg-white"
+                className="text-foreground absolute right-3 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-md transition hover:bg-white"
               >
                 <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
                   <path
@@ -179,14 +182,15 @@ export function ImageGallery({
         </div>
 
         {comments && (
-          <div className="flex-1 overflow-y-auto border-t border-border px-5 py-4" style={{ maxHeight: 315 }}>
+          <div
+            className="border-border flex-1 overflow-y-auto border-t px-5 py-4"
+            style={{ maxHeight: 315 }}
+          >
             {comments}
           </div>
         )}
 
-        {composer && (
-          <footer className="border-t border-border bg-white p-3">{composer}</footer>
-        )}
+        {composer && <footer className="border-border border-t bg-white p-3">{composer}</footer>}
       </div>
     </dialog>
   );

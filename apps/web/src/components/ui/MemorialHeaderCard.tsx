@@ -51,14 +51,14 @@ export async function MemorialHeaderCard({
   return (
     <article
       className={[
-        'overflow-hidden rounded-lg border border-border bg-white shadow-[var(--shadow-card)]',
+        'border-border overflow-hidden rounded-lg border bg-white shadow-[var(--shadow-card)]',
         className ?? '',
       ]
         .filter(Boolean)
         .join(' ')}
     >
       <header className="relative">
-        <div className="relative aspect-[4/3] w-full bg-secondary sm:aspect-[16/6]">
+        <div className="bg-secondary relative aspect-[4/3] w-full sm:aspect-[16/6]">
           {coverUrl ? <ParallaxCover src={coverUrl} /> : null}
           <div
             aria-hidden="true"
@@ -69,7 +69,7 @@ export async function MemorialHeaderCard({
             }}
           />
           {sideActions && (
-            <div className="absolute right-4 top-1/2 flex -translate-y-1/2 flex-col gap-2 rounded-full bg-accent/80 p-2 shadow-md">
+            <div className="bg-accent/80 absolute right-4 top-1/2 flex -translate-y-1/2 flex-col gap-2 rounded-full p-2 shadow-md">
               {sideActions}
             </div>
           )}
@@ -87,23 +87,21 @@ export async function MemorialHeaderCard({
       </header>
 
       <div className="px-4 pb-6 pt-14 sm:px-10 sm:pt-16">
-        <h1 className="font-display text-xl font-bold leading-tight text-foreground sm:text-3xl">
+        <h1 className="font-display text-foreground text-xl font-bold leading-tight sm:text-3xl">
           <AnimatedName text={fullName} />
-          {yearLine && <span className="font-normal text-muted-foreground">, {yearLine}</span>}
+          {yearLine && <span className="text-muted-foreground font-normal">, {yearLine}</span>}
         </h1>
-        {nickname && (
-          <p className="mt-1 text-base italic text-muted-foreground">« {nickname} »</p>
-        )}
+        {nickname && <p className="text-muted-foreground mt-1 text-base italic">« {nickname} »</p>}
 
         {(adminBadge || adminAction) && (
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 text-xs">
-            {adminBadge && <span className="italic text-muted-foreground">{adminBadge}</span>}
+          <div className="border-border mt-5 flex flex-wrap items-center justify-between gap-3 border-t pt-4 text-xs">
+            {adminBadge && <span className="text-muted-foreground italic">{adminBadge}</span>}
             {adminAction && <span className="ml-auto">{adminAction}</span>}
           </div>
         )}
 
         {(birthLine || deathLine || bio) && (
-          <div className="mt-4 space-y-2 text-sm leading-relaxed text-foreground">
+          <div className="text-foreground mt-4 space-y-2 text-sm leading-relaxed">
             {birthLine && (
               <p>
                 <strong className="font-display font-bold">{t('dateOfBirth')}</strong> {birthLine}
@@ -128,16 +126,12 @@ export async function MemorialHeaderCard({
                 ) : null}
               </p>
             )}
-            {bio && (
-              <p className="mt-3 whitespace-pre-line text-foreground/80">{bio}</p>
-            )}
+            {bio && <p className="text-foreground/80 mt-3 whitespace-pre-line">{bio}</p>}
           </div>
         )}
 
         {bioActions && (
-          <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
-            {bioActions}
-          </div>
+          <div className="mt-4 flex flex-wrap items-center justify-end gap-3">{bioActions}</div>
         )}
       </div>
     </article>

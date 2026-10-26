@@ -56,7 +56,7 @@ export function MyDonationCreateModal({
   const [isAnonymous, setIsAnonymous] = useState(false);
 
   const finalAmount =
-    presetAmount === 'other' ? Number.parseFloat(otherAmount) || 0 : presetAmount ?? 0;
+    presetAmount === 'other' ? Number.parseFloat(otherAmount) || 0 : (presetAmount ?? 0);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -77,21 +77,21 @@ export function MyDonationCreateModal({
 
         <div className="flex items-center justify-center gap-3">
           <Avatar src={memorialCoverUrl} name={memorialName} size="md" border="rose" />
-          <p className="font-display text-sm font-bold text-foreground">{memorialName}</p>
+          <p className="font-display text-foreground text-sm font-bold">{memorialName}</p>
         </div>
 
         <div className="flex justify-center">
           <Avatar src={donorAvatarUrl} name={donorName} size="md" />
         </div>
 
-        <p className="text-center text-sm leading-relaxed text-muted-foreground">
+        <p className="text-muted-foreground text-center text-sm leading-relaxed">
           {t('flowersFade')}{' '}
-          <span className="font-display font-bold text-foreground">{memorialName}</span>.
+          <span className="font-display text-foreground font-bold">{memorialName}</span>.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block">
-            <span className="block font-display text-sm font-medium text-muted-foreground">
+            <span className="font-display text-muted-foreground block text-sm font-medium">
               {t('nameLabel')}
             </span>
             <input
@@ -100,30 +100,30 @@ export function MyDonationCreateModal({
               onChange={(e) => setName(e.target.value)}
               maxLength={80}
               placeholder={t('namePlaceholder')}
-              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
             />
           </label>
 
           <label className="block">
-            <span className="block font-display text-sm font-medium text-muted-foreground">
+            <span className="font-display text-muted-foreground block text-sm font-medium">
               {t('messageLabel')}
             </span>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
-              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
             />
           </label>
 
           <label className="block">
-            <span className="block font-display text-sm font-medium text-muted-foreground">
+            <span className="font-display text-muted-foreground block text-sm font-medium">
               {t('currencyLabel')}
             </span>
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
             >
               {CURRENCIES.map((c) => (
                 <option key={c} value={c}>
@@ -134,7 +134,7 @@ export function MyDonationCreateModal({
           </label>
 
           <fieldset className="space-y-2">
-            <legend className="block font-display text-sm font-medium text-muted-foreground">
+            <legend className="font-display text-muted-foreground block text-sm font-medium">
               {t('amountLegend')}
             </legend>
             <div className="flex flex-wrap gap-2">
@@ -147,7 +147,7 @@ export function MyDonationCreateModal({
                     onClick={() => setPresetAmount(amount)}
                     aria-pressed={active}
                     className={[
-                      'press-scale rounded-full border-2 px-4 py-1.5 font-display text-sm font-bold transition-colors',
+                      'press-scale font-display rounded-full border-2 px-4 py-1.5 text-sm font-bold transition-colors',
                       active
                         ? 'border-accent bg-accent text-accent-foreground'
                         : 'border-accent/40 text-accent hover:bg-[var(--color-bg-hover-pink)]',
@@ -162,7 +162,7 @@ export function MyDonationCreateModal({
                 onClick={() => setPresetAmount('other')}
                 aria-pressed={presetAmount === 'other'}
                 className={[
-                  'press-scale rounded-full border-2 px-4 py-1.5 font-display text-sm font-bold transition-colors',
+                  'press-scale font-display rounded-full border-2 px-4 py-1.5 text-sm font-bold transition-colors',
                   presetAmount === 'other'
                     ? 'border-accent bg-accent text-accent-foreground'
                     : 'border-accent/40 text-accent hover:bg-[var(--color-bg-hover-pink)]',
@@ -180,7 +180,7 @@ export function MyDonationCreateModal({
                 onChange={(e) => setOtherAmount(e.target.value)}
                 placeholder={t('enterAmount')}
                 required
-                className="mt-2 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+                className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-2 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
               />
             )}
           </fieldset>
@@ -190,7 +190,7 @@ export function MyDonationCreateModal({
               type="checkbox"
               checked={isAnonymous}
               onChange={(e) => setIsAnonymous(e.target.checked)}
-              className="mt-0.5 h-5 w-5 cursor-pointer rounded border-2 border-border accent-primary"
+              className="border-border accent-primary mt-0.5 h-5 w-5 cursor-pointer rounded border-2"
             />
             <span className="text-foreground">{t('hideOption')}</span>
           </label>
@@ -198,12 +198,10 @@ export function MyDonationCreateModal({
           {useEmbeddedPaypal && (
             <div
               aria-label="PayPal embed"
-              className="rounded-md border border-dashed border-border bg-surface p-6 text-center"
+              className="border-border bg-surface rounded-md border border-dashed p-6 text-center"
               style={{ height: 340 }}
             >
-              <p className="text-sm font-medium text-muted-foreground">
-                {t('paypalPlaceholder')}
-              </p>
+              <p className="text-muted-foreground text-sm font-medium">{t('paypalPlaceholder')}</p>
             </div>
           )}
 
@@ -220,9 +218,9 @@ export function MyDonationCreateModal({
           </div>
         </form>
 
-        <footer className="border-t border-border pt-3 text-center text-xs text-muted-foreground">
+        <footer className="border-border text-muted-foreground border-t pt-3 text-center text-xs">
           {t('securePayment')}{' '}
-          <span className="font-display font-bold text-foreground">
+          <span className="font-display text-foreground font-bold">
             PayPal · VISA · Mastercard · Amex · Discover
           </span>
         </footer>

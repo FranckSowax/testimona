@@ -56,7 +56,7 @@ export function AdRowActions({
         type="button"
         onClick={toggle}
         disabled={pending}
-        className="rounded-md border border-border px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wide text-muted-foreground transition-colors hover:bg-surface hover:text-foreground disabled:opacity-50"
+        className="border-border font-display text-muted-foreground hover:bg-surface hover:text-foreground rounded-md border px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition-colors disabled:opacity-50"
       >
         {isActive ? labels.deactivate : labels.activate}
       </button>
@@ -64,7 +64,7 @@ export function AdRowActions({
         type="button"
         onClick={remove}
         disabled={pending}
-        className="rounded-md border border-destructive/40 px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wide text-destructive transition-colors hover:bg-destructive hover:text-white disabled:opacity-50"
+        className="border-destructive/40 font-display text-destructive hover:bg-destructive rounded-md border px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition-colors hover:text-white disabled:opacity-50"
       >
         {labels.delete}
       </button>

@@ -17,35 +17,28 @@ interface BreadcrumbProps {
  * Last item: Bold navy 22px (page title). Previous: Bold Italic gray 16px, link.
  * Separator: › (chevron right) gray.
  */
-export function Breadcrumb({
-  items,
-  ariaLabel = 'Breadcrumb',
-  className,
-}: BreadcrumbProps) {
+export function Breadcrumb({ items, ariaLabel = 'Breadcrumb', className }: BreadcrumbProps) {
   return (
-    <nav
-      aria-label={ariaLabel}
-      className={['text-sm', className ?? ''].filter(Boolean).join(' ')}
-    >
+    <nav aria-label={ariaLabel} className={['text-sm', className ?? ''].filter(Boolean).join(' ')}>
       <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
         {items.map((item, i) => {
           const isLast = i === items.length - 1;
           const content = isLast ? (
             <span
               aria-current="page"
-              className="font-display text-[16px] font-bold text-foreground sm:text-[22px]"
+              className="font-display text-foreground text-[16px] font-bold sm:text-[22px]"
             >
               {item.label}
             </span>
           ) : item.href ? (
             <Link
               href={item.href}
-              className="font-display text-[16px] font-bold italic text-muted-foreground transition-colors hover:text-foreground"
+              className="font-display text-muted-foreground hover:text-foreground text-[16px] font-bold italic transition-colors"
             >
               {item.label}
             </Link>
           ) : (
-            <span className="font-display text-[16px] font-bold italic text-muted-foreground">
+            <span className="font-display text-muted-foreground text-[16px] font-bold italic">
               {item.label}
             </span>
           );

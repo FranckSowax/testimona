@@ -7,9 +7,7 @@ test.describe('Desktop ≥ 1280px', () => {
     await page.goto('/');
     // Sidebar / hamburger toggle uses Tailwind lg:hidden, so on Desktop Chrome
     // (1280x720 default) it should not be in the layout.
-    const hamburger = page
-      .getByRole('button', { name: /Accueil|Home/i })
-      .first();
+    const hamburger = page.getByRole('button', { name: /Accueil|Home/i }).first();
     await expect(hamburger).toBeHidden();
   });
 
@@ -22,8 +20,6 @@ test.describe('Desktop ≥ 1280px', () => {
   test('footer renders the share-to-a-friend block', async ({ page }) => {
     await page.goto('/');
     const footer = page.locator('footer');
-    await expect(
-      footer.getByText(/Partager à un ami|Share to a friend/i),
-    ).toBeVisible();
+    await expect(footer.getByText(/Partager à un ami|Share to a friend/i)).toBeVisible();
   });
 });

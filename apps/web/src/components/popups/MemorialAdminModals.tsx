@@ -92,12 +92,7 @@ export function MemorialFormPopup({
    * recette feedback). Range errors show live as soon as the 3 parts are
    * typed; "incomplete" only complains after a submit attempt.
    */
-  function dateGroupError(
-    y?: string,
-    m?: string,
-    d?: string,
-    required = false,
-  ): string | null {
+  function dateGroupError(y?: string, m?: string, d?: string, required = false): string | null {
     const complete = !!(y && m && d);
     if (complete && badDateTriplet(y, m, d))
       return t('errorBadDate', { year: String(new Date().getFullYear()) });
@@ -106,15 +101,8 @@ export function MemorialFormPopup({
   }
 
   const birthDateError =
-    mode === 'create'
-      ? dateGroupError(v.birthYear, v.birthMonth, v.birthDay, true)
-      : null;
-  const deathDateError = dateGroupError(
-    v.deathYear,
-    v.deathMonth,
-    v.deathDay,
-    mode === 'create',
-  );
+    mode === 'create' ? dateGroupError(v.birthYear, v.birthMonth, v.birthDay, true) : null;
+  const deathDateError = dateGroupError(v.deathYear, v.deathMonth, v.deathDay, mode === 'create');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -125,8 +113,12 @@ export function MemorialFormPopup({
     // the popup just "stays open" with no feedback (recette PDF p8).
     if (mode === 'create') {
       const datesBad =
-        !v.birthYear || !v.birthMonth || !v.birthDay ||
-        !v.deathYear || !v.deathMonth || !v.deathDay ||
+        !v.birthYear ||
+        !v.birthMonth ||
+        !v.birthDay ||
+        !v.deathYear ||
+        !v.deathMonth ||
+        !v.deathDay ||
         badDateTriplet(v.birthYear, v.birthMonth, v.birthDay) ||
         badDateTriplet(v.deathYear, v.deathMonth, v.deathDay);
       if (datesBad) {
@@ -249,14 +241,14 @@ export function MemorialFormPopup({
           </div>
 
           <label className="block">
-            <span className="block font-display text-sm font-medium text-muted-foreground">
+            <span className="font-display text-muted-foreground block text-sm font-medium">
               Relationship with the deceased*
             </span>
             <select
               value={v.relationship}
               onChange={(e) => set('relationship', e.target.value)}
               required
-              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+              className="text-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
             >
               <option value="">— Select —</option>
               {RELATIONSHIP_OPTIONS.map((o) => (
@@ -268,7 +260,7 @@ export function MemorialFormPopup({
           </label>
 
           <label className="block">
-            <span className="block font-display text-sm font-medium text-muted-foreground">
+            <span className="font-display text-muted-foreground block text-sm font-medium">
               Bio (max 280 characters)
             </span>
             <textarea
@@ -276,15 +268,15 @@ export function MemorialFormPopup({
               onChange={(e) => set('bio', e.target.value.slice(0, 280))}
               maxLength={280}
               rows={3}
-              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
             />
-            <span className="mt-1 block text-right text-xs italic text-muted-foreground tabular">
+            <span className="text-muted-foreground tabular mt-1 block text-right text-xs italic">
               {(v.bio ?? '').length}/280
             </span>
           </label>
 
           <label className="block">
-            <span className="block font-display text-sm font-medium text-muted-foreground">
+            <span className="font-display text-muted-foreground block text-sm font-medium">
               Ambient music (URL — optional)
             </span>
             <input
@@ -293,16 +285,16 @@ export function MemorialFormPopup({
               onChange={(e) => set('musicUrl', e.target.value)}
               placeholder="https://youtube.com/watch?v=… or https://…/song.mp3"
               maxLength={500}
-              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-base font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)] sm:text-[15px]"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-base font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none sm:text-[15px]"
             />
-            <span className="mt-1 block text-xs italic text-muted-foreground">
-              Plays in loop during the photo slideshow. YouTube link or direct
-              audio URL (mp3 / m4a / wav).
+            <span className="text-muted-foreground mt-1 block text-xs italic">
+              Plays in loop during the photo slideshow. YouTube link or direct audio URL (mp3 / m4a
+              / wav).
             </span>
           </label>
 
           {localError && (
-            <p role="alert" className="text-center text-sm text-destructive">
+            <p role="alert" className="text-destructive text-center text-sm">
               {localError}
             </p>
           )}
@@ -311,12 +303,7 @@ export function MemorialFormPopup({
             <ButtonOutlined type="button" variant="thankyou-gray" size="md" onClick={onClose}>
               Cancel
             </ButtonOutlined>
-            <ButtonOutlined
-              type="submit"
-              variant="popup-rose"
-              size="md"
-              loading={submitting}
-            >
+            <ButtonOutlined type="submit" variant="popup-rose" size="md" loading={submitting}>
               {mode === 'create' ? 'Create memorial' : 'Save'}
             </ButtonOutlined>
           </div>
@@ -364,7 +351,7 @@ export function MemorialAdminRequestPopup({
               checked={accepted}
               onChange={(e) => setAccepted(e.target.checked)}
               required
-              className="mt-0.5 h-5 w-5 cursor-pointer rounded border-2 border-border accent-primary"
+              className="border-border accent-primary mt-0.5 h-5 w-5 cursor-pointer rounded border-2"
             />
             <span className="text-foreground">I want to be an administrator of this page</span>
           </label>
@@ -377,14 +364,14 @@ export function MemorialAdminRequestPopup({
           />
 
           <label className="block">
-            <span className="block font-display text-sm font-medium text-muted-foreground">
+            <span className="font-display text-muted-foreground block text-sm font-medium">
               Add a note
             </span>
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={3}
-              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
             />
           </label>
 
@@ -417,12 +404,12 @@ interface InputProps {
 function Input({ label, value, onChange, required }: InputProps) {
   return (
     <label className="block">
-      <span className="block font-display text-sm font-medium text-muted-foreground">{label}</span>
+      <span className="font-display text-muted-foreground block text-sm font-medium">{label}</span>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
-        className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+        className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
       />
     </label>
   );
@@ -454,10 +441,8 @@ function PhotoPickField({ label, hint, file, onChange, round = false }: PhotoPic
 
   return (
     <label className="block">
-      <span className="block font-display text-sm font-medium text-muted-foreground">
-        {label}
-      </span>
-      <div className="mt-1 flex items-center gap-3 rounded-md border border-dashed border-border bg-[var(--color-bg-active-gray)] p-3">
+      <span className="font-display text-muted-foreground block text-sm font-medium">{label}</span>
+      <div className="border-border mt-1 flex items-center gap-3 rounded-md border border-dashed bg-[var(--color-bg-active-gray)] p-3">
         {previewUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -472,11 +457,21 @@ function PhotoPickField({ label, hint, file, onChange, round = false }: PhotoPic
           <span
             aria-hidden="true"
             className={[
-              'flex shrink-0 items-center justify-center bg-white text-muted-foreground',
+              'text-muted-foreground flex shrink-0 items-center justify-center bg-white',
               round ? 'h-12 w-12 rounded-full' : 'h-12 w-20 rounded-md',
             ].join(' ')}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
               <circle cx="8.5" cy="8.5" r="1.5" />
               <path d="M21 15l-5-5L5 21" />
@@ -491,20 +486,18 @@ function PhotoPickField({ label, hint, file, onChange, round = false }: PhotoPic
               pick(e.target.files?.[0] ?? null);
               e.target.value = '';
             }}
-            className="block w-full text-xs text-muted-foreground file:mr-2 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-1.5 file:font-display file:text-xs file:font-bold file:text-primary hover:file:bg-primary/5"
+            className="text-muted-foreground file:font-display file:text-primary hover:file:bg-primary/5 block w-full text-xs file:mr-2 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-1.5 file:text-xs file:font-bold"
           />
           {file && (
             <button
               type="button"
               onClick={() => pick(null)}
-              className="mt-1 text-xs text-muted-foreground hover:text-destructive"
+              className="text-muted-foreground hover:text-destructive mt-1 text-xs"
             >
               ✕ {file.name.slice(0, 30)}
             </button>
           )}
-          {hint && !file && (
-            <p className="mt-1 text-[11px] italic text-muted-foreground">{hint}</p>
-          )}
+          {hint && !file && <p className="text-muted-foreground mt-1 text-[11px] italic">{hint}</p>}
         </div>
       </div>
     </label>
@@ -529,15 +522,7 @@ interface DateFieldProps {
  * label, so what the label says and what the field shows can't disagree.
  * Validation errors render directly under the field.
  */
-function DateField({
-  label,
-  year,
-  month,
-  day,
-  required,
-  error,
-  onChange,
-}: DateFieldProps) {
+function DateField({ label, year, month, day, required, error, onChange }: DateFieldProps) {
   const today = new Date().toISOString().slice(0, 10);
   const value =
     year && month && day
@@ -546,9 +531,7 @@ function DateField({
 
   return (
     <label className="block">
-      <span className="block font-display text-sm font-medium text-muted-foreground">
-        {label}
-      </span>
+      <span className="font-display text-muted-foreground block text-sm font-medium">{label}</span>
       <input
         type="date"
         value={value}
@@ -561,10 +544,10 @@ function DateField({
           if (y && m && d) onChange(y, m, d);
           else onChange('', '', '');
         }}
-        className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+        className="text-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
       />
       {error && (
-        <p role="alert" className="mt-1 text-xs text-destructive">
+        <p role="alert" className="text-destructive mt-1 text-xs">
           {error}
         </p>
       )}
@@ -575,12 +558,12 @@ function DateField({
 function CountrySelect({ label, value, onChange, required }: InputProps) {
   return (
     <label className="block">
-      <span className="block font-display text-sm font-medium text-muted-foreground">{label}</span>
+      <span className="font-display text-muted-foreground block text-sm font-medium">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
-        className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+        className="text-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
       >
         <option value="">— Select —</option>
         {COUNTRIES.map((c) => (

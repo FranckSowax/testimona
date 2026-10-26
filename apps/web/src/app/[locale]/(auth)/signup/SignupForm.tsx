@@ -47,12 +47,10 @@ export function SignupForm() {
         role="status"
         className="mt-8 space-y-3 rounded-lg border border-emerald-300 bg-emerald-50 p-5 text-center"
       >
-        <p className="font-display text-lg font-bold text-emerald-700">
-          Vérifie ta boîte mail
-        </p>
+        <p className="font-display text-lg font-bold text-emerald-700">Vérifie ta boîte mail</p>
         <p className="text-sm text-emerald-800">
-          Nous t&apos;avons envoyé un e-mail de confirmation. Clique sur le lien
-          qu&apos;il contient pour activer ton compte, puis connecte-toi.
+          Nous t&apos;avons envoyé un e-mail de confirmation. Clique sur le lien qu&apos;il contient
+          pour activer ton compte, puis connecte-toi.
         </p>
         <a
           href={localizedPath(
@@ -62,7 +60,7 @@ export function SignupForm() {
             })(),
             locale,
           )}
-          className="press-scale inline-block rounded-md border-2 border-emerald-600 px-4 py-2 font-display text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-600 hover:text-white"
+          className="press-scale font-display inline-block rounded-md border-2 border-emerald-600 px-4 py-2 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-600 hover:text-white"
         >
           Aller à la connexion
         </a>
@@ -76,12 +74,7 @@ export function SignupForm() {
         <Input name="nickname" type="text" autoComplete="nickname" maxLength={50} />
       </FormField>
       <FormField label="Email" required error={state?.fieldErrors?.email}>
-        <Input
-          name="email"
-          type="email"
-          autoComplete="email"
-          placeholder="vous@exemple.com"
-        />
+        <Input name="email" type="email" autoComplete="email" placeholder="vous@exemple.com" />
       </FormField>
       <FormField
         label="Mot de passe"
@@ -94,7 +87,7 @@ export function SignupForm() {
       {state?.error && state.error !== 'Validation' && (
         <p
           role="alert"
-          className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+          className="border-destructive/30 bg-destructive/5 text-destructive rounded-md border px-3 py-2 text-sm"
         >
           {state.error}
         </p>

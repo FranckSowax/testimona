@@ -15,10 +15,7 @@ export function HeaderCreateMemorialButton({ label }: Props) {
   if (!onMemorialsArea) return null;
 
   return (
-    <Link
-      href="/dashboard/new"
-      className={buttonClasses({ variant: 'primary', size: 'sm' })}
-    >
+    <Link href="/dashboard/new" className={buttonClasses({ variant: 'primary', size: 'sm' })}>
       {label}
     </Link>
   );

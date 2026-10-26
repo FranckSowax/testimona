@@ -28,16 +28,16 @@ test.describe('Public pages', () => {
 
   test('Signup page — V2 form on mesh', async ({ page }) => {
     await page.goto('/signup');
-    await expect(page.getByRole('heading', { name: /Créer un compte|Create.+account/i })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /Créer un compte|Create.+account/i }),
+    ).toBeVisible();
     await expect(page.getByLabel(/Pseudonyme|Nickname|Username/i)).toBeVisible();
     await expect(page.getByLabel(/Mot de passe|Password/i)).toBeVisible();
   });
 
   test('Search page — empty state V2', async ({ page }) => {
     await page.goto('/search');
-    await expect(
-      page.getByPlaceholder(/Nom, prénom ou surnom|Search/i),
-    ).toBeVisible();
+    await expect(page.getByPlaceholder(/Nom, prénom ou surnom|Search/i)).toBeVisible();
   });
 
   test('About page', async ({ page }) => {

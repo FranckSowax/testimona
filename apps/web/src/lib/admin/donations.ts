@@ -75,10 +75,9 @@ export async function getDonationsList(
 
   let q = supabase
     .from('Donation')
-    .select(
-      'id, memorialId, userId, amount, currency, status, message, createdAt',
-      { count: 'exact' },
-    );
+    .select('id, memorialId, userId, amount, currency, status, message, createdAt', {
+      count: 'exact',
+    });
   if (status !== 'all') q = q.eq('status', status);
   q = q.order('createdAt', { ascending: false }).range(offset, offset + perPage - 1);
 
@@ -119,7 +118,7 @@ export async function getDonationsList(
       createdAt: r.createdAt,
       memorialSlug: m?.slug ?? null,
       memorialName: m ? `${m.firstname} ${m.lastname}` : null,
-      donorEmail: r.userId ? userEmails.get(r.userId) ?? null : null,
+      donorEmail: r.userId ? (userEmails.get(r.userId) ?? null) : null,
     };
   });
 

@@ -1,10 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import {
-  removeShopItemAction,
-  type ShopActionState,
-} from '../_actions/shop';
+import { removeShopItemAction, type ShopActionState } from '../_actions/shop';
 
 /**
  * Standalone delete control for a shop item. Kept in its own file (not
@@ -14,10 +11,10 @@ import {
  * component yields undefined and triggers React error #130.
  */
 export function ShopItemRemoveButton({ itemId }: { itemId: string }) {
-  const [, formAction, isPending] = useActionState<
-    ShopActionState | null,
-    FormData
-  >(removeShopItemAction, null);
+  const [, formAction, isPending] = useActionState<ShopActionState | null, FormData>(
+    removeShopItemAction,
+    null,
+  );
   return (
     <form action={formAction}>
       <input type="hidden" name="id" value={itemId} />
@@ -25,7 +22,7 @@ export function ShopItemRemoveButton({ itemId }: { itemId: string }) {
         type="submit"
         disabled={isPending}
         aria-label="Retirer cet article de la boutique"
-        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-white text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive disabled:opacity-50"
+        className="border-border text-muted-foreground hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive inline-flex h-8 w-8 items-center justify-center rounded-md border bg-white transition-colors disabled:opacity-50"
       >
         <svg
           width="13"

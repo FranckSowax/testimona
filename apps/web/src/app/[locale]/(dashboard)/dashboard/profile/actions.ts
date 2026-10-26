@@ -80,8 +80,7 @@ export async function changePasswordAction(
   else if (newPassword.length > 200) fieldErrors.newPassword = 'max 200 caractères';
   if (confirmPassword !== newPassword)
     fieldErrors.confirmPassword = 'les mots de passe ne correspondent pas';
-  if (Object.keys(fieldErrors).length > 0)
-    return { error: 'Validation', fieldErrors };
+  if (Object.keys(fieldErrors).length > 0) return { error: 'Validation', fieldErrors };
 
   const supabase = await getSupabaseServer();
   const { data: userData } = await supabase.auth.getUser();
@@ -119,9 +118,7 @@ export async function requestPayoutSetupAction(
   // to the platform inbox via Resend so ops can pick it up.
   const { sendEmail } = await import('@/lib/email/resend');
   const inbox =
-    process.env.PAYOUTS_INBOX_EMAIL ??
-    process.env.RESEND_FROM_EMAIL ??
-    'no-reply@testimona.com';
+    process.env.PAYOUTS_INBOX_EMAIL ?? process.env.RESEND_FROM_EMAIL ?? 'no-reply@testimona.com';
   await sendEmail({
     to: inbox,
     subject: `[Payout request] ${userData.user.email ?? userData.user.id}`,

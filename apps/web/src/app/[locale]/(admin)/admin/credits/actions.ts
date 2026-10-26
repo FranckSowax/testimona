@@ -14,7 +14,9 @@ export async function adminGrantCreditsAction(
   formData: FormData,
 ): Promise<AdminCreditActionState> {
   await requireAdmin();
-  const email = String(formData.get('email') ?? '').trim().toLowerCase();
+  const email = String(formData.get('email') ?? '')
+    .trim()
+    .toLowerCase();
   const amount = parseInt(String(formData.get('amount') ?? '0'), 10);
   const note = String(formData.get('note') ?? '').trim() || 'Admin grant';
   if (!email) return { error: 'Email requis' };

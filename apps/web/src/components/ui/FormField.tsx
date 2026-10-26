@@ -23,8 +23,7 @@ export function FormField({
   const hintId = `${fieldId}-hint`;
   const errorId = `${fieldId}-error`;
   const describedBy =
-    [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(' ') ||
-    undefined;
+    [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(' ') || undefined;
 
   const child = isValidElement(children)
     ? cloneElement(children as ReactElement<Record<string, unknown>>, {
@@ -41,25 +40,25 @@ export function FormField({
       <label
         htmlFor={fieldId}
         className={[
-          'block text-sm font-medium font-display text-foreground',
+          'font-display text-foreground block text-sm font-medium',
           hideLabel ? 'sr-only' : '',
         ].join(' ')}
       >
         {label}
         {required && (
-          <span aria-hidden="true" className="ml-0.5 text-accent">
+          <span aria-hidden="true" className="text-accent ml-0.5">
             *
           </span>
         )}
       </label>
       {child}
       {hint && !error && (
-        <p id={hintId} className="text-xs text-muted-foreground">
+        <p id={hintId} className="text-muted-foreground text-xs">
           {hint}
         </p>
       )}
       {error && (
-        <p id={errorId} role="alert" className="text-xs text-destructive">
+        <p id={errorId} role="alert" className="text-destructive text-xs">
           {error}
         </p>
       )}

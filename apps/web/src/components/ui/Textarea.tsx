@@ -9,16 +9,17 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 /**
  * V2 textarea — same gray field style as Input (#efefef bg, no border, semibold value).
  */
-export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  function Textarea({ invalid = false, className, rows = 4, ...rest }, ref) {
-    return (
-      <textarea
-        ref={ref}
-        rows={rows}
-        aria-invalid={invalid || undefined}
-        className={[fieldClasses, 'resize-y', className ?? ''].filter(Boolean).join(' ')}
-        {...rest}
-      />
-    );
-  },
-);
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
+  { invalid = false, className, rows = 4, ...rest },
+  ref,
+) {
+  return (
+    <textarea
+      ref={ref}
+      rows={rows}
+      aria-invalid={invalid || undefined}
+      className={[fieldClasses, 'resize-y', className ?? ''].filter(Boolean).join(' ')}
+      {...rest}
+    />
+  );
+});

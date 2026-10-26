@@ -7,8 +7,7 @@ import { test, expect } from '@playwright/test';
  * change MEMORIAL_SLUG below — or set PLAYWRIGHT_MEMORIAL_SLUG in env.
  */
 
-const MEMORIAL_SLUG =
-  process.env.PLAYWRIGHT_MEMORIAL_SLUG ?? 'sofia-bernardi';
+const MEMORIAL_SLUG = process.env.PLAYWRIGHT_MEMORIAL_SLUG ?? 'sofia-bernardi';
 
 test.describe('Memorial public detail', () => {
   test('renders all 5 tabs + identity card', async ({ page }) => {
@@ -31,11 +30,14 @@ test.describe('Memorial public detail', () => {
 
   test('switching tab updates active panel', async ({ page }) => {
     await page.goto(`/memorial/${MEMORIAL_SLUG}`);
-    await page.getByRole('tab', { name: /Faire un don/i }).first().click();
+    await page
+      .getByRole('tab', { name: /Faire un don/i })
+      .first()
+      .click();
     // Donation tab content area becomes visible
-    await expect(
-      page.getByText(/objectif de collecte|Make a donation/i).first(),
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/objectif de collecte|Make a donation/i).first()).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   test('Make a donation CTA is wired (does not 500)', async ({ page }) => {
@@ -48,9 +50,7 @@ test.describe('Memorial public detail', () => {
       .click();
     // CTA is the button inside the donate panel (the tab itself uses role=tab,
     // the CTA uses role=button).
-    const cta = page
-      .getByRole('button', { name: /Faire un don|Make a donation/i })
-      .last();
+    const cta = page.getByRole('button', { name: /Faire un don|Make a donation/i }).last();
     await expect(cta).toBeVisible({ timeout: 10_000 });
     await cta.click();
     // Donation popup opens (PopupCard renders <dialog>)
@@ -63,24 +63,16 @@ test.describe('Memorial SEO', () => {
     const response = await page.goto(`/memorial/${MEMORIAL_SLUG}`);
     expect(response?.ok()).toBeTruthy();
 
-    const canonical = await page
-      .locator('link[rel="canonical"]')
-      .getAttribute('href');
+    const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
     expect(canonical).toMatch(/\/memorial\//);
 
-    const ogTitle = await page
-      .locator('meta[property="og:title"]')
-      .getAttribute('content');
+    const ogTitle = await page.locator('meta[property="og:title"]').getAttribute('content');
     expect(ogTitle).toBeTruthy();
 
-    const ogImage = await page
-      .locator('meta[property="og:image"]')
-      .getAttribute('content');
+    const ogImage = await page.locator('meta[property="og:image"]').getAttribute('content');
     expect(ogImage).toContain('/api/og/memorial/');
 
-    const twitterCard = await page
-      .locator('meta[name="twitter:card"]')
-      .getAttribute('content');
+    const twitterCard = await page.locator('meta[name="twitter:card"]').getAttribute('content');
     expect(twitterCard).toBe('summary_large_image');
   });
 
