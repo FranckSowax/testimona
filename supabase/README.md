@@ -52,6 +52,23 @@ La production a reçu ces migrations à la main. Avant le premier `supabase db p
    `20260502000024`).
 4. Appliquer les nouvelles migrations : `supabase db push`.
 
+## État de la production (2026-10-27)
+
+Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Comparaison faite avec le MCP
+Supabase, en rejouant la chaîne du repo dans PGlite :
+
+- mêmes 26 tables, mêmes policies RLS ;
+- la v24 (`isAnonymous`, `wantsItem`) manquait : appliquée le 2026-10-27, enregistrée sous la version
+  `20261026234530` ;
+- l'historique de production ne contient que v2 à v16 et v24, sous des versions différentes du repo
+  (ex. `20260510104839_v2_popups_schema_additions`) ; v17 à v23 y ont été appliquées sans historique ;
+- écarts mineurs : `MemorialFavorite.id` a un défaut `gen_random_uuid()` en production, index en double
+  `chapter_biography_position_idx` en production, index `MemorialFavorite_userId_createdAt_idx` absent
+  de la production.
+
+Avant le premier `supabase db push`, marquer les versions de production comme `reverted` et celles du
+repo (`20260501000000` → `20260502000024`) comme `applied` avec `supabase migration repair`.
+
 ## Types TypeScript
 
 ```bash
