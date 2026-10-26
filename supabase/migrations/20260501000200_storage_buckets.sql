@@ -1,8 +1,7 @@
 -- ============================================================================
 -- Testimona — Supabase Storage buckets and RLS policies
 -- ============================================================================
--- Apply once with: psql $SUPABASE_DB -f infra/supabase/storage/buckets.sql
--- Or via: prisma db execute --file infra/supabase/storage/buckets.sql
+-- Fichier versionné : supabase/migrations (appliqué via supabase db push).
 --
 -- Convention: every uploaded object lives under "<scopeId>/<filename>".
 -- Folder-level checks are used to enforce ownership.

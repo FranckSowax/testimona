@@ -20,10 +20,8 @@ testimona/
   apps/web/              # Next.js (frontend + Server Actions)
   packages/
     shared/              # Zod schemas, types domaine
-    database/            # Prisma client wrapper
-  infra/
-    supabase/            # RLS policies (rls/policies.sql)
-    railway/             # railway.toml
+  supabase/              # migrations versionnées + tests SQL/RLS (PGlite)
+  docs/                  # analyse de reprise, proposition parcours, notes de lot
   .github/workflows/     # ci, deploy-staging
 ```
 
@@ -44,10 +42,10 @@ Variables minimales dans `apps/web/.env.local` :
 
 ## Provisioning Supabase
 
+Schéma, migrations versionnées et tests RLS : voir [`supabase/README.md`](./supabase/README.md).
+
 ```bash
-# Créer un projet sur https://supabase.com/dashboard
-psql $SUPABASE_DB_URL -f infra/supabase/rls/policies.sql
-# Configurer Auth (Email/Password, Google OAuth optionnel, redirect URLs)
+pnpm --filter @testimona/supabase test   # rejoue les migrations et vérifie la RLS (sans Docker)
 ```
 
 ## Routes principales

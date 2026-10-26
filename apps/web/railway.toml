@@ -12,7 +12,6 @@ buildCommand = "pnpm --filter @testimona/web build"
 watchPatterns = [
   "apps/web/**",
   "packages/shared/**",
-  "packages/database/**",
   "package.json",
   "pnpm-lock.yaml",
   "pnpm-workspace.yaml",
