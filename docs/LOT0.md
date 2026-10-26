@@ -24,6 +24,10 @@ Référence : [`parcours-proposition.html`](./parcours-proposition.html), sectio
 2. **Comparaison avec la production** : `supabase db diff --linked` puis `migration repair`
    (voir `supabase/README.md`). Tant que ce n'est pas fait, la baseline reste une reconstitution.
 
+## Sécurité
+
+- **Fuite corrigée le 2026-10-27** : les colonnes personnelles de `ShopContribution` (`donorEmail`, `donorName`, `message`, `stripeSessionId`, `donorId`) ne sont plus lisibles via l'API publique (migration `20261027000100`, appliquée en production sous `20261026235537`). La page notifications lit les noms par `src/server/privileged/shop-contributions.ts`.
+
 ## Reporté volontairement
 
 - **Avertissements ESLint** : 14 variables ou imports inutilisés dans du code existant (non bloquant).
