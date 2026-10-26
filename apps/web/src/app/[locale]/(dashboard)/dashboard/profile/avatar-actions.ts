@@ -31,13 +31,11 @@ export async function uploadAvatarAction(
   const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
   const path = `${userData.user.id}/avatar-${Date.now()}.${ext}`;
 
-  const { error: uploadError } = await supabase.storage
-    .from('avatars')
-    .upload(path, file, {
-      contentType: file.type,
-      upsert: true,
-      cacheControl: '3600',
-    });
+  const { error: uploadError } = await supabase.storage.from('avatars').upload(path, file, {
+    contentType: file.type,
+    upsert: true,
+    cacheControl: '3600',
+  });
   if (uploadError) return { error: uploadError.message };
 
   const { data: publicData } = supabase.storage.from('avatars').getPublicUrl(path);

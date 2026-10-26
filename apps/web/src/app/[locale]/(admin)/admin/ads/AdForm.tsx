@@ -2,11 +2,7 @@
 
 import { useActionState, useState } from 'react';
 import { AD_SLOTS, type AdRow } from '@/lib/admin/ads-shared';
-import {
-  createAdAction,
-  updateAdAction,
-  type AdActionState,
-} from './actions';
+import { createAdAction, updateAdAction, type AdActionState } from './actions';
 
 interface Labels {
   name: string;
@@ -45,13 +41,7 @@ function toDateTimeLocal(iso: string | null): string {
   return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
 }
 
-export function AdForm({
-  initial,
-  labels,
-}: {
-  initial?: AdRow | null;
-  labels: Labels;
-}) {
+export function AdForm({ initial, labels }: { initial?: AdRow | null; labels: Labels }) {
   const isEdit = !!initial;
   const action = isEdit ? updateAdAction : createAdAction;
   const [state, formAction, isPending] = useActionState<AdActionState | null, FormData>(
@@ -61,7 +51,7 @@ export function AdForm({
   const [type, setType] = useState<'image' | 'html'>(initial?.type ?? 'image');
 
   return (
-    <form action={formAction} className="space-y-5 rounded-lg border border-border bg-white p-5">
+    <form action={formAction} className="border-border space-y-5 rounded-lg border bg-white p-5">
       {isEdit && <input type="hidden" name="id" defaultValue={initial.id} />}
 
       <Field label={labels.name} error={state?.fieldErrors?.name}>
@@ -70,7 +60,7 @@ export function AdForm({
           required
           defaultValue={initial?.name ?? ''}
           maxLength={120}
-          className="h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none"
+          className="border-border text-foreground focus:border-primary h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none"
         />
       </Field>
 
@@ -79,7 +69,7 @@ export function AdForm({
           name="slot"
           required
           defaultValue={initial?.slot ?? AD_SLOTS[0]}
-          className="h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none"
+          className="border-border text-foreground focus:border-primary h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none"
         >
           {AD_SLOTS.map((s) => (
             <option key={s} value={s}>
@@ -94,7 +84,7 @@ export function AdForm({
           name="type"
           value={type}
           onChange={(e) => setType(e.target.value as 'image' | 'html')}
-          className="h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none"
+          className="border-border text-foreground focus:border-primary h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none"
         >
           <option value="image">{labels.typeImage}</option>
           <option value="html">{labels.typeHtml}</option>
@@ -103,13 +93,17 @@ export function AdForm({
 
       {type === 'image' ? (
         <>
-          <Field label={labels.imageUrl} hint={labels.imageUrlHint} error={state?.fieldErrors?.imageUrl}>
+          <Field
+            label={labels.imageUrl}
+            hint={labels.imageUrlHint}
+            error={state?.fieldErrors?.imageUrl}
+          >
             <input
               name="imageUrl"
               type="url"
               defaultValue={initial?.imageUrl ?? ''}
               placeholder="https://…/banner.jpg"
-              className="h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none"
+              className="border-border text-foreground focus:border-primary h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none"
             />
           </Field>
           <Field label={labels.targetUrl} hint={labels.targetUrlHint}>
@@ -118,7 +112,7 @@ export function AdForm({
               type="url"
               defaultValue={initial?.targetUrl ?? ''}
               placeholder="https://partner.example.com/landing"
-              className="h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none"
+              className="border-border text-foreground focus:border-primary h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none"
             />
           </Field>
         </>
@@ -129,7 +123,7 @@ export function AdForm({
             rows={8}
             defaultValue={initial?.html ?? ''}
             placeholder="<a href='…'><img src='…' /></a>"
-            className="w-full rounded-md border border-border bg-white px-3 py-2.5 font-mono text-base text-foreground focus:border-primary focus:outline-none sm:text-sm"
+            className="border-border text-foreground focus:border-primary w-full rounded-md border bg-white px-3 py-2.5 font-mono text-base focus:outline-none sm:text-sm"
           />
         </Field>
       )}
@@ -140,7 +134,7 @@ export function AdForm({
             name="startsAt"
             type="datetime-local"
             defaultValue={toDateTimeLocal(initial?.startsAt ?? null)}
-            className="h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none"
+            className="border-border text-foreground focus:border-primary h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none"
           />
         </Field>
         <Field label={labels.expiresAt}>
@@ -148,7 +142,7 @@ export function AdForm({
             name="expiresAt"
             type="datetime-local"
             defaultValue={toDateTimeLocal(initial?.expiresAt ?? null)}
-            className="h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none"
+            className="border-border text-foreground focus:border-primary h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none"
           />
         </Field>
       </div>
@@ -158,13 +152,16 @@ export function AdForm({
           type="checkbox"
           name="isActive"
           defaultChecked={initial?.isActive ?? true}
-          className="h-5 w-5 rounded border-2 border-border accent-primary"
+          className="border-border accent-primary h-5 w-5 rounded border-2"
         />
-        <span className="font-display font-medium text-foreground">{labels.isActive}</span>
+        <span className="font-display text-foreground font-medium">{labels.isActive}</span>
       </label>
 
       {state?.error && state.error !== 'Validation' && (
-        <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+        <p
+          role="alert"
+          className="border-destructive/30 bg-destructive/5 text-destructive rounded-md border px-3 py-2 text-sm"
+        >
           {state.error}
         </p>
       )}
@@ -173,7 +170,7 @@ export function AdForm({
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-primary px-5 py-2.5 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="bg-primary font-display text-primary-foreground rounded-md px-5 py-2.5 text-sm font-bold transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {isPending ? labels.saving : labels.save}
         </button>
@@ -195,12 +192,10 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="block font-display text-sm font-medium text-foreground">
-        {label}
-      </span>
+      <span className="font-display text-foreground block text-sm font-medium">{label}</span>
       <div className="mt-1">{children}</div>
-      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
-      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+      {hint && <p className="text-muted-foreground mt-1 text-xs">{hint}</p>}
+      {error && <p className="text-destructive mt-1 text-xs">{error}</p>}
     </label>
   );
 }

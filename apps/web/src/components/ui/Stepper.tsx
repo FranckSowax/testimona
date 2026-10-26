@@ -14,10 +14,7 @@ export function Stepper({ steps, current, ariaLabel, className }: StepperProps) 
   return (
     <ol
       aria-label={ariaLabel}
-      className={[
-        'flex items-center gap-2 overflow-x-auto',
-        className ?? '',
-      ]
+      className={['flex items-center gap-2 overflow-x-auto', className ?? '']
         .filter(Boolean)
         .join(' ')}
     >
@@ -38,7 +35,7 @@ export function Stepper({ steps, current, ariaLabel, className }: StepperProps) 
                 done
                   ? 'bg-primary text-primary-foreground'
                   : active
-                    ? 'bg-primary/15 text-primary border-2 border-primary'
+                    ? 'bg-primary/15 text-primary border-primary border-2'
                     : 'bg-foreground/5 text-foreground/50',
               ].join(' ')}
             >
@@ -71,10 +68,9 @@ export function Stepper({ steps, current, ariaLabel, className }: StepperProps) 
             {i < steps.length - 1 && (
               <span
                 aria-hidden="true"
-                className={[
-                  'h-px w-8 transition-colors',
-                  done ? 'bg-primary' : 'bg-border',
-                ].join(' ')}
+                className={['h-px w-8 transition-colors', done ? 'bg-primary' : 'bg-border'].join(
+                  ' ',
+                )}
               />
             )}
           </li>

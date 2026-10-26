@@ -65,7 +65,7 @@ export async function AdSlot({ slot, className, fallback = null }: Props) {
         ) : (
           inner
         )}
-        <span className="mt-1 block font-display text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+        <span className="font-display text-muted-foreground mt-1 block text-[10px] font-bold uppercase tracking-wide">
           Ad
         </span>
       </aside>

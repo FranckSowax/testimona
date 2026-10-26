@@ -4,14 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { KebabMenu } from '@/components/ui/KebabMenu';
-import {
-  BiographyEditPopup,
-  type BiographyInfoValues,
-} from '@/components/popups/BiographyModals';
-import {
-  updateBiographyInfoAction,
-  deleteBiographyInfoAction,
-} from '../_actions/admin';
+import { BiographyEditPopup, type BiographyInfoValues } from '@/components/popups/BiographyModals';
+import { updateBiographyInfoAction, deleteBiographyInfoAction } from '../_actions/admin';
 
 export interface BiographyInfo {
   username: string | null;
@@ -101,11 +95,9 @@ export function BiographyInfoCard({ memorialId, slug, bio, isOwner }: Props) {
   }
 
   return (
-    <article className="rounded-lg border border-border bg-white p-5 shadow-[var(--shadow-card)]">
+    <article className="border-border rounded-lg border bg-white p-5 shadow-[var(--shadow-card)]">
       <header className="mb-4 flex items-start justify-between gap-3">
-        <h3 className="font-display text-base font-bold text-foreground">
-          {tSection('heading')}
-        </h3>
+        <h3 className="font-display text-foreground text-base font-bold">{tSection('heading')}</h3>
         {isOwner && (
           <KebabMenu
             label="Biography menu"
@@ -130,15 +122,15 @@ export function BiographyInfoCard({ memorialId, slug, bio, isOwner }: Props) {
       <dl className="space-y-2 text-sm">
         {fields.map((f) => (
           <div key={f.label} className="flex flex-wrap gap-x-2">
-            <dt className="font-display font-bold text-foreground">{f.label} :</dt>
+            <dt className="font-display text-foreground font-bold">{f.label} :</dt>
             <dd className="text-foreground/80">{f.value || ''}</dd>
           </div>
         ))}
       </dl>
 
       {parseSocialLinks(bio?.socialLinks ?? null).length > 0 && (
-        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-3">
-          <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <div className="border-border mt-4 flex flex-wrap items-center gap-2 border-t pt-3">
+          <span className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider">
             {tFields('socialLinks')}
           </span>
           {parseSocialLinks(bio?.socialLinks ?? null).map((url) => (
@@ -147,7 +139,7 @@ export function BiographyInfoCard({ memorialId, slug, bio, isOwner }: Props) {
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1 font-display text-xs font-bold text-primary transition-colors hover:border-primary/40 hover:bg-primary/5"
+              className="border-border bg-surface font-display text-primary hover:border-primary/40 hover:bg-primary/5 inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-bold transition-colors"
             >
               {socialLabel(url)}
             </a>

@@ -71,33 +71,33 @@ export function MemorialTabs({ tabs }: { tabs: TabItem[] }) {
       <div
         role="tablist"
         aria-label={t('tabsAria')}
-        className="overflow-x-auto border-b border-border [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        className="border-border overflow-x-auto border-b [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         <div className="mx-auto flex w-max min-w-full flex-nowrap items-center justify-center gap-2 sm:gap-6">
-        {tabs.map((t, i) => {
-          const selected = t.id === activeId;
-          return (
-            <button
-              key={t.id}
-              id={`${baseId}-tab-${t.id}`}
-              role="tab"
-              type="button"
-              aria-selected={selected}
-              aria-controls={`${baseId}-panel-${t.id}`}
-              tabIndex={selected ? 0 : -1}
-              onClick={() => setActiveId(t.id)}
-              onKeyDown={(e) => onKeyDown(e, i)}
-              className={[
-                'shrink-0 whitespace-nowrap px-3 py-3 -mb-px border-b-2 font-display text-base font-bold transition-colors focus:outline-none focus-visible:underline',
-                selected
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-foreground hover:text-primary',
-              ].join(' ')}
-            >
-              {t.label}
-            </button>
-          );
-        })}
+          {tabs.map((t, i) => {
+            const selected = t.id === activeId;
+            return (
+              <button
+                key={t.id}
+                id={`${baseId}-tab-${t.id}`}
+                role="tab"
+                type="button"
+                aria-selected={selected}
+                aria-controls={`${baseId}-panel-${t.id}`}
+                tabIndex={selected ? 0 : -1}
+                onClick={() => setActiveId(t.id)}
+                onKeyDown={(e) => onKeyDown(e, i)}
+                className={[
+                  'font-display -mb-px shrink-0 whitespace-nowrap border-b-2 px-3 py-3 text-base font-bold transition-colors focus:outline-none focus-visible:underline',
+                  selected
+                    ? 'border-primary text-primary'
+                    : 'text-foreground hover:text-primary border-transparent',
+                ].join(' ')}
+              >
+                {t.label}
+              </button>
+            );
+          })}
         </div>
       </div>
       {tabs.map((t) => (

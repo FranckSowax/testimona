@@ -87,10 +87,10 @@ export function PopupCard({
         if (e.target === dialogRef.current) onClose();
       }}
       className={[
-        'mx-auto my-0 w-[calc(100%-1rem)] max-h-[calc(100dvh-1rem)] p-0',
+        'mx-auto my-0 max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] p-0',
         'sm:my-auto sm:max-h-[calc(100vh-2rem)]',
         WIDTH[width],
-        'rounded-2xl border border-border bg-white shadow-[var(--shadow-overlay)]',
+        'border-border rounded-2xl border bg-white shadow-[var(--shadow-overlay)]',
         'backdrop:bg-foreground/40 backdrop:backdrop-blur-sm',
         'overflow-y-auto overscroll-contain',
         className ?? '',
@@ -107,7 +107,7 @@ export function PopupCard({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="pointer-events-auto -mr-1 -mt-1 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/70 text-muted-foreground backdrop-blur-sm transition-colors hover:bg-[var(--color-bg-hover-gray)] hover:text-foreground sm:-mr-2 sm:-mt-2"
+            className="text-muted-foreground hover:text-foreground pointer-events-auto -mr-1 -mt-1 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/70 backdrop-blur-sm transition-colors hover:bg-[var(--color-bg-hover-gray)] sm:-mr-2 sm:-mt-2"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
               <path
@@ -140,15 +140,13 @@ export function PopupHeader({ scriptTitle, subtitle, className }: PopupHeaderPro
     <header className={['text-center', className ?? ''].filter(Boolean).join(' ')}>
       <h2 className="relative inline-block">
         <span
-          className="-rotate-2 inline-block text-4xl text-accent sm:text-5xl"
+          className="text-accent inline-block -rotate-2 text-4xl sm:text-5xl"
           style={{ fontFamily: 'var(--font-cursive)' }}
         >
           {scriptTitle}
         </span>
       </h2>
-      {subtitle && (
-        <p className="mt-1 font-display text-base text-foreground/80">{subtitle}</p>
-      )}
+      {subtitle && <p className="font-display text-foreground/80 mt-1 text-base">{subtitle}</p>}
     </header>
   );
 }

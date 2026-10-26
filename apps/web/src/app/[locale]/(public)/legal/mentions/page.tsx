@@ -15,7 +15,7 @@ export default async function LegalMentionsPage({
       <h1 className="font-display text-3xl font-semibold">
         {locale === 'en' ? 'Legal notice' : 'Mentions légales'}
       </h1>
-      <p className="mt-4 text-muted-foreground">
+      <p className="text-muted-foreground mt-4">
         {locale === 'en'
           ? 'This page will host the legal notice. Contact: hello@testimona.com'
           : 'Cette page accueillera les mentions légales. Contact : hello@testimona.com'}

@@ -2,12 +2,7 @@ import { forwardRef } from 'react';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Spinner } from './Spinner';
 
-type Variant =
-  | 'popup-blue'
-  | 'popup-rose'
-  | 'thankyou-gray'
-  | 'page-gray'
-  | 'page-blue';
+type Variant = 'popup-blue' | 'popup-rose' | 'thankyou-gray' | 'page-gray' | 'page-blue';
 
 type Size = 'sm' | 'md' | 'lg';
 
@@ -68,7 +63,7 @@ export const ButtonOutlined = forwardRef<HTMLButtonElement, ButtonOutlinedProps>
           'inline-flex items-center justify-center gap-2 rounded-md bg-transparent',
           'font-display font-bold leading-none',
           'transition-[background-color,border-color,color] duration-150 ease-[var(--motion-ease-out)]',
-          'focus-visible:outline-none focus-visible:shadow-[var(--shadow-glow-primary)]',
+          'focus-visible:shadow-[var(--shadow-glow-primary)] focus-visible:outline-none',
           'disabled:cursor-not-allowed disabled:opacity-50',
           'press-scale',
           SIZE[size],

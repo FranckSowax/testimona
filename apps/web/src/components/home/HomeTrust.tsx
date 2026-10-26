@@ -12,8 +12,7 @@ export async function HomeTrust() {
     {
       title: t('privacyTitle'),
       body: t('privacyBody'),
-      iconPath:
-        'M12 2 4 6v6c0 5 3.4 9.5 8 11 4.6-1.5 8-6 8-11V6l-8-4ZM9 12l2 2 4-4',
+      iconPath: 'M12 2 4 6v6c0 5 3.4 9.5 8 11 4.6-1.5 8-6 8-11V6l-8-4ZM9 12l2 2 4-4',
     },
     {
       title: t('secureTitle'),
@@ -24,19 +23,16 @@ export async function HomeTrust() {
   ];
 
   return (
-    <section
-      aria-labelledby="trust-heading"
-      className="bg-surface py-16 sm:py-20"
-    >
+    <section aria-labelledby="trust-heading" className="bg-surface py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <header className="mx-auto max-w-2xl text-center">
           <h2
             id="trust-heading"
-            className="font-display text-3xl font-semibold text-foreground sm:text-4xl"
+            className="font-display text-foreground text-3xl font-semibold sm:text-4xl"
           >
             {t('title')}
           </h2>
-          <p className="mt-3 text-base leading-relaxed text-muted-foreground">{t('subtitle')}</p>
+          <p className="text-muted-foreground mt-3 text-base leading-relaxed">{t('subtitle')}</p>
         </header>
 
         <ul className="mt-12 grid gap-6 sm:grid-cols-3">
@@ -45,7 +41,7 @@ export async function HomeTrust() {
               key={item.title}
               className="rounded-lg bg-white p-6 text-center shadow-[var(--shadow-card)]"
             >
-              <span className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <span className="bg-primary/10 text-primary mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full">
                 <svg
                   width="24"
                   height="24"
@@ -60,10 +56,8 @@ export async function HomeTrust() {
                   <path d={item.iconPath} />
                 </svg>
               </span>
-              <h3 className="mt-4 font-display text-lg font-bold text-foreground">
-                {item.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+              <h3 className="font-display text-foreground mt-4 text-lg font-bold">{item.title}</h3>
+              <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{item.body}</p>
             </li>
           ))}
         </ul>

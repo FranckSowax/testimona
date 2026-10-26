@@ -47,18 +47,18 @@ export async function DonorsList({ memorialId }: { memorialId: string }) {
 
   if (donors.length === 0) {
     return (
-      <p className="rounded-md border border-dashed border-border bg-surface px-4 py-6 text-center text-sm text-muted-foreground">
+      <p className="border-border bg-surface text-muted-foreground rounded-md border border-dashed px-4 py-6 text-center text-sm">
         {t('donorsEmpty')}
       </p>
     );
   }
 
   return (
-    <div className="rounded-lg border border-border bg-white shadow-sm">
-      <h3 className="border-b border-border px-4 py-3 font-display text-sm font-semibold uppercase tracking-widest text-foreground/70">
+    <div className="border-border rounded-lg border bg-white shadow-sm">
+      <h3 className="border-border font-display text-foreground/70 border-b px-4 py-3 text-sm font-semibold uppercase tracking-widest">
         {t('donorsTitle')}
       </h3>
-      <ul className="divide-y divide-border">
+      <ul className="divide-border divide-y">
         {donors.map((d, i) => {
           const displayName = d.isAnonymous ? null : d.donorName?.trim();
           return (
@@ -67,7 +67,7 @@ export async function DonorsList({ memorialId }: { memorialId: string }) {
               className="flex items-center justify-between gap-3 px-4 py-3 text-sm"
             >
               <div className="flex min-w-0 items-center gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface text-xs font-medium text-foreground/70">
+                <span className="bg-surface text-foreground/70 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium">
                   {(displayName ?? '?')
                     .split(/\s+/)
                     .map((s) => s[0])
@@ -77,13 +77,13 @@ export async function DonorsList({ memorialId }: { memorialId: string }) {
                     .toUpperCase() || '·'}
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate font-medium text-foreground">
+                  <p className="text-foreground truncate font-medium">
                     {displayName || t('donorsAnonymous')}
                   </p>
-                  <p className="text-xs text-muted-foreground">{timeAgo(d.createdAt)}</p>
+                  <p className="text-muted-foreground text-xs">{timeAgo(d.createdAt)}</p>
                 </div>
               </div>
-              <span className="font-semibold text-foreground">{format(d.amount, d.currency)}</span>
+              <span className="text-foreground font-semibold">{format(d.amount, d.currency)}</span>
             </li>
           );
         })}

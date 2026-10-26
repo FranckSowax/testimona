@@ -100,23 +100,25 @@ export default async function MyTestimonialsPage() {
   const cta = (
     <Link
       href="/search"
-      className="rounded-md border-2 border-foreground/80 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
+      className="border-foreground/80 text-foreground hover:border-primary hover:text-primary rounded-md border-2 px-4 py-2 text-sm font-medium transition-colors"
     >
       {t('search')}
     </Link>
   );
 
   // Author = the signed-in user (these are *their* testimonials).
-  const userMeta = (user.user_metadata ?? null) as
-    | { avatar_url?: string | null; nickname?: string | null; full_name?: string | null }
-    | null;
+  const userMeta = (user.user_metadata ?? null) as {
+    avatar_url?: string | null;
+    nickname?: string | null;
+    full_name?: string | null;
+  } | null;
   const authorName =
     userMeta?.nickname || userMeta?.full_name || user.email?.split('@')[0] || 'Vous';
   const authorAvatarUrl = userMeta?.avatar_url ?? unsplashAvatarFor(authorName);
 
   return (
     <DashboardShell title={t('title')}>
-      <p className="-mt-4 mb-6 text-sm text-muted-foreground">{t('subtitle')}</p>
+      <p className="text-muted-foreground -mt-4 mb-6 text-sm">{t('subtitle')}</p>
 
       {items.length === 0 ? (
         <EmptyState title={t('emptyTitle')} description={t('emptyBody')} action={cta} />

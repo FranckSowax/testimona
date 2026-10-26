@@ -65,14 +65,14 @@ export function FuneralsEditPopup({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block">
-            <span className="block font-display text-sm font-medium text-muted-foreground">
+            <span className="font-display text-muted-foreground block text-sm font-medium">
               Funeral information
             </span>
             <textarea
               value={info}
               onChange={(e) => setInfo(e.target.value)}
               rows={5}
-              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
             />
           </label>
 
@@ -80,12 +80,7 @@ export function FuneralsEditPopup({
             <ButtonOutlined type="button" variant="thankyou-gray" size="md" onClick={onClose}>
               Cancel
             </ButtonOutlined>
-            <ButtonOutlined
-              type="submit"
-              variant="popup-rose"
-              size="md"
-              loading={submitting}
-            >
+            <ButtonOutlined type="submit" variant="popup-rose" size="md" loading={submitting}>
               Save
             </ButtonOutlined>
           </div>
@@ -144,10 +139,18 @@ export function FuneralEventCreatePopup({
       width="lg"
     >
       <div className="space-y-5">
-        <PopupHeader scriptTitle="Funerals" subtitle={mode === 'edit' ? 'Edit event' : 'Create a new'} />
+        <PopupHeader
+          scriptTitle="Funerals"
+          subtitle={mode === 'edit' ? 'Edit event' : 'Create a new'}
+        />
 
         <form onSubmit={handleSubmit} className="space-y-3">
-          <Field label="Event title*" value={v.title} onChange={(val) => set('title', val)} required />
+          <Field
+            label="Event title*"
+            value={v.title}
+            onChange={(val) => set('title', val)}
+            required
+          />
           <Field
             label="Date*"
             value={v.date}
@@ -174,14 +177,14 @@ export function FuneralEventCreatePopup({
           <Field label="URL" value={v.url ?? ''} onChange={(val) => set('url', val)} type="url" />
 
           <label className="block">
-            <span className="block font-display text-sm font-medium text-muted-foreground">
+            <span className="font-display text-muted-foreground block text-sm font-medium">
               Note
             </span>
             <textarea
               value={v.note ?? ''}
               onChange={(e) => set('note', e.target.value)}
               rows={3}
-              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
             />
           </label>
 
@@ -221,7 +224,7 @@ export function FuneralEventCreatePopup({
                     : t('previewUnverified')}
                 </p>
                 {embed && (
-                  <div className="rounded-lg overflow-hidden border border-border">
+                  <div className="border-border overflow-hidden rounded-lg border">
                     <iframe
                       src={embed}
                       title={t('mapPreviewTitle')}
@@ -265,13 +268,13 @@ interface FieldProps {
 function Field({ label, value, onChange, required, type = 'text' }: FieldProps) {
   return (
     <label className="block">
-      <span className="block font-display text-sm font-medium text-muted-foreground">{label}</span>
+      <span className="font-display text-muted-foreground block text-sm font-medium">{label}</span>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
-        className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+        className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
       />
     </label>
   );
@@ -286,11 +289,11 @@ interface SelectProps {
 function Select({ label, value, onChange, options }: SelectProps) {
   return (
     <label className="block">
-      <span className="block font-display text-sm font-medium text-muted-foreground">{label}</span>
+      <span className="font-display text-muted-foreground block text-sm font-medium">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+        className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
       >
         {options.map((opt) => (
           <option key={opt} value={opt}>

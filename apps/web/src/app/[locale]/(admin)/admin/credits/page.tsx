@@ -37,13 +37,7 @@ export default async function AdminCreditsPage() {
   await requireAdmin();
   const supabase = getSupabaseAdminClient();
 
-  const [
-    studiaBalance,
-    studiaTxs,
-    creditsRes,
-    txsRes,
-    usersRes,
-  ] = await Promise.all([
+  const [studiaBalance, studiaTxs, creditsRes, txsRes, usersRes] = await Promise.all([
     getStudiaBalance(),
     getStudiaTransactions(20),
     supabase
@@ -61,9 +55,7 @@ export default async function AdminCreditsPage() {
     supabase.auth.admin.listUsers({ page: 1, perPage: 1000 }),
   ]);
 
-  const usersById = new Map(
-    (usersRes.data?.users ?? []).map((u) => [u.id, u.email ?? '—']),
-  );
+  const usersById = new Map((usersRes.data?.users ?? []).map((u) => [u.id, u.email ?? '—']));
   const credits = creditsRes.data ?? [];
   const txs = txsRes.data ?? [];
 
@@ -75,48 +67,46 @@ export default async function AdminCreditsPage() {
       {/* ─── Compute / Studia ───────────────────────────────── */}
       <section
         aria-labelledby="studia-heading"
-        className="mb-10 rounded-2xl border border-border bg-gradient-to-br from-surface to-white p-5 shadow-[var(--shadow-card)] sm:p-8"
+        className="border-border from-surface mb-10 rounded-2xl border bg-gradient-to-br to-white p-5 shadow-[var(--shadow-card)] sm:p-8"
       >
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p
               id="studia-heading"
-              className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground"
+              className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wider"
             >
               Solde compute · Studia
             </p>
-            <p className="mt-1 flex items-baseline gap-3 font-display">
-              <span className="tabular text-5xl font-bold text-foreground sm:text-6xl">
+            <p className="font-display mt-1 flex items-baseline gap-3">
+              <span className="tabular text-foreground text-5xl font-bold sm:text-6xl">
                 {studiaBalance.toFixed(0)}
               </span>
-              <span className="text-sm font-medium text-muted-foreground">
-                crédits restants
-              </span>
+              <span className="text-muted-foreground text-sm font-medium">crédits restants</span>
             </p>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-2 text-sm">
               Soit{' '}
-              <span className="font-display font-bold text-foreground tabular">
+              <span className="font-display text-foreground tabular font-bold">
                 ~{videosRemaining}
               </span>{' '}
-              vidéos générables · {STUDIA_COST_PER_VIDEO} crédit{STUDIA_COST_PER_VIDEO > 1 ? 's' : ''} par vidéo
+              vidéos générables · {STUDIA_COST_PER_VIDEO} crédit
+              {STUDIA_COST_PER_VIDEO > 1 ? 's' : ''} par vidéo
             </p>
           </div>
           {studiaBalance < STUDIA_COST_PER_VIDEO * 5 && (
-            <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs font-bold text-destructive">
+            <p className="border-destructive/30 bg-destructive/5 text-destructive rounded-md border px-3 py-2 text-xs font-bold">
               ⚠️ Solde faible — recharge pour que tes users puissent générer
             </p>
           )}
         </div>
 
-        <hr className="my-6 border-border" />
+        <hr className="border-border my-6" />
 
-        <h3 className="mb-3 font-display text-sm font-bold uppercase tracking-wider text-muted-foreground">
+        <h3 className="font-display text-muted-foreground mb-3 text-sm font-bold uppercase tracking-wider">
           Recharger le solde compute
         </h3>
-        <p className="mb-4 text-xs text-muted-foreground">
-          Studia Labs fournit le service compute (génération vidéo IA). Les
-          packs sont facturés au coût studio + marge — c’est ce qui paie ton
-          fournisseur de génération.
+        <p className="text-muted-foreground mb-4 text-xs">
+          Studia Labs fournit le service compute (génération vidéo IA). Les packs sont facturés au
+          coût studio + marge — c’est ce qui paie ton fournisseur de génération.
         </p>
         <div className="grid gap-3 sm:grid-cols-3">
           {STUDIA_PACKS.map((pack, i) => (
@@ -130,44 +120,31 @@ export default async function AdminCreditsPage() {
             />
           ))}
         </div>
-        <p className="mt-3 rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-xs text-foreground/80">
-          <strong>Mode demo</strong> — la recharge est instantanée pour test,
-          sans paiement réel. Le passage en réel se fait via Stripe.
+        <p className="border-accent/30 bg-accent/5 text-foreground/80 mt-3 rounded-md border px-3 py-2 text-xs">
+          <strong>Mode demo</strong> — la recharge est instantanée pour test, sans paiement réel. Le
+          passage en réel se fait via Stripe.
         </p>
       </section>
 
       {/* ─── Historique compute ─────────────────────────────── */}
       <section className="mb-10" aria-labelledby="studia-history">
-        <h2
-          id="studia-history"
-          className="mb-3 font-display text-lg font-bold text-foreground"
-        >
+        <h2 id="studia-history" className="font-display text-foreground mb-3 text-lg font-bold">
           Activité compute récente
         </h2>
         {studiaTxs.length === 0 ? (
-          <p className="rounded-md border border-dashed border-border bg-muted/50 px-4 py-6 text-center text-sm italic text-muted-foreground">
+          <p className="border-border bg-muted/50 text-muted-foreground rounded-md border border-dashed px-4 py-6 text-center text-sm italic">
             Aucune activité compute encore.
           </p>
         ) : (
-          <ul className="divide-y divide-border rounded-lg border border-border bg-white">
+          <ul className="divide-border border-border divide-y rounded-lg border bg-white">
             {studiaTxs.map((tx) => (
-              <li
-                key={tx.id}
-                className="flex items-center justify-between gap-3 px-4 py-2.5"
-              >
+              <li key={tx.id} className="flex items-center justify-between gap-3 px-4 py-2.5">
                 <div className="min-w-0">
-                  <p className="font-display text-sm font-bold text-foreground">
+                  <p className="font-display text-foreground text-sm font-bold">
                     {STUDIA_TX_LABEL[tx.type] ?? tx.type}
                   </p>
-                  {tx.note && (
-                    <p className="truncate text-xs text-muted-foreground">
-                      {tx.note}
-                    </p>
-                  )}
-                  <p
-                    className="text-[11px] text-muted-foreground"
-                    suppressHydrationWarning
-                  >
+                  {tx.note && <p className="text-muted-foreground truncate text-xs">{tx.note}</p>}
+                  <p className="text-muted-foreground text-[11px]" suppressHydrationWarning>
                     {new Date(tx.createdAt).toLocaleString('fr-FR', {
                       dateStyle: 'short',
                       timeStyle: 'short',
@@ -190,51 +167,41 @@ export default async function AdminCreditsPage() {
         )}
       </section>
 
-      <hr className="my-10 border-border" />
+      <hr className="border-border my-10" />
 
       {/* ─── Crédits utilisateurs ──────────────────────────── */}
       <section className="mb-6">
-        <h2 className="mb-1 font-display text-xl font-bold text-foreground">
+        <h2 className="font-display text-foreground mb-1 text-xl font-bold">
           Crédits utilisateurs
         </h2>
-        <p className="mb-4 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mb-4 text-sm">
           Les crédits Testimona que tes utilisateurs achètent et dépensent.{' '}
-          <span className="font-display font-bold text-foreground tabular">
-            {totalUserCredits}
-          </span>{' '}
+          <span className="font-display text-foreground tabular font-bold">{totalUserCredits}</span>{' '}
           crédit{totalUserCredits === 1 ? '' : 's'} en circulation sur{' '}
-          <span className="font-display font-bold text-foreground tabular">
-            {credits.length}
-          </span>{' '}
+          <span className="font-display text-foreground tabular font-bold">{credits.length}</span>{' '}
           utilisateur{credits.length === 1 ? '' : 's'}.
         </p>
       </section>
 
-      <section className="mb-8 rounded-xl border border-border bg-white p-5 shadow-[var(--shadow-card)]">
-        <h3 className="mb-3 font-display text-base font-bold text-foreground">
+      <section className="border-border mb-8 rounded-xl border bg-white p-5 shadow-[var(--shadow-card)]">
+        <h3 className="font-display text-foreground mb-3 text-base font-bold">
           Créditer / débiter un utilisateur
         </h3>
         <GrantCreditsForm />
       </section>
 
       <section className="mb-8">
-        <h3 className="mb-3 font-display text-base font-bold text-foreground">
+        <h3 className="font-display text-foreground mb-3 text-base font-bold">
           Soldes par utilisateur
         </h3>
-        <ul className="divide-y divide-border rounded-lg border border-border bg-white">
+        <ul className="divide-border border-border divide-y rounded-lg border bg-white">
           {credits.map((c) => (
-            <li
-              key={c.userId}
-              className="flex items-center justify-between gap-3 px-4 py-2.5"
-            >
+            <li key={c.userId} className="flex items-center justify-between gap-3 px-4 py-2.5">
               <div className="min-w-0">
-                <p className="truncate font-display text-sm font-bold text-foreground">
+                <p className="font-display text-foreground truncate text-sm font-bold">
                   {usersById.get(c.userId) ?? c.userId.slice(0, 8)}
                 </p>
-                <p
-                  className="text-[11px] text-muted-foreground"
-                  suppressHydrationWarning
-                >
+                <p className="text-muted-foreground text-[11px]" suppressHydrationWarning>
                   Maj{' '}
                   {new Date(c.updatedAt).toLocaleString('fr-FR', {
                     dateStyle: 'short',
@@ -243,13 +210,13 @@ export default async function AdminCreditsPage() {
                   })}
                 </p>
               </div>
-              <span className="tabular font-display text-lg font-bold text-foreground">
+              <span className="tabular font-display text-foreground text-lg font-bold">
                 {c.balance}
               </span>
             </li>
           ))}
           {credits.length === 0 && (
-            <li className="px-4 py-6 text-center text-sm italic text-muted-foreground">
+            <li className="text-muted-foreground px-4 py-6 text-center text-sm italic">
               Aucun crédit utilisateur attribué.
             </li>
           )}
@@ -257,27 +224,21 @@ export default async function AdminCreditsPage() {
       </section>
 
       <section>
-        <h3 className="mb-3 font-display text-base font-bold text-foreground">
+        <h3 className="font-display text-foreground mb-3 text-base font-bold">
           Transactions utilisateurs récentes
         </h3>
-        <ul className="divide-y divide-border rounded-lg border border-border bg-white">
+        <ul className="divide-border border-border divide-y rounded-lg border bg-white">
           {txs.map((tx) => (
-            <li
-              key={tx.id}
-              className="flex items-center justify-between gap-3 px-4 py-2.5"
-            >
+            <li key={tx.id} className="flex items-center justify-between gap-3 px-4 py-2.5">
               <div className="min-w-0">
-                <p className="truncate font-display text-sm font-bold text-foreground">
+                <p className="font-display text-foreground truncate text-sm font-bold">
                   {usersById.get(tx.userId) ?? tx.userId.slice(0, 8)}
                 </p>
-                <p className="truncate text-xs text-muted-foreground">
+                <p className="text-muted-foreground truncate text-xs">
                   {tx.type}
                   {tx.note ? ` · ${tx.note}` : ''}
                 </p>
-                <p
-                  className="text-[11px] text-muted-foreground"
-                  suppressHydrationWarning
-                >
+                <p className="text-muted-foreground text-[11px]" suppressHydrationWarning>
                   {new Date(tx.createdAt).toLocaleString('fr-FR', {
                     dateStyle: 'short',
                     timeStyle: 'short',
@@ -297,7 +258,7 @@ export default async function AdminCreditsPage() {
             </li>
           ))}
           {txs.length === 0 && (
-            <li className="px-4 py-6 text-center text-sm italic text-muted-foreground">
+            <li className="text-muted-foreground px-4 py-6 text-center text-sm italic">
               Aucune transaction.
             </li>
           )}

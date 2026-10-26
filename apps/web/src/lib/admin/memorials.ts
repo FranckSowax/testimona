@@ -94,9 +94,7 @@ export async function getMemorialsList(
   };
 }
 
-export async function getMemorialDetail(
-  memorialId: string,
-): Promise<AdminMemorialDetail | null> {
+export async function getMemorialDetail(memorialId: string): Promise<AdminMemorialDetail | null> {
   const supabase = getSupabaseAdminClient();
   const { data: memorial } = await supabase
     .from('Memorial')
@@ -105,56 +103,51 @@ export async function getMemorialDetail(
     .maybeSingle<AdminMemorialRow>();
   if (!memorial) return null;
 
-  const [
-    ownerResp,
-    testimonialsCount,
-    photos,
-    chaptersCount,
-    donations,
-    recentTestimonials,
-  ] = await Promise.all([
-    supabase.auth.admin.getUserById(memorial.ownerId),
-    supabase
-      .from('Testimonial')
-      .select('id', { count: 'exact', head: true })
-      .eq('memorialId', memorialId),
-    supabase
-      .from('Photo')
-      .select('url, position')
-      .eq('memorialId', memorialId)
-      .order('position', { ascending: true })
-      .returns<{ url: string; position: number }[]>(),
-    supabase
-      .from('Chapter')
-      .select('id, "biographyId"', { count: 'exact', head: true })
-      .in(
-        'biographyId',
-        (
-          await supabase
-            .from('Biography')
-            .select('id')
-            .eq('memorialId', memorialId)
-            .returns<{ id: string }[]>()
-        ).data?.map((b) => b.id) ?? [],
-      ),
-    supabase
-      .from('Donation')
-      .select('amount, status')
-      .eq('memorialId', memorialId)
-      .returns<{ amount: number; status: string }[]>(),
-    supabase
-      .from('Testimonial')
-      .select('id, authorName, message, createdAt')
-      .eq('memorialId', memorialId)
-      .order('createdAt', { ascending: false })
-      .limit(5)
-      .returns<{ id: string; authorName: string; message: string; createdAt: string }[]>(),
-  ]);
+  const [ownerResp, testimonialsCount, photos, chaptersCount, donations, recentTestimonials] =
+    await Promise.all([
+      supabase.auth.admin.getUserById(memorial.ownerId),
+      supabase
+        .from('Testimonial')
+        .select('id', { count: 'exact', head: true })
+        .eq('memorialId', memorialId),
+      supabase
+        .from('Photo')
+        .select('url, position')
+        .eq('memorialId', memorialId)
+        .order('position', { ascending: true })
+        .returns<{ url: string; position: number }[]>(),
+      supabase
+        .from('Chapter')
+        .select('id, "biographyId"', { count: 'exact', head: true })
+        .in(
+          'biographyId',
+          (
+            await supabase
+              .from('Biography')
+              .select('id')
+              .eq('memorialId', memorialId)
+              .returns<{ id: string }[]>()
+          ).data?.map((b) => b.id) ?? [],
+        ),
+      supabase
+        .from('Donation')
+        .select('amount, status')
+        .eq('memorialId', memorialId)
+        .returns<{ amount: number; status: string }[]>(),
+      supabase
+        .from('Testimonial')
+        .select('id, authorName, message, createdAt')
+        .eq('memorialId', memorialId)
+        .order('createdAt', { ascending: false })
+        .limit(5)
+        .returns<{ id: string; authorName: string; message: string; createdAt: string }[]>(),
+    ]);
 
   const owner = ownerResp.data?.user;
-  const ownerMeta = (owner?.user_metadata ?? null) as
-    | { full_name?: string; nickname?: string }
-    | null;
+  const ownerMeta = (owner?.user_metadata ?? null) as {
+    full_name?: string;
+    nickname?: string;
+  } | null;
   const ownerName = ownerMeta?.nickname || ownerMeta?.full_name || null;
   const donationsRows = donations.data ?? [];
   const donationsPaidCents = donationsRows

@@ -28,7 +28,7 @@ export function PhotoCard({
   return (
     <article
       className={[
-        'group flex flex-col overflow-hidden rounded-lg border border-border bg-white shadow-[var(--shadow-card)]',
+        'border-border group flex flex-col overflow-hidden rounded-lg border bg-white shadow-[var(--shadow-card)]',
         'transition-shadow hover:shadow-[var(--shadow-elevated)]',
         className ?? '',
       ]
@@ -39,7 +39,7 @@ export function PhotoCard({
         type="button"
         onClick={onClick}
         aria-label={isVideo ? `Play video: ${alt}` : `View photo: ${alt}`}
-        className="relative block aspect-[16/10] w-full overflow-hidden bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="bg-surface focus-visible:ring-primary relative block aspect-[16/10] w-full overflow-hidden focus-visible:outline-none focus-visible:ring-2"
       >
         <Image
           src={src}
@@ -59,7 +59,7 @@ export function PhotoCard({
                 height="22"
                 viewBox="0 0 24 24"
                 fill="currentColor"
-                className="ml-1 text-foreground"
+                className="text-foreground ml-1"
                 aria-hidden="true"
               >
                 <path d="M8 5v14l11-7z" />
@@ -72,9 +72,9 @@ export function PhotoCard({
         <div className="min-w-0 flex-1">
           <p className="truncate">
             <span className="text-muted-foreground">Posted by </span>
-            <span className="font-display font-semibold text-foreground">{authorName}</span>
+            <span className="font-display text-foreground font-semibold">{authorName}</span>
           </p>
-          <p className="truncate italic text-muted-foreground tabular">{date}</p>
+          <p className="text-muted-foreground tabular truncate italic">{date}</p>
         </div>
         {trailing}
       </footer>

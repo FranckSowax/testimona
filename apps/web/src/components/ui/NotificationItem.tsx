@@ -46,27 +46,20 @@ export function NotificationItem({
         <div className="min-w-0 flex-1 space-y-0.5">
           <p className="text-sm leading-snug">
             {memorialName && (
-              <span className="font-display font-semibold text-foreground">
-                {memorialName}
-              </span>
+              <span className="font-display text-foreground font-semibold">{memorialName}</span>
             )}
             {memorialName && ' — '}
-            <span className="font-display font-semibold text-foreground">{authorName}</span>
+            <span className="font-display text-foreground font-semibold">{authorName}</span>
             {authorRelation && (
-              <span className="italic text-muted-foreground">, {authorRelation}</span>
+              <span className="text-muted-foreground italic">, {authorRelation}</span>
             )}
           </p>
-          <p className="text-xs italic text-muted-foreground tabular">{date}</p>
-          {excerpt && (
-            <p className="line-clamp-2 text-xs text-foreground/80">{excerpt}</p>
-          )}
+          <p className="text-muted-foreground tabular text-xs italic">{date}</p>
+          {excerpt && <p className="text-foreground/80 line-clamp-2 text-xs">{excerpt}</p>}
         </div>
       </Link>
       {unread && (
-        <span
-          aria-label="Unread"
-          className="mt-2 h-2 w-2 shrink-0 rounded-full bg-accent"
-        />
+        <span aria-label="Unread" className="bg-accent mt-2 h-2 w-2 shrink-0 rounded-full" />
       )}
       {trailing}
     </li>

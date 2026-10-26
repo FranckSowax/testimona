@@ -16,11 +16,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function ProfilePage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function ProfilePage({ params }: { params: Promise<{ locale: string }> }) {
   const user = await getCurrentUser();
   if (!user) redirect('/login?next=/dashboard/profile');
   const { locale } = await params;
@@ -32,9 +28,11 @@ export default async function ProfilePage({
     getTranslations('dashboard.profile'),
   ]);
   const meta =
-    (user.user_metadata as
-      | { full_name?: string; nickname?: string; avatar_url?: string | null }
-      | null) ?? {};
+    (user.user_metadata as {
+      full_name?: string;
+      nickname?: string;
+      avatar_url?: string | null;
+    } | null) ?? {};
 
   const securityLabels = {
     formTitle: tSec('formTitle'),
@@ -73,7 +71,7 @@ export default async function ProfilePage({
         ]}
         className="-mt-2 mb-4"
       />
-      <p className="mb-6 text-sm text-muted-foreground">{t('subtitle')}</p>
+      <p className="text-muted-foreground mb-6 text-sm">{t('subtitle')}</p>
 
       <SettingsAccordion
         ariaLabel={tShared('accordionAria')}

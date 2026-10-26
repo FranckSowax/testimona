@@ -56,12 +56,12 @@ export function DonationsEditModal({
 
         <div className="flex items-center justify-center gap-3">
           <Avatar src={memorialCoverUrl} name={memorialName} size="md" border="rose" />
-          <p className="font-display text-sm font-bold text-foreground">{memorialName}</p>
+          <p className="font-display text-foreground text-sm font-bold">{memorialName}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block">
-            <span className="block font-display text-sm font-medium text-muted-foreground">
+            <span className="font-display text-muted-foreground block text-sm font-medium">
               About the donations*
             </span>
             <textarea
@@ -69,13 +69,13 @@ export function DonationsEditModal({
               onChange={(e) => set('about', e.target.value)}
               required
               rows={6}
-              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
             />
           </label>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
-              <span className="block font-display text-sm font-medium text-muted-foreground">
+              <span className="font-display text-muted-foreground block text-sm font-medium">
                 Goal amount*
               </span>
               <input
@@ -85,17 +85,17 @@ export function DonationsEditModal({
                 value={v.goalAmount}
                 onChange={(e) => set('goalAmount', e.target.value)}
                 required
-                className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+                className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
               />
             </label>
             <label className="block">
-              <span className="block font-display text-sm font-medium text-muted-foreground">
+              <span className="font-display text-muted-foreground block text-sm font-medium">
                 Choose currency*
               </span>
               <select
                 value={v.currency}
                 onChange={(e) => set('currency', e.target.value)}
-                className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+                className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
               >
                 {CURRENCIES.map((c) => (
                   <option key={c} value={c}>

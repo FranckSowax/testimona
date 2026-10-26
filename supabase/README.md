@@ -13,13 +13,13 @@ supabase/
   seed-avatars.sql
 ```
 
-| Migration | Origine |
-|---|---|
-| `20260501000000_baseline_prisma.sql` | Tables historiques, générées depuis l'ancien `schema.prisma` |
-| `20260501000100_rls_policies.sql` | Ancien `infra/supabase/rls/policies.sql` |
-| `20260501000200_storage_buckets.sql` | Ancien `infra/supabase/storage/buckets.sql` |
-| `20260502000001` → `20260502000024` | Anciennes migrations `migration-v2` → `migration-v24`, même ordre |
-| `20261026000100_dossier_foundation.sql` | Lot 0 : dossier familial, rôles, RLS par dossier |
+| Migration                               | Origine                                                           |
+| --------------------------------------- | ----------------------------------------------------------------- |
+| `20260501000000_baseline_prisma.sql`    | Tables historiques, générées depuis l'ancien `schema.prisma`      |
+| `20260501000100_rls_policies.sql`       | Ancien `infra/supabase/rls/policies.sql`                          |
+| `20260501000200_storage_buckets.sql`    | Ancien `infra/supabase/storage/buckets.sql`                       |
+| `20260502000001` → `20260502000024`     | Anciennes migrations `migration-v2` → `migration-v24`, même ordre |
+| `20261026000100_dossier_foundation.sql` | Lot 0 : dossier familial, rôles, RLS par dossier                  |
 
 Les horodatages des migrations historiques sont **synthétiques** : ils ne servent qu'à fixer l'ordre.
 

@@ -22,9 +22,9 @@ function ChapterMediaPicker({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   return (
-    <div className="rounded-md border border-dashed border-border bg-surface p-3">
+    <div className="border-border bg-surface rounded-md border border-dashed p-3">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs italic text-muted-foreground">{countLabel}</span>
+        <span className="text-muted-foreground text-xs italic">{countLabel}</span>
         <ButtonText
           variant="action"
           type="button"
@@ -52,7 +52,7 @@ function ChapterMediaPicker({
           {files.map((f, i) => (
             <li
               key={`${f.name}-${i}`}
-              className="flex items-center justify-between gap-2 text-xs text-foreground"
+              className="text-foreground flex items-center justify-between gap-2 text-xs"
             >
               <span className="truncate">
                 {f.type.startsWith('video') ? '🎬' : '🖼️'} {f.name}
@@ -60,7 +60,7 @@ function ChapterMediaPicker({
               <button
                 type="button"
                 onClick={() => onChange(files.filter((_, j) => j !== i))}
-                className="shrink-0 text-muted-foreground hover:text-destructive"
+                className="text-muted-foreground hover:text-destructive shrink-0"
                 aria-label="Remove"
               >
                 ✕
@@ -141,17 +141,41 @@ export function BiographyEditPopup({
         <PopupHeader scriptTitle={t('scriptTitle')} subtitle={t('subtitle')} />
 
         <form onSubmit={handleSubmit} className="space-y-3">
-          <Field label={t('username')} value={v.username ?? ''} onChange={(val) => set('username', val)} />
-          <Field label={t('homeCity')} value={v.homeCity ?? ''} onChange={(val) => set('homeCity', val)} />
-          <Field label={t('placesLived')} value={v.placesLived ?? ''} onChange={(val) => set('placesLived', val)} />
-          <Field label={t('relatives')} value={v.relatives ?? ''} onChange={(val) => set('relatives', val)} />
-          <Field label={t('religion')} value={v.religion ?? ''} onChange={(val) => set('religion', val)} />
-          <Field label={t('education')} value={v.education ?? ''} onChange={(val) => set('education', val)} />
+          <Field
+            label={t('username')}
+            value={v.username ?? ''}
+            onChange={(val) => set('username', val)}
+          />
+          <Field
+            label={t('homeCity')}
+            value={v.homeCity ?? ''}
+            onChange={(val) => set('homeCity', val)}
+          />
+          <Field
+            label={t('placesLived')}
+            value={v.placesLived ?? ''}
+            onChange={(val) => set('placesLived', val)}
+          />
+          <Field
+            label={t('relatives')}
+            value={v.relatives ?? ''}
+            onChange={(val) => set('relatives', val)}
+          />
+          <Field
+            label={t('religion')}
+            value={v.religion ?? ''}
+            onChange={(val) => set('religion', val)}
+          />
+          <Field
+            label={t('education')}
+            value={v.education ?? ''}
+            onChange={(val) => set('education', val)}
+          />
           <Field label={t('work')} value={v.work ?? ''} onChange={(val) => set('work', val)} />
           <Field label={t('hobby')} value={v.hobby ?? ''} onChange={(val) => set('hobby', val)} />
 
           <label className="block">
-            <span className="block font-display text-sm font-medium text-muted-foreground">
+            <span className="font-display text-muted-foreground block text-sm font-medium">
               {t('socialLinks')}
             </span>
             <textarea
@@ -159,7 +183,7 @@ export function BiographyEditPopup({
               onChange={(e) => set('socialLinks', e.target.value)}
               rows={3}
               placeholder={t('socialLinksPlaceholder')}
-              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
             />
           </label>
 
@@ -167,12 +191,7 @@ export function BiographyEditPopup({
             <ButtonOutlined type="button" variant="thankyou-gray" size="md" onClick={onClose}>
               {tCommon('cancel')}
             </ButtonOutlined>
-            <ButtonOutlined
-              type="submit"
-              variant="popup-rose"
-              size="md"
-              loading={submitting}
-            >
+            <ButtonOutlined type="submit" variant="popup-rose" size="md" loading={submitting}>
               {tCommon('save')}
             </ButtonOutlined>
           </div>
@@ -219,18 +238,23 @@ export function BiographyChapterCreatePopup({
           <Field label={t('title')} value={title} onChange={setTitle} required />
 
           <label className="block">
-            <span className="block font-display text-sm font-medium text-muted-foreground">
+            <span className="font-display text-muted-foreground block text-sm font-medium">
               {t('story')}
             </span>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={6}
-              className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+              className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
             />
           </label>
 
-          <ChapterMediaPicker files={files} onChange={setFiles} countLabel={t('photosCount', { count: files.length })} addLabel={t('addPhoto')} />
+          <ChapterMediaPicker
+            files={files}
+            onChange={setFiles}
+            countLabel={t('photosCount', { count: files.length })}
+            addLabel={t('addPhoto')}
+          />
 
           <div className="flex justify-center gap-3 pt-2">
             <ButtonOutlined type="button" variant="thankyou-gray" size="md" onClick={onClose}>
@@ -261,12 +285,12 @@ interface FieldProps {
 function Field({ label, value, onChange, required }: FieldProps) {
   return (
     <label className="block">
-      <span className="block font-display text-sm font-medium text-muted-foreground">{label}</span>
+      <span className="font-display text-muted-foreground block text-sm font-medium">{label}</span>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
-        className="mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold text-foreground placeholder:font-medium placeholder:text-muted-foreground transition-[background-color,border-color,box-shadow] duration-150 focus:bg-white focus:border-primary focus:outline-none focus:shadow-[var(--shadow-glow-primary)]"
+        className="text-foreground placeholder:text-muted-foreground focus:border-primary mt-1 block w-full rounded-md border border-transparent bg-[var(--color-bg-active-gray)] px-4 py-3 text-[15px] font-semibold transition-[background-color,border-color,box-shadow] duration-150 placeholder:font-medium focus:bg-white focus:shadow-[var(--shadow-glow-primary)] focus:outline-none"
       />
     </label>
   );

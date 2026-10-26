@@ -1,14 +1,7 @@
 import { z } from 'zod';
-import {
-  DisplayNameSchema,
-  LanguageCodeSchema,
-  UserRoleSchema,
-} from './common';
+import { DisplayNameSchema, LanguageCodeSchema, UserRoleSchema } from './common';
 
-const PasswordSchema = z
-  .string()
-  .min(8, 'password must be at least 8 characters')
-  .max(200);
+const PasswordSchema = z.string().min(8, 'password must be at least 8 characters').max(200);
 
 export const SecurityAnswerSchema = z.object({
   id: z.number().int(),

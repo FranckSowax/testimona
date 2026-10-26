@@ -88,20 +88,11 @@ export async function BiographySection({
       )}
 
       {(hasInfo || isOwner) && slug && (
-        <BiographyInfoCard
-          memorialId={memorialId}
-          slug={slug}
-          bio={bio}
-          isOwner={isOwner}
-        />
+        <BiographyInfoCard memorialId={memorialId} slug={slug} bio={bio} isOwner={isOwner} />
       )}
 
       {chapters.length > 0 && isOwner && slug && (
-        <BiographyChaptersManager
-          memorialId={memorialId}
-          slug={slug}
-          initialChapters={chapters}
-        />
+        <BiographyChaptersManager memorialId={memorialId} slug={slug} initialChapters={chapters} />
       )}
 
       {chapters.length > 0 && !isOwner && (
@@ -109,10 +100,10 @@ export async function BiographySection({
           {chapters.map((c) => (
             <article
               key={c.id}
-              className="rounded-lg border border-border bg-white p-5 shadow-[var(--shadow-card)]"
+              className="border-border rounded-lg border bg-white p-5 shadow-[var(--shadow-card)]"
             >
-              <h3 className="font-display text-lg font-bold text-foreground">{c.title}</h3>
-              <div className="mt-2 whitespace-pre-line text-base leading-relaxed text-foreground/90">
+              <h3 className="font-display text-foreground text-lg font-bold">{c.title}</h3>
+              <div className="text-foreground/90 mt-2 whitespace-pre-line text-base leading-relaxed">
                 {c.content}
               </div>
               <ChapterMediaGrid media={c.media} />
@@ -122,11 +113,8 @@ export async function BiographySection({
       )}
 
       {chapters.length === 0 && !hasInfo && !isOwner && (
-        <p className="text-sm italic text-muted-foreground">
-          {t('emptyPublic')}
-        </p>
+        <p className="text-muted-foreground text-sm italic">{t('emptyPublic')}</p>
       )}
-
     </section>
   );
 }

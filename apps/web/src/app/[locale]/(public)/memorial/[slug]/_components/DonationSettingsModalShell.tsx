@@ -63,9 +63,19 @@ export function DonationSettingsModalShell({
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t('editAria')}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-[var(--color-bg-hover-gray)] hover:text-foreground"
+        className="text-muted-foreground hover:text-foreground inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--color-bg-hover-gray)]"
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
           <path d="M12 20h9" />
           <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
         </svg>
@@ -77,7 +87,7 @@ export function DonationSettingsModalShell({
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
-                <span className="block font-display text-sm font-medium text-muted-foreground">
+                <span className="font-display text-muted-foreground block text-sm font-medium">
                   {t('goalLabel')}
                 </span>
                 <input
@@ -87,17 +97,17 @@ export function DonationSettingsModalShell({
                   value={goal}
                   onChange={(e) => setGoal(e.target.value)}
                   placeholder="600"
-                  className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none"
+                  className="border-border text-foreground focus:border-primary mt-1 h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none"
                 />
               </label>
               <label className="block">
-                <span className="block font-display text-sm font-medium text-muted-foreground">
+                <span className="font-display text-muted-foreground block text-sm font-medium">
                   {t('currencyLabel')}
                 </span>
                 <select
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
-                  className="mt-1 h-11 w-full rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none"
+                  className="border-border text-foreground focus:border-primary mt-1 h-11 w-full rounded-md border bg-white px-3 text-base focus:outline-none"
                 >
                   {CURRENCIES.map((c) => (
                     <option key={c} value={c}>
@@ -109,7 +119,7 @@ export function DonationSettingsModalShell({
             </div>
 
             <label className="block">
-              <span className="block font-display text-sm font-medium text-muted-foreground">
+              <span className="font-display text-muted-foreground block text-sm font-medium">
                 {t('aboutLabel')}
               </span>
               <textarea
@@ -117,21 +127,26 @@ export function DonationSettingsModalShell({
                 onChange={(e) => setAbout(e.target.value.slice(0, 1000))}
                 rows={4}
                 placeholder={t('aboutPlaceholder')}
-                className="mt-1 block w-full rounded-md border border-border bg-white px-3 py-2.5 text-base text-foreground focus:border-primary focus:outline-none"
+                className="border-border text-foreground focus:border-primary mt-1 block w-full rounded-md border bg-white px-3 py-2.5 text-base focus:outline-none"
               />
-              <span className="mt-1 block text-right text-xs italic text-muted-foreground">
+              <span className="text-muted-foreground mt-1 block text-right text-xs italic">
                 {about.length}/1000
               </span>
             </label>
 
             {error && (
-              <p role="alert" className="text-center text-sm text-destructive">
+              <p role="alert" className="text-destructive text-center text-sm">
                 {error}
               </p>
             )}
 
             <div className="flex justify-center gap-3 pt-2">
-              <ButtonOutlined type="button" variant="thankyou-gray" size="md" onClick={() => setOpen(false)}>
+              <ButtonOutlined
+                type="button"
+                variant="thankyou-gray"
+                size="md"
+                onClick={() => setOpen(false)}
+              >
                 {t('cancel')}
               </ButtonOutlined>
               <ButtonOutlined type="submit" variant="popup-rose" size="md" loading={pending}>

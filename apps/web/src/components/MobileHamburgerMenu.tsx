@@ -108,7 +108,7 @@ export function MobileHamburgerMenu({ isLoggedIn, notificationsBadge, labels }: 
         aria-expanded={open}
         aria-controls="mobile-hamburger-drawer"
         onClick={() => setOpen(true)}
-        className="inline-flex h-11 w-11 items-center justify-center rounded-md text-secondary transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="text-secondary hover:bg-surface focus-visible:ring-primary inline-flex h-11 w-11 items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2"
       >
         <span className="relative inline-flex">
           <svg
@@ -126,7 +126,7 @@ export function MobileHamburgerMenu({ isLoggedIn, notificationsBadge, labels }: 
           {isLoggedIn && notificationsBadge > 0 && (
             <span
               aria-hidden="true"
-              className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-white"
+              className="bg-destructive absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full ring-2 ring-white"
             />
           )}
         </span>
@@ -144,16 +144,16 @@ export function MobileHamburgerMenu({ isLoggedIn, notificationsBadge, labels }: 
             type="button"
             aria-label="Fermer le menu"
             onClick={() => setOpen(false)}
-            className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
+            className="bg-foreground/40 absolute inset-0 backdrop-blur-sm"
           />
           <aside className="animate-slide-in-left relative z-10 flex h-[100dvh] w-[300px] max-w-[85vw] flex-col gap-2 bg-white p-5 shadow-[var(--shadow-overlay)]">
             <div className="flex items-center justify-between">
-              <p className="font-display text-base font-bold text-secondary">{labels.menu}</p>
+              <p className="font-display text-secondary text-base font-bold">{labels.menu}</p>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Fermer"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground hover:bg-surface hover:text-foreground"
+                className="text-muted-foreground hover:bg-surface hover:text-foreground inline-flex h-11 w-11 items-center justify-center rounded-full"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
                   <path
@@ -172,7 +172,7 @@ export function MobileHamburgerMenu({ isLoggedIn, notificationsBadge, labels }: 
                 const active =
                   item.href === '/' || item.href === '/dashboard'
                     ? pathname === item.href
-                    : pathname?.startsWith(item.href) ?? false;
+                    : (pathname?.startsWith(item.href) ?? false);
                 return (
                   <Link
                     key={`${item.href}-${item.label}`}
@@ -180,7 +180,7 @@ export function MobileHamburgerMenu({ isLoggedIn, notificationsBadge, labels }: 
                     aria-current={active ? 'page' : undefined}
                     onClick={() => setOpen(false)}
                     className={[
-                      'flex min-h-12 items-center gap-3 rounded-md px-2 py-3 font-display text-base font-bold',
+                      'font-display flex min-h-12 items-center gap-3 rounded-md px-2 py-3 text-base font-bold',
                       'transition-colors duration-150',
                       active ? 'text-primary' : 'text-secondary hover:text-primary',
                     ].join(' ')}
@@ -202,7 +202,7 @@ export function MobileHamburgerMenu({ isLoggedIn, notificationsBadge, labels }: 
                       {item.badge && (
                         <span
                           aria-hidden="true"
-                          className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-white"
+                          className="bg-destructive absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-white"
                         />
                       )}
                     </span>
@@ -211,14 +211,14 @@ export function MobileHamburgerMenu({ isLoggedIn, notificationsBadge, labels }: 
                 );
               })}
 
-              <hr className="my-2 border-border" />
+              <hr className="border-border my-2" />
 
               {secondaryItems.map((item) => (
                 <Link
                   key={`${item.href}-${item.label}`}
                   href={item.href as '/'}
                   onClick={() => setOpen(false)}
-                  className="flex min-h-11 items-center px-2 py-2 font-display text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  className="font-display text-muted-foreground hover:text-foreground flex min-h-11 items-center px-2 py-2 text-sm transition-colors"
                 >
                   {item.label}
                 </Link>
@@ -226,11 +226,11 @@ export function MobileHamburgerMenu({ isLoggedIn, notificationsBadge, labels }: 
 
               {isLoggedIn && (
                 <>
-                  <hr className="my-2 border-border" />
+                  <hr className="border-border my-2" />
                   <form action="/auth/signout" method="post">
                     <button
                       type="submit"
-                      className="flex min-h-12 w-full items-center gap-3 rounded-md px-2 py-3 font-display text-base font-bold text-destructive transition-colors hover:bg-[var(--color-bg-hover-pink)]"
+                      className="font-display text-destructive flex min-h-12 w-full items-center gap-3 rounded-md px-2 py-3 text-base font-bold transition-colors hover:bg-[var(--color-bg-hover-pink)]"
                     >
                       <svg
                         width="22"

@@ -20,8 +20,8 @@ export function DashboardShell({
         </aside>
 
         <main className="min-w-0">
-          <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-            <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+          <header className="border-border flex flex-wrap items-center justify-between gap-3 border-b pb-4">
+            <h1 className="font-display text-foreground text-2xl font-semibold tracking-tight sm:text-3xl">
               {title}
             </h1>
             {action && <div className="flex items-center gap-2">{action}</div>}

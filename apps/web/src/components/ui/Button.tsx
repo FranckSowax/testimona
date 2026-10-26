@@ -25,21 +25,17 @@ const SIZE_CLASSES: Record<Size, string> = {
 const SOLID: Record<Variant, string> = {
   primary:
     'bg-primary text-primary-foreground hover:opacity-90 active:opacity-95 focus-visible:shadow-[var(--shadow-glow-primary)]',
-  secondary:
-    'bg-secondary text-secondary-foreground hover:opacity-90 active:opacity-95',
+  secondary: 'bg-secondary text-secondary-foreground hover:opacity-90 active:opacity-95',
   accent:
     'bg-accent text-accent-foreground hover:opacity-90 active:opacity-95 focus-visible:shadow-[var(--shadow-glow-accent)]',
-  destructive:
-    'bg-destructive text-destructive-foreground hover:opacity-90 active:opacity-95',
+  destructive: 'bg-destructive text-destructive-foreground hover:opacity-90 active:opacity-95',
 };
 
 const OUTLINE: Record<Variant, string> = {
-  primary:
-    'border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground',
+  primary: 'border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground',
   secondary:
     'border-2 border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground',
-  accent:
-    'border-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground',
+  accent: 'border-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground',
   destructive:
     'border-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground',
 };
@@ -127,7 +123,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       disabled={isDisabled}
       aria-busy={loading || undefined}
       className={[
-        'inline-flex items-center justify-center rounded-md font-medium font-display',
+        'font-display inline-flex items-center justify-center rounded-md font-medium',
         'transition-[background-color,color,opacity,box-shadow,transform]',
         'duration-150 ease-[var(--motion-ease-out)]',
         'focus-visible:outline-none',

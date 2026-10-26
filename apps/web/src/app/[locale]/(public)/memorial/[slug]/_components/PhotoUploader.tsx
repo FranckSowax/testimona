@@ -8,13 +8,7 @@ import { uploadMemorialPhotoAction } from '../photo-actions';
 const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_BYTES = 10 * 1024 * 1024;
 
-export function PhotoUploader({
-  memorialId,
-  slug,
-}: {
-  memorialId: string;
-  slug: string;
-}) {
+export function PhotoUploader({ memorialId, slug }: { memorialId: string; slug: string }) {
   const t = useTranslations('memorial.photoUploader');
   const toast = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -78,13 +72,13 @@ export function PhotoUploader({
         className="sr-only"
         onChange={handleChange}
       />
-      <p className="font-display text-sm font-semibold text-foreground">{t('title')}</p>
-      <p className="text-xs text-muted-foreground">{t('hint')}</p>
+      <p className="font-display text-foreground text-sm font-semibold">{t('title')}</p>
+      <p className="text-muted-foreground text-xs">{t('hint')}</p>
       <button
         type="button"
         onClick={handlePick}
         disabled={pending}
-        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? t('uploading') : t('upload')}
       </button>

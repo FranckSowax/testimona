@@ -23,10 +23,10 @@ export function SetCoverButton({
 }) {
   const t = useTranslations('memorial.setCover');
   const router = useRouter();
-  const [state, formAction, isPending] = useActionState<
-    PhotoActionState | null,
-    FormData
-  >(setCoverPhotoAction, null);
+  const [state, formAction, isPending] = useActionState<PhotoActionState | null, FormData>(
+    setCoverPhotoAction,
+    null,
+  );
 
   useEffect(() => {
     if (state?.ok) router.refresh();
@@ -34,7 +34,7 @@ export function SetCoverButton({
 
   if (isCover) {
     return (
-      <div className="flex items-center justify-center gap-1 px-2 py-1 font-display text-[10px] font-bold uppercase tracking-wider text-accent">
+      <div className="font-display text-accent flex items-center justify-center gap-1 px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.8 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" />
         </svg>
@@ -52,7 +52,7 @@ export function SetCoverButton({
         type="submit"
         disabled={isPending}
         title={t('setAsCover')}
-        className="press-scale flex w-full items-center justify-center gap-1 px-2 py-1 font-display text-[10px] font-bold uppercase tracking-wider text-muted-foreground transition-colors hover:text-accent disabled:opacity-50"
+        className="press-scale font-display text-muted-foreground hover:text-accent flex w-full items-center justify-center gap-1 px-2 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors disabled:opacity-50"
       >
         <svg
           width="11"
@@ -70,7 +70,7 @@ export function SetCoverButton({
         {isPending ? '…' : t('cover')}
       </button>
       {state?.error && (
-        <p className="px-2 pb-1 text-center text-[10px] text-destructive">{state.error}</p>
+        <p className="text-destructive px-2 pb-1 text-center text-[10px]">{state.error}</p>
       )}
     </form>
   );

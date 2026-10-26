@@ -49,39 +49,35 @@ export async function DonorsOwnerPanel({
   ]);
 
   return (
-    <div className="rounded-lg border border-border bg-white shadow-sm">
-      <div className="border-b border-border px-4 py-3">
-        <h3 className="font-display text-sm font-semibold uppercase tracking-widest text-foreground/70">
+    <div className="border-border rounded-lg border bg-white shadow-sm">
+      <div className="border-border border-b px-4 py-3">
+        <h3 className="font-display text-foreground/70 text-sm font-semibold uppercase tracking-widest">
           {t('donorsTitle')}
         </h3>
-        <p className="mt-0.5 text-xs text-muted-foreground">{t('subtitle')}</p>
+        <p className="text-muted-foreground mt-0.5 text-xs">{t('subtitle')}</p>
       </div>
       {donations.length === 0 ? (
-        <p className="px-4 py-6 text-center text-sm italic text-muted-foreground">
-          {t('empty')}
-        </p>
+        <p className="text-muted-foreground px-4 py-6 text-center text-sm italic">{t('empty')}</p>
       ) : (
-        <ul className="divide-y divide-border">
+        <ul className="divide-border divide-y">
           {donations.map((d, i) => (
             <li key={`${d.createdAt}-${i}`} className="space-y-1 px-4 py-3 text-sm">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="font-medium text-foreground">
+                <p className="text-foreground font-medium">
                   {d.donorName?.trim() || t('noEmail')}
                   {d.isAnonymous && (
-                    <span className="ml-2 rounded-full bg-surface px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <span className="bg-surface font-display text-muted-foreground ml-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                       {t('anonymousBadge')}
                     </span>
                   )}
                 </p>
-                <span className="font-semibold text-foreground">
+                <span className="text-foreground font-semibold">
                   {formatMoney(d.amount, d.currency, locale)}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">{d.donorEmail || t('noEmail')}</p>
-              <p className="text-xs italic text-muted-foreground">
-                {d.message || t('noMessage')}
-              </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">{d.donorEmail || t('noEmail')}</p>
+              <p className="text-muted-foreground text-xs italic">{d.message || t('noMessage')}</p>
+              <p className="text-muted-foreground text-xs">
                 {new Date(d.createdAt).toLocaleString(locale)}
               </p>
             </li>

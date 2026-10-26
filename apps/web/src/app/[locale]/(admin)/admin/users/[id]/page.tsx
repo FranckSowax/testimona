@@ -38,8 +38,7 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
   if (!user) notFound();
 
   const isSelf = user.id === admin.id;
-  const displayName =
-    user.fullName || user.nickname || user.email || user.id.slice(0, 8);
+  const displayName = user.fullName || user.nickname || user.email || user.id.slice(0, 8);
 
   const actionLabels = {
     promoteAdmin: t('promoteAdmin'),
@@ -69,40 +68,35 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
       }
     >
       <p className="text-sm">
-        <Link
-          href="/admin/users"
-          className="font-display font-bold text-primary hover:underline"
-        >
+        <Link href="/admin/users" className="font-display text-primary font-bold hover:underline">
           ← {tNav('users')}
         </Link>
       </p>
 
       {/* Identity card */}
-      <section className="mt-6 rounded-lg border border-border bg-white p-6 shadow-[var(--shadow-card)]">
+      <section className="border-border mt-6 rounded-lg border bg-white p-6 shadow-[var(--shadow-card)]">
         <div className="flex flex-wrap items-start gap-5">
           <Avatar src={user.avatarUrl} name={displayName} size="xl" />
           <div className="min-w-0 flex-1">
-            <h2 className="font-display text-xl font-bold text-foreground">
-              {displayName}
-            </h2>
+            <h2 className="font-display text-foreground text-xl font-bold">{displayName}</h2>
             {user.email && (
-              <p className="mt-1 break-all text-sm text-muted-foreground">{user.email}</p>
+              <p className="text-muted-foreground mt-1 break-all text-sm">{user.email}</p>
             )}
             <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
               <div>
-                <dt className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <dt className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wide">
                   {t('userId')}
                 </dt>
-                <dd className="break-all font-mono text-xs text-foreground">{user.id}</dd>
+                <dd className="text-foreground break-all font-mono text-xs">{user.id}</dd>
               </div>
               <div>
-                <dt className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <dt className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wide">
                   {t('role')}
                 </dt>
                 <dd className="text-foreground">
                   <span
                     className={[
-                      'inline-flex rounded-full px-2 py-0.5 font-display text-[11px] font-bold uppercase tracking-wide',
+                      'font-display inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide',
                       user.role === 'Admin'
                         ? 'bg-primary/10 text-primary'
                         : 'bg-foreground/10 text-foreground/70',
@@ -113,29 +107,25 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
                 </dd>
               </div>
               <div>
-                <dt className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <dt className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wide">
                   {t('createdAt')}
                 </dt>
                 <dd className="text-foreground">{formatDate(user.createdAt, locale)}</dd>
               </div>
               <div>
-                <dt className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <dt className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wide">
                   {t('lastSignIn')}
                 </dt>
                 <dd className="text-foreground">
-                  {user.lastSignInAt
-                    ? formatDate(user.lastSignInAt, locale)
-                    : t('never')}
+                  {user.lastSignInAt ? formatDate(user.lastSignInAt, locale) : t('never')}
                 </dd>
               </div>
               {user.bannedUntil && (
                 <div className="sm:col-span-2">
-                  <dt className="font-display text-xs font-bold uppercase tracking-wide text-destructive">
+                  <dt className="font-display text-destructive text-xs font-bold uppercase tracking-wide">
                     {t('bannedUntil')}
                   </dt>
-                  <dd className="text-destructive">
-                    {formatDate(user.bannedUntil, locale)}
-                  </dd>
+                  <dd className="text-destructive">{formatDate(user.bannedUntil, locale)}</dd>
                 </div>
               )}
             </dl>
@@ -144,53 +134,41 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
       </section>
 
       {/* Stats */}
-      <section
-        aria-label={t('statsAria')}
-        className="mt-6 grid gap-4 sm:grid-cols-3"
-      >
-        <KpiCard
-          label={t('memorialsOwned')}
-          value={user.memorialsCount.toLocaleString(locale)}
-        />
+      <section aria-label={t('statsAria')} className="mt-6 grid gap-4 sm:grid-cols-3">
+        <KpiCard label={t('memorialsOwned')} value={user.memorialsCount.toLocaleString(locale)} />
         <KpiCard
           label={t('testimonialsPosted')}
           value={user.testimonialsCount.toLocaleString(locale)}
         />
-        <KpiCard
-          label={t('donationsMade')}
-          value={user.donationsCount.toLocaleString(locale)}
-        />
+        <KpiCard label={t('donationsMade')} value={user.donationsCount.toLocaleString(locale)} />
       </section>
 
       {/* Owned memorials */}
       <section className="mt-8">
         <header className="flex items-center justify-between">
-          <h3 className="font-display text-lg font-bold text-foreground">
+          <h3 className="font-display text-foreground text-lg font-bold">
             {t('memorialsListTitle')}
           </h3>
         </header>
-        <div className="mt-3 overflow-hidden rounded-md border border-border bg-white">
+        <div className="border-border mt-3 overflow-hidden rounded-md border bg-white">
           {user.memorials.length === 0 ? (
-            <p className="p-6 text-center text-sm italic text-muted-foreground">
+            <p className="text-muted-foreground p-6 text-center text-sm italic">
               {t('memorialsEmpty')}
             </p>
           ) : (
-            <ul className="divide-y divide-border">
+            <ul className="divide-border divide-y">
               {user.memorials.map((m) => (
-                <li
-                  key={m.id}
-                  className="flex flex-wrap items-baseline justify-between gap-3 p-4"
-                >
+                <li key={m.id} className="flex flex-wrap items-baseline justify-between gap-3 p-4">
                   <Link
                     href={`/memorial/${m.slug}`}
-                    className="font-display text-sm font-bold text-foreground hover:text-primary"
+                    className="font-display text-foreground hover:text-primary text-sm font-bold"
                   >
                     {m.firstname} {m.lastname}
                   </Link>
                   <span className="flex items-center gap-2 text-xs">
                     <span
                       className={[
-                        'rounded-full px-2 py-0.5 font-display text-[11px] font-bold uppercase tracking-wide',
+                        'font-display rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide',
                         m.isPublic
                           ? 'bg-primary/10 text-primary'
                           : 'bg-foreground/10 text-foreground/70',
@@ -198,9 +176,7 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
                     >
                       {m.isPublic ? t('publicMem') : t('privateMem')}
                     </span>
-                    <span className="text-muted-foreground">
-                      {formatDate(m.createdAt, locale)}
-                    </span>
+                    <span className="text-muted-foreground">{formatDate(m.createdAt, locale)}</span>
                   </span>
                 </li>
               ))}
@@ -212,21 +188,21 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
       {/* Recent testimonials */}
       <section className="mt-8">
         <header>
-          <h3 className="font-display text-lg font-bold text-foreground">
+          <h3 className="font-display text-foreground text-lg font-bold">
             {t('testimonialsListTitle')}
           </h3>
         </header>
-        <div className="mt-3 overflow-hidden rounded-md border border-border bg-white">
+        <div className="border-border mt-3 overflow-hidden rounded-md border bg-white">
           {user.recentTestimonials.length === 0 ? (
-            <p className="p-6 text-center text-sm italic text-muted-foreground">
+            <p className="text-muted-foreground p-6 text-center text-sm italic">
               {t('testimonialsEmpty')}
             </p>
           ) : (
-            <ul className="divide-y divide-border">
+            <ul className="divide-border divide-y">
               {user.recentTestimonials.map((tt) => (
                 <li key={tt.id} className="p-4">
-                  <p className="line-clamp-3 text-sm text-foreground/85">{tt.message}</p>
-                  <p className="mt-2 text-xs text-muted-foreground">
+                  <p className="text-foreground/85 line-clamp-3 text-sm">{tt.message}</p>
+                  <p className="text-muted-foreground mt-2 text-xs">
                     {formatDate(tt.createdAt, locale)}
                   </p>
                 </li>

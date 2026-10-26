@@ -86,10 +86,10 @@ export default async function SearchPage({
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">
+      <h1 className="font-display text-foreground text-3xl font-semibold tracking-tight">
         Rechercher un mémorial
       </h1>
-      <p className="mt-2 text-sm text-muted-foreground">
+      <p className="text-muted-foreground mt-2 text-sm">
         Trouvez un mémorial par nom, prénom ou surnom.
       </p>
 
@@ -130,14 +130,14 @@ export default async function SearchPage({
       {error && (
         <p
           role="alert"
-          className="mt-6 rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+          className="border-destructive/30 bg-destructive/5 text-destructive mt-6 rounded-md border px-4 py-3 text-sm"
         >
           {error}
         </p>
       )}
 
       {q && !error && (
-        <p className="mt-6 text-sm text-muted-foreground tabular">
+        <p className="text-muted-foreground tabular mt-6 text-sm">
           {total} résultat{total > 1 ? 's' : ''} pour « {q} »
         </p>
       )}
@@ -180,7 +180,7 @@ export default async function SearchPage({
           ) : (
             <span />
           )}
-          <span className="tabular text-sm text-muted-foreground">
+          <span className="tabular text-muted-foreground text-sm">
             Page {page} / {totalPages}
           </span>
           {page < totalPages ? (

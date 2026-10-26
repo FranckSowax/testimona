@@ -52,9 +52,7 @@ export function ClipsList({ clips }: { clips: ClipRowDto[] }) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const cancelledRef = useRef(false);
 
-  const hasActive = clips.some(
-    (c) => c.status === 'pending' || c.status === 'processing',
-  );
+  const hasActive = clips.some((c) => c.status === 'pending' || c.status === 'processing');
 
   useEffect(() => {
     cancelledRef.current = false;
@@ -84,7 +82,7 @@ export function ClipsList({ clips }: { clips: ClipRowDto[] }) {
 
   if (clips.length === 0) {
     return (
-      <p className="rounded-md border border-dashed border-border bg-muted/50 px-4 py-12 text-center text-sm italic text-muted-foreground">
+      <p className="border-border bg-muted/50 text-muted-foreground rounded-md border border-dashed px-4 py-12 text-center text-sm italic">
         {t('empty')}
       </p>
     );
@@ -113,12 +111,10 @@ export function ClipsList({ clips }: { clips: ClipRowDto[] }) {
             key={clip.id}
             className={[
               'overflow-hidden rounded-xl border bg-white shadow-[var(--shadow-card)]',
-              awaitingValidation
-                ? 'border-accent/40 ring-2 ring-accent/30'
-                : 'border-border',
+              awaitingValidation ? 'border-accent/40 ring-accent/30 ring-2' : 'border-border',
             ].join(' ')}
           >
-            <div className="relative aspect-video w-full bg-muted">
+            <div className="bg-muted relative aspect-video w-full">
               {clip.status === 'ready' && clip.videoUrl ? (
                 <video
                   src={clip.videoUrl}
@@ -160,16 +156,34 @@ export function ClipsList({ clips }: { clips: ClipRowDto[] }) {
                 </div>
               )}
               {validated && clip.status === 'ready' && (
-                <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wider text-white shadow">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
+                <span className="font-display absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow">
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    aria-hidden="true"
+                  >
                     <path d="M20 6 9 17l-5-5" />
                   </svg>
                   {t('badgeValidated')}
                 </span>
               )}
               {awaitingValidation && (
-                <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wider text-white shadow">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+                <span className="bg-accent font-display absolute right-2 top-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow">
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    aria-hidden="true"
+                  >
                     <circle cx="12" cy="12" r="9" />
                     <path d="M12 8v4M12 16h.01" />
                   </svg>
@@ -181,13 +195,13 @@ export function ClipsList({ clips }: { clips: ClipRowDto[] }) {
               <div className="flex items-center justify-between gap-2">
                 <Link
                   href={`/memorial/${clip.memorialSlug}`}
-                  className="truncate font-display text-sm font-bold text-foreground hover:text-primary"
+                  className="font-display text-foreground hover:text-primary truncate text-sm font-bold"
                 >
                   {clip.memorialName}
                 </Link>
                 <span
                   className={[
-                    'inline-flex shrink-0 rounded-full px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wider',
+                    'font-display inline-flex shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider',
                     TONE_CLS[tone] ?? '',
                   ].join(' ')}
                 >
@@ -195,28 +209,17 @@ export function ClipsList({ clips }: { clips: ClipRowDto[] }) {
                 </span>
               </div>
               {clip.caption && (
-                <p className="line-clamp-2 text-xs italic text-muted-foreground">
-                  {clip.caption}
-                </p>
+                <p className="text-muted-foreground line-clamp-2 text-xs italic">{clip.caption}</p>
               )}
-              {clip.errorMessage && (
-                <p className="text-xs text-destructive">
-                  {clip.errorMessage}
-                </p>
-              )}
-              <p
-                className="text-[11px] text-muted-foreground"
-                suppressHydrationWarning
-              >
+              {clip.errorMessage && <p className="text-destructive text-xs">{clip.errorMessage}</p>}
+              <p className="text-muted-foreground text-[11px]" suppressHydrationWarning>
                 {new Date(clip.createdAt).toLocaleString('fr-FR', {
                   dateStyle: 'short',
                   timeStyle: 'short',
                   timeZone: 'Europe/Paris',
                 })}
               </p>
-              {clip.status === 'ready' && (
-                <ClipActions clipId={clip.id} validated={validated} />
-              )}
+              {clip.status === 'ready' && <ClipActions clipId={clip.id} validated={validated} />}
               {clip.status === 'failed' && (
                 <ClipActions clipId={clip.id} validated={false} failed />
               )}

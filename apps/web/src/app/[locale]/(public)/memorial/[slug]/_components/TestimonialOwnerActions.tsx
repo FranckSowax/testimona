@@ -55,7 +55,7 @@ export function TestimonialOwnerActions({
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         disabled={pending}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+        className="text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-primary flex h-8 w-8 items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 disabled:opacity-50"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="5" cy="12" r="1.6" fill="currentColor" />
@@ -66,13 +66,13 @@ export function TestimonialOwnerActions({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-10 mt-1 w-44 overflow-hidden rounded-md border border-border bg-white shadow-lg"
+          className="border-border absolute right-0 top-full z-10 mt-1 w-44 overflow-hidden rounded-md border bg-white shadow-lg"
         >
           <button
             type="button"
             role="menuitem"
             onClick={handleEdit}
-            className="block w-full px-3 py-2 text-left text-sm text-foreground hover:bg-muted"
+            className="text-foreground hover:bg-muted block w-full px-3 py-2 text-left text-sm"
           >
             {t('edit')}
           </button>
@@ -80,7 +80,7 @@ export function TestimonialOwnerActions({
             type="button"
             role="menuitem"
             onClick={handleDelete}
-            className="block w-full px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10"
+            className="text-destructive hover:bg-destructive/10 block w-full px-3 py-2 text-left text-sm"
           >
             {pending ? t('deleting') : t('delete')}
           </button>

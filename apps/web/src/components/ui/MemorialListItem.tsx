@@ -25,7 +25,7 @@ export function MemorialListItem({
   return (
     <li
       className={[
-        'flex items-center gap-3 px-3 py-2.5 rounded-md',
+        'flex items-center gap-3 rounded-md px-3 py-2.5',
         'transition-colors hover:bg-[var(--color-bg-hover-gray)]',
         className ?? '',
       ]
@@ -35,12 +35,8 @@ export function MemorialListItem({
       <Link href={href} className="flex flex-1 items-center gap-3 outline-none">
         <Avatar src={coverUrl} name={fullName} size="md" border="rose" />
         <div className="min-w-0 flex-1">
-          <p className="truncate font-display text-sm font-semibold text-foreground">
-            {fullName}
-          </p>
-          {meta && (
-            <p className="truncate text-xs italic text-muted-foreground tabular">{meta}</p>
-          )}
+          <p className="font-display text-foreground truncate text-sm font-semibold">{fullName}</p>
+          {meta && <p className="text-muted-foreground tabular truncate text-xs italic">{meta}</p>}
         </div>
       </Link>
       {trailing}

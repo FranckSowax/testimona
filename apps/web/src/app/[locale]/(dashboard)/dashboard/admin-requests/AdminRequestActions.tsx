@@ -16,12 +16,7 @@ interface Props {
   labels: { accept: string; decline: string };
 }
 
-export function AdminRequestActions({
-  requestId,
-  memorialId,
-  memorialSlug,
-  labels,
-}: Props) {
+export function AdminRequestActions({ requestId, memorialId, memorialSlug, labels }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -43,7 +38,7 @@ export function AdminRequestActions({
         type="button"
         onClick={() => run('declined')}
         disabled={pending}
-        className="rounded-md border border-border px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wide text-muted-foreground transition-colors hover:bg-surface hover:text-foreground disabled:opacity-50"
+        className="border-border font-display text-muted-foreground hover:bg-surface hover:text-foreground rounded-md border px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition-colors disabled:opacity-50"
       >
         {labels.decline}
       </button>
@@ -51,7 +46,7 @@ export function AdminRequestActions({
         type="button"
         onClick={() => run('accepted')}
         disabled={pending}
-        className="rounded-md bg-primary px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wide text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="bg-primary font-display text-primary-foreground rounded-md px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {labels.accept}
       </button>

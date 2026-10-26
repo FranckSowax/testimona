@@ -74,14 +74,14 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body
-        className="flex min-h-[100dvh] flex-col bg-background font-sans text-foreground antialiased"
+        className="bg-background text-foreground flex min-h-[100dvh] flex-col font-sans antialiased"
         suppressHydrationWarning
       >
         <NextIntlClientProvider messages={messages} locale={locale}>
           <ToastProvider>
             <a
               href="#main"
-              className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2"
+              className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2"
             >
               Aller au contenu
             </a>

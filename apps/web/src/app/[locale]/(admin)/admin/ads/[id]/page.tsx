@@ -12,11 +12,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function AdminAdEditPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function AdminAdEditPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
   const [t, tNav, ad] = await Promise.all([
@@ -48,7 +44,7 @@ export default async function AdminAdEditPage({
   return (
     <AdminShell title={`${t('editTitle')} — ${ad.name}`}>
       <p className="mb-6 text-sm">
-        <Link href="/admin/ads" className="font-display font-bold text-primary hover:underline">
+        <Link href="/admin/ads" className="font-display text-primary font-bold hover:underline">
           ← {tNav('ads')}
         </Link>
       </p>

@@ -34,9 +34,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       'px-3 py-2.5 text-base text-foreground sm:text-[15px]',
       'transition-[background-color,border-color,box-shadow] duration-150',
       'focus-within:bg-white focus-within:border-primary focus-within:shadow-[var(--shadow-glow-primary)]',
-      invalid
-        ? 'border-destructive focus-within:border-destructive focus-within:shadow-none'
-        : '',
+      invalid ? 'border-destructive focus-within:border-destructive focus-within:shadow-none' : '',
     ]
       .filter(Boolean)
       .join(' ');
@@ -51,7 +49,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         <input
           ref={ref}
           aria-invalid={invalid || undefined}
-          className="min-w-0 flex-1 bg-transparent font-semibold outline-none placeholder:font-medium placeholder:text-muted-foreground"
+          className="placeholder:text-muted-foreground min-w-0 flex-1 bg-transparent font-semibold outline-none placeholder:font-medium"
           {...rest}
         />
         {iconRight && (

@@ -5,12 +5,7 @@ interface SpinnerProps extends SVGProps<SVGSVGElement> {
   label?: string;
 }
 
-export function Spinner({
-  size = 16,
-  label = 'Loading',
-  className,
-  ...rest
-}: SpinnerProps) {
+export function Spinner({ size = 16, label = 'Loading', className, ...rest }: SpinnerProps) {
   return (
     <svg
       width={size}

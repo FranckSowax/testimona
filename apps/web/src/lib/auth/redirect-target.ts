@@ -17,10 +17,7 @@ const locales = routing.locales as readonly string[];
  * and the userinfo trick (`@evil.com`, which turns `${origin}${next}` into
  * `https://our-host@evil.com`).
  */
-export function safeNextPath(
-  next: string | null | undefined,
-  fallback = '/dashboard',
-): string {
+export function safeNextPath(next: string | null | undefined, fallback = '/dashboard'): string {
   if (!next || !next.startsWith('/')) return fallback;
   if (next.length > 1 && (next[1] === '/' || next[1] === '\\')) return fallback;
   return next;

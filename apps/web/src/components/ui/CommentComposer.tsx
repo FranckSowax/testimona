@@ -46,7 +46,7 @@ export function CommentComposer({
   return (
     <div
       className={[
-        'flex items-center gap-3 rounded-md border border-border bg-white p-2',
+        'border-border flex items-center gap-3 rounded-md border bg-white p-2',
         'focus-within:border-primary focus-within:shadow-[var(--shadow-glow-primary)]',
         'transition-[border-color,box-shadow]',
         className ?? '',
@@ -67,11 +67,18 @@ export function CommentComposer({
         }}
         placeholder={placeholder}
         disabled={disabled || submitting}
-        className="min-w-0 flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground sm:text-sm"
+        className="text-foreground placeholder:text-muted-foreground min-w-0 flex-1 bg-transparent text-base outline-none sm:text-sm"
       />
       {emojiLabel && (
         <ButtonIcon label={emojiLabel} size="sm" type="button" disabled>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
             <circle cx="12" cy="12" r="10" />
             <path d="M8 14s1.5 2 4 2 4-2 4-2" />
             <line x1="9" y1="9" x2="9.01" y2="9" />
@@ -87,7 +94,14 @@ export function CommentComposer({
         onClick={() => void handleSubmit()}
         disabled={!value.trim() || submitting || disabled}
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          aria-hidden="true"
+        >
           <path d="M12 19V6M5 13l7-7 7 7" />
         </svg>
       </ButtonIcon>

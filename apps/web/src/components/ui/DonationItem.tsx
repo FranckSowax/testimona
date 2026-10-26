@@ -40,23 +40,19 @@ export function DonationItem({
       <div className="min-w-0 flex-1 space-y-0.5">
         <p className="text-sm leading-snug">
           <span className="text-muted-foreground">Donation by </span>
-          <span className="font-display font-semibold text-foreground">{donorName}</span>
-          {donorRelation && (
-            <span className="italic text-muted-foreground">, {donorRelation}</span>
-          )}
+          <span className="font-display text-foreground font-semibold">{donorName}</span>
+          {donorRelation && <span className="text-muted-foreground italic">, {donorRelation}</span>}
         </p>
-        <p className="text-xs italic text-muted-foreground tabular">{date}</p>
+        <p className="text-muted-foreground tabular text-xs italic">{date}</p>
         {message && (
-          <p className="mt-1 line-clamp-2 text-xs text-foreground/80">&ldquo;{message}&rdquo;</p>
+          <p className="text-foreground/80 mt-1 line-clamp-2 text-xs">&ldquo;{message}&rdquo;</p>
         )}
       </div>
       <div className="flex items-center gap-2">
         {amount ? (
-          <span className="tabular font-display text-sm font-bold text-foreground">
-            {amount}
-          </span>
+          <span className="tabular font-display text-foreground text-sm font-bold">{amount}</span>
         ) : participated ? (
-          <span className="text-xs italic text-muted-foreground">Participated</span>
+          <span className="text-muted-foreground text-xs italic">Participated</span>
         ) : null}
         {trailing}
       </div>

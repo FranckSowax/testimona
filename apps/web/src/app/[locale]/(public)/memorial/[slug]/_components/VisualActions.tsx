@@ -16,14 +16,14 @@ import {
  */
 export function VisualActions({ visualId }: { visualId: string }) {
   const t = useTranslations('memorial.shopOwner');
-  const [regenState, regenAction, regenPending] = useActionState<
-    ShopActionState | null,
-    FormData
-  >(regenerateMemorialVisualAction, null);
-  const [delState, delAction, delPending] = useActionState<
-    ShopActionState | null,
-    FormData
-  >(deleteMemorialVisualAction, null);
+  const [regenState, regenAction, regenPending] = useActionState<ShopActionState | null, FormData>(
+    regenerateMemorialVisualAction,
+    null,
+  );
+  const [delState, delAction, delPending] = useActionState<ShopActionState | null, FormData>(
+    deleteMemorialVisualAction,
+    null,
+  );
 
   return (
     <div className="flex items-center justify-center gap-1.5 p-1.5">
@@ -33,7 +33,7 @@ export function VisualActions({ visualId }: { visualId: string }) {
           type="submit"
           disabled={regenPending}
           aria-label={t('regenAria')}
-          className="press-scale flex w-full items-center justify-center gap-1 rounded-md border border-accent/40 bg-white px-2 py-1 font-display text-[10px] font-bold uppercase tracking-wider text-accent transition-colors hover:bg-accent/5 disabled:opacity-50"
+          className="press-scale border-accent/40 font-display text-accent hover:bg-accent/5 flex w-full items-center justify-center gap-1 rounded-md border bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors disabled:opacity-50"
         >
           <svg
             width="10"
@@ -58,7 +58,7 @@ export function VisualActions({ visualId }: { visualId: string }) {
           type="submit"
           disabled={delPending}
           aria-label={t('deleteVisualAria')}
-          className="press-scale inline-flex h-6 w-6 items-center justify-center rounded-md border border-border bg-white text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive disabled:opacity-50"
+          className="press-scale border-border text-muted-foreground hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive inline-flex h-6 w-6 items-center justify-center rounded-md border bg-white transition-colors disabled:opacity-50"
         >
           <svg
             width="10"
@@ -76,10 +76,7 @@ export function VisualActions({ visualId }: { visualId: string }) {
         </button>
       </form>
       {(regenState?.error || delState?.error) && (
-        <p
-          role="alert"
-          className="ml-1 truncate text-[10px] text-destructive"
-        >
+        <p role="alert" className="text-destructive ml-1 truncate text-[10px]">
           {regenState?.error || delState?.error}
         </p>
       )}

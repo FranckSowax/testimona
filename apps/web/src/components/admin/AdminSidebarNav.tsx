@@ -13,8 +13,7 @@ const ITEMS: NavItem[] = [
   {
     href: '/admin',
     labelKey: 'overview',
-    iconPath:
-      'M3 13h8V3H3v10Zm10 8h8V11h-8v10Zm0-18v6h8V3h-8ZM3 21h8v-6H3v6Z',
+    iconPath: 'M3 13h8V3H3v10Zm10 8h8V11h-8v10Zm0-18v6h8V3h-8ZM3 21h8v-6H3v6Z',
   },
   {
     href: '/admin/users',
@@ -36,8 +35,7 @@ const ITEMS: NavItem[] = [
   {
     href: '/admin/donations',
     labelKey: 'donations',
-    iconPath:
-      'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
+    iconPath: 'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
   },
   {
     href: '/admin/reports',
@@ -48,8 +46,7 @@ const ITEMS: NavItem[] = [
   {
     href: '/admin/ads',
     labelKey: 'ads',
-    iconPath:
-      'M3 11l18-5v12L3 13v-2zm0 0v2m6 9l-3-9M14 7v10',
+    iconPath: 'M3 11l18-5v12L3 13v-2zm0 0v2m6 9l-3-9M14 7v10',
   },
   {
     href: '/admin/clips',
@@ -60,8 +57,7 @@ const ITEMS: NavItem[] = [
   {
     href: '/admin/credits',
     labelKey: 'credits',
-    iconPath:
-      'M12 2L4 7v10l8 5 8-5V7l-8-5zM12 22V12M4 7l8 5 8-5',
+    iconPath: 'M12 2L4 7v10l8 5 8-5V7l-8-5zM12 22V12M4 7l8 5 8-5',
   },
   {
     href: '/admin/settings',
@@ -93,16 +89,14 @@ export function AdminSidebarNav({ labels }: { labels: Labels }) {
       {ITEMS.map((item) => {
         const stripped = pathname?.replace(/^\/(?:fr|en)/, '') ?? '';
         const active =
-          item.href === '/admin'
-            ? stripped === '/admin'
-            : stripped.startsWith(item.href);
+          item.href === '/admin' ? stripped === '/admin' : stripped.startsWith(item.href);
         return (
           <Link
             key={item.href}
             href={item.href}
             aria-current={active ? 'page' : undefined}
             className={[
-              'flex items-center gap-3 rounded-md px-3 py-2.5 font-display text-sm font-bold',
+              'font-display flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-bold',
               'transition-colors duration-150',
               active ? 'bg-primary/10 text-primary' : 'text-secondary hover:bg-surface',
             ].join(' ')}

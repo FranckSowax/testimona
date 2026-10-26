@@ -9,9 +9,7 @@ import { PhotoActions, type PhotoComment } from './PhotoActions';
 import { SetCoverButton } from './SetCoverButton';
 import { PhotoDeleteButton } from './PhotoDeleteButton';
 
-async function getPhotoComments(
-  photoIds: string[],
-): Promise<Map<string, PhotoComment[]>> {
+async function getPhotoComments(photoIds: string[]): Promise<Map<string, PhotoComment[]>> {
   const map = new Map<string, PhotoComment[]>();
   if (photoIds.length === 0) return map;
   const supabase = getSupabaseAdminClient();
@@ -75,9 +73,7 @@ async function getPhotos(memorialId: string): Promise<PhotoRow[]> {
   const supabase = getSupabaseAdminClient();
   const { data } = await supabase
     .from('Photo')
-    .select(
-      'id, url, caption, position, status, submittedByName, createdAt',
-    )
+    .select('id, url, caption, position, status, submittedByName, createdAt')
     .eq('memorialId', memorialId)
     .in('status', ['pending', 'approved'])
     .order('position', { ascending: true })
@@ -142,8 +138,7 @@ export async function PhotosSection({
 
   // Which photo is the cover: explicit coverPhotoId, else the first approved
   // photo by position (matches getCoverPhotoUrl on the memorial page).
-  const firstApprovedId =
-    photos.find((p) => p.status === 'approved')?.id ?? null;
+  const firstApprovedId = photos.find((p) => p.status === 'approved')?.id ?? null;
   const effectiveCoverId = coverPhotoId ?? firstApprovedId;
 
   const approvedIds = visible.filter((p) => p.status === 'approved').map((p) => p.id);
@@ -153,11 +148,8 @@ export async function PhotosSection({
   ]);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
-  const meta = user?.user_metadata as
-    | { full_name?: string; nickname?: string }
-    | null;
-  const prefillName =
-    meta?.full_name || meta?.nickname || user?.email?.split('@')[0] || '';
+  const meta = user?.user_metadata as { full_name?: string; nickname?: string } | null;
+  const prefillName = meta?.full_name || meta?.nickname || user?.email?.split('@')[0] || '';
 
   return (
     <section aria-labelledby="photos-heading" className="space-y-4">
@@ -166,8 +158,8 @@ export async function PhotosSection({
       </h2>
 
       {isOwner && pendingCount > 0 && (
-        <p className="rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-sm text-foreground/80">
-          <span className="font-display font-bold text-foreground">
+        <p className="border-accent/30 bg-accent/5 text-foreground/80 rounded-md border px-3 py-2 text-sm">
+          <span className="font-display text-foreground font-bold">
             {t('pendingCount', { count: pendingCount })}
           </span>{' '}
           {t('pendingSuggested', { count: pendingCount })}
@@ -185,9 +177,7 @@ export async function PhotosSection({
           prefillName={prefillName || undefined}
           prefillEmail={user?.email ?? undefined}
         />
-        <p className="text-center text-xs text-muted-foreground">
-          {t('shareHint')}
-        </p>
+        <p className="text-muted-foreground text-center text-xs">{t('shareHint')}</p>
       </div>
 
       {visible.length > 0 ? (
@@ -199,18 +189,16 @@ export async function PhotosSection({
                 key={p.id}
                 className={[
                   'overflow-hidden rounded-md border',
-                  isPending
-                    ? 'border-accent/40 ring-2 ring-accent/30'
-                    : 'border-border',
+                  isPending ? 'border-accent/40 ring-accent/30 ring-2' : 'border-border',
                 ].join(' ')}
               >
                 {isPending && (
-                  <div className="flex items-center justify-between gap-2 bg-accent/10 px-2 py-1">
-                    <span className="font-display text-[10px] font-bold uppercase tracking-wider text-accent">
+                  <div className="bg-accent/10 flex items-center justify-between gap-2 px-2 py-1">
+                    <span className="font-display text-accent text-[10px] font-bold uppercase tracking-wider">
                       {t('toValidate')}
                     </span>
                     {p.submittedByName && (
-                      <span className="truncate text-[10px] text-muted-foreground">
+                      <span className="text-muted-foreground truncate text-[10px]">
                         {t('submittedBy', { name: p.submittedByName })}
                       </span>
                     )}
@@ -227,20 +215,20 @@ export async function PhotosSection({
                     />
                   </div>
                   {p.caption && (
-                    <figcaption className="px-2 py-1 text-xs text-muted-foreground">
+                    <figcaption className="text-muted-foreground px-2 py-1 text-xs">
                       {p.caption}
                     </figcaption>
                   )}
                 </figure>
                 {isPending && isOwner && (
-                  <div className="border-t border-accent/30 bg-accent/5 p-1.5">
+                  <div className="border-accent/30 bg-accent/5 border-t p-1.5">
                     <PhotoModerateButtons photoId={p.id} slug={slug} />
                   </div>
                 )}
                 {!isPending && (
-                  <div className="border-t border-border">
+                  <div className="border-border border-t">
                     {isOwner && (
-                      <div className="grid grid-cols-2 divide-x divide-border/60 border-b border-border/60">
+                      <div className="divide-border/60 border-border/60 grid grid-cols-2 divide-x border-b">
                         <SetCoverButton
                           memorialId={memorialId}
                           photoId={p.id}
@@ -266,15 +254,14 @@ export async function PhotosSection({
           })}
         </ul>
       ) : isOwner ? (
-        <p className="mt-2 rounded-md border border-dashed border-border bg-surface px-4 py-6 text-center text-sm italic text-muted-foreground">
+        <p className="border-border bg-surface text-muted-foreground mt-2 rounded-md border border-dashed px-4 py-6 text-center text-sm italic">
           {t('emptyOwner')}
         </p>
       ) : (
-        <p className="rounded-md border border-dashed border-border bg-surface px-4 py-6 text-center text-sm italic text-muted-foreground">
+        <p className="border-border bg-surface text-muted-foreground rounded-md border border-dashed px-4 py-6 text-center text-sm italic">
           {t('emptyPublic')}
         </p>
       )}
-
     </section>
   );
 }

@@ -80,8 +80,8 @@ export async function falSubmitImage(
   const prompt = params.overridePrompt
     ? params.overridePrompt
     : params.extraPrompt
-    ? `${MEMORIAL_VISUAL_PROMPT} ${params.extraPrompt}`
-    : MEMORIAL_VISUAL_PROMPT;
+      ? `${MEMORIAL_VISUAL_PROMPT} ${params.extraPrompt}`
+      : MEMORIAL_VISUAL_PROMPT;
   try {
     const res = await fetch(`${FAL_BASE}/${FLUX_I2I_PATH}`, {
       method: 'POST',
@@ -113,9 +113,7 @@ export async function falSubmitImage(
     };
     const statusUrl =
       json.status_url ??
-      (json.request_id
-        ? `${FAL_BASE}/${FLUX_I2I_PATH}/requests/${json.request_id}/status`
-        : null);
+      (json.request_id ? `${FAL_BASE}/${FLUX_I2I_PATH}/requests/${json.request_id}/status` : null);
     if (!statusUrl) return { error: 'fal img: missing status_url' };
     const responseUrl = json.response_url ?? '';
     return { jobId: `falimg2:${statusUrl}||${responseUrl}` };
@@ -134,10 +132,7 @@ export async function falSubmitImage(
  */
 async function fetchResultFromCandidates(
   candidates: string[],
-): Promise<
-  | { ok: true; imageUrl: string }
-  | { ok: false; lastStatus: number; error: string }
-> {
+): Promise<{ ok: true; imageUrl: string } | { ok: false; lastStatus: number; error: string }> {
   let lastStatus = 0;
   let lastErr = 'no candidates';
   for (const url of candidates) {
@@ -148,9 +143,10 @@ async function fetchResultFromCandidates(
       lastErr = `${res.status}`;
       continue;
     }
-    const result = (await res.json().catch(() => null)) as
-      | { images?: { url?: string }[]; image?: { url?: string } }
-      | null;
+    const result = (await res.json().catch(() => null)) as {
+      images?: { url?: string }[];
+      image?: { url?: string };
+    } | null;
     const imageUrl = result?.images?.[0]?.url ?? result?.image?.url;
     if (imageUrl) return { ok: true, imageUrl };
     lastErr = 'no url in body';
@@ -179,11 +175,7 @@ export async function falGetImageStatus(jobId: string): Promise<VisualJobStatus>
   if (!statusUrl) return { status: 'failed', error: 'no statusUrl' };
 
   const stripped = statusUrl.replace(/\/status\b.*$/, '');
-  const candidates = [
-    savedResponseUrl,
-    `${stripped}/response`,
-    stripped,
-  ];
+  const candidates = [savedResponseUrl, `${stripped}/response`, stripped];
 
   try {
     const statusRes = await fetch(statusUrl, { headers: baseHeaders() });

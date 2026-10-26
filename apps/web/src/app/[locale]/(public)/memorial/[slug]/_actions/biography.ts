@@ -28,10 +28,7 @@ const MAX_MEDIA_BYTES = 60 * 1024 * 1024; // 60 MB (covers short clips)
  * chapters/<chapterId>/ prefix and return the persisted { url, type } list.
  * Invalid or oversized files are skipped rather than failing the whole submit.
  */
-async function uploadChapterMedia(
-  chapterId: string,
-  files: File[],
-): Promise<ChapterMedia[]> {
+async function uploadChapterMedia(chapterId: string, files: File[]): Promise<ChapterMedia[]> {
   const adminDb = getSupabaseAdminClient();
   const out: ChapterMedia[] = [];
   for (const file of files.slice(0, MAX_CHAPTER_MEDIA)) {
@@ -40,8 +37,11 @@ async function uploadChapterMedia(
     const isVideo = VIDEO_MIME.includes(file.type);
     if (!isImage && !isVideo) continue;
     const ext =
-      file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') ||
-      (isImage ? 'jpg' : 'mp4');
+      file.name
+        .split('.')
+        .pop()
+        ?.toLowerCase()
+        .replace(/[^a-z0-9]/g, '') || (isImage ? 'jpg' : 'mp4');
     const path = `chapters/${chapterId}/${randomUUID()}.${ext}`;
     const { error } = await adminDb.storage
       .from('memorial-photos')
@@ -116,9 +116,7 @@ async function ensureBiography(memorialId: string): Promise<string | null> {
 
   // Defensive: explicit id even though the V11 migration adds a default.
   const newId = randomUUID();
-  const { error } = await adminDb
-    .from('Biography')
-    .insert({ id: newId, memorialId });
+  const { error } = await adminDb.from('Biography').insert({ id: newId, memorialId });
   if (error) return null;
   return newId;
 }
@@ -133,12 +131,15 @@ export async function createChapterAction(
 ): Promise<ChapterActionState> {
   const memorialId = String(formData.get('memorialId') ?? '').trim();
   const slug = String(formData.get('slug') ?? '').trim();
-  const title = String(formData.get('title') ?? '').trim().slice(0, 200);
-  const content = String(formData.get('content') ?? '').trim().slice(0, 5000);
+  const title = String(formData.get('title') ?? '')
+    .trim()
+    .slice(0, 200);
+  const content = String(formData.get('content') ?? '')
+    .trim()
+    .slice(0, 5000);
 
   if (!memorialId) return { error: 'memorialId requis.' };
-  if (!title)
-    return { error: 'Validation', fieldErrors: { title: 'Titre requis.' } };
+  if (!title) return { error: 'Validation', fieldErrors: { title: 'Titre requis.' } };
 
   const userId = await ensureOwner(memorialId);
   if (!userId) return { error: 'Action réservée au propriétaire du mémorial.' };
@@ -183,13 +184,16 @@ export async function updateChapterAction(
   const id = String(formData.get('id') ?? '').trim();
   const memorialId = String(formData.get('memorialId') ?? '').trim();
   const slug = String(formData.get('slug') ?? '').trim();
-  const title = String(formData.get('title') ?? '').trim().slice(0, 200);
-  const content = String(formData.get('content') ?? '').trim().slice(0, 5000);
+  const title = String(formData.get('title') ?? '')
+    .trim()
+    .slice(0, 200);
+  const content = String(formData.get('content') ?? '')
+    .trim()
+    .slice(0, 5000);
 
   if (!id) return { error: 'id requis.' };
   if (!memorialId) return { error: 'memorialId requis.' };
-  if (!title)
-    return { error: 'Validation', fieldErrors: { title: 'Titre requis.' } };
+  if (!title) return { error: 'Validation', fieldErrors: { title: 'Titre requis.' } };
 
   const userId = await ensureOwner(memorialId);
   if (!userId) return { error: 'Action réservée au propriétaire du mémorial.' };
@@ -223,8 +227,7 @@ export async function updateChapterAction(
               // Only http(s) URLs — the kept list feeds <img>/<video> src, so
               // reject data:/javascript:/other schemes outright.
               /^https?:\/\//i.test((m as ChapterMedia).url) &&
-              ((m as ChapterMedia).type === 'image' ||
-                (m as ChapterMedia).type === 'video'),
+              ((m as ChapterMedia).type === 'image' || (m as ChapterMedia).type === 'video'),
           )
           .map((m) => ({ url: m.url, type: m.type }));
       }
@@ -293,8 +296,7 @@ export async function reorderChaptersAction(
   orderedIds: string[],
 ): Promise<ChapterActionState> {
   if (!memorialId) return { error: 'memorialId requis.' };
-  if (!Array.isArray(orderedIds) || orderedIds.length === 0)
-    return { error: 'Liste vide.' };
+  if (!Array.isArray(orderedIds) || orderedIds.length === 0) return { error: 'Liste vide.' };
 
   const userId = await ensureOwner(memorialId);
   if (!userId) return { error: 'Action réservée au propriétaire du mémorial.' };
@@ -323,10 +325,7 @@ export async function reorderChaptersAction(
   // Apply positions one-by-one; payload is small (typical <20 chapters).
   for (let i = 0; i < orderedIds.length; i += 1) {
     const id = orderedIds[i]!;
-    const { error } = await adminDb
-      .from('Chapter')
-      .update({ position: i })
-      .eq('id', id);
+    const { error } = await adminDb.from('Chapter').update({ position: i }).eq('id', id);
     if (error) return { error: error.message };
   }
 

@@ -20,8 +20,7 @@ export interface AdminListItem {
 export function getEnvHealth(): EnvHealth {
   return {
     supabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-    serviceRoleKey:
-      !!process.env.SUPABASE_SERVICE_ROLE_KEY || !!process.env.SUPABASE_SERVICE_KEY,
+    serviceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY || !!process.env.SUPABASE_SERVICE_KEY,
     siteUrl: !!process.env.NEXT_PUBLIC_SITE_URL,
     stripeSecret: !!process.env.STRIPE_SECRET_KEY,
     sentryDsn: !!process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -36,9 +35,7 @@ export async function getAdminsList(): Promise<AdminListItem[]> {
     return role === 'Admin';
   });
   return admins.map((u) => {
-    const meta = (u.user_metadata ?? null) as
-      | { full_name?: string; nickname?: string }
-      | null;
+    const meta = (u.user_metadata ?? null) as { full_name?: string; nickname?: string } | null;
     return {
       id: u.id,
       email: u.email ?? null,

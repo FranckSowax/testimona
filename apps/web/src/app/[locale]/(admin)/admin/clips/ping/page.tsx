@@ -22,27 +22,23 @@ export default async function ProviderPingPage() {
         <div className="space-y-4">
           <Link
             href="/admin/clips"
-            className="press-scale inline-flex items-center gap-1.5 self-start rounded-md px-2 py-1.5 font-display text-sm font-bold text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
+            className="press-scale font-display text-muted-foreground hover:bg-surface hover:text-foreground inline-flex items-center gap-1.5 self-start rounded-md px-2 py-1.5 text-sm font-bold transition-colors"
           >
             ← Retour
           </Link>
-          <div className="rounded-lg border border-accent/30 bg-accent/5 p-5">
-            <p className="font-display text-lg font-bold text-foreground">
-              ⚠️ Mode demo actif
+          <div className="border-accent/30 bg-accent/5 rounded-lg border p-5">
+            <p className="font-display text-foreground text-lg font-bold">⚠️ Mode demo actif</p>
+            <p className="text-foreground/80 mt-2 text-sm">
+              Aucune credential fournisseur trouvée dans l’environnement. Configure l’une de ces
+              options sur Railway :
             </p>
-            <p className="mt-2 text-sm text-foreground/80">
-              Aucune credential fournisseur trouvée dans l’environnement.
-              Configure l’une de ces options sur Railway :
-            </p>
-            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-foreground/80">
+            <ul className="text-foreground/80 mt-3 list-disc space-y-1 pl-5 text-sm">
               <li>
-                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
-                  FAL_KEY
-                </code>{' '}
+                <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">FAL_KEY</code>{' '}
                 pour passer par fal.ai / Kling 2.1 (recommandé)
               </li>
               <li>
-                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+                <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">
                   HIGGSFIELD_API_ID + HIGGSFIELD_API_KEY
                 </code>{' '}
                 pour Higgsfield DOP
@@ -99,15 +95,13 @@ function PingShell({
       <div className="space-y-4">
         <Link
           href="/admin/clips"
-          className="press-scale inline-flex items-center gap-1.5 self-start rounded-md px-2 py-1.5 font-display text-sm font-bold text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
+          className="press-scale font-display text-muted-foreground hover:bg-surface hover:text-foreground inline-flex items-center gap-1.5 self-start rounded-md px-2 py-1.5 text-sm font-bold transition-colors"
         >
           ← Retour
         </Link>
-        <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+        <p className="border-border bg-muted/40 text-muted-foreground rounded-md border px-3 py-2 text-xs">
           Fournisseur actif :{' '}
-          <span className="font-display font-bold text-foreground">
-            {PROVIDER_LABEL[provider]}
-          </span>
+          <span className="font-display text-foreground font-bold">{PROVIDER_LABEL[provider]}</span>
         </p>
         {children}
       </div>
@@ -118,17 +112,11 @@ function PingShell({
 function SuccessCard({ verdict }: { verdict?: string }) {
   return (
     <div className="rounded-lg border border-emerald-300 bg-emerald-50 p-5">
-      <p className="font-display text-lg font-bold text-emerald-700">
-        ✓ Credentials valides
-      </p>
+      <p className="font-display text-lg font-bold text-emerald-700">✓ Credentials valides</p>
       <p className="mt-2 text-sm text-emerald-700/90">
         L’authentification fonctionne correctement.
       </p>
-      {verdict && (
-        <p className="mt-2 font-mono text-[11px] text-emerald-700/70">
-          {verdict}
-        </p>
-      )}
+      {verdict && <p className="mt-2 font-mono text-[11px] text-emerald-700/70">{verdict}</p>}
     </div>
   );
 }
@@ -142,38 +130,27 @@ interface ErrorCardProps {
   attempts?: { scheme: string; status: number; body: string }[];
 }
 
-function ErrorCard({
-  status,
-  body,
-  verdict,
-  idLen,
-  secretLen,
-  attempts,
-}: ErrorCardProps) {
+function ErrorCard({ status, body, verdict, idLen, secretLen, attempts }: ErrorCardProps) {
   return (
-    <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-5">
-      <p className="font-display text-lg font-bold text-destructive">
+    <div className="border-destructive/30 bg-destructive/5 rounded-lg border p-5">
+      <p className="font-display text-destructive text-lg font-bold">
         ✗ {status === 401 ? 'Credentials rejetés' : `Erreur ${status}`} ({status})
       </p>
-      <pre className="mt-3 overflow-x-auto rounded bg-white px-3 py-2 text-xs text-foreground">
+      <pre className="text-foreground mt-3 overflow-x-auto rounded bg-white px-3 py-2 text-xs">
         {body || '(empty)'}
       </pre>
-      <p className="mt-3 text-sm text-foreground/80">{verdict}</p>
+      <p className="text-foreground/80 mt-3 text-sm">{verdict}</p>
 
       {idLen !== undefined && secretLen !== undefined && (
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-foreground/80">
+        <ul className="text-foreground/80 mt-3 list-disc space-y-1 pl-5 text-sm">
           <li>
             Longueur ID :{' '}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
-              {idLen}
-            </code>{' '}
+            <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">{idLen}</code>{' '}
             {idLen === 36 ? '✓ format UUID' : '⚠️ longueur inattendue'}
           </li>
           <li>
             Longueur secret :{' '}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
-              {secretLen}
-            </code>{' '}
+            <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">{secretLen}</code>{' '}
             {secretLen === 36 ? '✓ format UUID' : '⚠️ longueur inattendue'}
           </li>
         </ul>
@@ -181,25 +158,23 @@ function ErrorCard({
 
       {attempts && attempts.length > 0 && (
         <details className="mt-4">
-          <summary className="cursor-pointer text-xs font-bold uppercase tracking-wider text-foreground/70">
+          <summary className="text-foreground/70 cursor-pointer text-xs font-bold uppercase tracking-wider">
             Détail des {attempts.length} tentatives d’auth
           </summary>
-          <table className="mt-2 w-full overflow-hidden rounded border border-border text-xs">
+          <table className="border-border mt-2 w-full overflow-hidden rounded border text-xs">
             <thead className="bg-muted">
               <tr>
-                <th className="px-2 py-1 text-left font-display font-bold">Scheme</th>
-                <th className="px-2 py-1 text-left font-display font-bold">Status</th>
-                <th className="px-2 py-1 text-left font-display font-bold">Body</th>
+                <th className="font-display px-2 py-1 text-left font-bold">Scheme</th>
+                <th className="font-display px-2 py-1 text-left font-bold">Status</th>
+                <th className="font-display px-2 py-1 text-left font-bold">Body</th>
               </tr>
             </thead>
             <tbody>
               {attempts.map((a, i) => (
-                <tr key={i} className="border-t border-border bg-white">
+                <tr key={i} className="border-border border-t bg-white">
                   <td className="px-2 py-1 font-mono">{a.scheme}</td>
                   <td className="px-2 py-1 font-mono">{a.status}</td>
-                  <td className="px-2 py-1 font-mono text-foreground/70">
-                    {a.body || '—'}
-                  </td>
+                  <td className="text-foreground/70 px-2 py-1 font-mono">{a.body || '—'}</td>
                 </tr>
               ))}
             </tbody>

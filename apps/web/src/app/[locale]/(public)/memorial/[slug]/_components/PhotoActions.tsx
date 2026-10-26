@@ -4,11 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { ShareLinkButton } from '@/components/ui/ShareLinkButton';
-import {
-  togglePhotoLikeAction,
-  reportPhotoAction,
-  addPhotoCommentAction,
-} from '../photo-actions';
+import { togglePhotoLikeAction, reportPhotoAction, addPhotoCommentAction } from '../photo-actions';
 
 export interface PhotoComment {
   id: string;
@@ -122,7 +118,7 @@ export function PhotoActions({
 
   return (
     <div className="px-2 py-1.5">
-      <div className="flex items-center gap-1 text-muted-foreground">
+      <div className="text-muted-foreground flex items-center gap-1">
         <button
           type="button"
           onClick={toggleLike}
@@ -134,7 +130,16 @@ export function PhotoActions({
             liked ? 'text-accent' : 'hover:text-accent',
           ].join(' ')}
         >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill={liked ? 'currentColor' : 'none'}
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
           </svg>
           {likes > 0 && <span className="tabular">{likes}</span>}
@@ -145,9 +150,19 @@ export function PhotoActions({
           onClick={() => setCommentsOpen((v) => !v)}
           aria-expanded={commentsOpen}
           aria-label={t('comments')}
-          className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold transition-colors hover:text-primary"
+          className="hover:text-primary inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold transition-colors"
         >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
             <path d="M21 15a4 4 0 0 1-4 4H8l-5 3v-6.5A4.5 4.5 0 0 1 7.5 11H17a4 4 0 0 1 4 4Z" />
           </svg>
           {comments.length > 0 && <span className="tabular">{comments.length}</span>}
@@ -156,7 +171,7 @@ export function PhotoActions({
         <ShareLinkButton
           url={shareUrl}
           title={t('shareTitle')}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:text-foreground"
+          className="hover:text-foreground inline-flex h-8 w-8 items-center justify-center rounded-full"
         />
 
         <button
@@ -169,9 +184,19 @@ export function PhotoActions({
             setReportOpen((v) => !v);
           }}
           aria-label={t('report')}
-          className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold transition-colors hover:text-destructive"
+          className="hover:text-destructive inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold transition-colors"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
             <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
             <line x1="4" y1="22" x2="4" y2="15" />
           </svg>
@@ -187,12 +212,12 @@ export function PhotoActions({
             onChange={(e) => setReason(e.target.value)}
             maxLength={500}
             placeholder={t('reportPlaceholder')}
-            className="h-8 min-w-0 flex-1 rounded-md border border-border bg-white px-2 text-xs text-foreground focus:border-primary focus:outline-none"
+            className="border-border text-foreground focus:border-primary h-8 min-w-0 flex-1 rounded-md border bg-white px-2 text-xs focus:outline-none"
           />
           <button
             type="submit"
             disabled={pending || !reason.trim()}
-            className="h-8 shrink-0 rounded-md bg-destructive px-2.5 text-xs font-bold text-white disabled:opacity-50"
+            className="bg-destructive h-8 shrink-0 rounded-md px-2.5 text-xs font-bold text-white disabled:opacity-50"
           >
             {t('send')}
           </button>
@@ -200,24 +225,20 @@ export function PhotoActions({
       )}
 
       {commentsOpen && (
-        <div className="mt-2 space-y-2 border-t border-border pt-2">
+        <div className="border-border mt-2 space-y-2 border-t pt-2">
           {comments.length === 0 ? (
-            <p className="text-[11px] italic text-muted-foreground">
-              {t('noComments')}
-            </p>
+            <p className="text-muted-foreground text-[11px] italic">{t('noComments')}</p>
           ) : (
             <ul className="space-y-1.5">
               {comments.map((c) => (
                 <li key={c.id} className="text-xs">
-                  <span className="font-display font-bold text-foreground">
-                    {c.authorName}
-                  </span>{' '}
+                  <span className="font-display text-foreground font-bold">{c.authorName}</span>{' '}
                   <span className="text-foreground/90">{c.message}</span>
                   {c.createdAt && (
                     <time
                       dateTime={c.createdAt}
                       suppressHydrationWarning
-                      className="ml-1 tabular text-[10px] text-muted-foreground"
+                      className="tabular text-muted-foreground ml-1 text-[10px]"
                     >
                       · {new Date(c.createdAt).toLocaleDateString('fr-FR')}
                     </time>
@@ -235,12 +256,12 @@ export function PhotoActions({
                 onChange={(e) => setDraft(e.target.value)}
                 maxLength={2000}
                 placeholder={t('commentPlaceholder')}
-                className="h-8 min-w-0 flex-1 rounded-md border border-border bg-white px-2 text-xs text-foreground focus:border-primary focus:outline-none"
+                className="border-border text-foreground focus:border-primary h-8 min-w-0 flex-1 rounded-md border bg-white px-2 text-xs focus:outline-none"
               />
               <button
                 type="submit"
                 disabled={pending || !draft.trim()}
-                className="h-8 shrink-0 rounded-md bg-primary px-2.5 text-xs font-bold text-primary-foreground disabled:opacity-50"
+                className="bg-primary text-primary-foreground h-8 shrink-0 rounded-md px-2.5 text-xs font-bold disabled:opacity-50"
               >
                 {t('publish')}
               </button>
@@ -248,7 +269,7 @@ export function PhotoActions({
           ) : (
             <a
               href={`/login?next=/memorial/${slug}`}
-              className="inline-block text-[11px] font-bold text-primary hover:underline"
+              className="text-primary inline-block text-[11px] font-bold hover:underline"
             >
               {t('loginToComment')}
             </a>
@@ -256,7 +277,7 @@ export function PhotoActions({
         </div>
       )}
 
-      {error && <p className="mt-1 text-[11px] text-destructive">{error}</p>}
+      {error && <p className="text-destructive mt-1 text-[11px]">{error}</p>}
     </div>
   );
 }

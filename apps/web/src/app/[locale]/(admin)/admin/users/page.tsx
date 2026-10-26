@@ -77,36 +77,36 @@ export default async function AdminUsersPage({
       {/* Filter bar */}
       <form
         method="get"
-        className="flex flex-wrap items-end gap-3 rounded-md border border-border bg-white p-4"
+        className="border-border flex flex-wrap items-end gap-3 rounded-md border bg-white p-4"
       >
-        <label className="flex flex-1 flex-col gap-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        <label className="text-muted-foreground flex flex-1 flex-col gap-1 text-xs font-bold uppercase tracking-wide">
           {t('searchLabel')}
           <input
             type="search"
             name="q"
             defaultValue={sp.q ?? ''}
             placeholder={t('searchPlaceholder')}
-            className="h-11 rounded-md border border-border bg-white px-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+            className="border-border text-foreground placeholder:text-muted-foreground focus:border-primary h-11 rounded-md border bg-white px-3 text-base focus:outline-none"
           />
         </label>
-        <label className="flex flex-col gap-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        <label className="text-muted-foreground flex flex-col gap-1 text-xs font-bold uppercase tracking-wide">
           {t('roleLabel')}
           <select
             name="role"
             defaultValue={sp.role ?? 'all'}
-            className="h-11 rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none"
+            className="border-border text-foreground focus:border-primary h-11 rounded-md border bg-white px-3 text-base focus:outline-none"
           >
             <option value="all">{t('roleAll')}</option>
             <option value="admin">{t('roleAdmin')}</option>
             <option value="user">{t('roleUser')}</option>
           </select>
         </label>
-        <label className="flex flex-col gap-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        <label className="text-muted-foreground flex flex-col gap-1 text-xs font-bold uppercase tracking-wide">
           {t('statusLabel')}
           <select
             name="status"
             defaultValue={sp.status ?? 'all'}
-            className="h-11 rounded-md border border-border bg-white px-3 text-base text-foreground focus:border-primary focus:outline-none"
+            className="border-border text-foreground focus:border-primary h-11 rounded-md border bg-white px-3 text-base focus:outline-none"
           >
             <option value="all">{t('statusAll')}</option>
             <option value="active">{t('statusActive')}</option>
@@ -115,70 +115,60 @@ export default async function AdminUsersPage({
         </label>
         <button
           type="submit"
-          className="h-11 rounded-md bg-primary px-5 font-display text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+          className="bg-primary font-display text-primary-foreground h-11 rounded-md px-5 text-sm font-bold transition-opacity hover:opacity-90"
         >
           {t('filter')}
         </button>
       </form>
 
       {/* Stats row */}
-      <p className="mt-4 text-sm text-muted-foreground">
+      <p className="text-muted-foreground mt-4 text-sm">
         {t('resultsSummary', { count: list.users.length })}
       </p>
 
       {/* User table */}
-      <div className="mt-4 overflow-hidden rounded-md border border-border bg-white">
+      <div className="border-border mt-4 overflow-hidden rounded-md border bg-white">
         {list.users.length === 0 ? (
-          <p className="p-8 text-center text-sm italic text-muted-foreground">
-            {t('empty')}
-          </p>
+          <p className="text-muted-foreground p-8 text-center text-sm italic">{t('empty')}</p>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-border divide-y">
             {list.users.map((u) => {
               const isSelf = u.id === admin.id;
               return (
-                <li
-                  key={u.id}
-                  className="flex flex-wrap items-center gap-4 p-4 sm:flex-nowrap"
-                >
-                  <Avatar
-                    src={u.avatarUrl}
-                    name={u.fullName ?? u.email ?? undefined}
-                    size="md"
-                  />
+                <li key={u.id} className="flex flex-wrap items-center gap-4 p-4 sm:flex-nowrap">
+                  <Avatar src={u.avatarUrl} name={u.fullName ?? u.email ?? undefined} size="md" />
                   <div className="min-w-0 flex-1">
                     <Link
                       href={`/admin/users/${u.id}`}
-                      className="font-display text-sm font-bold text-foreground hover:text-primary"
+                      className="font-display text-foreground hover:text-primary text-sm font-bold"
                     >
                       {u.fullName || u.nickname || u.email || u.id.slice(0, 8)}
                     </Link>
                     {u.email && (u.fullName || u.nickname) && (
-                      <p className="truncate text-xs text-muted-foreground">{u.email}</p>
+                      <p className="text-muted-foreground truncate text-xs">{u.email}</p>
                     )}
-                    <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <p className="text-muted-foreground mt-1 flex flex-wrap items-center gap-2 text-xs">
                       <span>{t('joinedOn', { when: formatRelative(u.createdAt, locale) })}</span>
                       {u.lastSignInAt && (
                         <span>
-                          ·{' '}
-                          {t('lastSeen', { when: formatRelative(u.lastSignInAt, locale) })}
+                          · {t('lastSeen', { when: formatRelative(u.lastSignInAt, locale) })}
                         </span>
                       )}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     {u.role === 'Admin' && (
-                      <span className="rounded-full bg-primary/10 px-2 py-0.5 font-display text-[11px] font-bold uppercase tracking-wide text-primary">
+                      <span className="bg-primary/10 font-display text-primary rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide">
                         Admin
                       </span>
                     )}
                     {u.bannedUntil && (
-                      <span className="rounded-full bg-destructive/10 px-2 py-0.5 font-display text-[11px] font-bold uppercase tracking-wide text-destructive">
+                      <span className="bg-destructive/10 font-display text-destructive rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide">
                         {t('banned')}
                       </span>
                     )}
                     {isSelf && (
-                      <span className="rounded-full bg-foreground/10 px-2 py-0.5 font-display text-[11px] font-bold uppercase tracking-wide text-foreground/70">
+                      <span className="bg-foreground/10 font-display text-foreground/70 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide">
                         {t('you')}
                       </span>
                     )}
@@ -199,10 +189,7 @@ export default async function AdminUsersPage({
       </div>
 
       {/* Pagination */}
-      <nav
-        aria-label="pagination"
-        className="mt-6 flex items-center justify-between text-sm"
-      >
+      <nav aria-label="pagination" className="mt-6 flex items-center justify-between text-sm">
         {list.page > 1 ? (
           <Link
             href={`/admin/users?${(() => {
@@ -210,16 +197,14 @@ export default async function AdminUsersPage({
               p.set('page', String(list.page - 1));
               return p.toString();
             })()}`}
-            className="font-display font-bold text-primary hover:underline"
+            className="font-display text-primary font-bold hover:underline"
           >
             ← {t('prev')}
           </Link>
         ) : (
           <span aria-hidden="true" />
         )}
-        <span className="text-muted-foreground">
-          {t('pageOf', { page: list.page })}
-        </span>
+        <span className="text-muted-foreground">{t('pageOf', { page: list.page })}</span>
         {list.hasMore ? (
           <Link
             href={`/admin/users?${(() => {
@@ -227,7 +212,7 @@ export default async function AdminUsersPage({
               p.set('page', String(list.page + 1));
               return p.toString();
             })()}`}
-            className="font-display font-bold text-primary hover:underline"
+            className="font-display text-primary font-bold hover:underline"
           >
             {t('next')} →
           </Link>

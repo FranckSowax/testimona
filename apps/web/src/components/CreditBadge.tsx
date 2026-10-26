@@ -15,7 +15,7 @@ export async function CreditBadge() {
     <Link
       href="/dashboard/profile/credits"
       aria-label={`${balance} crédits Testimona — acheter plus`}
-      className="press-scale inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 font-display text-xs font-bold text-foreground transition-colors hover:border-primary hover:text-primary"
+      className="press-scale border-border font-display text-foreground hover:border-primary hover:text-primary inline-flex items-center gap-1.5 rounded-full border bg-white px-3 py-1.5 text-xs font-bold transition-colors"
     >
       <svg
         width="14"

@@ -161,7 +161,15 @@ export function MemorialCoverSidebar({
         onClick={openTestimonial}
         className="!bg-white/20 !text-white hover:!bg-white/30"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
           <path d="M21 15a4 4 0 0 1-4 4H8l-5 3v-6.5A4.5 4.5 0 0 1 7.5 11H17a4 4 0 0 1 4 4Z" />
         </svg>
       </ButtonIcon>
@@ -175,7 +183,15 @@ export function MemorialCoverSidebar({
           onClick={openEdit}
           className="!bg-white/20 !text-white hover:!bg-white/30"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
             <path d="M12 20h9" />
             <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
           </svg>
@@ -189,7 +205,7 @@ export function MemorialCoverSidebar({
           tone="default"
           size="sm"
           onClick={openAnimate}
-          className="!bg-accent/90 !text-white hover:!bg-accent"
+          className="!bg-accent/90 hover:!bg-accent !text-white"
         >
           <svg
             viewBox="0 0 24 24"
@@ -236,7 +252,7 @@ export function MemorialCoverSidebar({
         {favCount > 0 && (
           <span
             aria-label={`${favCount} ♥`}
-            className="pointer-events-none absolute -bottom-1 -right-1 min-w-[18px] rounded-full bg-white px-1 text-center font-display text-[10px] font-bold leading-[18px] text-accent shadow-sm"
+            className="font-display text-accent pointer-events-none absolute -bottom-1 -right-1 min-w-[18px] rounded-full bg-white px-1 text-center text-[10px] font-bold leading-[18px] shadow-sm"
           >
             {favCount > 99 ? '99+' : favCount}
           </span>
@@ -251,7 +267,15 @@ export function MemorialCoverSidebar({
         onClick={() => setShareOpen(true)}
         className="!bg-white/20 !text-white hover:!bg-white/30"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
           <circle cx="18" cy="5" r="3" />
           <circle cx="6" cy="12" r="3" />
           <circle cx="18" cy="19" r="3" />

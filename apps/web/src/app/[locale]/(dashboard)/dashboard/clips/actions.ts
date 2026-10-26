@@ -5,11 +5,7 @@ import { revalidateMemorialPages } from '@/lib/revalidate';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getBalance, spendCredits } from '@/lib/credits/balance';
-import {
-  STUDIA_COST_PER_VIDEO,
-  getStudiaBalance,
-  spendStudia,
-} from '@/lib/compute/balance';
+import { STUDIA_COST_PER_VIDEO, getStudiaBalance, spendStudia } from '@/lib/compute/balance';
 import { submitImageToVideo } from '@/lib/higgsfield/client';
 
 export interface ClipActionState {
@@ -32,10 +28,7 @@ interface ClipRow {
   createdById: string;
 }
 
-async function loadOwnedClip(
-  clipId: string,
-  userId: string,
-): Promise<ClipRow | { error: string }> {
+async function loadOwnedClip(clipId: string, userId: string): Promise<ClipRow | { error: string }> {
   const supabase = getSupabaseAdminClient();
   const { data } = await supabase
     .from('MemorialClip')
@@ -60,8 +53,7 @@ async function loadOwnedClip(
       Photo: { url: string } | null;
     }>();
   if (!data) return { error: 'Clip introuvable.' };
-  if (data.createdById !== userId)
-    return { error: 'Action réservée au créateur.' };
+  if (data.createdById !== userId) return { error: 'Action réservée au créateur.' };
   return {
     id: data.id,
     memorialId: data.memorialId,
@@ -92,8 +84,7 @@ export async function validateClipAction(
 
   const clip = await loadOwnedClip(id, user.id);
   if ('error' in clip) return clip;
-  if (clip.status !== 'ready')
-    return { error: 'Clip pas encore prêt.' };
+  if (clip.status !== 'ready') return { error: 'Clip pas encore prêt.' };
 
   const supabase = getSupabaseAdminClient();
   const { error } = await supabase
@@ -106,8 +97,7 @@ export async function validateClipAction(
   if (error) return { error: error.message };
 
   revalidatePath('/dashboard/clips');
-  if (clip.memorialSlug)
-    revalidateMemorialPages(clip.memorialSlug);
+  if (clip.memorialSlug) revalidateMemorialPages(clip.memorialSlug);
   return { ok: true };
 }
 
@@ -138,8 +128,7 @@ export async function unvalidateClipAction(
   if (error) return { error: error.message };
 
   revalidatePath('/dashboard/clips');
-  if (clip.memorialSlug)
-    revalidateMemorialPages(clip.memorialSlug);
+  if (clip.memorialSlug) revalidateMemorialPages(clip.memorialSlug);
   return { ok: true };
 }
 
@@ -161,15 +150,14 @@ export async function regenerateClipAction(
   if ('error' in clip) return clip;
 
   const balance = await getBalance(user.id);
-  if (balance < 1)
-    return { error: 'Solde insuffisant.', needsCredits: 1 };
+  if (balance < 1) return { error: 'Solde insuffisant.', needsCredits: 1 };
 
   // Same upfront compute check as the main animate flow.
   const computeBalance = await getStudiaBalance();
   if (computeBalance < STUDIA_COST_PER_VIDEO) {
     return {
       error:
-        'Service indisponible momentanément. Réessaie dans quelques minutes — l\'admin a été notifié.',
+        "Service indisponible momentanément. Réessaie dans quelques minutes — l'admin a été notifié.",
     };
   }
 
@@ -266,7 +254,6 @@ export async function deleteOwnClipAction(
   if (error) return { error: error.message };
 
   revalidatePath('/dashboard/clips');
-  if (clip.memorialSlug)
-    revalidateMemorialPages(clip.memorialSlug);
+  if (clip.memorialSlug) revalidateMemorialPages(clip.memorialSlug);
   return { ok: true };
 }

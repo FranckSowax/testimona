@@ -1,11 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
-import {
-  donationOwnerAlertEmail,
-  donationReceiptEmail,
-  sendEmail,
-} from '@/lib/email/resend';
+import { donationOwnerAlertEmail, donationReceiptEmail, sendEmail } from '@/lib/email/resend';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -173,9 +169,7 @@ async function handleCheckoutExpired(session: Stripe.Checkout.Session) {
 
 async function handleChargeRefunded(charge: Stripe.Charge, stripe: Stripe) {
   const paymentIntentId =
-    typeof charge.payment_intent === 'string'
-      ? charge.payment_intent
-      : charge.payment_intent?.id;
+    typeof charge.payment_intent === 'string' ? charge.payment_intent : charge.payment_intent?.id;
   if (!paymentIntentId) return;
   const sessions = await stripe.checkout.sessions.list({
     payment_intent: paymentIntentId,
@@ -183,8 +177,7 @@ async function handleChargeRefunded(charge: Stripe.Charge, stripe: Stripe) {
   });
   const session = sessions.data[0];
   const donationId =
-    session?.client_reference_id ??
-    (session?.metadata?.donationId as string | undefined);
+    session?.client_reference_id ?? (session?.metadata?.donationId as string | undefined);
   if (!donationId) return;
   const adminDb = getSupabaseAdminClient();
   await adminDb.from('Donation').update({ status: 'Refunded' }).eq('id', donationId);

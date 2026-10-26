@@ -21,9 +21,11 @@ export async function SiteHeader() {
     getTranslations('footer'),
     getUnseenNotificationsCount(),
   ]);
-  const meta = (user?.user_metadata ?? null) as
-    | { avatar_url?: string | null; full_name?: string | null; nickname?: string | null }
-    | null;
+  const meta = (user?.user_metadata ?? null) as {
+    avatar_url?: string | null;
+    full_name?: string | null;
+    nickname?: string | null;
+  } | null;
   const avatarUrl = meta?.avatar_url ?? null;
   const displayName = meta?.nickname || meta?.full_name || user?.email || '';
   const menuLabels = {
@@ -46,11 +48,7 @@ export async function SiteHeader() {
     <header className="sticky top-0 z-[var(--z-sticky)] bg-white">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-3 sm:h-20 sm:gap-6 sm:px-8">
         {/* Hamburger menu — mobile/tablet only */}
-        <MobileHamburgerMenu
-          isLoggedIn={!!user}
-          notificationsBadge={badge}
-          labels={menuLabels}
-        />
+        <MobileHamburgerMenu isLoggedIn={!!user} notificationsBadge={badge} labels={menuLabels} />
 
         {/* Logo */}
         <Link href="/" aria-label="Accueil Testimona" className="flex shrink-0 items-center">

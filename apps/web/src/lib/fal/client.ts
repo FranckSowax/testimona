@@ -101,9 +101,7 @@ export async function falSubmitImageToVideo(
     // if the response is missing them (older API versions).
     const statusUrl =
       json.status_url ??
-      (json.request_id
-        ? `${FAL_BASE}/${KLING_PATH}/requests/${json.request_id}/status`
-        : null);
+      (json.request_id ? `${FAL_BASE}/${KLING_PATH}/requests/${json.request_id}/status` : null);
     if (!statusUrl) return { error: 'fal: missing status_url & request_id' };
     // Package the response_url too (new `falurl2:` format). fal serves the
     // result at `<status_url without /status>/response`, NOT at the bare
@@ -169,9 +167,10 @@ export async function falGetJobStatus(jobId: string): Promise<FalJobStatus> {
           lastBody = (await resultRes.text().catch(() => '')).slice(0, 300);
           continue;
         }
-        const result = (await resultRes.json().catch(() => null)) as
-          | { video?: { url?: string }; videos?: { url?: string }[] }
-          | null;
+        const result = (await resultRes.json().catch(() => null)) as {
+          video?: { url?: string };
+          videos?: { url?: string }[];
+        } | null;
         const videoUrl = result?.video?.url ?? result?.videos?.[0]?.url;
         if (videoUrl) return { status: 'ready', videoUrl };
       }
@@ -182,10 +181,7 @@ export async function falGetJobStatus(jobId: string): Promise<FalJobStatus> {
           : 'fal: no video url',
       };
     }
-    if (
-      status.status === 'IN_QUEUE' ||
-      status.status === 'IN_PROGRESS'
-    ) {
+    if (status.status === 'IN_QUEUE' || status.status === 'IN_PROGRESS') {
       return { status: 'processing' };
     }
     // 'CANCELLED', 'FAILED', or unknown
@@ -203,8 +199,7 @@ export async function falGetJobStatus(jobId: string): Promise<FalJobStatus> {
  * error means the auth gate accepted the key. A 401 means it didn't.
  */
 export async function pingFal(): Promise<
-  | { ok: true; verdict: string }
-  | { ok: false; status: number; body: string; verdict: string }
+  { ok: true; verdict: string } | { ok: false; status: number; body: string; verdict: string }
 > {
   try {
     const res = await fetch(`${FAL_BASE}/${KLING_PATH}`, {

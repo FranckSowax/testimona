@@ -25,8 +25,7 @@ export async function uploadMemorialImage(
   if (file.size === 0 || file.size > MAX_BYTES) return null;
   if (!ALLOWED_MIME.includes(file.type as (typeof ALLOWED_MIME)[number])) return null;
 
-  const ext =
-    file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+  const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
   const path = `${memorialId}/${kind}-${randomUUID()}.${ext}`;
 
   const adminDb = getSupabaseAdminClient();

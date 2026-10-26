@@ -20,11 +20,21 @@ export async function submitTestimonialAction(
 ): Promise<TestimonialActionState> {
   const slug = String(formData.get('slug') ?? '');
   const memorialId = String(formData.get('memorialId') ?? '');
-  const authorName = String(formData.get('authorName') ?? '').trim().slice(0, 80);
-  const authorFirstname = String(formData.get('authorFirstname') ?? '').trim().slice(0, 60);
-  const authorEmail = String(formData.get('authorEmail') ?? '').trim().slice(0, 200);
-  const relationship = String(formData.get('authorRelationship') ?? '').trim().slice(0, 60);
-  const message = String(formData.get('message') ?? '').trim().slice(0, 2000);
+  const authorName = String(formData.get('authorName') ?? '')
+    .trim()
+    .slice(0, 80);
+  const authorFirstname = String(formData.get('authorFirstname') ?? '')
+    .trim()
+    .slice(0, 60);
+  const authorEmail = String(formData.get('authorEmail') ?? '')
+    .trim()
+    .slice(0, 200);
+  const relationship = String(formData.get('authorRelationship') ?? '')
+    .trim()
+    .slice(0, 60);
+  const message = String(formData.get('message') ?? '')
+    .trim()
+    .slice(0, 2000);
   const language = String(formData.get('language') ?? 'fr');
 
   // Per-field validation — open to anonymous visitors so we can't rely
@@ -102,8 +112,7 @@ export async function moderateTestimonialAction(
   const decision = String(formData.get('decision') ?? '').trim();
   const slug = String(formData.get('slug') ?? '').trim();
   if (!id) return { error: 'id requis.' };
-  if (decision !== 'approved' && decision !== 'rejected')
-    return { error: 'Décision invalide.' };
+  if (decision !== 'approved' && decision !== 'rejected') return { error: 'Décision invalide.' };
 
   const supabase = await getSupabaseServer();
   const { data: userData } = await supabase.auth.getUser();
@@ -157,9 +166,10 @@ async function notifyOwnerOfNewTestimonial(args: {
     const { data: ownerResp } = await adminDb.auth.admin.getUserById(memorial.ownerId);
     const ownerEmail = ownerResp?.user?.email ?? null;
     if (!ownerEmail) return;
-    const ownerMeta = (ownerResp?.user?.user_metadata ?? null) as
-      | { nickname?: string; full_name?: string }
-      | null;
+    const ownerMeta = (ownerResp?.user?.user_metadata ?? null) as {
+      nickname?: string;
+      full_name?: string;
+    } | null;
     const ownerName = ownerMeta?.nickname || ownerMeta?.full_name || null;
     const tpl = newTestimonialEmail({
       to: ownerEmail,
@@ -249,9 +259,7 @@ export async function submitCommentAction(
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return { error: 'Vous devez être connecté.' };
 
-  const meta = userData.user.user_metadata as
-    | { full_name?: string; nickname?: string }
-    | null;
+  const meta = userData.user.user_metadata as { full_name?: string; nickname?: string } | null;
   const authorName = meta?.full_name ?? meta?.nickname ?? userData.user.email ?? 'Anonyme';
 
   const { error } = await supabase.from('TestimonialComment').insert({
@@ -327,10 +335,7 @@ export async function updateTestimonialAction(
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return { error: 'Vous devez être connecté.' };
 
-  const { error } = await supabase
-    .from('Testimonial')
-    .update({ message })
-    .eq('id', testimonialId);
+  const { error } = await supabase.from('Testimonial').update({ message }).eq('id', testimonialId);
   if (error) return { error: error.message };
 
   if (slug) revalidateMemorialPages(slug);
@@ -353,10 +358,7 @@ export async function deleteTestimonialAction(
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return { error: 'auth required' };
 
-  const { error } = await supabase
-    .from('Testimonial')
-    .delete()
-    .eq('id', testimonialId);
+  const { error } = await supabase.from('Testimonial').delete().eq('id', testimonialId);
   if (error) return { error: error.message };
 
   if (slug) revalidateMemorialPages(slug);

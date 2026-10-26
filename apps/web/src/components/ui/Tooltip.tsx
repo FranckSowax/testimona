@@ -10,19 +10,11 @@ interface TooltipProps {
   className?: string;
 }
 
-export function Tooltip({
-  label,
-  children,
-  side = 'top',
-  className,
-}: TooltipProps) {
+export function Tooltip({ label, children, side = 'top', className }: TooltipProps) {
   const id = useId();
   const [visible, setVisible] = useState(false);
 
-  const positionClasses =
-    side === 'bottom'
-      ? 'top-full mt-2'
-      : 'bottom-full mb-2';
+  const positionClasses = side === 'bottom' ? 'top-full mt-2' : 'bottom-full mb-2';
 
   return (
     <span
@@ -38,12 +30,12 @@ export function Tooltip({
         role="tooltip"
         aria-hidden={!visible}
         className={[
-          'pointer-events-none absolute left-1/2 -translate-x-1/2 z-[var(--z-dropdown)]',
-          'rounded-md bg-foreground/95 text-white text-xs font-medium px-2.5 py-1.5',
+          'pointer-events-none absolute left-1/2 z-[var(--z-dropdown)] -translate-x-1/2',
+          'bg-foreground/95 rounded-md px-2.5 py-1.5 text-xs font-medium text-white',
           'whitespace-nowrap shadow-[var(--shadow-elevated)]',
           'transition-[opacity,transform] duration-150 ease-[var(--motion-ease-out)]',
           positionClasses,
-          visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1',
+          visible ? 'translate-y-0 opacity-100' : 'translate-y-1 opacity-0',
         ].join(' ')}
       >
         {label}

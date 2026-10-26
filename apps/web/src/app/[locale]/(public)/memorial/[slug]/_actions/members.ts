@@ -32,7 +32,10 @@ export async function inviteCoOwnerAction(
 ): Promise<MemberActionState> {
   const memorialId = String(formData.get('memorialId') ?? '').trim();
   const slug = String(formData.get('slug') ?? '').trim();
-  const email = String(formData.get('email') ?? '').trim().toLowerCase().slice(0, 200);
+  const email = String(formData.get('email') ?? '')
+    .trim()
+    .toLowerCase()
+    .slice(0, 200);
 
   if (!memorialId) return { error: 'memorialId requis.' };
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
@@ -66,9 +69,10 @@ export async function inviteCoOwnerAction(
     .maybeSingle<{ slug: string; firstname: string; lastname: string }>();
   if (!memorial) return { error: 'Mémorial introuvable.' };
 
-  const inviterMeta = (userData.user.user_metadata ?? null) as
-    | { nickname?: string; full_name?: string }
-    | null;
+  const inviterMeta = (userData.user.user_metadata ?? null) as {
+    nickname?: string;
+    full_name?: string;
+  } | null;
   const inviterName =
     inviterMeta?.nickname || inviterMeta?.full_name || userData.user.email || null;
 

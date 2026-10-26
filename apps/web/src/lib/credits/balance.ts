@@ -54,9 +54,7 @@ export async function getRecentTransactions(
   const supabase = getSupabaseAdminClient();
   const { data } = await supabase
     .from('CreditTransaction')
-    .select(
-      'id, userId, amount, type, stripePaymentId, memorialClipId, note, createdAt',
-    )
+    .select('id, userId, amount, type, stripePaymentId, memorialClipId, note, createdAt')
     .eq('userId', userId)
     .order('createdAt', { ascending: false })
     .limit(limit)

@@ -18,8 +18,8 @@ export async function AdminShell({
       <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
         <aside className="hidden lg:block">
           <div className="sticky top-24 space-y-4">
-            <div className="rounded-md border border-border bg-white p-3">
-              <p className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
+            <div className="border-border rounded-md border bg-white p-3">
+              <p className="font-display text-muted-foreground text-xs font-bold uppercase tracking-wide">
                 {t('header')}
               </p>
             </div>
@@ -42,8 +42,8 @@ export async function AdminShell({
         </aside>
 
         <main className="min-w-0">
-          <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-            <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+          <header className="border-border flex flex-wrap items-center justify-between gap-3 border-b pb-4">
+            <h1 className="font-display text-foreground text-2xl font-semibold tracking-tight sm:text-3xl">
               {title}
             </h1>
             {action && <div className="flex items-center gap-2">{action}</div>}

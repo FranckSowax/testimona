@@ -32,7 +32,7 @@ export function MemberRemoveButton({
       type="button"
       onClick={remove}
       disabled={pending}
-      className="rounded-md border border-border px-2.5 py-1 font-display text-xs font-bold text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive disabled:opacity-50"
+      className="border-border font-display text-muted-foreground hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive rounded-md border px-2.5 py-1 text-xs font-bold transition-colors disabled:opacity-50"
     >
       {label}
     </button>

@@ -14,13 +14,7 @@ const TONE: Record<Tone, string> = {
   soft: 'bg-surface text-foreground/80 border-transparent',
 };
 
-export function Tag({
-  tone = 'neutral',
-  iconLeft,
-  className,
-  children,
-  ...rest
-}: TagProps) {
+export function Tag({ tone = 'neutral', iconLeft, className, children, ...rest }: TagProps) {
   return (
     <span
       className={[

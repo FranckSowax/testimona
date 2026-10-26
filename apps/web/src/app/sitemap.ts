@@ -19,10 +19,7 @@ const STATIC_PATHS: {
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(
-    /\/$/,
-    '',
-  );
+  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 
   const staticEntries: MetadataRoute.Sitemap = STATIC_PATHS.map((entry) => ({
     url: `${baseUrl}${entry.path}`,

@@ -8,13 +8,7 @@ import { useTranslations } from 'next-intl';
  * partage"). Uses the Web Share API when available, otherwise copies the
  * deep link to the clipboard.
  */
-export function FuneralEventShareButton({
-  url,
-  title,
-}: {
-  url: string;
-  title: string;
-}) {
+export function FuneralEventShareButton({ url, title }: { url: string; title: string }) {
   const t = useTranslations('memorial.funeralSection');
   const [copied, setCopied] = useState(false);
 
@@ -42,7 +36,7 @@ export function FuneralEventShareButton({
       type="button"
       onClick={onShare}
       aria-label={t('shareEventAria')}
-      className="inline-flex h-8 items-center gap-1 rounded-md border border-border bg-white px-2.5 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
+      className="border-border text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-primary inline-flex h-8 items-center gap-1 rounded-md border bg-white px-2.5 text-xs transition-colors"
     >
       <svg
         width="13"

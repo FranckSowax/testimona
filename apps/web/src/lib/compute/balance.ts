@@ -58,9 +58,7 @@ export async function getStudiaBalance(): Promise<number> {
   return Number(data?.balance ?? 0);
 }
 
-export async function getStudiaTransactions(
-  limit = 40,
-): Promise<StudiaTxRow[]> {
+export async function getStudiaTransactions(limit = 40): Promise<StudiaTxRow[]> {
   const supabase = getSupabaseAdminClient();
   const { data } = await supabase
     .from('StudiaTransaction')

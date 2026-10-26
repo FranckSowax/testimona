@@ -13,11 +13,7 @@ import { HomeFinalCta } from '@/components/home/HomeFinalCta';
 
 export const dynamic = 'force-dynamic';
 
-export default async function HomePage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -73,7 +69,7 @@ export default async function HomePage({
               {t('heroSloganStart')}
             </p>
             <p
-              className="-rotate-1 text-5xl leading-none text-foreground sm:text-7xl"
+              className="text-foreground -rotate-1 text-5xl leading-none sm:text-7xl"
               style={{ fontFamily: 'var(--font-cursive)' }}
             >
               {t('heroSloganScript')}
@@ -113,20 +109,20 @@ export default async function HomePage({
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="grid gap-10 md:grid-cols-[260px_1fr]">
           <div className="space-y-1">
-            <p className="font-display text-3xl font-medium text-foreground">
+            <p className="font-display text-foreground text-3xl font-medium">
               {t('recentTitleStart')}
             </p>
             <p
-              className="-rotate-2 text-5xl leading-none text-foreground"
+              className="text-foreground -rotate-2 text-5xl leading-none"
               style={{ fontFamily: 'var(--font-cursive)' }}
             >
               {t('recentTitleScript')}
             </p>
           </div>
-          <blockquote className="relative px-12 italic leading-relaxed text-muted-foreground">
+          <blockquote className="text-muted-foreground relative px-12 italic leading-relaxed">
             <span
               aria-hidden="true"
-              className="absolute -left-2 -top-4 text-7xl leading-none text-foreground/20"
+              className="text-foreground/20 absolute -left-2 -top-4 text-7xl leading-none"
               style={{ fontFamily: 'var(--font-cursive)' }}
             >
               &ldquo;
@@ -134,7 +130,7 @@ export default async function HomePage({
             {t('recentLead')}
             <span
               aria-hidden="true"
-              className="absolute -right-2 -bottom-8 text-7xl leading-none text-foreground/20"
+              className="text-foreground/20 absolute -bottom-8 -right-2 text-7xl leading-none"
               style={{ fontFamily: 'var(--font-cursive)' }}
             >
               &rdquo;
@@ -145,33 +141,27 @@ export default async function HomePage({
 
       {/* Features cards (kept for marketing) */}
       <section className="mx-auto max-w-6xl px-6 pb-16">
-        <h2 className="font-display text-2xl font-semibold text-foreground">
+        <h2 className="font-display text-foreground text-2xl font-semibold">
           {t('featuresTitle')}
         </h2>
         <ul className="mt-8 grid gap-6 sm:grid-cols-3">
           <Card as="li" elevation="raised" className="p-6">
-            <h3 className="font-display text-lg font-semibold text-foreground">
+            <h3 className="font-display text-foreground text-lg font-semibold">
               {t('featureTestimonialsTitle')}
             </h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t('featureTestimonialsDesc')}
-            </p>
+            <p className="text-muted-foreground mt-2 text-sm">{t('featureTestimonialsDesc')}</p>
           </Card>
           <Card as="li" elevation="raised" className="p-6">
-            <h3 className="font-display text-lg font-semibold text-foreground">
+            <h3 className="font-display text-foreground text-lg font-semibold">
               {t('featureBiographyTitle')}
             </h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t('featureBiographyDesc')}
-            </p>
+            <p className="text-muted-foreground mt-2 text-sm">{t('featureBiographyDesc')}</p>
           </Card>
           <Card as="li" elevation="raised" className="p-6">
-            <h3 className="font-display text-lg font-semibold text-foreground">
+            <h3 className="font-display text-foreground text-lg font-semibold">
               {t('featureDonationsTitle')}
             </h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t('featureDonationsDesc')}
-            </p>
+            <p className="text-muted-foreground mt-2 text-sm">{t('featureDonationsDesc')}</p>
           </Card>
         </ul>
       </section>

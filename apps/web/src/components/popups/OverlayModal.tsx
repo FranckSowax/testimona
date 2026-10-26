@@ -16,13 +16,7 @@ interface OverlayModalProps {
  * Spec : bg #2d3250 full-viewport, close X top-right (white circle outline).
  * Backdrop blur subtle, escape closes, click outside content closes.
  */
-export function OverlayModal({
-  open,
-  onClose,
-  ariaLabel,
-  children,
-  className,
-}: OverlayModalProps) {
+export function OverlayModal({ open, onClose, ariaLabel, children, className }: OverlayModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -51,7 +45,7 @@ export function OverlayModal({
       ref={dialogRef}
       aria-label={ariaLabel}
       className={[
-        'fixed inset-0 m-0 h-[100dvh] w-screen max-w-none p-0 overflow-y-auto overscroll-contain',
+        'fixed inset-0 m-0 h-[100dvh] w-screen max-w-none overflow-y-auto overscroll-contain p-0',
         'bg-secondary text-white',
         'backdrop:bg-secondary/95 backdrop:backdrop-blur-sm',
         className ?? '',
@@ -67,7 +61,7 @@ export function OverlayModal({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="pointer-events-auto m-3 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 bg-secondary/40 text-white/80 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white sm:m-6"
+            className="bg-secondary/40 pointer-events-auto m-3 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 text-white/80 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white sm:m-6"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
               <path

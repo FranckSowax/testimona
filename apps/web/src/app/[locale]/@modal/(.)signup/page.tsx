@@ -14,8 +14,8 @@ export default async function SignupModalPage() {
 
   return (
     <Modal ariaLabel="Créer un compte">
-      <h2 className="font-display text-2xl font-semibold text-foreground">Créer un compte</h2>
-      <p className="mt-1 text-sm text-muted-foreground">
+      <h2 className="font-display text-foreground text-2xl font-semibold">Créer un compte</h2>
+      <p className="text-muted-foreground mt-1 text-sm">
         Déjà inscrit ?{' '}
         <Link href="/login" className="text-primary hover:underline">
           Se connecter

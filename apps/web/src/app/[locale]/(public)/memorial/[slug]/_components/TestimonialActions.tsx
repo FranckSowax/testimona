@@ -150,7 +150,7 @@ export function TestimonialActions({
 
       {likes > 0 && (
         <span
-          className="ml-1 tabular text-xs text-muted-foreground"
+          className="tabular text-muted-foreground ml-1 text-xs"
           aria-label={t('likesCount', { count: likes })}
         >
           {likes}
@@ -158,7 +158,7 @@ export function TestimonialActions({
       )}
 
       {feedback && (
-        <p role="status" className="ml-3 basis-full text-xs text-muted-foreground">
+        <p role="status" className="text-muted-foreground ml-3 basis-full text-xs">
           {feedback}
         </p>
       )}

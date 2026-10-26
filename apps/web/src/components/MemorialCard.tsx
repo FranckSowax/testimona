@@ -27,9 +27,9 @@ export function MemorialCard({
   return (
     <Link
       href={target}
-      className="press-scale group flex flex-col overflow-hidden rounded-lg border border-border bg-white shadow-[var(--shadow-card)] transition-[box-shadow,transform] duration-200 ease-[var(--motion-ease-out)] hover:shadow-[var(--shadow-elevated)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      className="press-scale border-border focus-visible:ring-primary group flex flex-col overflow-hidden rounded-lg border bg-white shadow-[var(--shadow-card)] transition-[box-shadow,transform] duration-200 ease-[var(--motion-ease-out)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] focus-visible:outline-none focus-visible:ring-2"
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface">
+      <div className="bg-surface relative aspect-[4/3] w-full overflow-hidden">
         {coverUrl ? (
           <Image
             src={coverUrl}
@@ -50,15 +50,15 @@ export function MemorialCard({
           </div>
         )}
         {badge && (
-          <span className="absolute right-2 top-2 rounded-md bg-foreground/80 px-2 py-1 text-xs font-medium text-white">
+          <span className="bg-foreground/80 absolute right-2 top-2 rounded-md px-2 py-1 text-xs font-medium text-white">
             {badge}
           </span>
         )}
       </div>
       <div className="flex flex-1 flex-col gap-1 p-4">
-        <p className="font-display text-lg font-semibold text-foreground">{fullName}</p>
-        {nickname && <p className="text-sm italic text-muted-foreground">« {nickname} »</p>}
-        <p className="mt-auto text-xs uppercase tracking-wide text-muted-foreground">
+        <p className="font-display text-foreground text-lg font-semibold">{fullName}</p>
+        {nickname && <p className="text-muted-foreground text-sm italic">« {nickname} »</p>}
+        <p className="text-muted-foreground mt-auto text-xs uppercase tracking-wide">
           {formatDateRange(birthDate ?? null, deathDate ?? null)}
         </p>
       </div>

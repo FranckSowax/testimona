@@ -27,12 +27,12 @@ export default async function LoginPage({
     <div className="bg-mesh">
       <div className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-md flex-col justify-center px-6 py-12">
         <Card elevation="elevated" className="p-8">
-          <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">
+          <h1 className="font-display text-foreground text-3xl font-semibold tracking-tight">
             Connexion
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-2 text-sm">
             Pas encore de compte ?{' '}
-            <Link href="/signup" className="font-medium text-primary hover:underline">
+            <Link href="/signup" className="text-primary font-medium hover:underline">
               Créer un compte
             </Link>
           </p>

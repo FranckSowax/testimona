@@ -25,10 +25,7 @@ export function ProgressBar({
       aria-valuenow={value}
       aria-valuemin={0}
       aria-valuemax={max}
-      className={[
-        'h-2 w-full overflow-hidden rounded-full bg-foreground/10',
-        className ?? '',
-      ]
+      className={['bg-foreground/10 h-2 w-full overflow-hidden rounded-full', className ?? '']
         .filter(Boolean)
         .join(' ')}
     >

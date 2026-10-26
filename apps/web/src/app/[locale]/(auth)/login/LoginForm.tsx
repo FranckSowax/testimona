@@ -52,25 +52,15 @@ export function LoginForm() {
     <div className="mt-8 space-y-5">
       <form action={formAction} className="space-y-4">
         <FormField label="Email" required error={state?.fieldErrors?.email}>
-          <Input
-            name="email"
-            type="email"
-            autoComplete="email"
-            placeholder="vous@exemple.com"
-          />
+          <Input name="email" type="email" autoComplete="email" placeholder="vous@exemple.com" />
         </FormField>
         <FormField label="Mot de passe" required error={state?.fieldErrors?.password}>
-          <Input
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            minLength={8}
-          />
+          <Input name="password" type="password" autoComplete="current-password" minLength={8} />
         </FormField>
         {state?.error && state.error !== 'Validation' && (
           <p
             role="alert"
-            className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+            className="border-destructive/30 bg-destructive/5 text-destructive rounded-md border px-3 py-2 text-sm"
           >
             {state.error}
           </p>
@@ -89,10 +79,10 @@ export function LoginForm() {
       </form>
       <div className="relative">
         <div aria-hidden="true" className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
+          <div className="border-border w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase tracking-wider">
-          <span className="bg-white px-3 text-muted-foreground">ou</span>
+          <span className="text-muted-foreground bg-white px-3">ou</span>
         </div>
       </div>
       <form action={loginWithGoogleAction}>

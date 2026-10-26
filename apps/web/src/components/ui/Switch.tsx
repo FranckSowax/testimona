@@ -63,15 +63,9 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
       />
       {control}
       <span className="flex-1 text-sm">
-        {label && (
-          <span className="block font-medium font-display text-foreground">
-            {label}
-          </span>
-        )}
+        {label && <span className="font-display text-foreground block font-medium">{label}</span>}
         {description && (
-          <span className="mt-0.5 block text-xs text-muted-foreground">
-            {description}
-          </span>
+          <span className="text-muted-foreground mt-0.5 block text-xs">{description}</span>
         )}
       </span>
     </label>

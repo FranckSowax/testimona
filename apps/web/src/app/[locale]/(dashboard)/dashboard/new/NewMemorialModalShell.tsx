@@ -91,7 +91,7 @@ export function NewMemorialModalShell() {
       {actionError && (
         <div
           role="alert"
-          className="fixed bottom-6 left-1/2 z-[var(--z-toast)] -translate-x-1/2 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-2 text-sm text-destructive shadow-lg"
+          className="border-destructive/30 bg-destructive/10 text-destructive fixed bottom-6 left-1/2 z-[var(--z-toast)] -translate-x-1/2 rounded-md border px-4 py-2 text-sm shadow-lg"
         >
           {actionError}
         </div>

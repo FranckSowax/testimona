@@ -51,7 +51,7 @@ export function Avatar({
     <div
       className={[
         'relative inline-flex shrink-0 items-center justify-center overflow-hidden',
-        isBlob ? 'border-[3px] border-accent sm:border-4' : 'rounded-full',
+        isBlob ? 'border-accent border-[3px] sm:border-4' : 'rounded-full',
         'bg-surface text-foreground/70 font-display font-semibold',
         SIZE_TEXT[size],
         className ?? '',
@@ -75,7 +75,7 @@ export function Avatar({
         <span
           aria-hidden="true"
           className={[
-            'absolute right-0 bottom-0 h-2.5 w-2.5 rounded-full ring-2 ring-white',
+            'absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full ring-2 ring-white',
             status === 'online' ? 'bg-emerald-500' : 'bg-muted-foreground',
           ].join(' ')}
         />

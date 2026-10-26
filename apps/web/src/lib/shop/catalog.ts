@@ -12,12 +12,7 @@
  *   partner     — Heavy-fulfilment items via partner network
  */
 
-export type ShopProductCategory =
-  | 'apparel'
-  | 'paper'
-  | 'digital'
-  | 'banner'
-  | 'partner';
+export type ShopProductCategory = 'apparel' | 'paper' | 'digital' | 'banner' | 'partner';
 
 export interface ShopProduct {
   id: string;

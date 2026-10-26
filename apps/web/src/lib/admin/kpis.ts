@@ -32,8 +32,7 @@ export interface RecentUser {
   fullName: string | null;
 }
 
-const THIRTY_DAYS_AGO = () =>
-  new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+const THIRTY_DAYS_AGO = () => new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
 export async function getAdminKpis(): Promise<AdminKpis> {
   const supabase = getSupabaseAdminClient();
@@ -52,14 +51,8 @@ export async function getAdminKpis(): Promise<AdminKpis> {
   ] = await Promise.all([
     supabase.auth.admin.listUsers({ page: 1, perPage: 1 }),
     supabase.from('Memorial').select('id', { count: 'exact', head: true }),
-    supabase
-      .from('Memorial')
-      .select('id', { count: 'exact', head: true })
-      .eq('isPublic', true),
-    supabase
-      .from('Memorial')
-      .select('id', { count: 'exact', head: true })
-      .gte('createdAt', since),
+    supabase.from('Memorial').select('id', { count: 'exact', head: true }).eq('isPublic', true),
+    supabase.from('Memorial').select('id', { count: 'exact', head: true }).gte('createdAt', since),
     supabase.from('Testimonial').select('id', { count: 'exact', head: true }),
     supabase
       .from('Testimonial')
@@ -69,9 +62,7 @@ export async function getAdminKpis(): Promise<AdminKpis> {
     supabase
       .from('Donation')
       .select('amount, status, currency, createdAt')
-      .returns<
-        { amount: number; status: string; currency: string; createdAt: string }[]
-      >(),
+      .returns<{ amount: number; status: string; currency: string; createdAt: string }[]>(),
     supabase
       .from('Donation')
       .select('amount, status, createdAt')
@@ -147,8 +138,8 @@ export async function getRecentUsers(limit = 8): Promise<RecentUser[]> {
     email: u.email ?? null,
     createdAt: u.created_at,
     fullName:
-      ((u.user_metadata as { nickname?: string; full_name?: string } | null)?.nickname ??
-        (u.user_metadata as { nickname?: string; full_name?: string } | null)?.full_name) ??
+      (u.user_metadata as { nickname?: string; full_name?: string } | null)?.nickname ??
+      (u.user_metadata as { nickname?: string; full_name?: string } | null)?.full_name ??
       null,
   }));
 }

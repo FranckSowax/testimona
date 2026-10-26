@@ -4,14 +4,14 @@ Plateforme de pages mémorielles : témoignages, biographies, photos, donations 
 
 ## Stack
 
-| Couche | Choix |
-|---|---|
-| Frontend | Next.js 15 (App Router), React 19, TypeScript 5, Tailwind v4 |
-| Backend | Server Actions Next.js (pas de BFF séparé) |
-| DB / Auth / Storage | Supabase (Postgres + Auth + RLS + Storage) |
-| Paiements | Stripe Checkout + webhooks |
-| Hosting | Railway |
-| CI/CD | GitHub Actions |
+| Couche              | Choix                                                        |
+| ------------------- | ------------------------------------------------------------ |
+| Frontend            | Next.js 15 (App Router), React 19, TypeScript 5, Tailwind v4 |
+| Backend             | Server Actions Next.js (pas de BFF séparé)                   |
+| DB / Auth / Storage | Supabase (Postgres + Auth + RLS + Storage)                   |
+| Paiements           | Stripe Checkout + webhooks                                   |
+| Hosting             | Railway                                                      |
+| CI/CD               | GitHub Actions                                               |
 
 ## Structure
 
@@ -50,15 +50,15 @@ pnpm --filter @testimona/supabase test   # rejoue les migrations et vérifie la 
 
 ## Routes principales
 
-| Route | Description |
-|---|---|
-| `/` | Accueil |
-| `/search?q=...` | Recherche par nom/prénom/surnom |
-| `/memorial/[slug]` | Page mémorielle (RSC + ISR) avec biographie, photos, témoignages, donations |
-| `/login`, `/signup`, `/auth/callback` | Auth Supabase (email/password + Google OAuth) |
-| `/dashboard`, `/dashboard/new` | Espace propriétaire — liste et création de mémoriels |
-| `/donate/{success,cancel}` | Retour Stripe Checkout |
-| `/api/health` | Healthcheck (process + Supabase) |
+| Route                                 | Description                                                                 |
+| ------------------------------------- | --------------------------------------------------------------------------- |
+| `/`                                   | Accueil                                                                     |
+| `/search?q=...`                       | Recherche par nom/prénom/surnom                                             |
+| `/memorial/[slug]`                    | Page mémorielle (RSC + ISR) avec biographie, photos, témoignages, donations |
+| `/login`, `/signup`, `/auth/callback` | Auth Supabase (email/password + Google OAuth)                               |
+| `/dashboard`, `/dashboard/new`        | Espace propriétaire — liste et création de mémoriels                        |
+| `/donate/{success,cancel}`            | Retour Stripe Checkout                                                      |
+| `/api/health`                         | Healthcheck (process + Supabase)                                            |
 
 ## Licence
 

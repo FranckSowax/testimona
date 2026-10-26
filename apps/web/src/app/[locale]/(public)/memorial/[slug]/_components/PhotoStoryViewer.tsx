@@ -250,17 +250,13 @@ export function PhotoStoryViewer({
       aria-label={labels.aria}
       className="fixed inset-0 z-[var(--z-modal)] flex flex-col overflow-hidden bg-black text-white"
     >
-      <div className="absolute top-0 left-0 right-0 z-30 flex gap-1 p-3">
+      <div className="absolute left-0 right-0 top-0 z-30 flex gap-1 p-3">
         {photos.map((_, i) => (
-          <span
-            key={i}
-            className="relative h-1 flex-1 overflow-hidden rounded-full bg-white/20"
-          >
+          <span key={i} className="relative h-1 flex-1 overflow-hidden rounded-full bg-white/20">
             <span
               className="absolute inset-y-0 left-0 bg-white"
               style={{
-                width:
-                  i < index ? '100%' : i === index ? `${progress * 100}%` : '0%',
+                width: i < index ? '100%' : i === index ? `${progress * 100}%` : '0%',
                 transition: i === index ? 'none' : 'width 0.15s linear',
               }}
             />
@@ -268,8 +264,8 @@ export function PhotoStoryViewer({
         ))}
       </div>
 
-      <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between gap-3 px-4 pb-3 pt-8 sm:px-6">
-        <p className="truncate font-display text-sm font-bold">{memorialName}</p>
+      <header className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between gap-3 px-4 pb-3 pt-8 sm:px-6">
+        <p className="font-display truncate text-sm font-bold">{memorialName}</p>
         <div className="flex items-center gap-2">
           {music && (
             <button
@@ -279,13 +275,33 @@ export function PhotoStoryViewer({
               className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/40 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
             >
               {musicMuted ? (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
                   <path d="M11 5L6 9H2v6h4l5 4V5z" />
                   <line x1="23" y1="9" x2="17" y2="15" />
                   <line x1="17" y1="9" x2="23" y2="15" />
                 </svg>
               ) : (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
                   <path d="M11 5L6 9H2v6h4l5 4V5z" />
                   <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
                   <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
@@ -308,7 +324,7 @@ export function PhotoStoryViewer({
 
       <div
         onClick={handleTap}
-        className="relative flex flex-1 cursor-pointer items-center justify-center select-none overflow-hidden"
+        className="relative flex flex-1 cursor-pointer select-none items-center justify-center overflow-hidden"
       >
         {transition === 'swipe' ? (
           <div
@@ -353,10 +369,10 @@ export function PhotoStoryViewer({
           />
         )}
 
-        {current?.caption && (
-          current.videoUrl ? (
+        {current?.caption &&
+          (current.videoUrl ? (
             <p
-              className="animate-fade-in-up motion-reduce:animate-none absolute bottom-28 left-1/2 z-10 max-w-[88vw] -translate-x-1/2 px-4 text-center text-3xl leading-[1.15] text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)] sm:max-w-[70vw] sm:text-5xl"
+              className="animate-fade-in-up absolute bottom-28 left-1/2 z-10 max-w-[88vw] -translate-x-1/2 px-4 text-center text-3xl leading-[1.15] text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)] motion-reduce:animate-none sm:max-w-[70vw] sm:text-5xl"
               style={{ fontFamily: 'var(--font-cursive)' }}
             >
               {current.caption}
@@ -365,13 +381,12 @@ export function PhotoStoryViewer({
             <p className="absolute bottom-28 left-1/2 z-10 max-w-[80vw] -translate-x-1/2 rounded-md bg-black/40 px-4 py-2 text-center text-sm backdrop-blur-sm">
               {current.caption}
             </p>
-          )
-        )}
+          ))}
 
         {paused && (
           <span
             aria-hidden="true"
-            className="absolute inset-x-0 top-1/2 mx-auto z-10 flex h-16 w-16 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm"
+            className="absolute inset-x-0 top-1/2 z-10 mx-auto flex h-16 w-16 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <rect x="6" y="5" width="4" height="14" />
@@ -382,20 +397,32 @@ export function PhotoStoryViewer({
       </div>
 
       {/* Compact glass control bar — always visible */}
-      <footer className="relative z-20 px-4 pb-[max(env(safe-area-inset-bottom),1.25rem)] pt-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+      <footer className="relative z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-4 pb-[max(env(safe-area-inset-bottom),1.25rem)] pt-10">
         <div className="mx-auto flex max-w-md items-center justify-between gap-2 rounded-full border border-white/15 bg-white/10 px-2 py-2 shadow-[var(--shadow-overlay)] backdrop-blur-xl">
           <button
             type="button"
             onClick={() => setPaused((p) => !p)}
             aria-label={paused ? labels.play : labels.pause}
-            className="press-scale inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-foreground transition-transform hover:scale-105"
+            className="press-scale text-foreground inline-flex h-11 w-11 items-center justify-center rounded-full bg-white transition-transform hover:scale-105"
           >
             {paused ? (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
                 <path d="M8 5v14l11-7z" />
               </svg>
             ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
                 <rect x="6" y="5" width="4" height="14" />
                 <rect x="14" y="5" width="4" height="14" />
               </svg>
@@ -408,22 +435,24 @@ export function PhotoStoryViewer({
             aria-haspopup="dialog"
             aria-expanded={settingsOpen}
             aria-label={t('settings')}
-            className="flex flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 font-display text-[11px] font-bold uppercase tracking-wider text-white/90 transition-colors hover:bg-white/10"
+            className="font-display flex flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-white/90 transition-colors hover:bg-white/10"
           >
             <span className="truncate">
               {filter === 'bw'
                 ? labels.filterBw
                 : filter === 'sepia'
-                ? labels.filterSepia
-                : labels.filterNone}
+                  ? labels.filterSepia
+                  : labels.filterNone}
             </span>
-            <span aria-hidden="true" className="text-white/40">·</span>
+            <span aria-hidden="true" className="text-white/40">
+              ·
+            </span>
             <span className="text-white/70">
               {speed === 'slow'
                 ? labels.speedSlow
                 : speed === 'fast'
-                ? labels.speedFast
-                : labels.speedMedium}
+                  ? labels.speedFast
+                  : labels.speedMedium}
             </span>
           </button>
 
@@ -433,7 +462,17 @@ export function PhotoStoryViewer({
             aria-label={t('settings')}
             className="press-scale inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <circle cx="12" cy="12" r="3" />
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
             </svg>
@@ -517,8 +556,8 @@ export function PhotoStoryViewer({
                       s === 'slow'
                         ? labels.speedSlow
                         : s === 'medium'
-                        ? labels.speedMedium
-                        : labels.speedFast
+                          ? labels.speedMedium
+                          : labels.speedFast
                     }
                     active={speed === s}
                     onClick={() => setSpeed(s)}
@@ -530,7 +569,7 @@ export function PhotoStoryViewer({
             <button
               type="button"
               onClick={() => setSettingsOpen(false)}
-              className="press-scale mt-6 block w-full rounded-full bg-white py-3 font-display text-sm font-bold uppercase tracking-wide text-foreground transition-opacity hover:opacity-90"
+              className="press-scale font-display text-foreground mt-6 block w-full rounded-full bg-white py-3 text-sm font-bold uppercase tracking-wide transition-opacity hover:opacity-90"
             >
               OK
             </button>
@@ -579,7 +618,7 @@ function SlideImage({
             alt=""
             fill
             sizes="100vw"
-            className="object-cover blur-2xl scale-110 opacity-70"
+            className="scale-110 object-cover opacity-70 blur-2xl"
             aria-hidden="true"
           />
         </div>
@@ -620,7 +659,7 @@ function SlideImage({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="mb-2 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-white/50">
+      <p className="font-display mb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/50">
         {title}
       </p>
       <div className="flex flex-wrap gap-2">{children}</div>
@@ -643,9 +682,9 @@ function SegPill({
       onClick={onClick}
       aria-pressed={active}
       className={[
-        'press-scale rounded-full px-4 py-2 font-display text-xs font-bold uppercase tracking-wide transition-all duration-150',
+        'press-scale font-display rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wide transition-all duration-150',
         active
-          ? 'bg-white text-foreground shadow-lg shadow-white/20'
+          ? 'text-foreground bg-white shadow-lg shadow-white/20'
           : 'bg-white/10 text-white/80 ring-1 ring-inset ring-white/15 hover:bg-white/15 hover:text-white',
       ].join(' ')}
     >
@@ -669,9 +708,9 @@ function ToggleChip({
       onClick={onClick}
       aria-pressed={active}
       className={[
-        'press-scale inline-flex items-center gap-2 rounded-full px-3.5 py-2 font-display text-xs font-bold uppercase tracking-wide transition-all duration-150',
+        'press-scale font-display inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-bold uppercase tracking-wide transition-all duration-150',
         active
-          ? 'bg-[var(--color-primary)]/90 text-white shadow-lg shadow-[var(--color-primary)]/30'
+          ? 'bg-[var(--color-primary)]/90 shadow-[var(--color-primary)]/30 text-white shadow-lg'
           : 'bg-white/10 text-white/80 ring-1 ring-inset ring-white/15 hover:bg-white/15 hover:text-white',
       ].join(' ')}
     >
@@ -683,7 +722,16 @@ function ToggleChip({
         ].join(' ')}
       >
         {active && (
-          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="9"
+            height="9"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M20 6 9 17l-5-5" />
           </svg>
         )}

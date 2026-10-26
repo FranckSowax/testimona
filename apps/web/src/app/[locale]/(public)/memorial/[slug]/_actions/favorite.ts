@@ -39,8 +39,7 @@ export async function toggleFavoriteAction(
     .eq('id', memorialId)
     .maybeSingle<{ id: string; isPublic: boolean; ownerId: string }>();
   if (!memorial) return { error: 'Mémorial introuvable.' };
-  if (!memorial.isPublic && memorial.ownerId !== userId)
-    return { error: 'Mémorial introuvable.' };
+  if (!memorial.isPublic && memorial.ownerId !== userId) return { error: 'Mémorial introuvable.' };
 
   const { data: existing } = await adminDb
     .from('MemorialFavorite')
@@ -50,10 +49,7 @@ export async function toggleFavoriteAction(
     .maybeSingle<{ id: string }>();
 
   if (existing) {
-    const { error } = await adminDb
-      .from('MemorialFavorite')
-      .delete()
-      .eq('id', existing.id);
+    const { error } = await adminDb.from('MemorialFavorite').delete().eq('id', existing.id);
     if (error) return { error: error.message };
     if (slug) revalidateMemorialPages(slug);
     revalidatePath('/dashboard');

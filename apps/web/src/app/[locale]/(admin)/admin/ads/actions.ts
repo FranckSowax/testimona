@@ -29,8 +29,7 @@ function validate(p: ReturnType<typeof readForm>): Record<string, string> | null
   const errors: Record<string, string> = {};
   if (!p.name) errors.name = 'requis';
   if (!p.slot) errors.slot = 'requis';
-  if (!AD_SLOTS.includes(p.slot as (typeof AD_SLOTS)[number]))
-    errors.slot = 'slot inconnu';
+  if (!AD_SLOTS.includes(p.slot as (typeof AD_SLOTS)[number])) errors.slot = 'slot inconnu';
   if (p.type !== 'image' && p.type !== 'html') errors.type = 'invalide';
   if (p.type === 'image' && !p.imageUrl) errors.imageUrl = 'requis pour le type image';
   if (p.type === 'html' && !p.html) errors.html = 'requis pour le type html';

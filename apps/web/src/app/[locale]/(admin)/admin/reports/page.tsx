@@ -38,7 +38,14 @@ export default async function AdminReportsPage({
   // Group reports by testimonial so the admin can dismiss-all / delete-testimonial at once
   const grouped = new Map<
     string,
-    { testimonialId: string; testimonialAuthor: string; testimonialMessage: string; memorialName: string | null; memorialSlug: string | null; reports: typeof reports }
+    {
+      testimonialId: string;
+      testimonialAuthor: string;
+      testimonialMessage: string;
+      memorialName: string | null;
+      memorialSlug: string | null;
+      reports: typeof reports;
+    }
   >();
   for (const r of reports) {
     const key = r.testimonialId;
@@ -50,9 +57,7 @@ export default async function AdminReportsPage({
         testimonialId: r.testimonialId,
         testimonialAuthor: r.testimonial?.authorName ?? '—',
         testimonialMessage: r.testimonial?.message ?? '',
-        memorialName: r.memorial
-          ? `${r.memorial.firstname} ${r.memorial.lastname}`
-          : null,
+        memorialName: r.memorial ? `${r.memorial.firstname} ${r.memorial.lastname}` : null,
         memorialSlug: r.memorial?.slug ?? null,
         reports: [r],
       });
@@ -68,10 +73,10 @@ export default async function AdminReportsPage({
 
   return (
     <AdminShell title={tNav('reports')}>
-      <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+      <p className="text-muted-foreground text-sm">{t('subtitle')}</p>
 
       {grouped.size === 0 ? (
-        <p className="mt-8 rounded-md border border-dashed border-border bg-surface p-8 text-center text-sm italic text-muted-foreground">
+        <p className="border-border bg-surface text-muted-foreground mt-8 rounded-md border border-dashed p-8 text-center text-sm italic">
           {t('empty')}
         </p>
       ) : (
@@ -79,49 +84,44 @@ export default async function AdminReportsPage({
           {[...grouped.values()].map((group) => (
             <li
               key={group.testimonialId}
-              className="rounded-lg border border-border bg-white p-5 shadow-[var(--shadow-card)]"
+              className="border-border rounded-lg border bg-white p-5 shadow-[var(--shadow-card)]"
             >
               <header className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <p className="font-display text-base font-bold text-foreground">
+                  <p className="font-display text-foreground text-base font-bold">
                     {group.testimonialAuthor}
                     {group.memorialName && (
                       <>
                         {' '}
                         <span className="text-muted-foreground">·</span>{' '}
                         <Link
-                          href={
-                            group.memorialSlug ? `/memorial/${group.memorialSlug}` : '#'
-                          }
+                          href={group.memorialSlug ? `/memorial/${group.memorialSlug}` : '#'}
                           target="_blank"
-                          className="font-normal italic text-muted-foreground hover:text-primary"
+                          className="text-muted-foreground hover:text-primary font-normal italic"
                         >
                           {group.memorialName}
                         </Link>
                       </>
                     )}
                   </p>
-                  <p className="mt-2 line-clamp-3 text-sm text-foreground/85">
+                  <p className="text-foreground/85 mt-2 line-clamp-3 text-sm">
                     {group.testimonialMessage}
                   </p>
                 </div>
-                <span className="rounded-full bg-destructive/10 px-2 py-0.5 font-display text-[11px] font-bold uppercase tracking-wide text-destructive">
+                <span className="bg-destructive/10 font-display text-destructive rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide">
                   {t('reportsCount', { count: group.reports.length })}
                 </span>
               </header>
 
-              <ul className="mt-4 divide-y divide-border border-t border-border">
+              <ul className="divide-border border-border mt-4 divide-y border-t">
                 {group.reports.map((r) => (
-                  <li
-                    key={r.id}
-                    className="flex flex-wrap items-start justify-between gap-2 py-3"
-                  >
+                  <li key={r.id} className="flex flex-wrap items-start justify-between gap-2 py-3">
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs italic text-muted-foreground">
+                      <p className="text-muted-foreground text-xs italic">
                         {r.reporterEmail || r.reporterId.slice(0, 8)} ·{' '}
                         {formatDate(r.createdAt, locale)}
                       </p>
-                      <p className="mt-1 text-sm text-foreground/85">{r.reason}</p>
+                      <p className="text-foreground/85 mt-1 text-sm">{r.reason}</p>
                     </div>
                     <ReportDismissButton reportId={r.id} labels={labels} />
                   </li>
@@ -129,14 +129,8 @@ export default async function AdminReportsPage({
               </ul>
 
               <footer className="mt-4 flex flex-wrap items-center justify-end gap-2">
-                <ReportDismissAllButton
-                  testimonialId={group.testimonialId}
-                  labels={labels}
-                />
-                <TestimonialDeleteButton
-                  testimonialId={group.testimonialId}
-                  labels={labels}
-                />
+                <ReportDismissAllButton testimonialId={group.testimonialId} labels={labels} />
+                <TestimonialDeleteButton testimonialId={group.testimonialId} labels={labels} />
               </footer>
             </li>
           ))}

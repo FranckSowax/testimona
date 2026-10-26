@@ -130,7 +130,7 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
   return (
     <div
       role="status"
-      className={`pointer-events-auto flex animate-fade-in-up items-start gap-3 rounded-lg border-l-4 bg-white px-4 py-3 text-foreground shadow-[0_12px_32px_rgba(45,50,80,0.18)] ${styles[toast.kind]}`}
+      className={`animate-fade-in-up text-foreground pointer-events-auto flex items-start gap-3 rounded-lg border-l-4 bg-white px-4 py-3 shadow-[0_12px_32px_rgba(45,50,80,0.18)] ${styles[toast.kind]}`}
     >
       <span
         aria-hidden="true"
@@ -141,7 +141,7 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
         type="button"
         aria-label="Fermer"
         onClick={() => onDismiss(toast.id)}
-        className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        className="text-muted-foreground hover:bg-muted hover:text-foreground rounded p-0.5 transition-colors"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
           <path

@@ -46,9 +46,7 @@ export default async function ClipsPage() {
     id: c.id,
     memorialId: c.memorialId,
     memorialSlug: c.Memorial?.slug ?? '',
-    memorialName: [c.Memorial?.firstname, c.Memorial?.lastname]
-      .filter(Boolean)
-      .join(' '),
+    memorialName: [c.Memorial?.firstname, c.Memorial?.lastname].filter(Boolean).join(' '),
     photoUrl: c.Photo?.url ?? '',
     caption: c.caption,
     status: c.status,
@@ -59,22 +57,19 @@ export default async function ClipsPage() {
     validatedAt: c.validatedAt,
   }));
 
-  const awaitingCount = clips.filter(
-    (c) => c.status === 'ready' && !c.validatedAt,
-  ).length;
+  const awaitingCount = clips.filter((c) => c.status === 'ready' && !c.validatedAt).length;
 
   return (
     <DashboardShell title={t('title')}>
       <div className="space-y-6">
-        <p className="-mt-4 text-sm text-muted-foreground">{t('intro')}</p>
+        <p className="text-muted-foreground -mt-4 text-sm">{t('intro')}</p>
 
         {awaitingCount > 0 && (
-          <p className="rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-sm text-foreground/80">
-            <span className="font-display font-bold text-foreground">
+          <p className="border-accent/30 bg-accent/5 text-foreground/80 rounded-md border px-3 py-2 text-sm">
+            <span className="font-display text-foreground font-bold">
               {t('awaitingCountBadge', { count: awaitingCount })}
             </span>{' '}
-            {t('awaitingBefore')} <strong>{t('validate')}</strong>{' '}
-            {t('awaitingAfter')}
+            {t('awaitingBefore')} <strong>{t('validate')}</strong> {t('awaitingAfter')}
           </p>
         )}
 

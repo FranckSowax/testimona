@@ -2,12 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/supabase/admin';
-import {
-  findStudiaPack,
-  topUpStudia,
-  refundStudia,
-  spendStudia,
-} from '@/lib/compute/balance';
+import { findStudiaPack, topUpStudia, refundStudia, spendStudia } from '@/lib/compute/balance';
 
 export interface StudiaActionState {
   ok?: boolean;
@@ -47,13 +42,10 @@ export async function adjustStudiaAction(
   await requireAdmin();
   const amount = parseFloat(String(formData.get('amount') ?? '0'));
   const note = String(formData.get('note') ?? '').trim() || 'Admin adjustment';
-  if (!Number.isFinite(amount) || amount === 0)
-    return { error: 'Montant invalide.' };
+  if (!Number.isFinite(amount) || amount === 0) return { error: 'Montant invalide.' };
 
   const result =
-    amount > 0
-      ? await refundStudia(amount, { note })
-      : await spendStudia(-amount, { note });
+    amount > 0 ? await refundStudia(amount, { note }) : await spendStudia(-amount, { note });
   if (!result.ok) return { error: result.error };
   revalidatePath('/admin/credits');
   return { ok: true };

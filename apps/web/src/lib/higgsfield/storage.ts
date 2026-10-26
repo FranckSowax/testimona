@@ -13,8 +13,7 @@ function looksLikeHiggsfieldUrl(url: string): boolean {
 }
 
 function higgsfieldAuthHeader(): string | undefined {
-  const id =
-    process.env.HIGGSFIELD_API_ID ?? process.env.HIGGSFIELD_KEY_ID;
+  const id = process.env.HIGGSFIELD_API_ID ?? process.env.HIGGSFIELD_KEY_ID;
   const secret =
     process.env.HIGGSFIELD_API_SECRET ??
     process.env.HIGGSFIELD_KEY_SECRET ??
@@ -52,13 +51,11 @@ export async function mirrorClipToStorage(
     const buf = Buffer.from(await res.arrayBuffer());
     const supabase = getSupabaseAdminClient();
     const path = `${clipId}.mp4`;
-    const { error: upErr } = await supabase.storage
-      .from(BUCKET)
-      .upload(path, buf, {
-        contentType: 'video/mp4',
-        upsert: true,
-        cacheControl: '31536000',
-      });
+    const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, buf, {
+      contentType: 'video/mp4',
+      upsert: true,
+      cacheControl: '31536000',
+    });
     if (upErr) return { ok: false, error: upErr.message };
     const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
     return { ok: true, url: data.publicUrl };

@@ -47,29 +47,25 @@ export async function MemorialMembersSection({
   );
 
   return (
-    <section className="mt-8 rounded-lg border border-border bg-white p-5 shadow-sm">
+    <section className="border-border mt-8 rounded-lg border bg-white p-5 shadow-sm">
       <header className="mb-3">
-        <h3 className="font-display text-base font-bold text-foreground">
-          {t('title')}
-        </h3>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t('subtitle')}
-        </p>
+        <h3 className="font-display text-foreground text-base font-bold">{t('title')}</h3>
+        <p className="text-muted-foreground mt-1 text-sm">{t('subtitle')}</p>
       </header>
 
       <InviteCoOwnerForm memorialId={memorialId} slug={slug} />
 
       {members.length > 0 && (
-        <ul className="mt-4 divide-y divide-border">
+        <ul className="divide-border mt-4 divide-y">
           {members.map((m) => (
             <li key={m.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
               <span className="min-w-0">
-                <span className="font-display text-sm font-bold text-foreground">
+                <span className="font-display text-foreground text-sm font-bold">
                   {labels.get(m.id)}
                 </span>
                 <span
                   className={[
-                    'ml-2 rounded-full px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wider',
+                    'font-display ml-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider',
                     m.status === 'accepted'
                       ? 'bg-emerald-100 text-emerald-700'
                       : 'bg-accent/15 text-accent',

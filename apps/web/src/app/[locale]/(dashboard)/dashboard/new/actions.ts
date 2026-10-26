@@ -63,14 +63,14 @@ export async function createMemorialAction(
   // http(s) only — feeds <audio src> / YouTube iframe on the public page.
   const musicUrlRaw = String(formData.get('musicUrl') ?? '').trim();
   const musicUrl =
-    musicUrlRaw && /^https?:\/\//i.test(musicUrlRaw)
-      ? musicUrlRaw.slice(0, 500)
-      : null;
+    musicUrlRaw && /^https?:\/\//i.test(musicUrlRaw) ? musicUrlRaw.slice(0, 500) : null;
 
   // Extra fields collected by the form but not part of MemorialCreateSchema
   // (zod strips unknown keys), read straight from the FormData like musicUrl.
   const str = (k: string, max = 120) =>
-    String(formData.get(k) ?? '').trim().slice(0, max) || null;
+    String(formData.get(k) ?? '')
+      .trim()
+      .slice(0, max) || null;
   const birthCountry = str('birthCountry');
   const birthCity = str('birthCity');
   const deathCountry = str('deathCountry');
@@ -97,11 +97,7 @@ export async function createMemorialAction(
     formData.get('portraitPhoto'),
     'portrait',
   );
-  const coverUrl = await uploadMemorialImage(
-    memorialId,
-    formData.get('coverPhoto'),
-    'cover',
-  );
+  const coverUrl = await uploadMemorialImage(memorialId, formData.get('coverPhoto'), 'cover');
   const art: Record<string, string> = {};
   if (portraitUrl) art.portraitUrl = portraitUrl;
   if (coverUrl) art.coverUrl = coverUrl;

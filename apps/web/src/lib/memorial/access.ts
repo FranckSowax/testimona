@@ -18,11 +18,7 @@ export async function getMemorialManagers(
 ): Promise<{ ownerId: string | null; managerIds: Set<string> }> {
   const db = getSupabaseAdminClient();
   const [{ data: memorial }, { data: members }] = await Promise.all([
-    db
-      .from('Memorial')
-      .select('ownerId')
-      .eq('id', memorialId)
-      .maybeSingle<{ ownerId: string }>(),
+    db.from('Memorial').select('ownerId').eq('id', memorialId).maybeSingle<{ ownerId: string }>(),
     db
       .from('MemorialMember')
       .select('userId')

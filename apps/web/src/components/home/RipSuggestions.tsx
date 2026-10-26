@@ -59,23 +59,23 @@ export async function RipSuggestions() {
       <header>
         <h2
           id="rip-suggestions-heading"
-          className="font-display text-sm font-semibold uppercase tracking-widest text-foreground/70"
+          className="font-display text-foreground/70 text-sm font-semibold uppercase tracking-widest"
         >
           {t('title')}
         </h2>
-        <p className="mt-1 text-xs text-muted-foreground">{t('subtitle')}</p>
+        <p className="text-muted-foreground mt-1 text-xs">{t('subtitle')}</p>
       </header>
-      <ul className="overflow-hidden rounded-lg border border-border bg-white shadow-sm">
+      <ul className="border-border overflow-hidden rounded-lg border bg-white shadow-sm">
         {memorials.map((m) => {
           const cover = covers.get(m.id);
           const fullName = [m.firstname, m.lastname].filter(Boolean).join(' ');
           return (
-            <li key={m.id} className="border-b border-border last:border-0">
+            <li key={m.id} className="border-border border-b last:border-0">
               <Link
                 href={`/memorial/${m.slug}`}
-                className="flex items-center gap-3 px-3 py-3 hover:bg-surface"
+                className="hover:bg-surface flex items-center gap-3 px-3 py-3"
               >
-                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-surface">
+                <div className="bg-surface relative h-12 w-12 shrink-0 overflow-hidden rounded-md">
                   {cover ? (
                     <Image src={cover} alt="" fill sizes="48px" className="object-cover" />
                   ) : (
@@ -89,10 +89,10 @@ export async function RipSuggestions() {
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="line-clamp-2 break-words font-display text-sm font-semibold text-foreground">
+                  <p className="font-display text-foreground line-clamp-2 break-words text-sm font-semibold">
                     {fullName}
                   </p>
-                  <p className="text-xs text-muted-foreground tabular">
+                  <p className="text-muted-foreground tabular text-xs">
                     {fmt(m.birthDate)} — {fmt(m.deathDate)}
                   </p>
                 </div>
@@ -103,7 +103,7 @@ export async function RipSuggestions() {
       </ul>
       <Link
         href="/search"
-        className="inline-block text-xs font-medium text-primary hover:underline"
+        className="text-primary inline-block text-xs font-medium hover:underline"
       >
         {t('viewAll')} →
       </Link>

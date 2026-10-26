@@ -9,16 +9,16 @@ Scope : refonte UI/UX pixel-perfect alignée sur la maquette V3 PDF (Florence Ch
 
 6 sprints livrés en commits atomiques sur `main` (origin GitHub) :
 
-| Sprint | Contenu | Commit |
-|--------|---------|--------|
-| A | Tokens V2 stricts + Hero "beautiful stories" + Sidebar 5 items + Footer/Header V2 | `3b9ab4c` |
-| B1 | 4 boutons V2 (`ButtonContainer/Outlined/Text/Icon`) + 4 molécules (Breadcrumb, KebabMenu, ProgressBar, CommentComposer) | `bb28699` |
-| B2 | 8 molécules supplémentaires (Avatar rose border, MemorialListItem, NotificationItem, DonationItem, PhotoCard, EventCard, MemorialHeaderCard, ImageGallery) | `ff9e5cd` |
-| C1 | 3 auth overlays full-screen navy (Login + Signup split + Welcome) + base `OverlayModal` | `a05744e` |
-| C2-4 | 8 popups light card (PopupCard base + Testimonial Create + Thank You + Donation Create + Memorial admin × 3 + Bio × 2 + Funerals × 2 + Donations Edit) | `d739f05` |
-| D1+D2 | Memorial page V2 (MemorialHeaderCard) + Settings 4-section accordion | `b3543ad` |
-| D3 | User profile public `/user/[id]` | `7a43c90` |
-| E+F | Animations V2 (like-pulse, bell-shake) + Playwright config + 8 smoke tests + MIGRATION_NOTES | (this commit) |
+| Sprint | Contenu                                                                                                                                                    | Commit        |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| A      | Tokens V2 stricts + Hero "beautiful stories" + Sidebar 5 items + Footer/Header V2                                                                          | `3b9ab4c`     |
+| B1     | 4 boutons V2 (`ButtonContainer/Outlined/Text/Icon`) + 4 molécules (Breadcrumb, KebabMenu, ProgressBar, CommentComposer)                                    | `bb28699`     |
+| B2     | 8 molécules supplémentaires (Avatar rose border, MemorialListItem, NotificationItem, DonationItem, PhotoCard, EventCard, MemorialHeaderCard, ImageGallery) | `ff9e5cd`     |
+| C1     | 3 auth overlays full-screen navy (Login + Signup split + Welcome) + base `OverlayModal`                                                                    | `a05744e`     |
+| C2-4   | 8 popups light card (PopupCard base + Testimonial Create + Thank You + Donation Create + Memorial admin × 3 + Bio × 2 + Funerals × 2 + Donations Edit)     | `d739f05`     |
+| D1+D2  | Memorial page V2 (MemorialHeaderCard) + Settings 4-section accordion                                                                                       | `b3543ad`     |
+| D3     | User profile public `/user/[id]`                                                                                                                           | `7a43c90`     |
+| E+F    | Animations V2 (like-pulse, bell-shake) + Playwright config + 8 smoke tests + MIGRATION_NOTES                                                               | (this commit) |
 
 ---
 
@@ -65,53 +65,53 @@ Total : **24 atomes/molécules + 11 popups + 1 accordion = 36 composants** dans 
 
 ### Atomes UI (`components/ui/`)
 
-| Composant | Usage |
-|-----------|-------|
-| `Button` legacy + `buttonClasses(opts)` helper | Compat call-sites antérieurs ; helper pour `<Link>` styling |
-| **`ButtonContainer`** | filled rose pleine — CTA "Write a testimonial", "Post my testimonial" |
-| **`ButtonOutlined`** (5 sub-variants : popup-blue / popup-rose / thankyou-gray / page-gray / page-blue) | Tous les boutons outlined V2 |
-| **`ButtonText`** (4 sub-variants : menu-sidebar / subtab / action / filter) | Sidebar items, sub-tabs, REPORT/VIEW MORE links |
-| **`ButtonIcon`** (tone : default / pink / liked) | Icônes interactives (heart/share/comment/bell) |
-| `Spinner`, `Card`, `Badge`, `Tag`, `Input`, `Textarea`, `FormField`, `Checkbox`, `Switch`, `TabNav`, `Tooltip`, `Stepper`, `Sheet` | Atomes génériques |
-| `Avatar` avec **`border: 'rose'`** V2 | Memorial main avatar avec rose 4px border |
-| **`Breadcrumb`** | last item Bold navy 22px, prev italic gray |
-| **`KebabMenu`** | Owner actions menus avec items destructive opt |
-| **`ProgressBar`** | Donation goals |
-| **`CommentComposer`** | avatar + input + emoji slot + submit rose pen |
-| **`MemorialListItem`** | avatar rose + name + meta — User profile, dashboard |
-| **`NotificationItem`** | unread dot + memorial bold + relation italic |
-| **`DonationItem`** | "Donation by ... relation" + amount/Participated |
-| **`PhotoCard`** | 16:10 image + video play overlay |
-| **`EventCard`** | title + Date/Starts/Ends + map iframe |
-| **`MemorialHeaderCard`** | cover + bordered avatar débordant + bio block |
-| **`ImageGallery`** | modal 1191×962 + carousel arrows + comments scroll |
+| Composant                                                                                                                          | Usage                                                                 |
+| ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `Button` legacy + `buttonClasses(opts)` helper                                                                                     | Compat call-sites antérieurs ; helper pour `<Link>` styling           |
+| **`ButtonContainer`**                                                                                                              | filled rose pleine — CTA "Write a testimonial", "Post my testimonial" |
+| **`ButtonOutlined`** (5 sub-variants : popup-blue / popup-rose / thankyou-gray / page-gray / page-blue)                            | Tous les boutons outlined V2                                          |
+| **`ButtonText`** (4 sub-variants : menu-sidebar / subtab / action / filter)                                                        | Sidebar items, sub-tabs, REPORT/VIEW MORE links                       |
+| **`ButtonIcon`** (tone : default / pink / liked)                                                                                   | Icônes interactives (heart/share/comment/bell)                        |
+| `Spinner`, `Card`, `Badge`, `Tag`, `Input`, `Textarea`, `FormField`, `Checkbox`, `Switch`, `TabNav`, `Tooltip`, `Stepper`, `Sheet` | Atomes génériques                                                     |
+| `Avatar` avec **`border: 'rose'`** V2                                                                                              | Memorial main avatar avec rose 4px border                             |
+| **`Breadcrumb`**                                                                                                                   | last item Bold navy 22px, prev italic gray                            |
+| **`KebabMenu`**                                                                                                                    | Owner actions menus avec items destructive opt                        |
+| **`ProgressBar`**                                                                                                                  | Donation goals                                                        |
+| **`CommentComposer`**                                                                                                              | avatar + input + emoji slot + submit rose pen                         |
+| **`MemorialListItem`**                                                                                                             | avatar rose + name + meta — User profile, dashboard                   |
+| **`NotificationItem`**                                                                                                             | unread dot + memorial bold + relation italic                          |
+| **`DonationItem`**                                                                                                                 | "Donation by ... relation" + amount/Participated                      |
+| **`PhotoCard`**                                                                                                                    | 16:10 image + video play overlay                                      |
+| **`EventCard`**                                                                                                                    | title + Date/Starts/Ends + map iframe                                 |
+| **`MemorialHeaderCard`**                                                                                                           | cover + bordered avatar débordant + bio block                         |
+| **`ImageGallery`**                                                                                                                 | modal 1191×962 + carousel arrows + comments scroll                    |
 
 ### Popups V2 (`components/popups/`)
 
-| Popup | Spec PDF |
-|-------|----------|
-| `OverlayModal` (base full-screen navy) | — |
-| `LoginOverlay` | p08-09 |
-| `SignupOverlay` | p10-11 |
-| `WelcomeOverlay` | p13 |
-| `PopupCard` + `PopupHeader` (base light card) | — |
-| `MyTestimonialCreateModal` | p05/14/20 |
-| `ThankYouTestimonialModal` | p15 |
-| `MyDonationCreateModal` (currency + pills + PayPal flag) | p16-18-36 |
-| `MemorialFormPopup` (create/edit) + `MemorialAdminRequestPopup` | p21-23 |
-| `BiographyEditPopup` + `BiographyChapterCreatePopup` | p38-39 |
-| `FuneralsEditPopup` + `FuneralEventCreatePopup` | p42-44 |
-| `DonationsEditModal` | p32 |
+| Popup                                                           | Spec PDF  |
+| --------------------------------------------------------------- | --------- |
+| `OverlayModal` (base full-screen navy)                          | —         |
+| `LoginOverlay`                                                  | p08-09    |
+| `SignupOverlay`                                                 | p10-11    |
+| `WelcomeOverlay`                                                | p13       |
+| `PopupCard` + `PopupHeader` (base light card)                   | —         |
+| `MyTestimonialCreateModal`                                      | p05/14/20 |
+| `ThankYouTestimonialModal`                                      | p15       |
+| `MyDonationCreateModal` (currency + pills + PayPal flag)        | p16-18-36 |
+| `MemorialFormPopup` (create/edit) + `MemorialAdminRequestPopup` | p21-23    |
+| `BiographyEditPopup` + `BiographyChapterCreatePopup`            | p38-39    |
+| `FuneralsEditPopup` + `FuneralEventCreatePopup`                 | p42-44    |
+| `DonationsEditModal`                                            | p32       |
 
 ### Layout shell V2
 
-| Composant | V2 changement |
-|-----------|---------------|
-| `SiteHeader` | Sticky bg-white/80 + backdrop-blur, search inline, "Write a testimonial" rose CTA logged-in |
-| `SiteFooter` | 3 cols : copyright + nav (Sign in rose / About / FAQ / Terms / Privacy / Cookies) + LocaleSwitcher |
-| `AppSidebar` | RSC, Badge count auto |
-| `AppSidebarNav` | **5 items V2** : Home / My Testimonials / My Notifications / My Memorials / Settings |
-| `SettingsAccordion` | 4 sections collapsibles : My account / Sign in & Security / Donations / Request Payment |
+| Composant           | V2 changement                                                                                      |
+| ------------------- | -------------------------------------------------------------------------------------------------- |
+| `SiteHeader`        | Sticky bg-white/80 + backdrop-blur, search inline, "Write a testimonial" rose CTA logged-in        |
+| `SiteFooter`        | 3 cols : copyright + nav (Sign in rose / About / FAQ / Terms / Privacy / Cookies) + LocaleSwitcher |
+| `AppSidebar`        | RSC, Badge count auto                                                                              |
+| `AppSidebarNav`     | **5 items V2** : Home / My Testimonials / My Notifications / My Memorials / Settings               |
+| `SettingsAccordion` | 4 sections collapsibles : My account / Sign in & Security / Donations / Request Payment            |
 
 ---
 
@@ -172,6 +172,7 @@ pnpm --filter @testimona/web test:e2e     # Playwright (auto-start dev server)
 ```
 
 Pour CI / preview env Playwright :
+
 ```bash
 PLAYWRIGHT_BASE_URL=https://your-deploy-preview.url pnpm --filter @testimona/web test:e2e
 ```
@@ -196,6 +197,7 @@ Pattern : `'use client'` parent + `useState` open/close + `onSubmit={async (valu
 ### Drag-and-drop (dnd-kit)
 
 Non installé ni implémenté — V2 spec accepte explicitement le **kebab menu fallback** ("Move up/down/top/bottom") qui est déjà fourni par `KebabMenu` atom. À ajouter pour life chapters et funeral events :
+
 - Server Actions de réorder (UPDATE position int)
 - KebabMenu items dans BiographySection et FuneralSection
 
