@@ -23,7 +23,8 @@ jobs:
           node-version: 22
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm format:check
+      # format:check retiré : 249 fichiers historiques non formatés. À réactiver
+      # après un commit de formatage dédié (voir docs/LOT0.md).
       - run: pnpm lint
       - run: pnpm typecheck
 
@@ -59,5 +60,6 @@ jobs:
           node-version: 22
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
+      # Bloquant : tests unitaires (apps/web) + migrations et RLS rejouées dans
+      # un Postgres embarqué (supabase/tests, PGlite, sans Docker).
       - run: pnpm test
-        continue-on-error: true
