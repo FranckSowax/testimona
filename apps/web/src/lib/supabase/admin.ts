@@ -10,14 +10,14 @@
  * - Always call `requireAdmin()` first to ensure the caller is an authenticated
  *   admin before doing anything with this client.
  */
+import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from './server';
 
 export function getSupabaseAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SERVICE_KEY;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SERVICE_KEY;
   if (!url || !serviceKey) {
     throw new Error(
       'getSupabaseAdminClient: SUPABASE_SERVICE_ROLE_KEY / SUPABASE_SERVICE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing.',
