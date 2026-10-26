@@ -550,15 +550,6 @@
       "generating": "En génération",
       "footer": "Pour générer un nouveau clip, ouvre le bouton ✨ <strong>Animer les photos (IA)</strong> sur la photo de couverture du mémorial."
     },
-    "simulateDonation": {
-      "buttonTitle": "Créditer un don de test (sans paiement)",
-      "button": "Don de test",
-      "formTitle": "Don de test (simulation, sans paiement)",
-      "amount": "Montant",
-      "namePlaceholder": "Nom (optionnel)",
-      "cancel": "Annuler",
-      "credit": "Créditer"
-    },
     "setCover": {
       "cover": "Couverture",
       "setAsCover": "Définir comme photo de couverture"

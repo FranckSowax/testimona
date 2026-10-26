@@ -559,15 +559,6 @@
       "generating": "Generating",
       "footer": "To generate a new clip, open the ✨ <strong>Animate photos (AI)</strong> button on the memorial's cover photo."
     },
-    "simulateDonation": {
-      "buttonTitle": "Credit a test donation (no payment)",
-      "button": "Test donation",
-      "formTitle": "Test donation (simulation, no payment)",
-      "amount": "Amount",
-      "namePlaceholder": "Name (optional)",
-      "cancel": "Cancel",
-      "credit": "Credit"
-    },
     "setCover": {
       "cover": "Cover",
       "setAsCover": "Set as cover photo"

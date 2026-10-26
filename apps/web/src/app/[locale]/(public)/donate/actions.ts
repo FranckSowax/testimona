@@ -7,8 +7,6 @@ import Stripe from 'stripe';
 import { revalidatePath } from 'next/cache';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
-import { canManageMemorial } from '@/lib/memorial/access';
-import { revalidateMemorialPages } from '@/lib/revalidate';
 
 export interface DonationActionState {
   error?: string;
@@ -122,55 +120,4 @@ export async function createDonationCheckoutAction(
 
   if (!session.url) return { error: "Stripe n'a pas retourné d'URL." };
   redirect(session.url);
-}
-
-// ---------------------------------------------------------------------------
-// Test donation — owner/admin only. Inserts a Succeeded donation directly,
-// bypassing Stripe, so the memorial owner can see how the pot credits and how
-// different currencies behave (there is currently NO FX conversion: the pot
-// sums raw amounts across currencies — see DonationGoal). For testing only.
-// ---------------------------------------------------------------------------
-export interface SimulateDonationState {
-  ok?: boolean;
-  error?: string;
-}
-
-export async function simulateDonationAction(
-  _prev: SimulateDonationState | null,
-  formData: FormData,
-): Promise<SimulateDonationState> {
-  const memorialId = String(formData.get('memorialId') ?? '').trim();
-  const slug = String(formData.get('slug') ?? '').trim();
-  const amountUnits = Number(formData.get('amount') ?? 0);
-  const currency = String(formData.get('currency') ?? 'EUR').trim().toUpperCase();
-  const donorName = String(formData.get('donorName') ?? '').trim() || 'Donateur test';
-  if (!memorialId) return { error: 'memorialId requis.' };
-  // Same ceiling as the real Stripe checkout (DonationCheckoutInputSchema caps
-  // at 10 000 in cents) — without it an owner could inflate the public pot
-  // with an arbitrarily huge fake "Succeeded" donation.
-  if (!Number.isFinite(amountUnits) || amountUnits <= 0 || amountUnits > 10_000)
-    return { error: 'Montant invalide (1 à 10 000).' };
-  if (!/^[A-Z]{3}$/.test(currency)) return { error: 'Devise invalide.' };
-
-  const supabase = await getSupabaseServer();
-  const { data: userData } = await supabase.auth.getUser();
-  if (!userData.user) return { error: 'Non connecté.' };
-  if (!(await canManageMemorial(memorialId, userData.user.id)))
-    return { error: 'Réservé aux administrateurs du mémorial.' };
-
-  const adminDb = getSupabaseAdminClient();
-  const { error } = await adminDb.from('Donation').insert({
-    id: randomUUID(),
-    memorialId,
-    amount: Math.round(amountUnits * 100),
-    currency,
-    status: 'Succeeded',
-    donorId: userData.user.id,
-    donorName: `${donorName} (test)`,
-    message: 'Don de test — simulation sans paiement.',
-  });
-  if (error) return { error: error.message };
-
-  if (slug) revalidateMemorialPages(slug);
-  return { ok: true };
 }
