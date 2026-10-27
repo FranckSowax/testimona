@@ -75,7 +75,7 @@ Les postes du budget du dossier.
 Les colonnes de montant portent le préfixe `amount_` parce que `full` est un mot réservé de Postgres.
 Unicité (`dossier_id`, `grid_key`) quand `grid_key` n'est pas nul. Lecture : tout membre. Écriture :
 trésorier et plus et utilisateur connecté (refusée quand le dossier est clôturé : colonnes de clôture en
-PR 5). Au plus 100 postes par dossier (`too_many_lines`) : le trigger d'insertion vérifie le rôle avant
+PR 5). Au plus 100 postes par dossier (`too_many_lines`, code `TL005` levé par le trigger) : le trigger d'insertion vérifie le rôle avant
 la limite, puis sérialise le comptage par un verrou `for no key update` sur le dossier. Le dossier et la
 clé de grille sont figés après création.
 

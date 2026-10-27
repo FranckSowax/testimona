@@ -9,8 +9,8 @@
 --  - un poste qui porte des dépenses ne se supprime pas (on delete no action :
 --    23503 ; « restrict » lèverait 23001) ;
 --  - un poste dont toutes les dépenses ont été annulées reste impossible à
---    supprimer : le registre est en ajout seul, les dépenses annulées et leurs
---    annulations restent rattachées au poste. C'est voulu ;
+--    supprimer : le registre est en ajout seul, les dépenses annulées restent
+--    rattachées au poste (leurs annulations n'en portent pas). C'est voulu ;
 --  - les dépenses sont visibles de tout membre : ledger_spent_by_line est en
 --    security invoker, la RLS du registre suffit.
 -- ============================================================================
@@ -67,6 +67,7 @@ create table public.budget_line (
 create index budget_line_dossier_idx on public.budget_line (dossier_id, position);
 
 -- WHY: au plus 100 postes par dossier, pour borner un écran et une saisie abusive.
+-- La limite lève un code dédié (TL005) : 23514 reste celui des contraintes check.
 create function public.budget_line_before_insert()
 returns trigger
 language plpgsql
@@ -75,7 +76,7 @@ set search_path = ''
 as $$
 begin
   -- WHY: contrôle du rôle avant le comptage, pour qu'un non-membre ne puisse pas
-  -- sonder le nombre de postes d'un dossier par le code 23514. La RLS reste la
+  -- sonder le nombre de postes d'un dossier par le code TL005. La RLS reste la
   -- règle de référence.
   if not public.is_dossier_member(new.dossier_id, 'treasurer') then
     raise exception 'not allowed' using errcode = '42501';
@@ -87,7 +88,7 @@ begin
   -- des clés étrangères), seulement les autres insertions de postes.
   perform 1 from public.dossier d where d.id = new.dossier_id for no key update;
   if (select count(*) from public.budget_line l where l.dossier_id = new.dossier_id) >= 100 then
-    raise exception 'too many budget lines' using errcode = '23514';
+    raise exception 'too many budget lines' using errcode = 'TL005';
   end if;
   new.created_at := now();
   new.updated_at := now();
@@ -157,6 +158,8 @@ create index ledger_entry_budget_line_idx on public.ledger_entry (budget_line_id
 -- ---------------------------------------------------------------------------
 -- Trigger du registre : contrôle du poste d'une dépense.
 -- ---------------------------------------------------------------------------
+-- WHY: security definer pour lire la ligne visée ou la promesse quelle que soit la
+-- RLS du lecteur ; search_path vide contre le détournement de schéma.
 create or replace function public.ledger_entry_before_insert()
 returns trigger
 language plpgsql

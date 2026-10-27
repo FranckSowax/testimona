@@ -41,6 +41,8 @@ const CODES: Record<string, LinesError> = {
   '42501': 'forbidden',
   '28000': 'unauthenticated',
   '23514': 'validation',
+  // WHY: limite de 100 postes atteinte entre la lecture et l'insertion (course).
+  TL005: 'too_many_lines',
   '22P02': 'validation',
   '23503': 'line_in_use',
   no_rows: 'not_found',

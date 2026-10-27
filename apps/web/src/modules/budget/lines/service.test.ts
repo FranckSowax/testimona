@@ -273,6 +273,11 @@ describe('saveLine, addLine, deleteLine', () => {
       ok: false,
       error: 'validation',
     });
+    repo.insertLine.mockResolvedValueOnce({ data: null, error: { code: 'TL005', message: 'x' } });
+    expect(await addLine({ dossierId: DOSSIER, label: 'X', ...amounts })).toEqual({
+      ok: false,
+      error: 'too_many_lines',
+    });
     repo.deleteLine.mockResolvedValueOnce({ data: null, error: { code: 'XX000', message: 'x' } });
     expect(await deleteLine({ dossierId: DOSSIER, lineId: LINE })).toEqual({
       ok: false,

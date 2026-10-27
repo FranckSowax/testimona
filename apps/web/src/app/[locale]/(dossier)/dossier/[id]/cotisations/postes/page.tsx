@@ -82,7 +82,7 @@ export default async function BudgetLinesPage({
 
       <LedgerTabs dossierId={id} current="lines" />
 
-      {!canManage && scenario.data && (
+      {!canManage && hasLines && scenario.data && (
         <p className="text-foreground font-semibold">
           {t('scenario.current', { level: tLevel(scenario.data) })}
         </p>

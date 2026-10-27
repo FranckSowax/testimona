@@ -83,6 +83,9 @@ describe('saveEntryAction', () => {
     expect(cache.revalidatePath).toHaveBeenCalledWith(
       localizedPath(`/dossier/${DOSSIER}/cotisations`, 'en'),
     );
+    expect(cache.revalidatePath).toHaveBeenCalledWith(
+      localizedPath(`/dossier/${DOSSIER}/cotisations/postes`, 'en'),
+    );
     expect(cache.revalidatePath).toHaveBeenCalledWith(localizedPath(`/dossier/${DOSSIER}`, 'en'));
   });
 

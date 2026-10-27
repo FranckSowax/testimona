@@ -270,7 +270,7 @@ describe('budget_line : droits', () => {
         [fresh],
       ),
     );
-    await expect(addLine(treasurer, { dossier: fresh })).rejects.toMatchObject({ code: '23514' });
+    await expect(addLine(treasurer, { dossier: fresh })).rejects.toMatchObject({ code: 'TL005' });
     // WHY: un non-membre reçoit 42501, pas 23514 : il ne peut pas sonder le nombre de postes.
     await expect(addLine(stranger, { dossier: fresh })).rejects.toMatchObject(DENIED);
   });
@@ -314,7 +314,18 @@ describe('ledger_entry.budget_line_id', () => {
 
   it('empêche de supprimer un poste qui porte des dépenses', async () => {
     const line = await addLine(treasurer);
-    await addExpense(treasurer, { line });
+    const expense = await addExpense(treasurer, { line });
+    await expect(
+      asUser(db, treasurer, () => db.query('delete from budget_line where id = $1', [line])),
+    ).rejects.toMatchObject({ code: '23503' });
+    // Une fois la dépense annulée, le poste reste impossible à supprimer (registre en ajout seul).
+    await asUser(db, treasurer, () =>
+      db.query(
+        `insert into ledger_entry (dossier_id, kind, amount, party_name, reverses_id, idempotency_key)
+         values ($1, 'reversal', 1, '-', $2, $3)`,
+        [dossierId, expense, randomUUID()],
+      ),
+    );
     await expect(
       asUser(db, treasurer, () => db.query('delete from budget_line where id = $1', [line])),
     ).rejects.toMatchObject({ code: '23503' });
