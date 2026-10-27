@@ -26,6 +26,7 @@ export async function EntryList({ dossierId, locale, views, canManage }: Props) 
           v.kind === 'reversal' && v.reversesKind
             ? t('entry.reversalOf', { kind: t(`kind.${v.reversesKind}`) })
             : t(`kind.${v.kind}`);
+        const day = date.format(new Date(`${v.occurredOn}T00:00:00Z`));
         const struck = v.reversed ? 'line-through' : '';
         return (
           <li key={v.id} className="space-y-1 px-5 py-4">
@@ -46,7 +47,7 @@ export async function EntryList({ dossierId, locale, views, canManage }: Props) 
               </p>
             </div>
             <p className="text-muted-foreground text-sm">
-              {date.format(new Date(`${v.occurredOn}T00:00:00Z`))}
+              {day}
               {v.reversed && ` · ${t('entry.reversed')}`}
               {v.fulfilled && ` · ${t('entry.fulfilled')}`}
               {v.kind === 'pledge' &&
@@ -59,7 +60,7 @@ export async function EntryList({ dossierId, locale, views, canManage }: Props) 
               <ReverseButton
                 dossierId={dossierId}
                 entryId={v.id}
-                label={`${v.partyName} · ${label} · ${amount}`}
+                label={`${v.partyName}, ${label}, ${amount}, ${day}`}
               />
             )}
           </li>
