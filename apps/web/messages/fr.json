@@ -1191,7 +1191,7 @@
     "q": {
       "biography": {
         "birthPlace": {
-          "title": "Dans quelle ville {name} a-t-il ou elle vu le jour ?",
+          "title": "Quel est le lieu de naissance de {name} ?",
           "hint": "La ville et le pays de naissance."
         },
         "parents": {
