@@ -33,9 +33,12 @@ export function PlaceInput({
       <label className="block space-y-1">
         <span className="text-sm">{t('country')}</span>
         <select
+          id={`${props.id}-country`}
           value={props.value.countryCode}
           onChange={(e) => props.onChange({ ...props.value, countryCode: e.target.value })}
           disabled={props.readOnly}
+          aria-invalid={props.invalid}
+          aria-describedby={props.describedBy}
           className={FIELD_CLASS}
         >
           {countries.map((c) => (
