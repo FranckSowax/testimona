@@ -19,3 +19,7 @@ export type Tone = (typeof TONES)[number];
 /** Préférence de la famille pour les fleurs et les dons. */
 export const FLOWERS = ['flowers', 'donations', 'both', 'noPreference'] as const;
 export type Flowers = (typeof FLOWERS)[number];
+
+/** Niveaux de cérémonie, du plus simple au plus complet (budget, étape B.2). */
+export const LEVELS = ['sober', 'intermediate', 'full'] as const;
+export type Level = (typeof LEVELS)[number];
