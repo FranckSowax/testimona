@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Step } from './types';
+import { answerSchema, type Step } from './types';
 import {
   assertUniqueSteps,
   findQuestion,
@@ -128,5 +128,36 @@ describe('assertUniqueSteps et brouillons', () => {
     const a: Step = { id: 'a', questions: [], draft: { key: 'shared.text', kind: 'email' } };
     const b: Step = { id: 'b', questions: [{ kind: 'shortText', key: 'shared.text' }] };
     expect(() => assertUniqueSteps([a, b])).toThrow(/shared\.text/);
+  });
+});
+
+describe('taille de la liste de diffusion', () => {
+  const schema = () => {
+    const question = findQuestion('broadcast.contacts')?.question;
+    if (!question) throw new Error('question absente');
+    return answerSchema(question);
+  };
+
+  it('accepte 80 contacts réalistes', () => {
+    const items = Array.from({ length: 80 }, (_, i) => ({
+      name: `Contact ${i}`,
+      phone: '+241 06 12 34 56',
+      circle: 'close_family',
+      caller: 'Marie',
+      priority: false,
+    }));
+    expect(schema().safeParse(items).success).toBe(true);
+  });
+
+  it('accepte 80 contacts ASCII à 200 caractères', () => {
+    const long = 'a'.repeat(200);
+    const items = Array.from({ length: 80 }, () => ({
+      name: long,
+      phone: long,
+      circle: 'other',
+      caller: long,
+      priority: true,
+    }));
+    expect(schema().safeParse(items).success).toBe(true);
   });
 });

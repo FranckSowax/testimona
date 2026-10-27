@@ -14,7 +14,8 @@ export const broadcastListStep = defineStep({
         { name: 'caller', kind: 'shortText' },
         { name: 'priority', kind: 'boolean' },
       ],
-      // WHY: 80 contacts complets restent sous la borne de 60 000 octets d'une réponse.
+      // WHY: 80 contacts réalistes, ou entièrement ASCII à 200 caractères, tiennent sous 60 000
+      // octets ; au-delà, la garde de taille de answerSchema refuse la réponse.
       80,
     ),
   ],
