@@ -50,31 +50,46 @@ async function run(
 }
 
 /** Crée les postes de la grille. */
-export async function createLinesAction(_prev: LinesFormState | null, formData: FormData) {
+export async function createLinesAction(
+  _prev: LinesFormState | null,
+  formData: FormData,
+): Promise<LinesFormState> {
   return run(formData, (locale) =>
     service.createGridLines({ dossierId: field(formData, 'dossierId') }, locale),
   );
 }
 
 /** Recalcule les postes non modifiés selon l'affluence. */
-export async function recomputeLinesAction(_prev: LinesFormState | null, formData: FormData) {
+export async function recomputeLinesAction(
+  _prev: LinesFormState | null,
+  formData: FormData,
+): Promise<LinesFormState> {
   return run(formData, () => service.recomputeLines({ dossierId: field(formData, 'dossierId') }));
 }
 
 /** Enregistre un poste modifié. */
-export async function saveLineAction(_prev: LinesFormState | null, formData: FormData) {
+export async function saveLineAction(
+  _prev: LinesFormState | null,
+  formData: FormData,
+): Promise<LinesFormState> {
   return run(formData, () =>
     service.saveLine({ ...lineFields(formData), lineId: field(formData, 'lineId') }),
   );
 }
 
 /** Ajoute un poste libre. */
-export async function addLineAction(_prev: LinesFormState | null, formData: FormData) {
+export async function addLineAction(
+  _prev: LinesFormState | null,
+  formData: FormData,
+): Promise<LinesFormState> {
   return run(formData, () => service.addLine(lineFields(formData)));
 }
 
 /** Supprime un poste sans dépense. */
-export async function deleteLineAction(_prev: LinesFormState | null, formData: FormData) {
+export async function deleteLineAction(
+  _prev: LinesFormState | null,
+  formData: FormData,
+): Promise<LinesFormState> {
   return run(formData, () =>
     service.deleteLine({
       dossierId: field(formData, 'dossierId'),
@@ -84,7 +99,10 @@ export async function deleteLineAction(_prev: LinesFormState | null, formData: F
 }
 
 /** Retient un scénario ou l'efface. */
-export async function chooseScenarioAction(_prev: LinesFormState | null, formData: FormData) {
+export async function chooseScenarioAction(
+  _prev: LinesFormState | null,
+  formData: FormData,
+): Promise<LinesFormState> {
   return run(formData, () =>
     service.chooseScenario({
       dossierId: field(formData, 'dossierId'),

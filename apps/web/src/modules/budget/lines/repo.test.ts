@@ -42,6 +42,7 @@ const {
   deleteLine,
   getScenario,
   insertGridRows,
+  insertLine,
   listLines,
   setScenario,
   spentByLine,
@@ -58,6 +59,58 @@ const callsOf = (method: string) => calls.filter((c) => c.method === method);
 beforeEach(() => {
   results.length = 0;
   calls.length = 0;
+});
+
+describe('chemins d’erreur', () => {
+  it('listLines, insertGridRows et getScenario rendent l’erreur de la base', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const denied = { data: null, error: { code: '42501', message: 'denied' } };
+    results.push(denied, { error: { code: '23514', message: 'limit' } }, denied);
+    expect(await listLines(DOSSIER)).toEqual(denied);
+    expect(
+      await insertGridRows(DOSSIER, [{ gridKey: 'coffin', label: 'C', amounts, position: 0 }]),
+    ).toEqual({ data: null, error: { code: '23514', message: 'limit' } });
+    expect(await getScenario(DOSSIER)).toEqual(denied);
+    error.mockRestore();
+  });
+
+  it('complète une erreur sans code ni message', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    results.push({ data: null, error: {} });
+    expect(await listLines(DOSSIER)).toEqual({
+      data: null,
+      error: { code: 'unknown', message: 'budget lines error' },
+    });
+    error.mockRestore();
+  });
+});
+
+describe('insertLine', () => {
+  it('ajoute un poste libre marqué modifié', async () => {
+    results.push({ error: null });
+    expect(await insertLine(DOSSIER, { label: 'Fleurs', amounts, position: 3 })).toEqual({
+      data: true,
+      error: null,
+    });
+    expect(callsOf('insert')[0]?.args[0]).toEqual({
+      dossier_id: DOSSIER,
+      grid_key: null,
+      label: 'Fleurs',
+      position: 3,
+      edited: true,
+      amount_sober: 1_000,
+      amount_intermediate: 2_000,
+      amount_full: 3_000,
+    });
+  });
+
+  it('rend l’erreur de la base', async () => {
+    results.push({ error: { code: '23514', message: 'limit' } });
+    expect(await insertLine(DOSSIER, { label: 'Fleurs', amounts, position: 3 })).toEqual({
+      data: null,
+      error: { code: '23514', message: 'limit' },
+    });
+  });
 });
 
 describe('listLines', () => {

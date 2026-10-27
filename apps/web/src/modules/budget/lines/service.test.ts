@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { repo, gate, answersRepo } = vi.hoisted(() => ({
+const { repo, gate, answersRepo, dossierRepo } = vi.hoisted(() => ({
   repo: {
     listLines: vi.fn(),
     insertGridRows: vi.fn(),
@@ -12,12 +12,14 @@ const { repo, gate, answersRepo } = vi.hoisted(() => ({
   },
   gate: { budgetGate: vi.fn() },
   answersRepo: { listAnswersResult: vi.fn() },
+  dossierRepo: { getMyRole: vi.fn() },
 }));
 
 vi.mock('server-only', () => ({}));
 vi.mock('./repo', () => repo);
 vi.mock('../gate', () => gate);
 vi.mock('@/modules/dossier/answers/repo', () => answersRepo);
+vi.mock('@/modules/dossier/repo', () => dossierRepo);
 vi.mock('next-intl/server', () => ({
   getTranslations: vi.fn(async () => (key: string) => `label:${key}`),
 }));
@@ -29,22 +31,32 @@ const DOSSIER = '44444444-4444-4444-8444-444444444444';
 const LINE = '55555555-5555-4555-8555-555555555555';
 const answers = { 'attendance.close': 10, 'attendance.nights': 1 };
 const amounts = { sober: '1000', intermediate: '2000', full: '3000' };
+const WRITES = [
+  repo.insertGridRows,
+  repo.updateRecomputed,
+  repo.insertLine,
+  repo.updateLine,
+  repo.deleteLine,
+  repo.setScenario,
+];
+
+const line = (id: string, position: number, gridKey: string | null = null) => ({
+  id,
+  gridKey,
+  label: id,
+  amounts: { sober: 1, intermediate: 1, full: 1 },
+  edited: gridKey === null,
+  position,
+});
+const freeLines = (n: number) => Array.from({ length: n }, (_, i) => line(`l${i}`, i));
 
 beforeEach(() => {
   vi.clearAllMocks();
   gate.budgetGate.mockResolvedValue(null);
+  dossierRepo.getMyRole.mockResolvedValue('treasurer');
   answersRepo.listAnswersResult.mockResolvedValue({ data: answers, error: null });
   repo.listLines.mockResolvedValue({ data: [], error: null });
-  for (const fn of [
-    repo.insertGridRows,
-    repo.updateRecomputed,
-    repo.insertLine,
-    repo.updateLine,
-    repo.deleteLine,
-    repo.setScenario,
-  ]) {
-    fn.mockResolvedValue({ data: true, error: null });
-  }
+  for (const fn of WRITES) fn.mockResolvedValue({ data: true, error: null });
 });
 
 describe('createGridLines', () => {
@@ -67,6 +79,14 @@ describe('createGridLines', () => {
     expect(repo.insertGridRows).not.toHaveBeenCalled();
   });
 
+  it('refuse un dossier invalide', async () => {
+    expect(await createGridLines({ dossierId: 'x' }, 'fr')).toMatchObject({
+      ok: false,
+      error: 'validation',
+    });
+    expect(gate.budgetGate).not.toHaveBeenCalled();
+  });
+
   it('refuse de créer les postes tant que l’affluence n’est pas renseignée', async () => {
     answersRepo.listAnswersResult.mockResolvedValueOnce({
       data: { 'attendance.nights': 2 },
@@ -75,6 +95,47 @@ describe('createGridLines', () => {
     expect(await createGridLines({ dossierId: DOSSIER }, 'fr')).toEqual({
       ok: false,
       error: 'no_attendance',
+    });
+    expect(repo.insertGridRows).not.toHaveBeenCalled();
+  });
+
+  it('ne recrée rien si un poste de la grille existe déjà', async () => {
+    repo.listLines.mockResolvedValueOnce({ data: [line('a', 0, 'coffin')], error: null });
+    expect(await createGridLines({ dossierId: DOSSIER }, 'fr')).toEqual({ ok: true, data: true });
+    expect(repo.insertGridRows).not.toHaveBeenCalled();
+  });
+
+  it('place les postes de la grille après les postes libres', async () => {
+    repo.listLines.mockResolvedValueOnce({ data: [line('a', 4)], error: null });
+    await createGridLines({ dossierId: DOSSIER }, 'fr');
+    const [, rows] = repo.insertGridRows.mock.calls[0]!;
+    expect(rows.map((r: { position: number }) => r.position)).toEqual(
+      Array.from({ length: 12 }, (_, i) => 5 + i),
+    );
+  });
+
+  it('plafonne les positions à 1000', async () => {
+    repo.listLines.mockResolvedValueOnce({ data: [line('a', 995)], error: null });
+    await createGridLines({ dossierId: DOSSIER }, 'fr');
+    const [, rows] = repo.insertGridRows.mock.calls[0]!;
+    expect(rows.map((r: { position: number }) => r.position).slice(-3)).toEqual([1000, 1000, 1000]);
+  });
+
+  it('refuse de dépasser 100 postes', async () => {
+    repo.listLines.mockResolvedValueOnce({ data: freeLines(89), error: null });
+    expect(await createGridLines({ dossierId: DOSSIER }, 'fr')).toEqual({
+      ok: false,
+      error: 'too_many_lines',
+    });
+    expect(repo.insertGridRows).not.toHaveBeenCalled();
+    repo.listLines.mockResolvedValueOnce({ data: freeLines(88), error: null });
+    expect(await createGridLines({ dossierId: DOSSIER }, 'fr')).toEqual({ ok: true, data: true });
+  });
+
+  it('rend l’erreur de lecture des postes', async () => {
+    repo.listLines.mockResolvedValueOnce({ data: null, error: { code: '42501', message: 'x' } });
+    expect(await createGridLines({ dossierId: DOSSIER }, 'fr')).toMatchObject({
+      error: 'forbidden',
     });
     expect(repo.insertGridRows).not.toHaveBeenCalled();
   });
@@ -115,6 +176,14 @@ describe('recomputeLines', () => {
       error: 'no_attendance',
     });
     expect(repo.updateRecomputed).not.toHaveBeenCalled();
+  });
+
+  it('rend l’erreur de lecture des postes', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    repo.listLines.mockResolvedValueOnce({ data: null, error: { code: 'boom', message: 'x' } });
+    expect(await recomputeLines({ dossierId: DOSSIER })).toEqual({ ok: false, error: 'unknown' });
+    expect(repo.updateRecomputed).not.toHaveBeenCalled();
+    error.mockRestore();
   });
 });
 
@@ -159,6 +228,29 @@ describe('saveLine, addLine, deleteLine', () => {
     });
   });
 
+  it('plafonne la position d’un poste libre à 1000', async () => {
+    repo.listLines.mockResolvedValueOnce({ data: [line('a', 1000)], error: null });
+    await addLine({ dossierId: DOSSIER, label: 'Fleurs', ...amounts });
+    expect(repo.insertLine.mock.calls[0]![1]).toMatchObject({ position: 1000 });
+  });
+
+  it('refuse un 101e poste sans écrire', async () => {
+    repo.listLines.mockResolvedValueOnce({ data: freeLines(100), error: null });
+    expect(await addLine({ dossierId: DOSSIER, label: 'Fleurs', ...amounts })).toEqual({
+      ok: false,
+      error: 'too_many_lines',
+    });
+    expect(repo.insertLine).not.toHaveBeenCalled();
+  });
+
+  it('rend l’erreur de lecture des postes', async () => {
+    repo.listLines.mockResolvedValueOnce({ data: null, error: { code: '42501', message: 'x' } });
+    expect(await addLine({ dossierId: DOSSIER, label: 'Fleurs', ...amounts })).toMatchObject({
+      error: 'forbidden',
+    });
+    expect(repo.insertLine).not.toHaveBeenCalled();
+  });
+
   it('traduit un poste qui porte des dépenses et un poste introuvable', async () => {
     repo.deleteLine.mockResolvedValueOnce({ data: null, error: { code: '23503', message: 'x' } });
     expect(await deleteLine({ dossierId: DOSSIER, lineId: LINE })).toMatchObject({
@@ -173,6 +265,32 @@ describe('saveLine, addLine, deleteLine', () => {
       error: 'forbidden',
     });
   });
+
+  it('traduit une limite de la base et un code inconnu', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    repo.insertLine.mockResolvedValueOnce({ data: null, error: { code: '23514', message: 'x' } });
+    expect(await addLine({ dossierId: DOSSIER, label: 'X', ...amounts })).toEqual({
+      ok: false,
+      error: 'validation',
+    });
+    repo.deleteLine.mockResolvedValueOnce({ data: null, error: { code: 'XX000', message: 'x' } });
+    expect(await deleteLine({ dossierId: DOSSIER, lineId: LINE })).toEqual({
+      ok: false,
+      error: 'unknown',
+    });
+    expect(error).toHaveBeenCalledTimes(1);
+    error.mockRestore();
+  });
+
+  it('refuse un poste invalide', async () => {
+    expect(await deleteLine({ dossierId: DOSSIER, lineId: 'x' })).toMatchObject({
+      error: 'validation',
+    });
+    expect(await deleteLine({ dossierId: 'x', lineId: LINE })).toMatchObject({
+      error: 'validation',
+    });
+    expect(repo.deleteLine).not.toHaveBeenCalled();
+  });
 });
 
 describe('chooseScenario', () => {
@@ -181,5 +299,17 @@ describe('chooseScenario', () => {
     expect(repo.setScenario).toHaveBeenLastCalledWith(DOSSIER, 'intermediate');
     await chooseScenario({ dossierId: DOSSIER, scenario: '' });
     expect(repo.setScenario).toHaveBeenLastCalledWith(DOSSIER, null);
+  });
+
+  it('refuse un dossier invalide et traduit un refus de la base', async () => {
+    expect(await chooseScenario({ dossierId: 'x', scenario: 'full' })).toMatchObject({
+      error: 'validation',
+    });
+    expect(repo.setScenario).not.toHaveBeenCalled();
+    repo.setScenario.mockResolvedValueOnce({ data: null, error: { code: '42501', message: 'x' } });
+    expect(await chooseScenario({ dossierId: DOSSIER, scenario: 'full' })).toEqual({
+      ok: false,
+      error: 'forbidden',
+    });
   });
 });

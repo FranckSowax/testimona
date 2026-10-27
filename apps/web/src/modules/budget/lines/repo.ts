@@ -85,6 +85,9 @@ export async function insertGridRows(
 /**
  * Met à jour les montants des postes recalculés, seulement s'ils sont toujours non modifiés.
  * WHY: le filtre `edited = false` évite d'écraser un poste modifié entre la lecture et l'écriture.
+ * WHY: les mises à jour ne sont pas atomiques (une requête par poste) ; si l'une échoue, les
+ * autres restent appliquées. C'est acceptable : un nouveau recalcul est idempotent et termine
+ * le travail.
  */
 export async function updateRecomputed(
   dossierId: string,
