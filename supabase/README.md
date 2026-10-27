@@ -68,12 +68,18 @@ Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Histori
 - `shop_contribution_hide_personal_columns`, version enregistrée `20261026235537` ;
 - `dossier_foundation` (lot 0), version enregistrée `20261027090617` ;
 - `dossier_person_answers`, version enregistrée `20261027090645` ;
-- `dossier_invitations`, version enregistrée `20261027090710`.
+- `dossier_invitations`, version enregistrée `20261027090710` ;
+- `revoke_trigger_function_execute`, version enregistrée `20261027094508`.
 
-**Pas encore appliquée :**
+Toutes les migrations du dépôt sont donc en production.
 
-- `20261027000400_revoke_trigger_function_execute` (retire l'exécution RPC des fonctions de trigger
-  du dossier, signalée par `get_advisors` après l'application des trois migrations ci-dessus).
+`get_advisors` (sécurité), revérifié après la dernière migration : sur le dossier, seules
+`is_dossier_member` et `accept_dossier_invitation` restent signalées, c'est voulu (appelées par les
+policies et par l'acceptation d'une invitation). Les autres alertes sont antérieures au lot 1
+(`search_path` non fixé sur `is_admin`, `applyCreditTransaction`, `initUserCredit`,
+`applyStudiaTransaction`, `applyShopContribution` ; `initUserCredit` exécutable par `anon` ; tables
+`PhotoReport`, `StudiaBalance`, `StudiaTransaction` sans policy ; protection des mots de passe
+compromis désactivée dans Supabase Auth).
 
 Les versions enregistrées par `apply_migration` sont des horodatages d'application, **pas** les noms
 de fichiers du dépôt (ex. `20261026235537` pour `20261027000100_shop_contribution_hide_personal_columns.sql`,
@@ -95,10 +101,9 @@ Le web de cette PR dépend des tables et fonctions créées par ces migrations.
 1. ~~Appliquer, **dans cet ordre** : `20261026000100_dossier_foundation`, puis
    `20261027000200_dossier_person_answers`, puis `20261027000300_dossier_invitations`.~~ Fait le
    2026-10-27.
-2. Appliquer `20261027000400_revoke_trigger_function_execute`, puis revérifier `get_advisors`
-   (sécurité) : `is_dossier_member` et `accept_dossier_invitation` restent signalées, c'est voulu
-   (appelées par les policies et par l'acceptation d'une invitation).
-3. Seulement ensuite, déployer le web.
+2. ~~Appliquer `20261027000400_revoke_trigger_function_execute`, puis revérifier `get_advisors`.~~
+   Fait le 2026-10-27.
+3. Le web peut être déployé (fusion dans `main`).
 
 Avant le premier `supabase db push`, marquer les versions de production comme `reverted` et celles du
 repo (`20260501000000` → `20260502000024`) comme `applied` avec `supabase migration repair`.
