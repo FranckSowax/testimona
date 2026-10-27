@@ -60,6 +60,18 @@ describe.each([
   });
 });
 
+describe.each([
+  ['fr', fr],
+  ['en', en],
+])('libellés des postes (%s)', (_locale, messages) => {
+  it('tiennent dans la limite de 120 caractères des postes', () => {
+    const tooLong = BUDGET_GRID.filter(
+      (item) => [...String(get(messages, `budget.grid.${item.key}`))].length > 120,
+    );
+    expect(tooLong).toEqual([]);
+  });
+});
+
 describe('parité FR/EN du budget', () => {
   it("l'espace budget a les mêmes clés dans les deux langues", () => {
     const keys = (messages: unknown) => leafPaths(get(messages, 'budget')).sort();

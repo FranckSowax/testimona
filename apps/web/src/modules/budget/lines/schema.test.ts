@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { LineSchema, NewLineSchema, ScenarioSchema } from './schema';
+import {
+  DossierRefSchema,
+  LineRefSchema,
+  LineSchema,
+  NewLineSchema,
+  ScenarioSchema,
+} from './schema';
 
 const DOSSIER = '44444444-4444-4444-8444-444444444444';
 const LINE = '55555555-5555-4555-8555-555555555555';
@@ -50,5 +56,19 @@ describe('schémas des postes', () => {
     expect(ScenarioSchema.parse({ dossierId: DOSSIER, scenario: 'full' }).scenario).toBe('full');
     expect(ScenarioSchema.parse({ dossierId: DOSSIER, scenario: '' }).scenario).toBeNull();
     expect(ScenarioSchema.safeParse({ dossierId: DOSSIER, scenario: 'luxe' }).success).toBe(false);
+  });
+
+  it('accepte la borne haute et des espaces insécables', () => {
+    expect(NewLineSchema.parse({ ...base, sober: '100000000' }).sober).toBe(100_000_000);
+    expect(NewLineSchema.parse({ ...base, sober: '200\u00a0000' }).sober).toBe(200_000);
+    expect(NewLineSchema.parse({ ...base, sober: '200\u202f000' }).sober).toBe(200_000);
+    expect(NewLineSchema.parse({ ...base, sober: '200 000' }).sober).toBe(200_000);
+  });
+
+  it('refuse un identifiant invalide pour un poste ou un dossier', () => {
+    expect(LineRefSchema.safeParse({ dossierId: DOSSIER, lineId: 'nope' }).success).toBe(false);
+    expect(LineRefSchema.safeParse({ dossierId: 'nope', lineId: LINE }).success).toBe(false);
+    expect(DossierRefSchema.safeParse({ dossierId: 'nope' }).success).toBe(false);
+    expect(DossierRefSchema.safeParse({ dossierId: DOSSIER }).success).toBe(true);
   });
 });

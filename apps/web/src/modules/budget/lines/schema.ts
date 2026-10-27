@@ -8,10 +8,11 @@ const noNul = (s: string) => !s.includes('\u0000');
 // WHY: compter en caractères comme char_length en base, pas en unités UTF-16.
 const maxChars = (n: number) => (s: string) => [...s].length <= n;
 
-// WHY: un montant de poste peut valoir zéro (poste non retenu à ce niveau).
+// WHY: un montant se saisit souvent avec des espaces (« 200 000 ») ; on ne retire que ceux-là.
+// Un montant de poste peut valoir zéro (poste non retenu à ce niveau).
 const levelAmount = z
   .string()
-  .transform((s) => s.replace(/[\s  ]/g, ''))
+  .transform((s) => s.replace(/[\s\u00a0\u202f]/g, ''))
   .pipe(z.string().regex(/^\d+$/, 'invalid number'))
   .transform(Number)
   .pipe(

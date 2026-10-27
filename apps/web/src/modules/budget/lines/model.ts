@@ -21,14 +21,14 @@ export interface LineView extends BudgetLine {
 export interface GridRow {
   gridKey: string;
   label: string;
-  amounts: Record<Level, number>;
+  amounts: Readonly<Record<Level, number>>;
   position: number;
 }
 
 /** Nouveaux montants d'un poste de la grille recalculé. */
 export interface RecomputedRow {
   id: string;
-  amounts: Record<Level, number>;
+  amounts: Readonly<Record<Level, number>>;
 }
 
 export type BudgetSource = 'retained' | 'envisaged';
@@ -65,7 +65,9 @@ export function recomputeRows(lines: readonly BudgetLine[], answers: Answers): R
   );
   return lines.flatMap((line) => {
     const amounts = !line.edited && line.gridKey ? fresh.get(line.gridKey) : undefined;
-    return amounts ? [{ id: line.id, amounts: { ...amounts } }] : [];
+    // WHY: ne renvoyer que les postes qui changent évite des écritures inutiles.
+    const changed = amounts && LEVELS.some((level) => amounts[level] !== line.amounts[level]);
+    return amounts && changed ? [{ id: line.id, amounts: { ...amounts } }] : [];
   });
 }
 
@@ -75,7 +77,10 @@ export function lineViews(
   spentByLine: ReadonlyMap<string, number>,
 ): LineView[] {
   return [...lines]
-    .sort((a, b) => a.position - b.position || a.label.localeCompare(b.label))
+    .sort(
+      (a, b) =>
+        a.position - b.position || a.label.localeCompare(b.label, 'fr') || a.id.localeCompare(b.id),
+    )
     .map((line) => ({ ...line, spent: spentByLine.get(line.id) ?? 0 }));
 }
 

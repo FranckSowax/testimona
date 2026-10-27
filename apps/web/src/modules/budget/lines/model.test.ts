@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { scenariosFor, attendanceFrom } from '../scenarios';
+import { AMOUNT_MAX, scenariosFor, attendanceFrom } from '../scenarios';
 import {
   gridRows,
   lineViews,
@@ -43,6 +43,14 @@ describe('gridRows', () => {
   });
 });
 
+describe('gridRows sans réponse', () => {
+  it('donne quand même les postes de la grille', () => {
+    const rows = gridRows({}, (key) => key);
+    expect(rows).toHaveLength(scenariosFor(attendanceFrom({})).lines.length);
+    expect(rows.every((r) => Object.values(r.amounts).every(Number.isFinite))).toBe(true);
+  });
+});
+
 describe('recomputeRows', () => {
   it('ne recalcule que les postes de la grille non modifiés', () => {
     const fresh = scenariosFor(attendanceFrom(answers)).lines;
@@ -57,6 +65,38 @@ describe('recomputeRows', () => {
     );
     expect(rows).toEqual([{ id: 'a', amounts: fresh[0]!.amounts }]);
   });
+
+  it('ne renvoie que les postes dont un montant change', () => {
+    const fresh = scenariosFor(attendanceFrom(answers)).lines;
+    const rows = recomputeRows(
+      [
+        line({ id: 'same', gridKey: fresh[0]!.key, amounts: { ...fresh[0]!.amounts } }),
+        line({
+          id: 'diff',
+          gridKey: fresh[1]!.key,
+          amounts: { sober: 1, intermediate: 2, full: 3 },
+        }),
+      ],
+      answers,
+    );
+    expect(rows.map((r) => r.id)).toEqual(['diff']);
+  });
+
+  it('gère un poste plafonné : inchangé s’il est déjà au plafond, sinon ramené au plafond', () => {
+    const huge = { ...answers, 'attendance.close': 1_000_000_000 };
+    const fresh = scenariosFor(attendanceFrom(huge)).lines;
+    const capped = fresh.find((l) => Object.values(l.amounts).some((v) => v === AMOUNT_MAX))!;
+    expect(capped).toBeDefined();
+    expect(
+      recomputeRows([line({ id: 'x', gridKey: capped.key, amounts: { ...capped.amounts } })], huge),
+    ).toEqual([]);
+    const rows = recomputeRows(
+      [line({ id: 'y', gridKey: capped.key, amounts: { sober: 0, intermediate: 0, full: 0 } })],
+      huge,
+    );
+    expect(rows[0]!.amounts).toEqual(capped.amounts);
+    expect(Math.max(...Object.values(rows[0]!.amounts))).toBeLessThanOrEqual(AMOUNT_MAX);
+  });
 });
 
 describe('lineViews et scenarioTotals', () => {
@@ -69,6 +109,18 @@ describe('lineViews et scenarioTotals', () => {
       ['a', 5_000],
       ['b', 0],
     ]);
+  });
+
+  it('départage deux postes de même position par libellé puis identifiant', () => {
+    const views = lineViews(
+      [
+        line({ id: 'z', label: 'Fleurs', position: 1 }),
+        line({ id: 'b', label: 'Eau', position: 1 }),
+        line({ id: 'a', label: 'Eau', position: 1 }),
+      ],
+      new Map(),
+    );
+    expect(views.map((v) => v.id)).toEqual(['a', 'b', 'z']);
   });
 
   it('additionne les postes pour chaque scénario', () => {
@@ -86,6 +138,11 @@ describe('referenceBudget', () => {
       amount: 300,
       source: 'retained',
     });
+  });
+
+  it('garde la source retenue quand le total du scénario est zéro', () => {
+    const zero = line({ amounts: { sober: 0, intermediate: 0, full: 0 } });
+    expect(referenceBudget('full', [zero], answers)).toEqual({ amount: 0, source: 'retained' });
   });
 
   it('revient au budget envisagé sans scénario ou sans poste', () => {
