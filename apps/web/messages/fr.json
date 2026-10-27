@@ -1371,7 +1371,15 @@
       "readOnly": "Vous pouvez lire et copier ce texte ; seuls les contributeurs peuvent le modifier.",
       "empty": "Le texte est vide : écrivez-le avant de l'enregistrer.",
       "tooLongForLink": "Texte trop long pour l'ouverture directe : copiez-le.",
-      "newTab": "(nouvel onglet)"
+      "newTab": "(nouvel onglet)",
+      "improve": "Améliorer avec l'IA",
+      "improving": "Amélioration en cours…",
+      "improved": "Texte amélioré : relisez-le, puis enregistrez-le s'il vous convient.",
+      "ai": {
+        "unavailable": "L'amélioration par l'IA n'est pas disponible pour le moment.",
+        "quota": "Limite d'améliorations atteinte pour aujourd'hui sur ce dossier. Votre texte est conservé.",
+        "failed": "L'amélioration n'a pas abouti. Votre texte est conservé ; réessayez plus tard."
+      }
     }
   }
 }

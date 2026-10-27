@@ -72,6 +72,12 @@ const UI_PATHS = [
     'empty',
     'tooLongForLink',
     'newTab',
+    'improve',
+    'improving',
+    'improved',
+    'ai.unavailable',
+    'ai.quota',
+    'ai.failed',
   ].map((key) => `journey.draft.${key}`),
   ...Object.values(SPECIFIC_MESSAGES).map((path) => `journey.${path}`),
 ];
