@@ -33,6 +33,8 @@ const CODE_TO_ERROR: Record<string, DossierError> = {
   '42501': 'forbidden',
   '23514': 'validation',
   // WHY: jsonb rejette un surrogate isolé dans un texte avec ce code ; c'est une saisie invalide.
+  // Ce mapping est partagé par tous les services du dossier (fromRepo) : un 22P02 venu d'une
+  // autre écriture (uuid, enum ou nombre mal formé) devient lui aussi « validation ».
   '22P02': 'validation',
   not_found: 'not_found',
   TI001: 'invitation_invalid',
