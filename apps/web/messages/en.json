@@ -1368,7 +1368,10 @@
       "regenerate": "Start again from the answers",
       "editAnswers": "Edit the answers",
       "backToDossier": "Back to the family space",
-      "readOnly": "You can read and copy this text; only contributors can change it."
+      "readOnly": "You can read and copy this text; only contributors can change it.",
+      "empty": "The text is empty: write it before saving.",
+      "tooLongForLink": "Text too long to open directly: copy it instead.",
+      "newTab": "(opens in a new tab)"
     }
   }
 }

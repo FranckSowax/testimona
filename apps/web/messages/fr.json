@@ -1368,7 +1368,10 @@
       "regenerate": "Repartir des réponses",
       "editAnswers": "Modifier les réponses",
       "backToDossier": "Retour au dossier",
-      "readOnly": "Vous pouvez lire et copier ce texte ; seuls les contributeurs peuvent le modifier."
+      "readOnly": "Vous pouvez lire et copier ce texte ; seuls les contributeurs peuvent le modifier.",
+      "empty": "Le texte est vide : écrivez-le avant de l'enregistrer.",
+      "tooLongForLink": "Texte trop long pour l'ouverture directe : copiez-le.",
+      "newTab": "(nouvel onglet)"
     }
   }
 }

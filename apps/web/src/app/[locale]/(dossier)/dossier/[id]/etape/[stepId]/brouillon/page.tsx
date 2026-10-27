@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { getStep, isStepOpen } from '@/journey/registry';
 import { draftFor, emailSubject, type DraftContext } from '@/journey/templates';
 import { DraftEditor } from '@/journey/ui/DraftEditor';
-import { listAnswers } from '@/modules/dossier/answers/repo';
+import { listAnswersResult } from '@/modules/dossier/answers/repo';
 import { getDossier, getMyRole, getPerson } from '@/modules/dossier/repo';
 import { canWrite } from '@/modules/dossier/roles';
 
@@ -27,14 +27,19 @@ export default async function DraftPage({
   const dossier = await getDossier(id);
   if (!dossier || !isStepOpen(dossier.entryPoint, step.id)) notFound();
 
-  const [person, role, answers] = await Promise.all([
+  const [person, role, answersResult] = await Promise.all([
     getPerson(id),
     getMyRole(id),
     // WHY: l'annonce par e-mail reprend des réponses d'autres étapes (date, ton).
-    listAnswers(id),
+    listAnswersResult(id),
   ]);
+  // WHY: sur une lecture en échec, afficher le modèle ferait écraser le brouillon enregistré.
+  if (answersResult.error) throw new Error('draft answers unreadable');
+  const answers = answersResult.data;
   const ctx: DraftContext = {
     locale: locale === 'en' ? 'en' : 'fr',
+    // WHY: sans fiche personne lisible, le titre du dossier tient lieu de prénom plutôt que de
+    // bloquer l'écran ; le modèle reste utilisable et modifiable.
     person: person ?? { firstName: dossier.title, lastName: '', nickname: null },
     answers,
   };

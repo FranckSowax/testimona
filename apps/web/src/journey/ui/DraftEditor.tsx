@@ -12,6 +12,9 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { saveDraftAction, type DraftState } from '@/modules/dossier/answers/actions';
 import { DRAFT_MAX, type DraftKind } from '../types';
+import { FIELD_CLASS } from './field';
+import { shareHref } from './share';
+import { specificMessage } from './specific-error';
 
 interface Props {
   dossierId: string;
@@ -32,7 +35,6 @@ const SHELL =
   'bg-secondary text-secondary-foreground mx-auto flex max-w-2xl flex-col gap-5 rounded-3xl p-6 sm:p-10';
 const BUTTON =
   'rounded-full border border-white/40 px-4 py-2 text-sm font-semibold disabled:opacity-60';
-const FIELD = 'w-full rounded-xl border border-white/30 bg-white/10 px-4 py-3 text-white';
 
 /**
  * Éditeur d'un brouillon d'annonce : modifier, enregistrer, copier, partager sur WhatsApp ou
@@ -44,6 +46,7 @@ const FIELD = 'w-full rounded-xl border border-white/30 bg-white/10 px-4 py-3 te
 export function DraftEditor(props: Props) {
   const { dossierId, stepId, kind, readOnly } = props;
   const t = useTranslations('journey.draft');
+  const tUi = useTranslations('journey.ui');
   const tErrors = useTranslations('dossier.errors');
   const [state, formAction, pending] = useActionState<DraftState | null, FormData>(
     saveDraftAction,
@@ -51,28 +54,57 @@ export function DraftEditor(props: Props) {
   );
   const [text, setText] = useState(props.initialText);
   const [savedText, setSavedText] = useState(props.initiallySaved ? props.initialText : null);
-  const [status, setStatus] = useState<string | null>(null);
+  // WHY: `seq` change à chaque annonce (clé du <p>), ce qui fait relire « Copié. » deux fois.
+  const [status, setStatus] = useState<{ text: string; seq: number } | null>(null);
+  const [error, setError] = useState<{ text: string; seq: number } | null>(null);
   const submittedRef = useRef<string>(props.initialText);
+  // WHY: sans mémoire du dernier `state` traité, un re-rendu ré-afficherait une erreur effacée.
+  const handledRef = useRef<DraftState | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const subjectRef = useRef<HTMLInputElement>(null);
 
-  // WHY: le texte enregistré est celui envoyé au moment de la soumission, pas celui tapé depuis.
-  useEffect(() => {
-    if (state?.saved) {
-      setSavedText(submittedRef.current);
-      setStatus(t('saved'));
-    }
-  }, [state, t]);
+  const announce = (message: string) =>
+    setStatus((prev) => ({ text: message, seq: (prev?.seq ?? 0) + 1 }));
 
-  const copy = async (value: string, select: () => void) => {
+  useEffect(() => {
+    if (state === handledRef.current) return;
+    handledRef.current = state;
+    if (state?.saved) {
+      // WHY: le texte enregistré est celui envoyé à la soumission (et nettoyé par le serveur),
+      // pas celui tapé depuis.
+      const sent = submittedRef.current;
+      const trimmed = sent.trim();
+      setSavedText(trimmed);
+      setText((current) => (current === sent ? trimmed : current));
+      setError(null);
+      setStatus((prev) => ({ text: t('saved'), seq: (prev?.seq ?? 0) + 1 }));
+    } else if (state?.error) {
+      const specific = specificMessage(state.fieldErrors);
+      const message = specific
+        ? tUi(specific)
+        : state.error === 'validation' && state.fieldErrors
+          ? t('empty')
+          : tErrors(state.error);
+      setStatus(null);
+      setError((prev) => ({ text: message, seq: (prev?.seq ?? 0) + 1 }));
+    }
+  }, [state, t, tUi, tErrors]);
+
+  useEffect(() => {
+    if (error) textareaRef.current?.focus();
+  }, [error]);
+
+  const copy = async (value: string, field: HTMLTextAreaElement | HTMLInputElement | null) => {
+    setError(null);
     try {
       if (!navigator.clipboard?.writeText) throw new Error('clipboard unavailable');
       await navigator.clipboard.writeText(value);
-      setStatus(t('copied'));
+      announce(t('copied'));
     } catch {
       // WHY: sans API presse-papiers (HTTP, vieux navigateur), on sélectionne le texte.
-      select();
-      setStatus(t('copyManual'));
+      field?.focus();
+      field?.setSelectionRange(0, field.value.length);
+      announce(t('copyManual'));
     }
   };
 
@@ -84,10 +116,8 @@ export function DraftEditor(props: Props) {
   };
 
   const dirty = savedText !== text;
-  const encoded = encodeURIComponent(text);
-  const message = state?.error
-    ? tErrors(state.error)
-    : (status ?? (dirty && !readOnly ? t('unsaved') : ''));
+  const href = shareHref(kind, text, props.subject);
+  const statusText = status?.text ?? (dirty && !readOnly ? t('unsaved') : '');
 
   return (
     <form onSubmit={onSubmit} noValidate className={SHELL}>
@@ -99,7 +129,14 @@ export function DraftEditor(props: Props) {
       {props.subject && (
         <label className="block space-y-1">
           <span className="text-sm">{t('subject')}</span>
-          <input ref={subjectRef} type="text" value={props.subject} readOnly className={FIELD} />
+          <input
+            ref={subjectRef}
+            type="text"
+            value={props.subject}
+            readOnly
+            data-readonly
+            className={FIELD_CLASS}
+          />
         </label>
       )}
 
@@ -113,15 +150,29 @@ export function DraftEditor(props: Props) {
           onChange={(e) => {
             setText(e.target.value);
             setStatus(null);
+            setError(null);
           }}
           readOnly={readOnly}
+          data-readonly={readOnly}
           maxLength={DRAFT_MAX}
-          className={FIELD}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? 'draft-error' : 'draft-status'}
+          className={FIELD_CLASS}
         />
       </label>
 
-      <p role="status" className="min-h-5 text-sm text-white/80">
-        {message}
+      {error && (
+        <p key={error.seq} id="draft-error" role="alert" className="text-sm font-semibold">
+          {error.text}
+        </p>
+      )}
+      <p
+        key={status?.seq ?? 0}
+        id="draft-status"
+        role="status"
+        className="min-h-5 text-sm text-white/80"
+      >
+        {statusText}
       </p>
 
       <div className="flex flex-wrap gap-3">
@@ -134,36 +185,25 @@ export function DraftEditor(props: Props) {
             {t('save')}
           </button>
         )}
-        <button
-          type="button"
-          onClick={() => copy(text, () => textareaRef.current?.select())}
-          className={BUTTON}
-        >
+        <button type="button" onClick={() => copy(text, textareaRef.current)} className={BUTTON}>
           {t('copy')}
         </button>
         {props.subject && (
           <button
             type="button"
-            onClick={() => copy(props.subject ?? '', () => subjectRef.current?.select())}
+            onClick={() => copy(props.subject ?? '', subjectRef.current)}
             className={BUTTON}
           >
             {t('copySubject')}
           </button>
         )}
-        {kind === 'whatsapp' ? (
-          <a
-            href={`https://wa.me/?text=${encoded}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={BUTTON}
-          >
-            {t('shareWhatsapp')}
+        {href && kind === 'whatsapp' && (
+          <a href={href} target="_blank" rel="noopener noreferrer" className={BUTTON}>
+            {t('shareWhatsapp')} <span className="sr-only">{t('newTab')}</span>
           </a>
-        ) : (
-          <a
-            href={`mailto:?subject=${encodeURIComponent(props.subject ?? '')}&body=${encoded}`}
-            className={BUTTON}
-          >
+        )}
+        {href && kind === 'email' && (
+          <a href={href} className={BUTTON}>
             {t('openMail')}
           </a>
         )}
@@ -173,6 +213,7 @@ export function DraftEditor(props: Props) {
             onClick={() => {
               setText(props.generatedText);
               setStatus(null);
+              setError(null);
             }}
             disabled={text === props.generatedText}
             className={BUTTON}
@@ -181,6 +222,8 @@ export function DraftEditor(props: Props) {
           </button>
         )}
       </div>
+
+      {!href && <p className="text-sm text-white/80">{t('tooLongForLink')}</p>}
 
       <div className="flex flex-wrap justify-between gap-3 text-sm text-white/70">
         <Link href={`/dossier/${dossierId}/etape/${stepId}?q=0`} className="hover:underline">
