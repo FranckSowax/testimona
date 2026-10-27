@@ -12,7 +12,7 @@ test.describe('Parcours (compte de test)', () => {
   test.skip(!EMAIL || !PASSWORD, 'Définir E2E_EMAIL et E2E_PASSWORD (compte et base de test).');
 
   test('créer un dossier, répondre à une question, voir l’avancement', async ({ page }) => {
-    await page.goto('/login?next=%2Fdossier%2Fnouveau%3Fporte%3Ddeces');
+    await page.goto('/login?next=%2Fdossier%2Fnouveau%3Fporte%3Dpreparer');
     await page.locator('input[name="email"]').fill(EMAIL);
     await page.locator('input[name="password"]').fill(PASSWORD);
     await page.getByRole('button', { name: 'Se connecter', exact: true }).click();

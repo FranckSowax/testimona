@@ -1,10 +1,17 @@
 import type { EntryPoint } from '@/modules/dossier/schema';
 import { biographyStep } from './steps/1-6-biography';
+import { broadcastListStep } from './steps/2-1-broadcast-list';
+import { immediateMessageStep } from './steps/2-2-immediate-message';
+import { emailAnnouncementStep } from './steps/2-3-email-announcement';
 import type { Question, Step } from './types';
 
-/** Étapes proposées, dans l'ordre, selon la porte d'entrée du dossier. */
+/**
+ * Étapes proposées, dans l'ordre, selon la porte d'entrée du dossier.
+ * WHY: après un décès, prévenir est plus urgent que raconter : les annonces passent avant la
+ * biographie.
+ */
 const STEPS_BY_ENTRY: Record<EntryPoint, readonly Step[]> = {
-  death: [biographyStep],
+  death: [broadcastListStep, immediateMessageStep, emailAnnouncementStep, biographyStep],
   prepare: [biographyStep],
   after: [],
 };
