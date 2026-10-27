@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { localizedPath, loginSuccessTarget, safeNextPath } from './redirect-target';
+import {
+  authCallbackUrl,
+  localizedPath,
+  loginSuccessTarget,
+  safeNextPath,
+} from './redirect-target';
 
 describe('safeNextPath', () => {
   it('garde un chemin interne', () => {
@@ -55,5 +60,26 @@ describe('loginSuccessTarget', () => {
 
   it('neutralise une cible externe', () => {
     expect(loginSuccessTarget({ next: '//evil.com' }, 'fr')).toBe('/dashboard');
+  });
+});
+
+describe('authCallbackUrl', () => {
+  const site = 'https://testimona.com';
+
+  it('omits next when absent', () => {
+    expect(authCallbackUrl(site, '')).toBe(`${site}/auth/callback`);
+    expect(authCallbackUrl(site, null)).toBe(`${site}/auth/callback`);
+  });
+
+  it('encodes a safe next path', () => {
+    expect(authCallbackUrl(site, '/invitation/abc')).toBe(
+      `${site}/auth/callback?next=%2Finvitation%2Fabc`,
+    );
+  });
+
+  it('drops unsafe targets (no open redirect)', () => {
+    expect(authCallbackUrl(site, '//evil.com')).toBe(`${site}/auth/callback`);
+    expect(authCallbackUrl(site, 'https://evil.com')).toBe(`${site}/auth/callback`);
+    expect(authCallbackUrl(site, '@evil.com')).toBe(`${site}/auth/callback`);
   });
 });

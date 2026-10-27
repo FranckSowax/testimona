@@ -2,6 +2,8 @@
 
 import { LoginEmailSchema } from '@testimona/shared';
 import { redirect } from 'next/navigation';
+import { authCallbackUrl } from '@/lib/auth/redirect-target';
+import { getSiteUrl } from '@/lib/site-url';
 import { getSupabaseServer } from '@/lib/supabase/server';
 
 export interface LoginActionState {
@@ -55,12 +57,12 @@ export async function loginAction(
   return { ok: true };
 }
 
-export async function loginWithGoogleAction(_formData: FormData): Promise<void> {
+export async function loginWithGoogleAction(formData: FormData): Promise<void> {
   const supabase = await getSupabaseServer();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      redirectTo: authCallbackUrl(getSiteUrl(), String(formData.get('next') ?? '')),
     },
   });
   if (error || !data.url) {

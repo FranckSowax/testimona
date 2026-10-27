@@ -86,6 +86,7 @@ export function LoginForm() {
         </div>
       </div>
       <form action={loginWithGoogleAction}>
+        <input type="hidden" name="next" value={searchParams.get('next') ?? ''} />
         <Button type="submit" variant="secondary" styleVariant="outline" size="lg" fullWidth>
           Continuer avec Google
         </Button>

@@ -56,3 +56,14 @@ export function loginSuccessTarget(
   }
   return localizedPath(target, locale);
 }
+
+/**
+ * `/auth/callback` URL carrying the (sanitised) `next` target, so that email
+ * confirmation and OAuth sign-ins land back where the visitor was headed
+ * (e.g. an invitation) instead of on the dashboard.
+ */
+export function authCallbackUrl(siteUrl: string, next: string | null | undefined): string {
+  const safe = safeNextPath(next, '');
+  const base = `${siteUrl}/auth/callback`;
+  return safe ? `${base}?next=${encodeURIComponent(safe)}` : base;
+}
