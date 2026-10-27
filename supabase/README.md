@@ -25,6 +25,7 @@ supabase/
 | `20261027000300_dossier_invitations.sql`                     | Lot 1 : invitations par lien à usage unique                                                    |
 | `20261027000400_revoke_trigger_function_execute.sql`         | Lot 1 : fonctions de trigger du dossier non exécutables via l'API                              |
 | `20261027000500_ai_usage.sql`                                | Lot 1 : compteur d'appels à l'IA par dossier et par jour                                       |
+| `20261027000600_ledger.sql`                                  | Lot 2 : registre des cotisations et des dépenses, visibilité, totaux                           |
 
 Les horodatages des migrations historiques sont **synthétiques** : ils ne servent qu'à fixer l'ordre.
 
@@ -73,7 +74,13 @@ Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Histori
 - `revoke_trigger_function_execute`, version enregistrée `20261027094508` ;
 - `ai_usage` (lot 1, PR 4), version enregistrée `20261027151057`.
 
-Toutes les migrations du dépôt sont donc en production.
+Toutes les migrations du dépôt jusqu'au lot 1 sont donc en production.
+
+**Pas encore en production :**
+
+- `ledger` (lot 2, PR 2) : à appliquer avant de déployer le web de la PR. Après application,
+  `get_advisors` signalera `ledger_totals` comme security definer exécutable par `authenticated`
+  (0029), c'est voulu.
 
 `get_advisors` (sécurité), revérifié le 2026-10-27 après `ai_usage` : sur le dossier, seules
 `is_dossier_member`, `accept_dossier_invitation` et `consume_ai_quota` sont signalées comme security
