@@ -39,7 +39,9 @@ export async function sendEmail(args: SendArgs): Promise<{
       replyTo: args.replyTo,
     });
     if (error) {
-      console.error('[resend] send error', error);
+      // WHY: l'objet d'erreur complet peut contenir l'adresse du destinataire (PII).
+      const { name, statusCode } = error as { name?: string; statusCode?: number | null };
+      console.error('[resend] send error', { name, statusCode });
       return { ok: false, error: error.message };
     }
     return { ok: true };
@@ -387,7 +389,7 @@ function layout({
                 </tr>
                 <tr>
                   <td style="padding:0 32px 32px;line-height:1.6;color:#2d3250">
-                    <h1 style="margin:0 0 16px;font-size:20px;font-weight:600;color:#2d3250">${heading}</h1>
+                    <h1 style="margin:0 0 16px;font-size:20px;font-weight:600;color:#2d3250">${escapeHtml(heading)}</h1>
                     ${body}
                   </td>
                 </tr>

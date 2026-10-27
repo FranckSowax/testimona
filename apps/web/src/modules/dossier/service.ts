@@ -31,6 +31,7 @@ const TOKEN_PATTERN = /^[A-Za-z0-9_-]{20,100}$/;
 
 const CODE_TO_ERROR: Record<string, DossierError> = {
   '42501': 'forbidden',
+  '23514': 'validation',
   not_found: 'not_found',
   TI001: 'invitation_invalid',
   TI002: 'invitation_expired',
@@ -85,7 +86,8 @@ export async function createInvitation(
   });
   if (res.error) return fromRepo(res.error, 'createInvitation');
 
-  const url = `${ctx.siteUrl}${localizedPath(`/invitation/${token}`, ctx.locale)}`;
+  const siteUrl = ctx.siteUrl.replace(/\/+$/, '');
+  const url = `${siteUrl}${localizedPath(`/invitation/${token}`, ctx.locale)}`;
   let emailSent = false;
   if (parsed.data.email) {
     const sent = await sendEmail(

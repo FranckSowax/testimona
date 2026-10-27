@@ -30,4 +30,17 @@ describe('dossierInviteEmail', () => {
     expect(mail.html).not.toContain('<script>');
     expect(mail.html).toContain('&lt;script&gt;');
   });
+
+  it('échappe le HTML du nom dans le titre (sujet en texte brut)', () => {
+    const mail = dossierInviteEmail({
+      to: 'marie@test.local',
+      inviterName: 'Paul',
+      personName: '<b>x</b>',
+      url: 'https://exemple.test/invitation/abc',
+      locale: 'fr',
+    });
+    expect(mail.html).not.toContain('<b>x</b>');
+    expect(mail.html).toContain('&lt;b&gt;x&lt;/b&gt;');
+    expect(mail.subject).toContain('<b>x</b>');
+  });
 });

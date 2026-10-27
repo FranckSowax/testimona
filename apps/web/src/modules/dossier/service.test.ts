@@ -20,6 +20,7 @@ vi.mock('./repo', () => repo);
 vi.mock('@/lib/email/resend', () => email);
 
 const service = await import('./service');
+const { hashInvitationToken } = await import('./tokens');
 
 const DOSSIER = '44444444-4444-4444-8444-444444444444';
 const ctx = {
@@ -63,6 +64,16 @@ describe('createDossier', () => {
   });
 });
 
+describe('createDossier (contrainte CHECK)', () => {
+  it('traduit 23514 en « validation »', async () => {
+    repo.insertDossierWithPerson.mockResolvedValue({
+      data: null,
+      error: { code: '23514', message: 'x' },
+    });
+    expect(await service.createDossier(validDossier)).toEqual({ ok: false, error: 'validation' });
+  });
+});
+
 describe('createInvitation', () => {
   it("stocke l'empreinte, jamais le jeton, et renvoie un lien localisé", async () => {
     repo.insertInvitation.mockResolvedValue({ data: 'inv-1', error: null });
@@ -92,6 +103,49 @@ describe('createInvitation', () => {
     expect(email.dossierInviteEmail).toHaveBeenCalledWith(
       expect.objectContaining({ to: 'marie@test.local', personName: 'Jean Ndong', locale: 'en' }),
     );
+  });
+
+  it('retire les barres obliques finales de siteUrl', async () => {
+    repo.insertInvitation.mockResolvedValue({ data: 'inv-1', error: null });
+    const res = await service.createInvitation(
+      { dossierId: DOSSIER, role: 'viewer' },
+      { ...ctx, siteUrl: 'https://exemple.test//' },
+    );
+    expect(res.ok && res.data.url).toMatch(/^https:\/\/exemple\.test\/en\/invitation\/[\w-]{43}$/);
+  });
+
+  it('ne met pas de préfixe pour la locale par défaut (fr)', async () => {
+    repo.insertInvitation.mockResolvedValue({ data: 'inv-1', error: null });
+    const res = await service.createInvitation(
+      { dossierId: DOSSIER, role: 'viewer' },
+      { ...ctx, locale: 'fr' },
+    );
+    expect(res.ok && res.data.url).toMatch(
+      /^https:\/\/exemple\.test\/invitation\/[A-Za-z0-9_-]{43}$/,
+    );
+  });
+
+  it("le jeton du lien correspond à l'empreinte stockée", async () => {
+    repo.insertInvitation.mockResolvedValue({ data: 'inv-1', error: null });
+    const res = await service.createInvitation({ dossierId: DOSSIER, role: 'viewer' }, ctx);
+    const { tokenHash } = repo.insertInvitation.mock.calls[0]![0];
+    const token = res.ok ? res.data.url.split('/').pop()! : '';
+    expect(hashInvitationToken(token)).toBe(tokenHash);
+  });
+
+  it.each([
+    ['non configuré', { ok: false, skipped: true }],
+    ['en échec', { ok: false, error: 'boom' }],
+  ])("garde l'invitation quand Resend est %s", async (_label, sent) => {
+    repo.insertInvitation.mockResolvedValue({ data: 'inv-1', error: null });
+    email.sendEmail.mockResolvedValue(sent);
+    const res = await service.createInvitation(
+      { dossierId: DOSSIER, role: 'viewer', email: 'marie@test.local' },
+      ctx,
+    );
+    expect(repo.insertInvitation).toHaveBeenCalledTimes(1);
+    expect(res).toMatchObject({ ok: true, data: { emailSent: false } });
+    expect(res.ok && res.data.url).toContain('/invitation/');
   });
 
   it('traduit un refus RLS en « forbidden »', async () => {
