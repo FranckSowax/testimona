@@ -17,7 +17,9 @@ Spec : `docs/superpowers/specs/2026-10-27-lot-2-financer-design.md` (§ 2 parcou
 - **Pas de table dans la PR 1.** La spec range `dossier_finance` (scénario) et `budget_line` en PR 1. Or le scénario « retenu » s'écrit par trésorier et plus, et les postes ne deviennent modifiables qu'avec l'onglet « Postes » de la PR 2. Ici, tout est calculé à la volée depuis la grille et les réponses ; les deux tables arrivent en PR 2, où le trésorier **retient** le scénario (prérempli par le niveau envisagé) et où les postes sont enregistrés.
 - **B.2 = niveau envisagé par la famille.** La réponse `budget.level` est une réponse de parcours ordinaire (contributeur et plus, comme toutes les questions). Elle met en avant un scénario sur la page Budget ; elle ne fixe pas encore le budget retenu.
 - **Fin d'étape vers la page Budget.** Les étapes B.1 et B.2 se terminent sur `/dossier/[id]/budget` (comme les étapes à brouillon se terminent sur `/brouillon`) : après B.1, la famille voit les trois totaux avant de choisir ; après B.2, le niveau choisi est mis en avant.
-- **Affluence :** basse = somme des quatre réponses de B.1 ; haute = basse × 1,25 arrondi au supérieur (les invités viennent accompagnés). Les scénarios utilisent la fourchette haute. Nuits = réponse `attendance.nights`, au moins 1 (la journée des obsèques compte pour une nuit de calcul).
+- **Affluence :** basse = somme des quatre réponses de B.1 ; haute = basse × 1,25 arrondi au supérieur (les invités viennent accompagnés). Les scénarios utilisent la fourchette haute.
+- **Occasions :** jour des obsèques + nuits de veillée (`nuits + 1`) ; nuits non répondues = 1, 0 répondu = pas de veillée. Le jour des obsèques reçoit toute la fourchette haute, chaque nuit de veillée la moitié (arrondie au supérieur). La sonorisation se compte par occasion.
+- **Plafond :** chaque poste est plafonné à 100 000 000 XAF (borne d'un montant du registre), avec un indicateur affiché sur la page Budget.
 - **Grille de référence :** 12 postes, prix en XAF pour Libreville, tous marqués « estimation à vérifier » ; à corriger par le propriétaire du projet avant la mise en production.
 
 ## Structure des fichiers
@@ -783,10 +785,10 @@ import { defineStep, q } from '../define';
 export const attendanceStep = defineStep({
   id: 'attendance',
   questions: [
-    q.number('attendance.close', { max: 2000 }),
-    q.number('attendance.extended', { max: 5000 }),
-    q.number('attendance.friends', { max: 5000 }),
-    q.number('attendance.community', { max: 5000 }),
+    q.number('attendance.close', { max: 500 }),
+    q.number('attendance.extended', { max: 2000 }),
+    q.number('attendance.friends', { max: 2000 }),
+    q.number('attendance.community', { max: 2000 }),
     q.number('attendance.nights', { max: 7 }),
   ],
   summary: 'budget',
