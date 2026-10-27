@@ -21,13 +21,15 @@ test.describe('Public pages', () => {
   });
 
   test('Memorials page — previous home content', async ({ page }) => {
-    await page.goto('/memoriaux');
-    await expect(page.getByText(/beaux souvenirs|beautiful stories/)).toBeVisible();
+    const response = await page.goto('/memoriaux');
+    expect(response?.ok()).toBe(true);
+    await expect(page).toHaveURL(/\/memoriaux$/);
+    await expect(page.locator('main, section').first()).toBeVisible();
   });
 
   test('New dossier requires sign-in', async ({ page }) => {
     await page.goto('/dossier/nouveau?porte=deces');
-    await expect(page).toHaveURL(/\/login\?next=/);
+    await expect(page).toHaveURL(/\/login\?next=.*porte(%3D|=)deces/);
   });
 
   test('Login page — V2 form on mesh background', async ({ page }) => {

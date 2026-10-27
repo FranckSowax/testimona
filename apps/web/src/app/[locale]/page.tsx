@@ -18,13 +18,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-12 px-4 py-10 sm:px-6 lg:py-16">
-      {dossiers.length > 0 && <MyDossiers dossiers={dossiers} />}
       <EntryDoors />
+      {dossiers.length > 0 && <MyDossiers dossiers={dossiers} />}
       <section aria-labelledby="search-title" className="border-border space-y-4 border-t pt-8">
         <h2 id="search-title" className="font-display text-foreground text-xl font-semibold">
           {t('searchTitle')}
         </h2>
         <form
+          role="search"
           action={localizedPath('/search', locale)}
           method="get"
           className="flex flex-wrap gap-3"

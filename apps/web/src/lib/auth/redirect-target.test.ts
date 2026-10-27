@@ -11,6 +11,10 @@ describe('safeNextPath', () => {
     expect(safeNextPath('/memorial/jean-ndong')).toBe('/memorial/jean-ndong');
   });
 
+  it('garde un chemin interne avec sa query', () => {
+    expect(safeNextPath('/dossier/nouveau?porte=deces')).toBe('/dossier/nouveau?porte=deces');
+  });
+
   it.each([
     [null],
     [undefined],
@@ -55,6 +59,15 @@ describe('loginSuccessTarget', () => {
     );
     expect(loginSuccessTarget({ next: '/search?q=jean', welcome: '1' }, 'en')).toBe(
       '/en/search?q=jean&welcome=1',
+    );
+  });
+
+  it('conserve la query de la cible', () => {
+    expect(loginSuccessTarget({ next: '/dossier/nouveau?porte=deces' }, 'fr')).toBe(
+      '/dossier/nouveau?porte=deces',
+    );
+    expect(loginSuccessTarget({ next: '/en/dossier/nouveau?porte=deces' }, 'en')).toBe(
+      '/en/dossier/nouveau?porte=deces',
     );
   });
 

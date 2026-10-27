@@ -47,7 +47,7 @@ export async function EntryDoors() {
                   {body}
                 </Link>
               ) : (
-                <div aria-disabled="true" className={`${base} border-border bg-muted opacity-70`}>
+                <div className={`${base} border-border bg-background border-dashed`}>
                   {body}
                   <span className="text-primary mt-3 block text-xs font-semibold uppercase tracking-wide">
                     {t('soon')}
