@@ -76,14 +76,14 @@ Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Histori
 - `ai_usage` (lot 1, PR 4), version enregistrée `20261027151057` ;
 - `ledger` (lot 2, PR 2), version enregistrée `20261027190919`.
 
-**Pas encore en production :**
-
-- `budget_lines` (lot 2, PR 3) : à appliquer avant de déployer le web de la PR. Après application, `get_advisors` signalera `set_budget_scenario` comme security definer exécutable par `authenticated` (0029), c'est voulu.
-
 Toutes les migrations du dépôt jusqu'à `ledger` sont donc en production. Après `ledger`, vérifié : RLS active sur
 `ledger_entry` et `dossier_finance`, aucun droit pour `anon`, `authenticated` limité à
 `select`/`insert` sur `ledger_entry` et `select`/`insert`/`update` sur `dossier_finance`, fonctions
 de trigger non exécutables, `ledger_totals` exécutable par `authenticated` seulement.
+
+**Pas encore en production :**
+
+- `budget_lines` (lot 2, PR 3) : à appliquer avant de déployer le web de la PR. Après application, `get_advisors` signalera `set_budget_scenario` comme security definer exécutable par `authenticated` (0029), c'est voulu.
 
 `get_advisors` (sécurité), revérifié le 2026-10-27 après `ledger` : sur le dossier, seules
 `is_dossier_member`, `accept_dossier_invitation`, `consume_ai_quota` et `ledger_totals` sont

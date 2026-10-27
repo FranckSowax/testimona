@@ -8,6 +8,9 @@
 --    est un mot réservé de Postgres ;
 --  - un poste qui porte des dépenses ne se supprime pas (on delete no action :
 --    23503 ; « restrict » lèverait 23001) ;
+--  - un poste dont toutes les dépenses ont été annulées reste impossible à
+--    supprimer : le registre est en ajout seul, les dépenses annulées et leurs
+--    annulations restent rattachées au poste. C'est voulu ;
 --  - les dépenses sont visibles de tout membre : ledger_spent_by_line est en
 --    security invoker, la RLS du registre suffit.
 -- ============================================================================
@@ -71,6 +74,18 @@ security definer
 set search_path = ''
 as $$
 begin
+  -- WHY: contrôle du rôle avant le comptage, pour qu'un non-membre ne puisse pas
+  -- sonder le nombre de postes d'un dossier par le code 23514. La RLS reste la
+  -- règle de référence.
+  if not public.is_dossier_member(new.dossier_id, 'treasurer') then
+    raise exception 'not allowed' using errcode = '42501';
+  end if;
+  -- WHY: deux insertions concurrentes compteraient chacune 99 postes et
+  -- passeraient toutes deux ; le verrou sur la ligne du dossier les sérialise.
+  -- « for no key update » plutôt que « for update » : il ne bloque pas les
+  -- insertions des autres tables qui référencent le dossier (verrou « key share »
+  -- des clés étrangères), seulement les autres insertions de postes.
+  perform 1 from public.dossier d where d.id = new.dossier_id for no key update;
   if (select count(*) from public.budget_line l where l.dossier_id = new.dossier_id) >= 100 then
     raise exception 'too many budget lines' using errcode = '23514';
   end if;
@@ -84,13 +99,15 @@ create trigger budget_line_before_insert
   before insert on public.budget_line
   for each row execute function public.budget_line_before_insert();
 
--- WHY: le dossier, la clé de grille et la date de création ne changent jamais.
+-- WHY: l'identifiant, le dossier, la clé de grille et la date de création ne
+-- changent jamais.
 create function public.budget_line_before_update()
 returns trigger
 language plpgsql
 set search_path = ''
 as $$
 begin
+  new.id := old.id;
   new.dossier_id := old.dossier_id;
   new.grid_key := old.grid_key;
   new.created_at := old.created_at;
@@ -198,8 +215,9 @@ begin
     return new;
   end if;
   new.reverses_kind := null;
-  -- WHY: le poste d'une dépense doit appartenir au même dossier.
-  if new.budget_line_id is not null and not exists (
+  -- WHY: le poste d'une dépense doit appartenir au même dossier. Pour les autres
+  -- types, la contrainte check sur budget_line_id refuse la ligne (23514).
+  if new.kind = 'expense' and new.budget_line_id is not null and not exists (
     select 1 from public.budget_line l
      where l.id = new.budget_line_id and l.dossier_id = new.dossier_id
   ) then

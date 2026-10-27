@@ -1,13 +1,14 @@
 import { randomUUID } from 'node:crypto';
 import type { PGlite } from '@electric-sql/pglite';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { asUser, createTestDb, createUser } from './helpers/db';
+import { asRole, asUser, createTestDb, createUser } from './helpers/db';
 
 let db: PGlite;
 let owner: string;
 let treasurer: string;
 let contributor: string;
 let viewer: string;
+let coordinator: string;
 let stranger: string;
 let dossierId: string;
 let otherDossierId: string;
@@ -86,12 +87,14 @@ beforeAll(async () => {
   treasurer = await createUser(db, 'treasurer@test.local');
   contributor = await createUser(db, 'contributor@test.local');
   viewer = await createUser(db, 'viewer@test.local');
+  coordinator = await createUser(db, 'coordinator@test.local');
   stranger = await createUser(db, 'stranger@test.local');
   dossierId = await createDossier(owner);
   otherDossierId = await createDossier(stranger);
   await addMember(treasurer, 'treasurer');
   await addMember(contributor, 'contributor');
   await addMember(viewer, 'viewer');
+  await addMember(coordinator, 'coordinator');
 });
 
 afterAll(async () => {
@@ -133,6 +136,22 @@ describe('set_budget_scenario', () => {
     await expect(setScenario(treasurer, 'luxe')).rejects.toMatchObject({ code: '23514' });
   });
 
+  it('refuse un lecteur et laisse un coordinateur ou le propriétaire retenir un scénario', async () => {
+    await expect(setScenario(viewer, 'sober')).rejects.toMatchObject(DENIED);
+    await setScenario(coordinator, 'sober');
+    expect(await scenarioOf()).toBe('sober');
+    await setScenario(owner, 'intermediate');
+    expect(await scenarioOf()).toBe('intermediate');
+  });
+
+  it('refuse l’appel à un visiteur anonyme', async () => {
+    await expect(
+      asRole(db, 'anon', null, () =>
+        db.query('select public.set_budget_scenario($1, $2)', [dossierId, 'sober']),
+      ),
+    ).rejects.toMatchObject(DENIED);
+  });
+
   it('interdit au trésorier de modifier directement dossier_finance', async () => {
     const result = await asUser(db, treasurer, () =>
       db.query(`update dossier_finance set scenario = 'sober' where dossier_id = $1`, [dossierId]),
@@ -170,6 +189,51 @@ describe('budget_line : droits', () => {
     expect(deleted.affectedRows ?? 0).toBe(0);
   });
 
+  it('refuse l’écriture à un lecteur et la permet à un coordinateur ou au propriétaire', async () => {
+    await expect(addLine(viewer)).rejects.toMatchObject(DENIED);
+    const id = await addLine(coordinator, { label: 'Musique' });
+    await asUser(db, coordinator, () =>
+      db.query(`update budget_line set label = 'Musique et chorale' where id = $1`, [id]),
+    );
+    await addLine(owner, { label: 'Faire-part' });
+    const { rows } = await db.query<{ label: string }>(
+      'select label from budget_line where id = $1',
+      [id],
+    );
+    expect(rows[0]!.label).toBe('Musique et chorale');
+  });
+
+  it('refuse toute lecture et toute écriture à un visiteur anonyme', async () => {
+    await expect(
+      asRole(db, 'anon', null, () => db.query('select id from budget_line')),
+    ).rejects.toMatchObject(DENIED);
+    await expect(
+      asRole(db, 'anon', null, () =>
+        db.query(`insert into budget_line (dossier_id, label) values ($1, 'x')`, [dossierId]),
+      ),
+    ).rejects.toMatchObject(DENIED);
+  });
+
+  it('fige l’identifiant et la date de création à la mise à jour', async () => {
+    const id = await addLine(treasurer);
+    const before = await db.query<{ created_at: Date }>(
+      'select created_at from budget_line where id = $1',
+      [id],
+    );
+    await asUser(db, treasurer, () =>
+      db.query(
+        `update budget_line set id = gen_random_uuid(), created_at = '2000-01-01', label = 'Autre'
+          where id = $1`,
+        [id],
+      ),
+    );
+    const { rows } = await db.query<{ created_at: Date; label: string }>(
+      'select created_at, label from budget_line where id = $1',
+      [id],
+    );
+    expect(rows[0]).toEqual({ created_at: before.rows[0]!.created_at, label: 'Autre' });
+  });
+
   it('garde une clé de grille unique par dossier et fige dossier et clé', async () => {
     const id = await addLine(treasurer, { gridKey: 'coffin', label: 'Cercueil' });
     await expect(addLine(treasurer, { gridKey: 'coffin' })).rejects.toMatchObject({
@@ -199,12 +263,16 @@ describe('budget_line : droits', () => {
   it('limite le nombre de postes par dossier', async () => {
     const fresh = await createDossier(owner);
     await addMember(treasurer, 'treasurer', fresh);
-    await db.query(
-      `insert into budget_line (dossier_id, label)
-       select $1, 'Poste ' || n from generate_series(1, 100) as n`,
-      [fresh],
+    await asUser(db, treasurer, () =>
+      db.query(
+        `insert into budget_line (dossier_id, label)
+         select $1, 'Poste ' || n from generate_series(1, 100) as n`,
+        [fresh],
+      ),
     );
     await expect(addLine(treasurer, { dossier: fresh })).rejects.toMatchObject({ code: '23514' });
+    // WHY: un non-membre reçoit 42501, pas 23514 : il ne peut pas sonder le nombre de postes.
+    await expect(addLine(stranger, { dossier: fresh })).rejects.toMatchObject(DENIED);
   });
 });
 
@@ -282,6 +350,14 @@ describe('ledger_spent_by_line', () => {
       [line, 35_000],
       [null, 2_000],
     ]);
+  });
+
+  it('refuse l’appel à un visiteur anonyme', async () => {
+    await expect(
+      asRole(db, 'anon', null, () =>
+        db.query('select * from public.ledger_spent_by_line($1)', [dossierId]),
+      ),
+    ).rejects.toMatchObject(DENIED);
   });
 
   it('ne renvoie rien à un non-membre', async () => {

@@ -49,7 +49,12 @@ describe('chaîne de migrations', () => {
       cross join (values ('anon'), ('authenticated')) as r(role)
       where n.nspname = 'public'
         and p.prorettype = 'trigger'::regtype
-        and (p.proname like 'dossier%' or p.proname in ('person_before_update', 'journey_answer_before_write'))
+        and (
+          p.proname like 'dossier%'
+          or p.proname like 'budget_line%'
+          or p.proname like 'ledger_entry%'
+          or p.proname in ('person_before_update', 'journey_answer_before_write')
+        )
         and has_function_privilege(r.role, p.oid, 'execute')
       order by 1, 2
     `);
