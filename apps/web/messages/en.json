@@ -1558,6 +1558,7 @@
       "title": "Contributions",
       "summary": "{received} received against a budget in mind of {budget}.",
       "summaryNoBudget": "{received} received. No budget has been chosen yet.",
+      "unavailable": "Amounts are temporarily unavailable.",
       "open": "See contributions"
     }
   }

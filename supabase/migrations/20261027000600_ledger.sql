@@ -7,7 +7,10 @@
 --  - le trigger vérifie d'abord le rôle, impose l'auteur, recopie dans une
 --    annulation le montant, le nom et le membre de la ligne visée, et vérifie
 --    promesses, dates et membres liés ;
---  - une promesse peut être honorée en plusieurs versements, jusqu'à son montant ;
+--  - une promesse peut être honorée en plusieurs versements : un versement est
+--    accepté tant qu'elle n'est pas soldée, et le dernier peut dépasser le reste
+--    (une famille donne parfois plus que promis) ; le reste promis ne devient
+--    jamais négatif ;
 --  - la RLS de lecture dépend du réglage de visibilité du dossier ; une
 --    annulation porte le type de la ligne visée (reverses_kind) pour éviter une
 --    politique qui relirait sa propre table ;

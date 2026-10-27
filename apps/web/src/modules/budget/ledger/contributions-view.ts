@@ -1,0 +1,59 @@
+import type { MemberSummary } from '@/modules/dossier/repo';
+import { canWrite, hasRole } from '@/modules/dossier/roles';
+import type { DossierRole } from '@/modules/dossier/schema';
+import { openPledges, pledgeRemaining, type EntryView } from './model';
+import type { MemberOption, PledgeOption } from './ui/EntryForm';
+
+/** Ce que la page des cotisations affiche et propose selon le rôle de la personne. */
+export interface ContributionsView {
+  canPledge: boolean;
+  canManage: boolean;
+  isOwner: boolean;
+  memberOptions: MemberOption[];
+  pledgeOptions: PledgeOption[];
+}
+
+interface Input {
+  role: DossierRole | null;
+  views: readonly EntryView[];
+  members: readonly Pick<MemberSummary, 'userId' | 'displayName'>[];
+}
+
+/**
+ * Le trésorier et au-delà saisissent les cotisations reçues, les dépenses et les annulations.
+ * La page s'en sert aussi pour ne lire la liste des membres que lorsqu'elle sera utile.
+ *
+ * @example
+ * if (canManageLedger(role)) members = await listMembers(id);
+ */
+export function canManageLedger(role: DossierRole | null): boolean {
+  return hasRole(role, 'treasurer');
+}
+
+/**
+ * Décisions de la page des cotisations qui dépendent du rôle.
+ * WHY: seuls les trésoriers et au-delà saisissent une cotisation reçue ; on n'envoie pas au
+ * navigateur des autres la liste des membres et des promesses.
+ *
+ * @example
+ * const view = contributionsView({ role: 'treasurer', views, members });
+ * view.pledgeOptions; // [{ id, label: 'Oncle Paul', amount: 6_000 }]
+ */
+export function contributionsView({ role, views, members }: Input): ContributionsView {
+  const canManage = canManageLedger(role);
+  return {
+    canPledge: canWrite(role),
+    canManage,
+    isOwner: role === 'owner',
+    memberOptions: canManage ? members.map((m) => ({ id: m.userId, name: m.displayName })) : [],
+    // WHY: calculé sur les lignes visibles (500 au plus, limite de listEntries) ; la base
+    // revérifie de toute façon le solde de la promesse visée (TL002 → pledge_unavailable).
+    pledgeOptions: canManage
+      ? openPledges(views).map((p) => ({
+          id: p.id,
+          label: p.partyName,
+          amount: pledgeRemaining(p),
+        }))
+      : [],
+  };
+}

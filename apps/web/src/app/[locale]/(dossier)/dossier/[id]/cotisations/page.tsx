@@ -4,7 +4,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { z } from 'zod';
 import { Link } from '@/i18n/navigation';
 import { isStepOpen } from '@/journey/registry';
-import { entryViews, openPledges, pledgeRemaining } from '@/modules/budget/ledger/model';
+import { canManageLedger, contributionsView } from '@/modules/budget/ledger/contributions-view';
+import { entryViews } from '@/modules/budget/ledger/model';
 import { getTotals, getVisibility, listEntries } from '@/modules/budget/ledger/repo';
 import { EntryForms } from '@/modules/budget/ledger/ui/EntryForms';
 import { EntryList } from '@/modules/budget/ledger/ui/EntryList';
@@ -13,7 +14,6 @@ import { VisibilityForm } from '@/modules/budget/ledger/ui/VisibilityForm';
 import { ATTENDANCE_KEYS, envisagedTotal, LEVEL_KEY, NIGHTS_KEY } from '@/modules/budget/scenarios';
 import { listAnswersResult } from '@/modules/dossier/answers/repo';
 import { getDossier, getMyRole, listMembers } from '@/modules/dossier/repo';
-import { canWrite, hasRole } from '@/modules/dossier/roles';
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
@@ -28,20 +28,21 @@ export default async function ContributionsPage({
   setRequestLocale(locale);
   if (!IdSchema.safeParse(id).success) notFound();
 
-  const dossier = await getDossier(id);
+  // WHY: le rôle est lu avec le dossier, avant le reste, pour ne lire les membres que s'ils
+  // serviront (trésorier et au-delà).
+  const [dossier, role] = await Promise.all([getDossier(id), getMyRole(id)]);
   if (!dossier || !isStepOpen(dossier.entryPoint, 'attendance')) notFound();
 
-  const [t, tEntry, role, totals, entries, visibility, answers, members] = await Promise.all([
+  const [t, tEntry, totals, entries, visibility, answers, members] = await Promise.all([
     getTranslations('ledger.page'),
     getTranslations('ledger.entry'),
-    getMyRole(id),
     getTotals(id),
     listEntries(id),
     getVisibility(id),
     listAnswersResult(id, [...ATTENDANCE_KEYS, NIGHTS_KEY, LEVEL_KEY]),
     // WHY: listMembers journalise ses erreurs et renvoie [] ; la saisie reste possible avec
     // « Autre personne », rien de faux n'est affiché.
-    listMembers(id),
+    canManageLedger(role) ? listMembers(id) : Promise.resolve([]),
   ]);
   // WHY: des totaux ou des lignes faux seraient pires qu'un écran d'erreur ; error.tsx prend le relais.
   if (totals.error || entries.error || visibility.error || answers.error) {
@@ -49,17 +50,11 @@ export default async function ContributionsPage({
   }
 
   const views = entryViews(entries.data);
-  const canManage = hasRole(role, 'treasurer');
-  // WHY: seuls les trésoriers et au-delà saisissent une cotisation reçue ; on n'envoie pas au
-  // navigateur des autres la liste des membres et des promesses.
-  const memberOptions = canManage
-    ? members.map((m) => ({ id: m.userId, name: m.displayName }))
-    : [];
-  // WHY: calculé sur les lignes visibles (500 au plus, limite de listEntries) ; la base revérifie
-  // de toute façon le solde de la promesse visée (TL002 → pledge_unavailable).
-  const pledgeOptions = canManage
-    ? openPledges(views).map((p) => ({ id: p.id, label: p.partyName, amount: pledgeRemaining(p) }))
-    : [];
+  const { canPledge, canManage, isOwner, memberOptions, pledgeOptions } = contributionsView({
+    role,
+    views,
+    members,
+  });
   return (
     <div className="mx-auto w-full max-w-3xl space-y-8 px-4 py-8 sm:px-6 lg:py-12">
       <header className="space-y-2">
@@ -75,7 +70,7 @@ export default async function ContributionsPage({
       <EntryForms
         dossierId={id}
         locale={locale}
-        canPledge={canWrite(role)}
+        canPledge={canPledge}
         canManage={canManage}
         members={memberOptions}
         pledges={pledgeOptions}
@@ -88,7 +83,7 @@ export default async function ContributionsPage({
         <EntryList dossierId={id} locale={locale} views={views} canManage={canManage} />
       </section>
 
-      {role === 'owner' && <VisibilityForm dossierId={id} visibility={visibility.data} />}
+      {isOwner && <VisibilityForm dossierId={id} visibility={visibility.data} />}
 
       <div className="flex flex-wrap justify-between gap-3 text-sm">
         <Link

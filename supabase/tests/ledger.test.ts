@@ -286,7 +286,7 @@ describe('ledger_entry : annulations', () => {
 });
 
 describe('ledger_entry : promesses honorées', () => {
-  it('accepte des versements partiels jusqu’au montant promis, et y recopie le membre', async () => {
+  it('accepte des versements partiels tant que la promesse n’est pas soldée, et y recopie le membre', async () => {
     const pledge = await insert(contributor, {
       kind: 'pledge',
       member: contributor,
@@ -301,6 +301,29 @@ describe('ledger_entry : promesses honorées', () => {
     ).rejects.toMatchObject({ code: 'TL002' });
     await insert(treasurer, { kind: 'reversal', reverses: first.id });
     await insert(treasurer, { kind: 'receipt', amount: 4_000, pledge: pledge.id });
+  });
+
+  it('accepte un dernier versement supérieur au reste, puis refuse tout versement de plus', async () => {
+    const fresh = await createDossier(owner);
+    await addMember(treasurer, 'treasurer', fresh);
+    await addMember(contributor, 'contributor', fresh);
+    const pledge = await insert(contributor, {
+      kind: 'pledge',
+      member: contributor,
+      amount: 10_000,
+      dossier: fresh,
+    });
+    await insert(treasurer, { kind: 'receipt', amount: 4_000, pledge: pledge.id, dossier: fresh });
+    // WHY: choix produit, une famille peut donner plus que promis ; le reste dû est de 6 000.
+    await insert(treasurer, { kind: 'receipt', amount: 50_000, pledge: pledge.id, dossier: fresh });
+    await expect(
+      insert(treasurer, { kind: 'receipt', amount: 1_000, pledge: pledge.id, dossier: fresh }),
+    ).rejects.toMatchObject({ code: 'TL002' });
+    expect(await totals(treasurer, fresh)).toEqual({
+      received: 54_000,
+      pledgedOpen: 0,
+      spent: 0,
+    });
   });
 
   it('impose le membre de la promesse même si un autre membre est transmis', async () => {

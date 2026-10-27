@@ -50,14 +50,15 @@ describe('VisibilityForm', () => {
     expect((setVisibilityAction.mock.calls[0]?.[1] as FormData).get('visibility')).toBe('members');
   });
 
-  it('shows an error in an alert', async () => {
+  it('shows an error in an alert and keeps the choice just made', async () => {
     setVisibilityAction.mockResolvedValue({ error: 'forbidden' });
     renderForm('restricted');
+    fireEvent.click(radio(t.members));
     fireEvent.click(screen.getByRole('button', { name: t.save }));
     expect((await screen.findByRole('alert')).textContent).toBe(messages.dossier.errors.forbidden);
-    // WHY: React 19 réinitialise le formulaire ; il revient au réglage enregistré, jamais à vide.
-    const checked = screen.getAllByRole('radio').filter((r) => (r as HTMLInputElement).checked);
-    expect(checked).toHaveLength(1);
-    expect(['restricted', 'members']).toContain((checked[0] as HTMLInputElement).value);
+    // WHY: le formulaire n'est pas réinitialisé ; la personne peut réessayer sans refaire son choix.
+    expect(radio(t.members).checked).toBe(true);
+    expect(radio(t.restricted).checked).toBe(false);
+    expect(screen.queryByText(t.saved)).toBeNull();
   });
 });

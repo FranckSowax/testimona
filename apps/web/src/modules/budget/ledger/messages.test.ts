@@ -66,7 +66,7 @@ const PATHS = [
     'tooLong',
     'invalidCharacter',
   ].map((k) => `ledger.errors.${k}`),
-  ...['title', 'summary', 'summaryNoBudget', 'open'].map((k) => `ledger.card.${k}`),
+  ...['title', 'summary', 'summaryNoBudget', 'unavailable', 'open'].map((k) => `ledger.card.${k}`),
 ];
 
 function leafPaths(node: unknown, prefix = ''): string[] {

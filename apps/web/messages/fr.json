@@ -1558,6 +1558,7 @@
       "title": "Cotisations",
       "summary": "{received} reçus sur un budget envisagé de {budget}.",
       "summaryNoBudget": "{received} reçus. Aucun budget n'est encore choisi.",
+      "unavailable": "Les montants sont momentanément indisponibles.",
       "open": "Voir les cotisations"
     }
   }

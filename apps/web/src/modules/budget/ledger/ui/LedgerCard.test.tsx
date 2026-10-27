@@ -42,11 +42,13 @@ describe('LedgerCard', () => {
     );
   });
 
-  it('falls back to 0 FCFA when totals are unreadable', async () => {
+  it('shows a neutral text, not 0 FCFA, when totals are unreadable', async () => {
     const { container } = render(
       await LedgerCard({ dossierId: 'abc', locale: 'fr', budget: 5_000, totals: null }),
     );
-    expect(plain(container.querySelector('p')?.textContent ?? '')).toContain('0 FCFA reçus');
+    const text = plain(container.querySelector('p')?.textContent ?? '');
+    expect(text).toBe(messages.ledger.card.unavailable);
+    expect(text).not.toContain('FCFA');
   });
 
   it('links to the contributions page', async () => {

@@ -105,7 +105,6 @@ export const PledgeSchema = z.object({
   note,
   occurredOn,
 });
-export type PledgeInput = z.infer<typeof PledgeSchema>;
 
 /** Saisie d'une cotisation reçue, éventuellement liée à un membre et à une promesse. */
 export const ReceiptSchema = PledgeSchema.extend({
@@ -113,16 +112,12 @@ export const ReceiptSchema = PledgeSchema.extend({
   memberId: optionalId,
   pledgeId: optionalId,
 });
-export type ReceiptInput = z.infer<typeof ReceiptSchema>;
 
 /** Saisie d'une dépense payée. */
 export const ExpenseSchema = PledgeSchema.extend({ method: z.enum(ENTRY_METHODS) });
-export type ExpenseInput = z.infer<typeof ExpenseSchema>;
 
 /** Demande d'annulation d'une ligne du registre. */
 export const ReversalSchema = z.object({ dossierId: uuid, idempotencyKey: uuid, entryId: uuid });
-export type ReversalInput = z.infer<typeof ReversalSchema>;
 
 /** Réglage de la visibilité du registre pour le dossier. */
 export const VisibilitySchema = z.object({ dossierId: uuid, visibility: z.enum(VISIBILITIES) });
-export type VisibilityInput = z.infer<typeof VisibilitySchema>;

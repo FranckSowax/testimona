@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState } from 'react';
+import { startTransition, useActionState } from 'react';
+import type { FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { buttonClasses } from '@/components/ui/Button';
 import { setVisibilityAction, type LedgerFormState } from '../actions';
@@ -25,8 +26,16 @@ export function VisibilityForm({ dossierId, visibility }: Props) {
     setVisibilityAction,
     null,
   );
+  // WHY: onSubmit plutôt que `<form action>` : React 19 réinitialise le formulaire après chaque
+  // action, même en erreur, et la personne perdrait le choix qu'elle vient de faire.
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (pending) return;
+    const data = new FormData(e.currentTarget);
+    startTransition(() => formAction(data));
+  };
   return (
-    <form action={formAction} className="border-border space-y-3 rounded-2xl border p-4">
+    <form onSubmit={onSubmit} className="border-border space-y-3 rounded-2xl border p-4">
       <input type="hidden" name="dossierId" value={dossierId} />
       <fieldset className="space-y-2">
         <legend className="text-foreground font-semibold">{t('title')}</legend>

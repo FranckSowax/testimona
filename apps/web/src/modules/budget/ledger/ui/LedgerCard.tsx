@@ -19,15 +19,18 @@ interface Props {
  */
 export async function LedgerCard({ dossierId, locale, budget, totals }: Props) {
   const t = await getTranslations('ledger.card');
-  const received = formatXaf(totals?.received ?? 0, locale);
+  // WHY: une lecture en échec ne doit pas afficher « 0 FCFA reçus », qui serait faux.
+  const summary = (() => {
+    if (totals === null) return t('unavailable');
+    const received = formatXaf(totals.received, locale);
+    return budget === null
+      ? t('summaryNoBudget', { received })
+      : t('summary', { received, budget: formatXaf(budget, locale) });
+  })();
   return (
     <section className="border-border space-y-3 rounded-2xl border p-6">
       <h2 className="font-display text-foreground text-lg font-semibold">{t('title')}</h2>
-      <p className="text-foreground">
-        {budget === null
-          ? t('summaryNoBudget', { received })
-          : t('summary', { received, budget: formatXaf(budget, locale) })}
-      </p>
+      <p className="text-foreground">{summary}</p>
       <Link
         href={`/dossier/${dossierId}/cotisations`}
         className={buttonClasses({ variant: 'secondary', size: 'md' })}
