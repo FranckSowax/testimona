@@ -16,7 +16,7 @@ interface CookiePayload {
 
 const intlMiddleware = createIntlMiddleware(routing);
 
-const PROTECTED_PREFIXES = ['/dashboard', '/admin'];
+const PROTECTED_PREFIXES = ['/dossier', '/invitation', '/dashboard', '/admin'];
 
 function stripLocale(pathname: string): string {
   for (const locale of routing.locales) {
