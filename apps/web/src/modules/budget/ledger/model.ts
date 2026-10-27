@@ -26,6 +26,7 @@ export interface EntryView extends LedgerEntry {
   fulfilled: boolean;
 }
 
+/** Totaux du registre : reçu, promis encore attendu, dépensé (montants en XAF). */
 export interface LedgerTotals {
   received: number;
   pledgedOpen: number;
@@ -41,8 +42,8 @@ export interface LedgerTotals {
  * entryViews(entries).filter((v) => !v.reversed);
  */
 export function entryViews(entries: readonly LedgerEntry[]): EntryView[] {
-  const reversedIds = new Set(
-    entries.filter((e) => e.kind === 'reversal' && e.reversesId).map((e) => e.reversesId),
+  const reversedIds = new Set<string>(
+    entries.flatMap((e) => (e.kind === 'reversal' && e.reversesId ? [e.reversesId] : [])),
   );
   // WHY: une promesse se paie parfois en plusieurs fois ; on cumule les versements actifs liés.
   const paidByPledge = new Map<string, number>();
@@ -62,7 +63,10 @@ export function entryViews(entries: readonly LedgerEntry[]): EntryView[] {
       };
     })
     .sort(
-      (a, b) => b.occurredOn.localeCompare(a.occurredOn) || b.createdAt.localeCompare(a.createdAt),
+      (a, b) =>
+        b.occurredOn.localeCompare(a.occurredOn) ||
+        b.createdAt.localeCompare(a.createdAt) ||
+        b.id.localeCompare(a.id),
     );
 }
 
@@ -76,7 +80,11 @@ export function pledgeRemaining(view: EntryView): number {
   return Math.max(0, view.amount - view.paid);
 }
 
-/** Une ligne active qui n'est pas elle-même une annulation peut être annulée. */
+/**
+ * Une ligne active qui n'est pas elle-même une annulation peut être annulée.
+ * Annuler une promesse déjà en partie versée est permis : les cotisations reçues restent comptées
+ * (l'argent a été encaissé), seule la part restante de la promesse est retirée.
+ */
 export function canReverse(view: EntryView): boolean {
   return view.kind !== 'reversal' && !view.reversed;
 }

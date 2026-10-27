@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { AMOUNT_MAX } from '../scenarios';
 
+/** Natures de ligne du registre : promesse, cotisation reçue, dépense, annulation. */
 export const ENTRY_KINDS = ['pledge', 'receipt', 'expense', 'reversal'] as const;
 export type EntryKind = (typeof ENTRY_KINDS)[number];
 
@@ -15,11 +16,15 @@ export const ENTRY_METHODS = [
 ] as const;
 export type EntryMethod = (typeof ENTRY_METHODS)[number];
 
+/** Réglages de visibilité du registre : restreint (ses lignes) ou ouvert aux membres. */
 export const VISIBILITIES = ['restricted', 'members'] as const;
 export type Visibility = (typeof VISIBILITIES)[number];
 
 // WHY: text refuse le caractère NUL ; on le refuse avant la base.
 const noNul = (s: string) => !s.includes('\u0000');
+
+// WHY: Postgres compte en caractères (char_length), pas en unités UTF-16 : un emoji compte pour 1.
+const maxChars = (n: number) => (s: string) => [...s].length <= n;
 
 const uuid = z.string().uuid();
 
@@ -27,7 +32,7 @@ const uuid = z.string().uuid();
 const amount = z
   .string()
   .transform((s) => s.replace(/[\s\u00a0\u202f]/g, ''))
-  .pipe(z.string().regex(/^\d{1,9}$/, 'invalid number'))
+  .pipe(z.string().regex(/^\d+$/, 'invalid number'))
   .transform(Number)
   .pipe(z.number().int().min(1, 'out of range').max(AMOUNT_MAX, 'out of range'));
 
@@ -35,14 +40,25 @@ const partyName = z
   .string()
   .trim()
   .min(1, 'required')
-  .max(120, 'too long')
+  .refine(maxChars(120), 'too long')
   .refine(noNul, 'invalid character');
 
-const note = z.string().trim().max(500, 'too long').refine(noNul, 'invalid character').default('');
+const note = z
+  .string()
+  .trim()
+  .refine(maxChars(500), 'too long')
+  .refine(noNul, 'invalid character')
+  .default('');
 
-const today = () => new Date().toISOString().slice(0, 10);
+const LEDGER_TIME_ZONE = 'Africa/Libreville';
 
-// WHY: une date vide vaut aujourd'hui ; un jour de marge couvre les fuseaux horaires.
+// WHY: le Gabon et l'essentiel de la CEMAC sont en UTC+1 ; une date saisie juste après minuit ne
+// doit pas devenir la veille, ce qui arriverait avec la date UTC.
+const today = () =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: LEDGER_TIME_ZONE }).format(new Date());
+
+// WHY: une date vide vaut aujourd'hui. Le plafond reflète le `current_date + 1` de la base (session
+// UTC) ; ce jour de marge couvre UTC+1.
 const occurredOn = z
   .string()
   .optional()
@@ -68,6 +84,7 @@ const optionalId = z
   .optional()
   .transform((v) => (v ? v : null));
 
+/** Saisie d'une promesse de cotisation. */
 export const PledgeSchema = z.object({
   dossierId: uuid,
   idempotencyKey: uuid,
@@ -78,6 +95,7 @@ export const PledgeSchema = z.object({
 });
 export type PledgeInput = z.infer<typeof PledgeSchema>;
 
+/** Saisie d'une cotisation reçue, éventuellement liée à un membre et à une promesse. */
 export const ReceiptSchema = PledgeSchema.extend({
   method: z.enum(ENTRY_METHODS),
   memberId: optionalId,
@@ -85,11 +103,14 @@ export const ReceiptSchema = PledgeSchema.extend({
 });
 export type ReceiptInput = z.infer<typeof ReceiptSchema>;
 
+/** Saisie d'une dépense payée. */
 export const ExpenseSchema = PledgeSchema.extend({ method: z.enum(ENTRY_METHODS) });
 export type ExpenseInput = z.infer<typeof ExpenseSchema>;
 
+/** Demande d'annulation d'une ligne du registre. */
 export const ReversalSchema = z.object({ dossierId: uuid, idempotencyKey: uuid, entryId: uuid });
 export type ReversalInput = z.infer<typeof ReversalSchema>;
 
+/** Réglage de la visibilité du registre pour le dossier. */
 export const VisibilitySchema = z.object({ dossierId: uuid, visibility: z.enum(VISIBILITIES) });
 export type VisibilityInput = z.infer<typeof VisibilitySchema>;

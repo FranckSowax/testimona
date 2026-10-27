@@ -108,3 +108,49 @@ describe('balance et remaining', () => {
     expect(remaining(null, totals)).toBeNull();
   });
 });
+
+describe('cas limites des vues', () => {
+  it('diminue le versé quand un versement partiel est annulé', () => {
+    const views = entryViews([
+      entry({ id: 'p1', kind: 'pledge', method: null, amount: 10_000 }),
+      entry({ id: 'r1', pledgeId: 'p1', amount: 4_000 }),
+      entry({ id: 'r2', pledgeId: 'p1', amount: 3_000 }),
+      entry({
+        id: 'x1',
+        kind: 'reversal',
+        method: null,
+        reversesId: 'r2',
+        reversesKind: 'receipt',
+      }),
+    ]);
+    expect(views.find((v) => v.id === 'p1')).toMatchObject({ paid: 4_000, fulfilled: false });
+  });
+
+  it('exclut une promesse annulée des promesses ouvertes', () => {
+    const views = entryViews([
+      entry({ id: 'p1', kind: 'pledge', method: null }),
+      entry({
+        id: 'x1',
+        kind: 'reversal',
+        method: null,
+        reversesId: 'p1',
+        reversesKind: 'pledge',
+      }),
+    ]);
+    expect(openPledges(views)).toEqual([]);
+  });
+
+  it('trie correctement les createdAt au format PostgREST', () => {
+    const views = entryViews([
+      entry({ id: 'a', createdAt: '2026-10-21T12:00:00.123456+00:00' }),
+      entry({ id: 'b', createdAt: '2026-10-21T12:00:00.5+00:00' }),
+      entry({ id: 'c', createdAt: '2026-10-21T13:00:00+00:00' }),
+    ]);
+    expect(views.map((v) => v.id)).toEqual(['c', 'b', 'a']);
+  });
+
+  it('départage les dates et créations identiques par identifiant', () => {
+    const views = entryViews([entry({ id: 'a' }), entry({ id: 'c' }), entry({ id: 'b' })]);
+    expect(views.map((v) => v.id)).toEqual(['c', 'b', 'a']);
+  });
+});
