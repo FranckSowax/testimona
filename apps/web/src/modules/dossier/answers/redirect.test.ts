@@ -35,4 +35,15 @@ describe('answerRedirectTarget', () => {
     const answers = { 'demo.a': 'x', 'demo.b': 'y', 'demo.c': 'z' };
     expect(answerRedirectTarget(ID, step, answers, 0)).toBe(`/dossier/${ID}`);
   });
+
+  it('mène au brouillon après la dernière question d’une étape à brouillon', () => {
+    const withDraft = defineStep({
+      id: 'with-draft',
+      questions: [q.shortText('withDraft.a')],
+      draft: { key: 'withDraft.text', kind: 'whatsapp' },
+    });
+    expect(answerRedirectTarget(ID, withDraft, { 'withDraft.a': 'x' }, 0)).toBe(
+      `/dossier/${ID}/etape/with-draft/brouillon`,
+    );
+  });
 });

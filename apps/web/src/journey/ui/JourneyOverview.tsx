@@ -87,6 +87,14 @@ export async function JourneyOverview({
                 )}
               </div>
               <p className="text-muted-foreground text-sm">{t(`steps.${step.id}.description`)}</p>
+              {step.draft && (
+                <Link
+                  href={`/dossier/${dossierId}/etape/${step.id}/brouillon`}
+                  className="text-primary text-sm font-semibold hover:underline"
+                >
+                  {t('dashboard.viewDraft')}
+                </Link>
+              )}
               {progress.total > 0 && (
                 <ProgressBar value={progress.answered} max={progress.total} ariaLabel={title} />
               )}
