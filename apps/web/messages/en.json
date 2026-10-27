@@ -1160,7 +1160,8 @@
       "expires": "expires on {date}",
       "revoke": "Revoke",
       "readOnly": "Only coordinators can invite new members.",
-      "unnamed": "Member"
+      "unnamed": "Member",
+      "copyManual": "Select the link, then copy it (Ctrl+C, or long-press on mobile)."
     },
     "invitation": {
       "title": "Join a family space",

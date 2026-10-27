@@ -1160,7 +1160,8 @@
       "expires": "expire le {date}",
       "revoke": "Révoquer",
       "readOnly": "Seuls les coordinateurs peuvent inviter de nouveaux membres.",
-      "unnamed": "Membre"
+      "unnamed": "Membre",
+      "copyManual": "Sélectionnez le lien puis copiez-le (Ctrl+C, ou appui long sur mobile)."
     },
     "invitation": {
       "title": "Rejoindre un dossier familial",

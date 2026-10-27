@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { createInvitationAction, type InviteState } from '../actions';
 import { INVITABLE_ROLES } from '../schema';
@@ -21,14 +21,19 @@ export function InviteForm({ dossierId, personName, emailEnabled }: Props) {
     createInvitationAction,
     null,
   );
-  const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
+  const [copyResult, setCopyResult] = useState<{ url: string; ok: boolean } | null>(null);
+  const urlRef = useRef<HTMLParagraphElement>(null);
 
   const copy = async (url: string) => {
     try {
+      if (!navigator.clipboard?.writeText) throw new Error('clipboard unavailable');
       await navigator.clipboard.writeText(url);
-      setCopiedUrl(url);
+      setCopyResult({ url, ok: true });
     } catch {
-      setCopiedUrl(null);
+      // WHY: sans API presse-papiers (HTTP, vieux navigateur), on sélectionne le lien pour
+      // que la personne puisse le copier elle-même.
+      if (urlRef.current) window.getSelection()?.selectAllChildren(urlRef.current);
+      setCopyResult({ url, ok: false });
     }
   };
 
@@ -72,45 +77,54 @@ export function InviteForm({ dossierId, personName, emailEnabled }: Props) {
         </button>
       </form>
 
-      <div aria-live="polite">
-        {state?.error && (
-          <p role="alert" className="text-destructive text-sm">
-            {t(`errors.${state.error}`)}
-          </p>
-        )}
+      {state?.error && (
+        <p role="alert" className="text-destructive text-sm">
+          {t(`errors.${state.error}`)}
+        </p>
+      )}
 
+      <div role="status" className="space-y-1">
         {state?.url && (
-          <div className="bg-surface space-y-3 rounded-xl p-4">
+          <>
             <p className="text-foreground text-sm">{t('members.inviteReady')}</p>
             {state.emailSent && (
               <p className="text-muted-foreground text-sm">{t('members.inviteEmailSent')}</p>
             )}
-            <p className="text-foreground select-all break-all font-mono text-xs">{state.url}</p>
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={() => copy(state.url!)}
-                className="border-border rounded-full border px-4 py-2 text-sm"
-              >
-                {t('members.copy')}
-              </button>
-              <a
-                href={`https://wa.me/?text=${encodeURIComponent(
-                  t('members.whatsappText', { name: personName, url: state.url }),
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-primary rounded-full px-4 py-2 text-sm font-semibold text-white"
-              >
-                {t('members.shareWhatsapp')}
-              </a>
-              <span role="status" className="text-muted-foreground text-sm">
-                {copiedUrl === state.url ? t('members.copied') : ''}
-              </span>
-            </div>
-          </div>
+          </>
+        )}
+        {state?.url && copyResult?.url === state.url && (
+          <p className="text-muted-foreground text-sm">
+            {copyResult.ok ? t('members.copied') : t('members.copyManual')}
+          </p>
         )}
       </div>
+
+      {state?.url && (
+        <div className="bg-surface space-y-3 rounded-xl p-4">
+          <p ref={urlRef} className="text-foreground select-all break-all font-mono text-xs">
+            {state.url}
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => copy(state.url!)}
+              className="border-border rounded-full border px-4 py-2 text-sm"
+            >
+              {t('members.copy')}
+            </button>
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(
+                t('members.whatsappText', { name: personName, url: state.url }),
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-primary rounded-full px-4 py-2 text-sm font-semibold text-white"
+            >
+              {t('members.shareWhatsapp')}
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

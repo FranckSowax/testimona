@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Link, usePathname } from '@/i18n/navigation';
 import { acceptInvitationAction, type FormState } from '../actions';
 
 /**
@@ -10,6 +11,8 @@ import { acceptInvitationAction, type FormState } from '../actions';
  */
 export function AcceptInvitationForm({ token }: { token: string }) {
   const t = useTranslations('dossier');
+  const tHeader = useTranslations('header');
+  const pathname = usePathname();
   const [state, formAction, pending] = useActionState<FormState | null, FormData>(
     acceptInvitationAction,
     null,
@@ -17,13 +20,19 @@ export function AcceptInvitationForm({ token }: { token: string }) {
   return (
     <form action={formAction} className="space-y-4">
       <input type="hidden" name="token" value={token} />
-      <div aria-live="polite">
-        {state?.error && (
-          <p role="alert" className="text-accent-soft">
-            {t(`errors.${state.error}`)}
-          </p>
-        )}
-      </div>
+      {state?.error && (
+        <p role="alert" className="text-accent-soft">
+          {t(`errors.${state.error}`)}
+        </p>
+      )}
+      {state?.error === 'unauthenticated' && (
+        <Link
+          href={`/login?next=${encodeURIComponent(pathname)}`}
+          className="inline-block font-semibold underline"
+        >
+          {tHeader('signIn')}
+        </Link>
+      )}
       <button
         type="submit"
         disabled={pending}

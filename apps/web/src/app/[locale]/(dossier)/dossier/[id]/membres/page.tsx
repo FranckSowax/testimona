@@ -7,6 +7,7 @@ import { revokeInvitationAction } from '@/modules/dossier/actions';
 import { getDossier, getPerson, listInvitations, listMembers } from '@/modules/dossier/repo';
 import { canManageMembers } from '@/modules/dossier/roles';
 import { InviteForm } from '@/modules/dossier/ui/InviteForm';
+import { RevokeButton } from '@/modules/dossier/ui/RevokeButton';
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
@@ -32,7 +33,10 @@ export default async function MembersPage({
   const [person, members] = await Promise.all([getPerson(id), listMembers(id)]);
   const myRole = members.find((m) => m.userId === user.id)?.role ?? null;
   const manager = canManageMembers(myRole);
-  const invitations = manager ? (await listInvitations(id)).filter((i) => !i.usedAt) : [];
+  const now = new Date();
+  const invitations = manager
+    ? (await listInvitations(id)).filter((i) => !i.usedAt && new Date(i.expiresAt) > now)
+    : [];
   const personName = person ? `${person.firstName} ${person.lastName}` : dossier.title;
 
   return (
@@ -94,9 +98,13 @@ export default async function MembersPage({
                 <form action={revokeInvitationAction}>
                   <input type="hidden" name="dossierId" value={id} />
                   <input type="hidden" name="invitationId" value={inv.id} />
-                  <button type="submit" className="text-destructive text-sm font-semibold">
-                    {t('members.revoke')}
-                  </button>
+                  <RevokeButton
+                    label={t('members.revoke')}
+                    hiddenLabel={`${t(`members.roles.${inv.role}`)}${inv.email ? `, ${inv.email}` : ''}, ${t(
+                      'members.expires',
+                      { date: format.dateTime(new Date(inv.expiresAt), { dateStyle: 'medium' }) },
+                    )}`}
+                  />
                 </form>
               </li>
             ))}
