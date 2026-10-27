@@ -283,6 +283,55 @@ export function coOwnerInviteEmail({
   };
 }
 
+interface DossierInviteArgs {
+  to: string;
+  inviterName: string | null;
+  personName: string;
+  url: string;
+  locale: 'fr' | 'en';
+}
+
+/** Invitation à rejoindre un dossier familial (lien à usage unique, 7 jours). */
+export function dossierInviteEmail({
+  to,
+  inviterName,
+  personName,
+  url,
+  locale,
+}: DossierInviteArgs) {
+  const isFr = locale === 'fr';
+  const who = inviterName
+    ? `<strong>${escapeHtml(inviterName)}</strong>`
+    : isFr
+      ? 'Un proche'
+      : 'A relative';
+  const subject = isFr
+    ? `Invitation à rejoindre le dossier de ${personName}`
+    : `Invitation to join ${personName}'s family space`;
+  const intro = isFr
+    ? `${who} vous invite à préparer avec la famille l'hommage à <strong>${escapeHtml(personName)}</strong>.`
+    : `${who} invites you to prepare <strong>${escapeHtml(personName)}</strong>'s tribute with the family.`;
+  const explain = isFr
+    ? 'Ce lien est personnel et valable 7 jours. Connectez-vous ou créez un compte pour rejoindre le dossier.'
+    : 'This link is personal and valid for 7 days. Sign in or create an account to join.';
+  const ctaText = isFr ? 'Rejoindre le dossier' : 'Join the family space';
+  return {
+    to,
+    subject,
+    html: layout({
+      heading: subject,
+      body: `
+        <p>${intro}</p>
+        <p>${explain}</p>
+        <p style="text-align:center;margin:32px 0">
+          <a href="${escapeHtml(url)}" style="${button()}">${ctaText}</a>
+        </p>
+      `,
+      locale,
+    }),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
