@@ -172,6 +172,21 @@ export async function listMembers(dossierId: string): Promise<MemberSummary[]> {
   }));
 }
 
+/** Rôle de l'utilisateur courant dans le dossier, ou null s'il n'en est pas membre. */
+export async function getMyRole(dossierId: string): Promise<DossierRole | null> {
+  const db = await getSupabaseServer();
+  const { data: auth } = await db.auth.getUser();
+  if (!auth.user) return null;
+  const { data, error } = await db
+    .from('dossier_member')
+    .select('role')
+    .eq('dossier_id', dossierId)
+    .eq('user_id', auth.user.id)
+    .maybeSingle<{ role: DossierRole }>();
+  logRead('getMyRole', error);
+  return data?.role ?? null;
+}
+
 export async function listInvitations(dossierId: string): Promise<InvitationSummary[]> {
   const db = await getSupabaseServer();
   const { data, error } = await db

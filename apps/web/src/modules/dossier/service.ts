@@ -32,6 +32,10 @@ const TOKEN_PATTERN = /^[A-Za-z0-9_-]{20,100}$/;
 const CODE_TO_ERROR: Record<string, DossierError> = {
   '42501': 'forbidden',
   '23514': 'validation',
+  // WHY: jsonb rejette un surrogate isolé dans un texte avec ce code ; c'est une saisie invalide.
+  // Ce mapping est partagé par tous les services du dossier (fromRepo) : un 22P02 venu d'une
+  // autre écriture (uuid, enum ou nombre mal formé) devient lui aussi « validation ».
+  '22P02': 'validation',
   not_found: 'not_found',
   TI001: 'invitation_invalid',
   TI002: 'invitation_expired',
@@ -39,13 +43,13 @@ const CODE_TO_ERROR: Record<string, DossierError> = {
   '28000': 'unauthenticated',
 };
 
-function fromRepo(error: repo.RepoError, scope: string): { ok: false; error: DossierError } {
+export function fromRepo(error: repo.RepoError, scope: string): { ok: false; error: DossierError } {
   const mapped = CODE_TO_ERROR[error.code];
   if (!mapped) console.error(`[dossier] ${scope} failed`, { code: error.code });
   return { ok: false, error: mapped ?? 'unknown' };
 }
 
-function fieldErrors(issues: z.ZodIssue[]): Record<string, string> {
+export function fieldErrors(issues: z.ZodIssue[]): Record<string, string> {
   const out: Record<string, string> = {};
   for (const issue of issues) {
     const key = issue.path.join('.');

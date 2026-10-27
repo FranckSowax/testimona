@@ -1133,7 +1133,6 @@
     },
     "overview": {
       "journeyTitle": "Le parcours",
-      "journeySoon": "Les premières étapes (biographie, annonces) arrivent très bientôt dans ce dossier.",
       "membersTitle": "La famille",
       "membersCount": "{count, plural, =1 {1 membre} other {# membres}}",
       "manageMembers": "Gérer les membres"
@@ -1180,6 +1179,77 @@
       "invitation_used": "Ce lien a déjà été utilisé. Demandez un nouveau lien.",
       "unauthenticated": "Connectez-vous pour continuer.",
       "unknown": "Une erreur est survenue. Réessayez dans un instant."
+    }
+  },
+  "journey": {
+    "steps": {
+      "biography": {
+        "title": "Sa biographie",
+        "description": "Racontez sa vie, une question à la fois. Vous pouvez répondre à sa place, et passer une question pour y revenir plus tard."
+      }
+    },
+    "q": {
+      "biography": {
+        "birthPlace": {
+          "title": "Quel est le lieu de naissance de {name} ?",
+          "hint": "La ville et le pays de naissance."
+        },
+        "parents": {
+          "title": "Parlez-nous des parents de {name}.",
+          "hint": "Leurs noms, leur village ou leur région d'origine, ce que vous savez de la famille."
+        },
+        "career": {
+          "title": "{status, select, alive {Quel est le parcours professionnel de {name} ?} other {Quel a été le parcours professionnel de {name} ?}}",
+          "hint": "{status, select, alive {Ses métiers, les lieux où {name} travaille ou a travaillé, ses fiertés.} other {Ses métiers, les lieux où {name} a travaillé, ses fiertés.}}"
+        },
+        "traits": {
+          "title": "Quels traits de caractère décrivent le mieux {name} ?",
+          "hint": "Un trait par élément, avec une anecdote si un souvenir vous vient."
+        },
+        "passions": {
+          "title": "{status, select, alive {Qu'est-ce qui passionne {name} ?} other {Qu'est-ce qui passionnait {name} ?}}",
+          "hint": "Musique, sport, cuisine, foi, jardin, voyages…"
+        },
+        "motto": {
+          "title": "Une phrase ou une devise que l'on associe à {name} ?",
+          "hint": "Quelques mots que ses proches reconnaîtront."
+        }
+      }
+    },
+    "fields": {
+      "trait": "Trait de caractère",
+      "anecdote": "Anecdote (facultatif)",
+      "city": "Ville",
+      "country": "Pays"
+    },
+    "ui": {
+      "progress": "Question {current} sur {total}",
+      "back": "Revenir",
+      "backToDossier": "Retour au dossier",
+      "skip": "Passer",
+      "next": "Suivant",
+      "finish": "Terminer",
+      "required": "Répondez, ou choisissez « Passer » pour y revenir plus tard.",
+      "requiredFields": "Complétez les champs signalés.",
+      "readOnly": "Vous pouvez lire les réponses ; seuls les contributeurs peuvent les modifier.",
+      "addItem": "Ajouter",
+      "removeItem": "Retirer",
+      "removeItemN": "Retirer l'élément {n}",
+      "noAnswer": "Pas encore de réponse.",
+      "item": "Élément {n}",
+      "chooseOption": "Choisir…",
+      "tooLarge": "Votre réponse est trop longue : raccourcissez-la.",
+      "invalidDate": "Cette date n'est pas valide.",
+      "invalidCharacter": "Votre réponse contient un caractère non pris en charge."
+    },
+    "dashboard": {
+      "nextTitle": "Prochaine question",
+      "answer": "Répondre",
+      "view": "Consulter",
+      "allDone": "Toutes les questions ont une réponse ou ont été passées.",
+      "completeSkipped": "Compléter les questions passées",
+      "stepProgress": "{answered} sur {total} réponses",
+      "toComplete": "{count, plural, =1 {1 question à compléter} other {# questions à compléter}}"
     }
   }
 }

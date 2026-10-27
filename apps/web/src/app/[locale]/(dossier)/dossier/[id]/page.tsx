@@ -4,7 +4,11 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { z } from 'zod';
 import { buttonClasses } from '@/components/ui/Button';
 import { Link } from '@/i18n/navigation';
-import { getDossier, getPerson, listMembers } from '@/modules/dossier/repo';
+import { personStatus, stepsFor } from '@/journey/registry';
+import { JourneyOverview } from '@/journey/ui/JourneyOverview';
+import { listAnswers } from '@/modules/dossier/answers/repo';
+import { getDossier, getMyRole, getPerson, listMembers } from '@/modules/dossier/repo';
+import { canWrite } from '@/modules/dossier/roles';
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
@@ -21,7 +25,12 @@ export default async function DossierPage({
 
   const [t, dossier] = await Promise.all([getTranslations('dossier'), getDossier(id)]);
   if (!dossier) notFound();
-  const [person, members] = await Promise.all([getPerson(id), listMembers(id)]);
+  const [person, members, answers, role] = await Promise.all([
+    getPerson(id),
+    listMembers(id),
+    listAnswers(id),
+    getMyRole(id),
+  ]);
   const country = new Intl.DisplayNames([locale], { type: 'region' }).of(dossier.countryCode);
 
   return (
@@ -36,9 +45,18 @@ export default async function DossierPage({
         </p>
       </header>
 
-      <section className="bg-secondary text-secondary-foreground rounded-2xl p-6">
-        <h2 className="font-display text-lg font-semibold">{t('overview.journeyTitle')}</h2>
-        <p className="mt-2 text-white/80">{t('overview.journeySoon')}</p>
+      <section className="space-y-4">
+        <h2 className="font-display text-foreground text-lg font-semibold">
+          {t('overview.journeyTitle')}
+        </h2>
+        <JourneyOverview
+          dossierId={id}
+          steps={stepsFor(dossier.entryPoint)}
+          answers={answers}
+          name={person?.firstName ?? dossier.title}
+          status={personStatus(dossier.entryPoint)}
+          canAnswer={canWrite(role)}
+        />
       </section>
 
       <section className="border-border space-y-3 rounded-2xl border p-6">

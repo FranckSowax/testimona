@@ -32,6 +32,11 @@ test.describe('Public pages', () => {
     await expect(page).toHaveURL(/\/login\?next=.*porte(%3D|=)deces/);
   });
 
+  test('Question screen requires sign-in', async ({ page }) => {
+    await page.goto('/dossier/44444444-4444-4444-8444-444444444444/etape/biography?q=2');
+    await expect(page).toHaveURL(/\/login\?next=.*etape%2Fbiography/);
+  });
+
   test('Login page — V2 form on mesh background', async ({ page }) => {
     await page.goto('/login');
     await expect(page.getByRole('heading', { name: /Connexion|Login/i })).toBeVisible();
