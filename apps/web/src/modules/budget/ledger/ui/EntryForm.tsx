@@ -2,7 +2,7 @@
 
 import { startTransition, useActionState, useEffect, useId, useRef, useState } from 'react';
 import type { ChangeEvent, FormEvent, InputHTMLAttributes, ReactNode } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { buttonClasses } from '@/components/ui/Button';
 import { saveEntryAction, type LedgerFormState } from '../actions';
 import { ENTRY_METHODS, ledgerToday } from '../schema';
@@ -43,6 +43,7 @@ const LABEL = 'text-foreground text-sm';
 export function EntryForm({ dossierId, kind, members = [], pledges = [], amountLabel }: Props) {
   const t = useTranslations('ledger');
   const tErrors = useTranslations('dossier.errors');
+  const locale = useLocale();
   const [state, formAction, pending] = useActionState<LedgerFormState | null, FormData>(
     saveEntryAction,
     null,
@@ -52,6 +53,8 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
   const [pledgeId, setPledgeId] = useState('');
   const [saved, setSaved] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  // Dernier nom recopié d'une promesse, pour le remplacer tant que la personne n'y a pas touché.
+  const prefilledName = useRef('');
   const uid = useId();
 
   // WHY: calculée au montage, comme la clé, pour éviter un écart serveur/navigateur à minuit.
@@ -59,6 +62,7 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
   useEffect(() => {
     if (state?.ok) {
       formRef.current?.reset();
+      prefilledName.current = '';
       setPledgeId('');
       setSaved(true);
       renew();
@@ -83,11 +87,19 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
   const onPledgeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setPledgeId(e.target.value);
     const chosen = pledges.find((p) => p.id === e.target.value);
-    const name = formRef.current?.elements.namedItem('partyName');
-    if (chosen && name instanceof HTMLInputElement && name.value.trim() === '') {
+    if (!chosen) return;
+    const elements = formRef.current?.elements;
+    const name = elements?.namedItem('partyName');
+    const untouched = (value: string) => value.trim() === '' || value === prefilledName.current;
+    if (name instanceof HTMLInputElement && untouched(name.value)) {
       name.value = chosen.label;
+      prefilledName.current = chosen.label;
     }
+    // WHY: le membre vient de la promesse ; un choix resté dans la liste désactivée tromperait.
+    const member = elements?.namedItem('memberId');
+    if (member instanceof HTMLSelectElement) member.value = '';
   };
+  const digits = new Intl.NumberFormat(locale === 'en' ? 'en-GB' : 'fr-FR');
 
   const showMethod = kind !== 'pledge';
   const showMember = kind === 'receipt';
@@ -154,7 +166,6 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
     <form
       ref={formRef}
       onSubmit={onSubmit}
-      onInput={clearSaved}
       onChange={clearSaved}
       className="grid gap-3 sm:grid-cols-2"
       noValidate
@@ -171,7 +182,7 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
         required: true,
         inputMode: 'numeric',
         autoComplete: 'off',
-        placeholder: pledge ? String(pledge.amount) : undefined,
+        placeholder: pledge ? digits.format(pledge.amount) : undefined,
       })}
       {showMethod &&
         wrap(

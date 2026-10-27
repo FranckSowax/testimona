@@ -26,6 +26,7 @@ vi.mock('./useIdempotencyKey', async (importOriginal) => {
 
 const DOSSIER = '11111111-1111-4111-8111-111111111111';
 const PLEDGE = '33333333-3333-4333-8333-333333333333';
+const OTHER_PLEDGE = '55555555-5555-4555-8555-555555555555';
 const MEMBER = '44444444-4444-4444-8444-444444444444';
 const SUBMIT = 'Enregistrer';
 const plain = (s: string | null) => (s ?? '').replace(/[  ]/g, ' ');
@@ -151,9 +152,10 @@ describe('EntryForm', () => {
     expect((screen.getByLabelText(messages.ledger.form.party) as HTMLInputElement).value).toBe(
       'Awa Diallo',
     );
-    expect(screen.getByLabelText(messages.ledger.form.amount).getAttribute('placeholder')).toBe(
-      '30000',
-    );
+    expect(
+      plain(screen.getByLabelText(messages.ledger.form.amount).getAttribute('placeholder')),
+    ).toBe('30 000');
+    expect(member.value).toBe('');
     const form = container.querySelector('form') as HTMLFormElement;
     const data = new FormData(form);
     expect(data.get('pledgeId')).toBe(PLEDGE);
@@ -164,6 +166,28 @@ describe('EntryForm', () => {
     });
     expect(member.disabled).toBe(false);
     expect(member.getAttribute('aria-describedby')).toBeNull();
+  });
+
+  it('replaces a prefilled name with the next pledge, but never an edited one', () => {
+    renderForm({
+      kind: 'receipt',
+      pledges: [
+        { id: PLEDGE, label: 'Awa Diallo', amount: 30_000 },
+        { id: OTHER_PLEDGE, label: 'Jean Mba', amount: 10_000 },
+      ],
+    });
+    const name = screen.getByLabelText(messages.ledger.form.party) as HTMLInputElement;
+    const choose = (value: string) =>
+      fireEvent.change(screen.getByLabelText(messages.ledger.form.pledge), {
+        target: { value },
+      });
+    choose(PLEDGE);
+    expect(name.value).toBe('Awa Diallo');
+    choose(OTHER_PLEDGE);
+    expect(name.value).toBe('Jean Mba');
+    fireEvent.change(name, { target: { value: 'Jean Mba (oncle)' } });
+    choose(PLEDGE);
+    expect(name.value).toBe('Jean Mba (oncle)');
   });
 
   it('shows a ledger-specific error in an alert', async () => {
