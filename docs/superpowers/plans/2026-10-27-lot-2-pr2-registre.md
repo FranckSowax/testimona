@@ -2128,6 +2128,8 @@ export const FIELD_MESSAGES: Record<string, string> = {
   'out of range': 'errors.outOfRange',
   'invalid date': 'errors.invalidDate',
   required: 'errors.required',
+  'too long': 'errors.tooLong',
+  'invalid character': 'errors.invalidCharacter',
 };
 
 /** Erreurs propres au registre ; les autres reprennent `dossier.errors`. */
