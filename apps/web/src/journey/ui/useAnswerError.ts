@@ -1,4 +1,4 @@
-import { useEffect, useState, type RefObject } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import { useTranslations } from 'next-intl';
 import type { AnswerState } from '@/modules/dossier/answers/actions';
 import type { Question } from '../types';
@@ -36,6 +36,9 @@ export function useAnswerError(
 ) {
   const tErrors = useTranslations('dossier.errors');
   const [error, setError] = useState<AnswerError | null>(null);
+  // WHY: sans mémoire du dernier `state` traité, un nouvel objet `question` rejouerait l'effet
+  // et ferait réapparaître une erreur déjà effacée.
+  const handledRef = useRef<AnswerState | null>(null);
 
   const show = (text: string, invalidKeys: readonly string[] = []) =>
     setError((prev) => ({
@@ -45,6 +48,8 @@ export function useAnswerError(
     }));
 
   useEffect(() => {
+    if (state === handledRef.current) return;
+    handledRef.current = state;
     if (!state?.error) return;
     const keys = Object.keys(state.fieldErrors ?? {}).flatMap((key) => {
       const [index = ''] = key.split('.');

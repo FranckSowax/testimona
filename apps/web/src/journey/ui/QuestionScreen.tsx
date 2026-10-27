@@ -50,7 +50,12 @@ export function QuestionScreen(props: Props) {
     null,
   );
   const [value, setValue] = useState<EditableValue>(() =>
-    toEditable(question, props.stored, props.countries[0]?.code ?? ''),
+    toEditable(
+      question,
+      props.stored,
+      props.countries[0]?.code ?? '',
+      props.countries.map((c) => c.code),
+    ),
   );
   const fieldId = `answer-${question.key.replace(/\./g, '-')}`;
   const keptRef = useRef<number[]>([]);
@@ -68,7 +73,7 @@ export function QuestionScreen(props: Props) {
       if (isBlank(value)) return show(t('required'));
       if (question.kind === 'list' && Array.isArray(value)) {
         const missing = missingRequired(question, value);
-        if (missing.length > 0) return show(t('required'), missing);
+        if (missing.length > 0) return show(t('requiredFields'), missing);
       }
       keptRef.current = keptIndices(value);
       data.set('value', JSON.stringify(compact(value)));
@@ -117,6 +122,7 @@ export function QuestionScreen(props: Props) {
           describedBy={describedBy}
           countries={props.countries}
           invalidIds={error?.invalidIds ?? []}
+          busy={pending}
         />
       )}
       {error && (

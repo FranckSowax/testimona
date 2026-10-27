@@ -1230,6 +1230,7 @@
       "next": "Next",
       "finish": "Finish",
       "required": "Answer, or choose “Skip” to come back to it later.",
+      "requiredFields": "Complete the highlighted fields.",
       "readOnly": "You can read the answers; only contributors can change them.",
       "addItem": "Add",
       "removeItem": "Remove",

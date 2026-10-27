@@ -38,11 +38,21 @@ export function toEditable(
   question: Question,
   stored: unknown,
   defaultCountry: string,
+  countryCodes?: readonly string[],
 ): EditableValue {
   const known = stored !== undefined && !isSkipped(stored);
   switch (question.kind) {
     case 'place':
-      return known && isPlace(stored) ? stored : { city: '', countryCode: defaultCountry };
+      // WHY: un pays enregistré hors de la liste proposée ne peut pas être affiché dans le select.
+      return known && isPlace(stored)
+        ? {
+            ...stored,
+            countryCode:
+              !countryCodes || countryCodes.includes(stored.countryCode)
+                ? stored.countryCode
+                : defaultCountry,
+          }
+        : { city: '', countryCode: defaultCountry };
     case 'list':
       return known && Array.isArray(stored) && stored.length > 0
         ? stored.map((item) => normalizeItem(question, item))

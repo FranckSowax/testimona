@@ -98,8 +98,13 @@ function ItemField({ id, field, value, onChange, readOnly, invalid }: ItemFieldP
 export function ListInput({
   question,
   invalidIds,
+  busy,
   ...props
-}: FieldProps<ListItem[]> & { question: ListQuestion; invalidIds: readonly string[] }) {
+}: FieldProps<ListItem[]> & {
+  question: ListQuestion;
+  invalidIds: readonly string[];
+  busy: boolean;
+}) {
   const t = useTranslations('journey.ui');
   const items = props.value;
   const [focusTarget, setFocusTarget] = useState<string | null>(null);
@@ -151,8 +156,9 @@ export function ListInput({
             <button
               type="button"
               onClick={() => remove(index)}
+              disabled={busy}
               aria-label={t('removeItemN', { n: index + 1 })}
-              className="text-sm text-white/70 underline"
+              className="text-sm text-white/70 underline disabled:opacity-60"
             >
               {t('removeItem')}
             </button>
@@ -163,11 +169,12 @@ export function ListInput({
         <button
           id={addId}
           type="button"
+          disabled={busy}
           onClick={() => {
             props.onChange([...items, emptyItem(question)]);
             setFocusTarget(fieldIdAt(items.length, firstName));
           }}
-          className="rounded-full border border-white/40 px-4 py-2 text-sm"
+          className="rounded-full border border-white/40 px-4 py-2 text-sm disabled:opacity-60"
         >
           {t('addItem')}
         </button>

@@ -1230,6 +1230,7 @@
       "next": "Suivant",
       "finish": "Terminer",
       "required": "Répondez, ou choisissez « Passer » pour y revenir plus tard.",
+      "requiredFields": "Complétez les champs signalés.",
       "readOnly": "Vous pouvez lire les réponses ; seuls les contributeurs peuvent les modifier.",
       "addItem": "Ajouter",
       "removeItem": "Retirer",

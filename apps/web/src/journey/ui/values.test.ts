@@ -54,6 +54,19 @@ describe('toEditable : réponses enregistrées devenues invalides', () => {
   });
 });
 
+describe('toEditable : pays hors liste', () => {
+  it('revient au pays par défaut si le pays enregistré n’est pas proposé', () => {
+    expect(toEditable(place, { city: 'Oyem', countryCode: 'XX' }, 'GA', ['GA', 'CM'])).toEqual({
+      city: 'Oyem',
+      countryCode: 'GA',
+    });
+    expect(toEditable(place, { city: 'Oyem', countryCode: 'CM' }, 'GA', ['GA', 'CM'])).toEqual({
+      city: 'Oyem',
+      countryCode: 'CM',
+    });
+  });
+});
+
 describe('keptIndices et missingRequired', () => {
   it('indique les éléments conservés et les champs obligatoires manquants', () => {
     const items = [{ trait: 'A' }, { trait: '' }, { trait: ' ', anecdote: 'souvenir' }];
