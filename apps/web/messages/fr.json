@@ -1237,7 +1237,10 @@
       "removeItemN": "Retirer l'élément {n}",
       "noAnswer": "Pas encore de réponse.",
       "item": "Élément {n}",
-      "chooseOption": "Choisir…"
+      "chooseOption": "Choisir…",
+      "tooLarge": "Votre réponse est trop longue : raccourcissez-la.",
+      "invalidDate": "Cette date n'est pas valide.",
+      "invalidCharacter": "Votre réponse contient un caractère non pris en charge."
     },
     "dashboard": {
       "nextTitle": "Prochaine question",

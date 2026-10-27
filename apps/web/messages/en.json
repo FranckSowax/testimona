@@ -1237,7 +1237,10 @@
       "removeItemN": "Remove item {n}",
       "noAnswer": "No answer yet.",
       "item": "Item {n}",
-      "chooseOption": "Choose…"
+      "chooseOption": "Choose…",
+      "tooLarge": "Your answer is too long: please shorten it.",
+      "invalidDate": "This date is not valid.",
+      "invalidCharacter": "Your answer contains an unsupported character."
     },
     "dashboard": {
       "nextTitle": "Next question",
