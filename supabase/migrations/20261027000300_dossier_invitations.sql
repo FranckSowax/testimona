@@ -23,6 +23,7 @@ create index dossier_invitation_dossier_id_idx on public.dossier_invitation (dos
 
 alter table public.dossier_invitation enable row level security;
 revoke all on public.dossier_invitation from anon;
+revoke truncate, trigger, references on public.dossier_invitation from authenticated;
 
 create policy dossier_invitation_select on public.dossier_invitation
   for select to authenticated

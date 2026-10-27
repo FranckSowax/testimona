@@ -204,6 +204,16 @@ describe('dossier_invitation : RLS', () => {
     ).rejects.toMatchObject(RLS_DENIED);
   });
 
+  it('retire truncate, trigger et references aux utilisateurs connectés', async () => {
+    for (const privilege of ['TRUNCATE', 'TRIGGER', 'REFERENCES']) {
+      const { rows } = await db.query<{ granted: boolean }>(
+        'select has_table_privilege($1, $2, $3) as granted',
+        ['authenticated', 'public.dossier_invitation', privilege],
+      );
+      expect(rows[0]?.granted, privilege).toBe(false);
+    }
+  });
+
   it("refuse l'accès aux visiteurs anonymes", async () => {
     const attempt = asRole(db, 'anon', null, () => db.query('select * from dossier_invitation'));
     await expect(attempt).rejects.toMatchObject(RLS_DENIED);
@@ -278,9 +288,11 @@ describe('accept_dossier_invitation', () => {
   });
 
   it('promeut un lecteur existant au rôle de contributeur', async () => {
+    const promoted = await createUser(db, 'promoted@test.local');
+    await addMember(promoted, 'viewer');
     await invite(owner, 'token-promo-0000000000000', 'contributor');
-    await accept(viewer, 'token-promo-0000000000000');
-    expect(await roleOf(viewer)).toBe('contributor');
+    await accept(promoted, 'token-promo-0000000000000');
+    expect(await roleOf(promoted)).toBe('contributor');
   });
 
   it('ne rétrograde pas un membre qui a déjà un rôle supérieur', async () => {

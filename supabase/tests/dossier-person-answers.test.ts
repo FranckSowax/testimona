@@ -213,15 +213,19 @@ describe('person et journey_answer : RLS', () => {
   });
 
   it('interdit à un lecteur de modifier la personne', async () => {
+    const readNickname = async () => {
+      const { rows } = await db.query<{ nickname: string | null }>(
+        'select nickname from person where dossier_id = $1',
+        [dossierId],
+      );
+      return rows[0]?.nickname;
+    };
+    const before = await readNickname();
     const result = await asUser(db, viewer, () =>
       db.query(`update person set nickname = 'Piratage' where dossier_id = $1`, [dossierId]),
     );
     expect(result.affectedRows).toBe(0);
-    const { rows } = await db.query<{ nickname: string | null }>(
-      'select nickname from person where dossier_id = $1',
-      [dossierId],
-    );
-    expect(rows[0]?.nickname).toBeNull();
+    expect(await readNickname()).toBe(before);
   });
 
   it('interdit à un lecteur de supprimer une réponse', async () => {

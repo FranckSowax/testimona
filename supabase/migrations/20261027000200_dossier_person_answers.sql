@@ -102,7 +102,7 @@ create table public.journey_answer (
   dossier_id uuid not null references public.dossier (id) on delete cascade,
   key text not null check (key ~ '^[a-z][a-zA-Z0-9]*(\.[a-z][a-zA-Z0-9]*)+$'),
   -- WHY: borne à 64 Kio pour qu'un membre ne puisse pas gonfler la base.
-  value jsonb not null check (pg_column_size(value) <= 65536),
+  value jsonb not null check (octet_length(value::text) <= 65536),
   answered_by uuid references auth.users (id) on delete set null,
   updated_at timestamptz not null default now(),
   primary key (dossier_id, key)
@@ -172,7 +172,7 @@ begin
   insert into public.dossier (title, country_code, city, entry_point)
   values (
     -- WHY: deux noms de 120 caractères dépasseraient dossier_title_check (200).
-    left(trim(p_first_name) || ' ' || trim(p_last_name), 200),
+    rtrim(left(trim(p_first_name) || ' ' || trim(p_last_name), 200)),
     upper(trim(p_country_code)),
     trim(p_city),
     p_entry_point
