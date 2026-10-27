@@ -1470,5 +1470,87 @@
       "outfits": "Tenues et pagnes",
       "contingency": "Imprévus"
     }
+  },
+  "ledger": {
+    "page": {
+      "title": "Cotisations",
+      "intro": "Promesses, cotisations reçues et dépenses de la famille, au même endroit. Aucun paiement ne passe par Testimona.",
+      "restrictedNote": "Les montants individuels sont visibles des trésoriers, des coordinateurs et du propriétaire. Chacun voit ses propres lignes et toutes les dépenses.",
+      "membersNote": "Les montants individuels sont visibles de tous les membres du dossier.",
+      "empty": "Aucune ligne pour l'instant.",
+      "seeBudget": "Voir le budget",
+      "backToDossier": "Retour au dossier"
+    },
+    "summary": {
+      "budget": "Budget envisagé",
+      "budgetNone": "Budget non choisi",
+      "received": "Reçu",
+      "pledgedOpen": "Promis, non versé",
+      "spent": "Dépensé",
+      "balance": "Disponible",
+      "remaining": "Reste à réunir"
+    },
+    "kind": {
+      "pledge": "Promesse",
+      "receipt": "Cotisation reçue",
+      "expense": "Dépense",
+      "reversal": "Annulation"
+    },
+    "method": {
+      "cash": "Espèces",
+      "airtel_money": "Airtel Money",
+      "moov_money": "Moov Money",
+      "transfer": "Virement",
+      "card": "Carte",
+      "other": "Autre"
+    },
+    "entry": {
+      "listTitle": "Mouvements",
+      "reversed": "annulée",
+      "fulfilled": "versée",
+      "partlyPaid": "{paid} déjà versés",
+      "reversalOf": "Annulation : {kind}",
+      "reverse": "Annuler cette ligne",
+      "confirmReverse": "Confirmer l'annulation",
+      "keep": "Garder"
+    },
+    "form": {
+      "pledgeTitle": "Je promets une participation",
+      "receiptTitle": "Ajouter une cotisation reçue",
+      "expenseTitle": "Ajouter une dépense",
+      "party": "Nom du cotisant",
+      "supplier": "Fournisseur",
+      "amount": "Montant (FCFA)",
+      "method": "Moyen de paiement",
+      "member": "Membre du dossier",
+      "memberNone": "Autre personne (sans compte)",
+      "pledge": "Promesse honorée",
+      "pledgeNone": "Aucune",
+      "date": "Date",
+      "note": "Note (facultative)",
+      "submit": "Enregistrer",
+      "saved": "Ligne enregistrée."
+    },
+    "visibility": {
+      "title": "Qui voit les montants individuels ?",
+      "restricted": "Trésoriers, coordinateurs et propriétaire",
+      "members": "Tous les membres du dossier",
+      "save": "Enregistrer le réglage",
+      "saved": "Réglage enregistré."
+    },
+    "errors": {
+      "already_reversed": "Cette ligne a déjà été annulée.",
+      "pledge_unavailable": "Cette promesse n'est plus ouverte : elle a été annulée ou déjà versée.",
+      "invalidNumber": "Entrez un montant entier, en chiffres.",
+      "outOfRange": "Entrez un montant entre 1 et 100 000 000 FCFA.",
+      "invalidDate": "Entrez une date valide, qui n'est pas dans le futur.",
+      "required": "Ce champ est obligatoire."
+    },
+    "card": {
+      "title": "Cotisations",
+      "summary": "{received} reçus sur un budget envisagé de {budget}.",
+      "summaryNoBudget": "{received} reçus. Aucun budget n'est encore choisi.",
+      "open": "Voir les cotisations"
+    }
   }
 }

@@ -1470,5 +1470,87 @@
       "outfits": "Outfits and loincloths",
       "contingency": "Contingencies"
     }
+  },
+  "ledger": {
+    "page": {
+      "title": "Contributions",
+      "intro": "The family's pledges, contributions received and expenses, in one place. No payment goes through Testimona.",
+      "restrictedNote": "Individual amounts are visible to treasurers, coordinators and the owner. Everyone sees their own entries and all expenses.",
+      "membersNote": "Individual amounts are visible to every member of the dossier.",
+      "empty": "No entries yet.",
+      "seeBudget": "See the budget",
+      "backToDossier": "Back to the dossier"
+    },
+    "summary": {
+      "budget": "Budget in mind",
+      "budgetNone": "No budget chosen",
+      "received": "Received",
+      "pledgedOpen": "Pledged, not paid",
+      "spent": "Spent",
+      "balance": "Available",
+      "remaining": "Still to raise"
+    },
+    "kind": {
+      "pledge": "Pledge",
+      "receipt": "Contribution received",
+      "expense": "Expense",
+      "reversal": "Reversal"
+    },
+    "method": {
+      "cash": "Cash",
+      "airtel_money": "Airtel Money",
+      "moov_money": "Moov Money",
+      "transfer": "Bank transfer",
+      "card": "Card",
+      "other": "Other"
+    },
+    "entry": {
+      "listTitle": "Entries",
+      "reversed": "reversed",
+      "fulfilled": "paid",
+      "partlyPaid": "{paid} paid so far",
+      "reversalOf": "Reversal: {kind}",
+      "reverse": "Reverse this entry",
+      "confirmReverse": "Confirm reversal",
+      "keep": "Keep"
+    },
+    "form": {
+      "pledgeTitle": "I pledge a contribution",
+      "receiptTitle": "Add a contribution received",
+      "expenseTitle": "Add an expense",
+      "party": "Contributor's name",
+      "supplier": "Supplier",
+      "amount": "Amount (FCFA)",
+      "method": "Payment method",
+      "member": "Dossier member",
+      "memberNone": "Someone else (no account)",
+      "pledge": "Pledge fulfilled",
+      "pledgeNone": "None",
+      "date": "Date",
+      "note": "Note (optional)",
+      "submit": "Save",
+      "saved": "Entry saved."
+    },
+    "visibility": {
+      "title": "Who sees individual amounts?",
+      "restricted": "Treasurers, coordinators and owner",
+      "members": "Every member of the dossier",
+      "save": "Save setting",
+      "saved": "Setting saved."
+    },
+    "errors": {
+      "already_reversed": "This entry has already been reversed.",
+      "pledge_unavailable": "This pledge is no longer open: it was reversed or already paid.",
+      "invalidNumber": "Enter a whole amount, in digits.",
+      "outOfRange": "Enter an amount between 1 and 100,000,000 FCFA.",
+      "invalidDate": "Enter a valid date that is not in the future.",
+      "required": "This field is required."
+    },
+    "card": {
+      "title": "Contributions",
+      "summary": "{received} received against a budget in mind of {budget}.",
+      "summaryNoBudget": "{received} received. No budget has been chosen yet.",
+      "open": "See contributions"
+    }
   }
 }
