@@ -21,4 +21,32 @@ describe('defineStep', () => {
     const list = q.list('demo.list', [{ name: 'name', kind: 'shortText', required: true }]);
     expect(list).toMatchObject({ kind: 'list', maxItems: 20 });
   });
+
+  it('refuse un identifiant d’étape inutilisable dans une URL', () => {
+    expect(() => defineStep({ id: 'Bad Id/', questions: [] })).toThrow(/identifiant/);
+  });
+
+  it('refuse des noms de champs de liste en double', () => {
+    const field = { name: 'a', kind: 'shortText' as const };
+    expect(() =>
+      defineStep({ id: 'demo', questions: [q.list('demo.list', [field, field])] }),
+    ).toThrow(/double/);
+  });
+
+  it('refuse des options vides (question ou champ)', () => {
+    expect(() => defineStep({ id: 'demo', questions: [q.choice('demo.c', [])] })).toThrow(/vides/);
+    const field = { name: 'c', kind: 'choice' as const, options: [] };
+    expect(() => defineStep({ id: 'demo', questions: [q.list('demo.l', [field])] })).toThrow(
+      /vides/,
+    );
+  });
+
+  it('refuse un maxItems non entier ou inférieur à 1', () => {
+    const f = [{ name: 'a', kind: 'shortText' as const }];
+    for (const n of [0, 1.5, -2]) {
+      expect(() => defineStep({ id: 'demo', questions: [q.list('demo.l', f, n)] })).toThrow(
+        /maxItems/,
+      );
+    }
+  });
 });

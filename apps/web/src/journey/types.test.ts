@@ -55,7 +55,9 @@ describe('answerSchema', () => {
 
   it('valide les éléments d’une liste et leur nombre', () => {
     const s = answerSchema(traits);
-    expect(s.parse([{ trait: 'Généreux', anecdote: '' }])).toEqual([{ trait: 'Généreux' }]);
+    // WHY: le champ vide ressort à `undefined` ; le JSON (ce qui est stocké) l'omet.
+    const parsed = s.parse([{ trait: 'Généreux', anecdote: '' }]);
+    expect(JSON.parse(JSON.stringify(parsed))).toStrictEqual([{ trait: 'Généreux' }]);
     expect(s.safeParse([]).success).toBe(false);
     expect(s.safeParse([{ trait: 'a' }, { trait: 'b' }, { trait: 'c' }]).success).toBe(false);
     expect(s.safeParse([{ anecdote: 'sans trait' }]).success).toBe(false);
@@ -73,6 +75,8 @@ describe('answerSchema', () => {
       ],
     });
     expect(s.parse([{ name: 'Marie' }])).toEqual([{ name: 'Marie', priority: false }]);
+    const empty = s.parse([{ name: 'Marie', circle: '' }]);
+    expect(JSON.parse(JSON.stringify(empty))).toStrictEqual([{ name: 'Marie', priority: false }]);
     expect(s.safeParse([{ name: 'Marie', circle: 'unknown' }]).success).toBe(false);
   });
 });

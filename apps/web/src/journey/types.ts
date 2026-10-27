@@ -6,6 +6,9 @@ export const ANSWER_KEY_PATTERN = /^[a-z][a-zA-Z0-9]*(\.[a-z][a-zA-Z0-9]*)+$/;
 export const SHORT_TEXT_MAX = 200;
 export const LONG_TEXT_MAX = 4000;
 export const CITY_MAX = 120;
+/** Marge sous la limite SQL de 65536 octets : `jsonb::text` ajoute des espaces. */
+export const ANSWER_MAX_BYTES = 60_000;
+export const MIN_YEAR = 1800;
 
 export type ListField =
   | { name: string; kind: 'shortText' | 'longText'; required?: boolean }
@@ -44,13 +47,17 @@ export function isSkipped(value: unknown): boolean {
   return SkippedSchema.safeParse(value).success;
 }
 
-const requiredText = (max: number) => z.string().trim().min(1).max(max);
+// WHY: jsonb rejette le caractère NUL (erreur 22P05).
+const noNul = (s: string) => !s.includes('\u0000');
+const requiredText = (max: number) =>
+  z.string().trim().min(1).max(max).refine(noNul, 'invalid character');
 // WHY: un champ facultatif laissé vide n'est pas enregistré, plutôt que stocké en chaîne vide.
 const optionalText = (max: number) =>
   z
     .string()
     .trim()
     .max(max)
+    .refine(noNul, 'invalid character')
     .optional()
     .transform((v) => (v ? v : undefined));
 
@@ -59,11 +66,26 @@ const isoDate = z
   .regex(/^\d{4}-\d{2}-\d{2}$/)
   .refine((s) => {
     const date = new Date(`${s}T00:00:00Z`);
-    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === s;
+    const year = Number(s.slice(0, 4));
+    const maxYear = new Date().getUTCFullYear() + 1;
+    return (
+      !Number.isNaN(date.getTime()) &&
+      date.toISOString().slice(0, 10) === s &&
+      year >= MIN_YEAR &&
+      year <= maxYear
+    );
   }, 'invalid date');
 
 const oneOf = (options: readonly string[]) =>
   z.string().refine((v) => options.includes(v), 'invalid option');
+
+// WHY: un choix facultatif vide vaut « absent », comme un texte facultatif vide.
+const optionalChoice = (options: readonly string[]) =>
+  z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined))
+    .pipe(oneOf(options).optional());
 
 function fieldSchema(field: ListField): z.ZodTypeAny {
   switch (field.kind) {
@@ -72,14 +94,21 @@ function fieldSchema(field: ListField): z.ZodTypeAny {
     case 'longText':
       return field.required ? requiredText(LONG_TEXT_MAX) : optionalText(LONG_TEXT_MAX);
     case 'choice':
-      return field.required ? oneOf(field.options) : oneOf(field.options).optional();
+      return field.required ? oneOf(field.options) : optionalChoice(field.options);
     case 'boolean':
       return z.boolean().default(false);
   }
 }
 
-/** Schéma d'une vraie réponse à la question (« passée » exclue). */
+/** Schéma d'une vraie réponse à la question (« passée » exclue), taille bornée. */
 export function answerSchema(question: Question): z.ZodTypeAny {
+  return rawAnswerSchema(question).refine(
+    (v) => new TextEncoder().encode(JSON.stringify(v)).length <= ANSWER_MAX_BYTES,
+    'too large',
+  );
+}
+
+function rawAnswerSchema(question: Question): z.ZodTypeAny {
   switch (question.kind) {
     case 'shortText':
       return requiredText(SHORT_TEXT_MAX);
