@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // WHY: vi.mock est remonté en tête de fichier ; les doublures sont créées avec vi.hoisted.
 const { answersRepo, dossierRepo } = vi.hoisted(() => ({
-  answersRepo: { upsertAnswer: vi.fn() },
+  answersRepo: { upsertAnswer: vi.fn(), listAnswers: vi.fn() },
   dossierRepo: { getDossier: vi.fn() },
 }));
 
@@ -12,6 +12,7 @@ vi.mock('../repo', () => dossierRepo);
 vi.mock('@/lib/email/resend', () => ({ sendEmail: vi.fn(), dossierInviteEmail: vi.fn() }));
 
 const { saveAnswer } = await import('./service');
+const { SKIPPED } = await import('@/journey/types');
 
 const DOSSIER = '44444444-4444-4444-8444-444444444444';
 const dossier = (entryPoint: 'death' | 'prepare' | 'after') => ({
@@ -27,6 +28,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   dossierRepo.getDossier.mockResolvedValue(dossier('death'));
   answersRepo.upsertAnswer.mockResolvedValue({ data: true, error: null });
+  answersRepo.listAnswers.mockResolvedValue({});
 });
 
 describe('saveAnswer', () => {
@@ -93,6 +95,31 @@ describe('saveAnswer', () => {
       key: 'biography.motto',
       value: { skipped: true },
     });
+  });
+
+  it('« passer » ne remplace pas une réponse existante', async () => {
+    answersRepo.listAnswers.mockResolvedValue({ 'biography.motto': 'Toujours debout' });
+    const res = await saveAnswer({ dossierId: DOSSIER, key: 'biography.motto', value: SKIPPED });
+    expect(res).toEqual({ ok: true, data: { key: 'biography.motto' } });
+    expect(answersRepo.listAnswers).toHaveBeenCalledWith(DOSSIER, ['biography.motto']);
+    expect(answersRepo.upsertAnswer).not.toHaveBeenCalled();
+  });
+
+  it('« passer » une question déjà passée réécrit « passée »', async () => {
+    answersRepo.listAnswers.mockResolvedValue({ 'biography.motto': SKIPPED });
+    const res = await saveAnswer({ dossierId: DOSSIER, key: 'biography.motto', value: SKIPPED });
+    expect(res).toEqual({ ok: true, data: { key: 'biography.motto' } });
+    expect(answersRepo.upsertAnswer).toHaveBeenCalledWith({
+      dossierId: DOSSIER,
+      key: 'biography.motto',
+      value: { skipped: true },
+    });
+  });
+
+  it('une vraie réponse ne relit pas les réponses existantes', async () => {
+    await saveAnswer({ dossierId: DOSSIER, key: 'biography.motto', value: 'x' });
+    expect(answersRepo.listAnswers).not.toHaveBeenCalled();
+    expect(answersRepo.upsertAnswer).toHaveBeenCalled();
   });
 
   it('renvoie « not_found » si le dossier est inaccessible', async () => {
