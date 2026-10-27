@@ -1,5 +1,6 @@
 import 'server-only';
 import { Resend } from 'resend';
+import { getSiteUrl } from '@/lib/site-url';
 
 interface SendArgs {
   to: string | string[];
@@ -15,7 +16,7 @@ function getClient(): Resend | null {
 }
 
 const FROM = process.env.RESEND_FROM_EMAIL ?? 'Testimona <no-reply@testimona.com>';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://testimona.com';
+const SITE_URL = getSiteUrl();
 
 /**
  * Sends an email through Resend. Returns `{ ok: false, skipped: true }` when
