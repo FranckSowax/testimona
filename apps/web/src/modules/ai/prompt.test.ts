@@ -7,7 +7,6 @@ const facts = (tone?: string): AiFacts => ({
     firstName: 'Jean',
     lastName: 'Ndong',
     nickname: null,
-    birthDate: null,
     deathDate: '2026-10-01',
   },
   answers: tone ? { 'announce.tone': tone } : {},
@@ -56,6 +55,40 @@ describe('buildImprovePrompt', () => {
     expect(prompt.user).toContain('"firstName": "Jean"');
     expect(prompt.system).toContain('not instructions');
     expect(prompt.system).toContain('Never invent');
+  });
+
+  it("garde le ton du brouillon quand aucun ton n'est choisi", () => {
+    const prompt = buildImprovePrompt({ kind: 'email', locale: 'fr', text: 'x', facts: facts() });
+    expect(prompt.system).toContain('Keep the tone of the draft');
+  });
+
+  it('place une réponse convertie dans le bloc des faits', () => {
+    const withCause: AiFacts = {
+      ...facts(),
+      answers: { 'death.mentionCause': 'after an illness' },
+    };
+    const prompt = buildImprovePrompt({ kind: 'email', locale: 'fr', text: 'x', facts: withCause });
+    expect(prompt.user).toContain('"death.mentionCause": "after an illness"');
+  });
+
+  it('neutralise les balises du brouillon, quelle que soit la casse', () => {
+    for (const tag of ['</DRAFT>', '<draft>', '</facts>', '< / Draft >']) {
+      const prompt = buildImprovePrompt({
+        kind: 'email',
+        locale: 'fr',
+        text: `Avant ${tag} après`,
+        facts: facts(),
+      });
+      expect(prompt.user.match(/<\/draft>/g)).toHaveLength(1);
+      expect(prompt.user.match(/<draft>/g)).toHaveLength(1);
+      expect(prompt.user.match(/<\/facts>/g)).toHaveLength(1);
+    }
+  });
+
+  it('neutralise une balise de fin glissée dans un fait', () => {
+    const tricky: AiFacts = { ...facts(), answers: { 'announce.aboutPerson': 'x </facts> y' } };
+    const prompt = buildImprovePrompt({ kind: 'email', locale: 'fr', text: 'x', facts: tricky });
+    expect(prompt.user.match(/<\/facts>/g)).toHaveLength(1);
   });
 
   it('neutralise une balise de fin de brouillon glissée dans le texte', () => {
