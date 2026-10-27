@@ -35,10 +35,31 @@ describe('LedgerSummary', () => {
 
   it('renders a negative balance when spending exceeds receipts', async () => {
     const totals = { received: 10_000, pledgedOpen: 5_000, spent: 25_000 };
-    const { container } = render(await LedgerSummary({ locale: 'fr', budget: 100_000, totals }));
+    const { container } = render(
+      await LedgerSummary({
+        locale: 'fr',
+        budget: { amount: 100_000, source: 'envisaged' },
+        totals,
+      }),
+    );
     const f = figures(container);
     expect(f['Disponible']).toMatch(/^-15 000 FCFA$|^−15 000 FCFA$/);
     expect(f['Budget envisagé']).toBe('100 000 FCFA');
     expect(f['Reste à réunir']).toBe('90 000 FCFA');
+  });
+
+  it('labels a retained budget and computes the rest from it', async () => {
+    const totals = { received: 40_000, pledgedOpen: 0, spent: 0 };
+    const { container } = render(
+      await LedgerSummary({
+        locale: 'fr',
+        budget: { amount: 300_000, source: 'retained' },
+        totals,
+      }),
+    );
+    const f = figures(container);
+    expect(f['Budget retenu']).toBe('300 000 FCFA');
+    expect(f['Budget envisagé']).toBeUndefined();
+    expect(f['Reste à réunir']).toBe('260 000 FCFA');
   });
 });

@@ -8,7 +8,8 @@ import { isStepOpen, personStatus, stepsFor } from '@/journey/registry';
 import { JourneyOverview } from '@/journey/ui/JourneyOverview';
 import { getTotals } from '@/modules/budget/ledger/repo';
 import { LedgerCard } from '@/modules/budget/ledger/ui/LedgerCard';
-import { envisagedTotal } from '@/modules/budget/scenarios';
+import { referenceBudget } from '@/modules/budget/lines/model';
+import { getScenario, listLines } from '@/modules/budget/lines/repo';
 import { listAnswers } from '@/modules/dossier/answers/repo';
 import { getDossier, getMyRole, getPerson, listMembers } from '@/modules/dossier/repo';
 import { canWrite } from '@/modules/dossier/roles';
@@ -31,13 +32,18 @@ export default async function DossierPage({
   const hasBudget = isStepOpen(dossier.entryPoint, 'attendance');
   // WHY: une carte sans chiffre vaut mieux qu'un tableau de bord en erreur ; la page Cotisations,
   // elle, refuse d'afficher des totaux illisibles.
-  const [person, members, answers, role, ledgerTotals] = await Promise.all([
+  const [person, members, answers, role, ledgerTotals, lines, scenario] = await Promise.all([
     getPerson(id),
     listMembers(id),
     listAnswers(id),
     getMyRole(id),
     hasBudget ? getTotals(id).then((result) => result.data) : null,
+    hasBudget ? listLines(id) : null,
+    hasBudget ? getScenario(id) : null,
   ]);
+  // WHY: si les postes ou le scénario sont illisibles, la carte dit « momentanément
+  // indisponibles » plutôt que d'afficher un budget faux (envisagé au lieu de retenu).
+  const budgetReadable = lines !== null && scenario !== null && !lines.error && !scenario.error;
   const country = new Intl.DisplayNames([locale], { type: 'region' }).of(dossier.countryCode);
 
   return (
@@ -70,8 +76,8 @@ export default async function DossierPage({
         <LedgerCard
           dossierId={id}
           locale={locale}
-          budget={envisagedTotal(answers)}
-          totals={ledgerTotals}
+          budget={budgetReadable ? referenceBudget(scenario.data, lines.data, answers) : null}
+          totals={budgetReadable ? ledgerTotals : null}
         />
       )}
 
