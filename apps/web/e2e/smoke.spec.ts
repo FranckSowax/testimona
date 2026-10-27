@@ -9,14 +9,25 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Public pages', () => {
-  test('Home (anonymous) — V2 hero "beautiful stories"', async ({ page }) => {
+  test('Home (anonymous) — three entry doors', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByText(/Célébrons ces|Let's share/)).toBeVisible();
-    await expect(page.getByText(/beaux souvenirs|beautiful stories/)).toBeVisible();
     await expect(
-      page.getByRole('link', { name: /Écrire un témoignage|Write a testimonial/ }),
+      page.getByRole('heading', { name: /Que vivez-vous en ce moment|What are you going through/ }),
     ).toBeVisible();
-    await expect(page.getByText(/Derniers|Recent/).first()).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /Un proche vient de nous quitter|Someone close/ }),
+    ).toBeVisible();
+    await expect(page.getByText(/Bientôt disponible|Coming soon/)).toBeVisible();
+  });
+
+  test('Memorials page — previous home content', async ({ page }) => {
+    await page.goto('/memoriaux');
+    await expect(page.getByText(/beaux souvenirs|beautiful stories/)).toBeVisible();
+  });
+
+  test('New dossier requires sign-in', async ({ page }) => {
+    await page.goto('/dossier/nouveau?porte=deces');
+    await expect(page).toHaveURL(/\/login\?next=/);
   });
 
   test('Login page — V2 form on mesh background', async ({ page }) => {
