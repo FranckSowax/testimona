@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const { aiRepo, answersRepo, dossierRepo } = vi.hoisted(() => ({
   aiRepo: { consumeAiQuota: vi.fn() },
   answersRepo: { listAnswersResult: vi.fn() },
-  dossierRepo: { getDossier: vi.fn(), getPerson: vi.fn() },
+  dossierRepo: { getDossier: vi.fn(), getPersonResult: vi.fn() },
 }));
 
 vi.mock('server-only', () => ({}));
@@ -38,12 +38,15 @@ beforeEach(() => {
     entryPoint: 'death',
     createdAt: '2026-10-27T00:00:00Z',
   });
-  dossierRepo.getPerson.mockResolvedValue({
-    firstName: 'Jean',
-    lastName: 'Ndong',
-    nickname: null,
-    birthDate: null,
-    deathDate: '2026-10-01',
+  dossierRepo.getPersonResult.mockResolvedValue({
+    data: {
+      firstName: 'Jean',
+      lastName: 'Ndong',
+      nickname: null,
+      birthDate: null,
+      deathDate: '2026-10-01',
+    },
+    error: null,
   });
   answersRepo.listAnswersResult.mockResolvedValue({
     data: { 'announce.tone': 'neutral' },
@@ -143,6 +146,49 @@ describe('improveDraft', () => {
     expect(await improveDraft(input(), provider)).toEqual({ ok: false, error: 'failed' });
     expect(aiRepo.consumeAiQuota).not.toHaveBeenCalled();
     expect(provider).not.toHaveBeenCalled();
+  });
+
+  it('renvoie failed si la fiche est illisible, sans consommer le quota', async () => {
+    dossierRepo.getPersonResult.mockResolvedValue({ data: null, error: { code: 'XX000' } });
+    expect(await improveDraft(input(), provider)).toEqual({ ok: false, error: 'failed' });
+    expect(aiRepo.consumeAiQuota).not.toHaveBeenCalled();
+    expect(provider).not.toHaveBeenCalled();
+  });
+
+  it('traduit 28000 et PGRST301 en unauthenticated', async () => {
+    for (const code of ['28000', 'PGRST301']) {
+      aiRepo.consumeAiQuota.mockResolvedValueOnce({ data: null, error: { code, message: 'x' } });
+      expect(await improveDraft(input(), provider)).toEqual({
+        ok: false,
+        error: 'unauthenticated',
+      });
+    }
+  });
+
+  it('renvoie failed pour un code inconnu, en ne journalisant que le code', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    aiRepo.consumeAiQuota.mockResolvedValue({
+      data: null,
+      error: { code: 'XX000', message: 'secret detail' },
+    });
+    expect(await improveDraft(input(), provider)).toEqual({ ok: false, error: 'failed' });
+    expect(spy).toHaveBeenCalledWith('[ai] consumeAiQuota failed', { code: 'XX000' });
+    expect(JSON.stringify(spy.mock.calls)).not.toContain('secret detail');
+    spy.mockRestore();
+  });
+
+  it('se rabat sur le titre du dossier quand la fiche est absente', async () => {
+    dossierRepo.getPersonResult.mockResolvedValue({ data: null, error: null });
+    expect(await improveDraft(input(), provider)).toEqual({ ok: true, text: 'Texte amélioré' });
+    const prompt = provider.mock.calls[0]![0] as { user: string };
+    expect(prompt.user).toContain('Jean Ndong');
+  });
+
+  it('normalise les retours à la ligne CRLF en LF', async () => {
+    await improveDraft(input({ text: 'Ligne un\r\nLigne deux' }), provider);
+    const prompt = provider.mock.calls[0]![0] as { user: string };
+    expect(prompt.user).toContain('Ligne un\nLigne deux');
+    expect(prompt.user).not.toContain('\r');
   });
 
   it('renvoie failed si l’IA échoue ou rend un texte invalide', async () => {

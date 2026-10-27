@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getStep, isStepOpen } from '@/journey/registry';
 import { draftTextSchema } from '@/journey/types';
 import { listAnswersResult } from '@/modules/dossier/answers/repo';
-import { getDossier, getPerson } from '@/modules/dossier/repo';
+import { getDossier, getPersonResult } from '@/modules/dossier/repo';
 import { isAiEnabled } from './config';
 import { AI_ANSWER_KEYS, aiFacts } from './facts';
 import { buildImprovePrompt } from './prompt';
@@ -21,6 +21,8 @@ const InputSchema = z.object({
 const QUOTA_ERRORS: Record<string, AiError> = {
   '42501': 'forbidden',
   '28000': 'unauthenticated',
+  // WHY: JWT expiré signalé par PostgREST.
+  PGRST301: 'unauthenticated',
 };
 
 /**
@@ -34,6 +36,7 @@ const QUOTA_ERRORS: Record<string, AiError> = {
  */
 export async function improveDraft(raw: unknown, provider?: ImproveProvider): Promise<AiResult> {
   const apiKey = process.env.OPENROUTER_API_KEY;
+  // WHY: `apiKey` sert au typage (string) ; `isAiEnabled` reste la source de vérité du drapeau.
   if (!isAiEnabled() || !apiKey) return { ok: false, error: 'unavailable' };
 
   const input = InputSchema.safeParse(raw);
@@ -48,13 +51,13 @@ export async function improveDraft(raw: unknown, provider?: ImproveProvider): Pr
   if (!dossier) return { ok: false, error: 'not_found' };
   if (!isStepOpen(dossier.entryPoint, stepId)) return { ok: false, error: 'validation' };
 
-  // WHY: lire avant de consommer le quota : une lecture en échec ne coûte pas d'appel, et l'IA
-  // ne doit jamais travailler sur des faits vides à l'insu de la famille.
+  // WHY: lire avant de consommer le quota : une lecture (fiche ou réponses) en échec ne coûte pas
+  // d'appel, et l'IA ne doit jamais travailler sur des faits vides à l'insu de la famille.
   const [person, answers] = await Promise.all([
-    getPerson(dossierId),
+    getPersonResult(dossierId),
     listAnswersResult(dossierId, AI_ANSWER_KEYS),
   ]);
-  if (answers.error) return { ok: false, error: 'failed' };
+  if (person.error || answers.error) return { ok: false, error: 'failed' };
 
   const quota = await consumeAiQuota(dossierId);
   if (quota.error) {
@@ -64,10 +67,11 @@ export async function improveDraft(raw: unknown, provider?: ImproveProvider): Pr
   }
   if (!quota.data) return { ok: false, error: 'quota' };
 
-  // WHY: sans fiche lisible, le titre du dossier tient lieu de nom, comme sur la page brouillon.
+  // WHY: sans fiche (lecture réussie mais aucune ligne), le titre du dossier tient lieu de nom,
+  // comme sur la page brouillon.
   const facts = aiFacts(
     draft.kind,
-    person ?? { firstName: '', lastName: dossier.title, nickname: null, deathDate: null },
+    person.data ?? { firstName: '', lastName: dossier.title, nickname: null, deathDate: null },
     answers.data,
   );
   const prompt = buildImprovePrompt({ kind: draft.kind, locale, text: text.data, facts });
@@ -76,7 +80,10 @@ export async function improveDraft(raw: unknown, provider?: ImproveProvider): Pr
     const improved = await (provider ?? openRouterProvider(apiKey))(prompt);
     const checked = draftTextSchema.safeParse(improved);
     if (!checked.success) {
-      console.error('[ai] improved text rejected', { stepId });
+      console.error('[ai] improved text rejected', {
+        stepId,
+        issue: checked.error.issues[0]?.message,
+      });
       return { ok: false, error: 'failed' };
     }
     return { ok: true, text: checked.data };

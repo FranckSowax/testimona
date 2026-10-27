@@ -16,5 +16,8 @@ export async function improveDraftAction(input: {
 }): Promise<AiResult> {
   if (!(await getCurrentUser())) return { ok: false, error: 'unauthenticated' };
   const locale = await getLocale();
-  return improveDraft({ ...input, locale: locale === 'en' ? 'en' : 'fr' });
+  // WHY: un appel d'action peut porter n'importe quelle valeur ; on n'étale qu'un objet. Aucun
+  // second argument : le fournisseur injectable sert aux tests et ne doit jamais venir du client.
+  const fields = typeof input === 'object' && input !== null ? input : {};
+  return improveDraft({ ...fields, locale: locale === 'en' ? 'en' : 'fr' });
 }
