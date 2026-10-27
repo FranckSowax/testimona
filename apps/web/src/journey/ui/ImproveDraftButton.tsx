@@ -11,7 +11,10 @@ interface Props {
   text: string;
   disabled: boolean;
   className: string;
-  onImproved: (text: string) => void;
+  /** Début et fin de l'appel (le parent verrouille la saisie pendant ce temps). */
+  onPendingChange: (pending: boolean) => void;
+  /** `sent` est le texte envoyé : le parent ne remplace que s'il n'a pas changé. */
+  onImproved: (text: string, sent: string) => void;
   onError: (error: AiError) => void;
 }
 
@@ -24,21 +27,33 @@ interface Props {
 export function ImproveDraftButton(props: Props) {
   const t = useTranslations('journey.draft');
   const [pending, startTransition] = useTransition();
-  const run = () =>
+  const run = () => {
+    // WHY: pas de `disabled` pendant l'appel (le focus partirait sur body) : on ignore le clic.
+    if (pending) return;
+    const sent = props.text;
+    props.onPendingChange(true);
     startTransition(async () => {
-      const res = await improveDraftAction({
-        dossierId: props.dossierId,
-        stepId: props.stepId,
-        text: props.text,
-      });
-      if (res.ok) props.onImproved(res.text);
-      else props.onError(res.error);
+      try {
+        const res = await improveDraftAction({
+          dossierId: props.dossierId,
+          stepId: props.stepId,
+          text: sent,
+        });
+        props.onPendingChange(false);
+        if (res.ok) props.onImproved(res.text, sent);
+        else props.onError(res.error);
+      } catch {
+        props.onPendingChange(false);
+        props.onError('failed');
+      }
     });
+  };
   return (
     <button
       type="button"
       onClick={run}
-      disabled={props.disabled || pending}
+      disabled={props.disabled}
+      aria-disabled={pending || undefined}
       aria-busy={pending || undefined}
       className={props.className}
     >

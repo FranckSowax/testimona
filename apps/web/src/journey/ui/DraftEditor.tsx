@@ -61,6 +61,7 @@ export function DraftEditor(props: Props) {
   // WHY: `seq` change à chaque annonce (clé du <p>), ce qui fait relire « Copié. » deux fois.
   const [status, setStatus] = useState<{ text: string; seq: number } | null>(null);
   const [error, setError] = useState<{ text: string; seq: number } | null>(null);
+  const [improving, setImproving] = useState(false);
   const submittedRef = useRef<string>(props.initialText);
   // WHY: sans mémoire du dernier `state` traité, un re-rendu ré-afficherait une erreur effacée.
   const handledRef = useRef<DraftState | null>(null);
@@ -160,8 +161,9 @@ export function DraftEditor(props: Props) {
             setStatus(null);
             setError(null);
           }}
-          readOnly={readOnly}
+          readOnly={readOnly || improving}
           data-readonly={readOnly}
+          aria-busy={improving || undefined}
           maxLength={DRAFT_MAX}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? 'draft-error' : 'draft-status'}
@@ -189,7 +191,7 @@ export function DraftEditor(props: Props) {
         {!readOnly && (
           <button
             type="submit"
-            disabled={pending || !dirty}
+            disabled={pending || improving || !dirty}
             className="bg-accent rounded-full px-5 py-2 font-semibold text-white disabled:opacity-60"
           >
             {t('save')}
@@ -230,7 +232,7 @@ export function DraftEditor(props: Props) {
               setStatus(null);
               setError(null);
             }}
-            disabled={text === props.generatedText}
+            disabled={improving || text === props.generatedText}
             className={BUTTON}
           >
             {t('regenerate')}
@@ -243,12 +245,18 @@ export function DraftEditor(props: Props) {
             text={text}
             disabled={pending || text.trim() === ''}
             className={BUTTON}
-            onImproved={(improved) => {
+            onPendingChange={(value) => {
+              setImproving(value);
+              if (value) announce(t('improving'));
+            }}
+            onImproved={(improved, sent) => {
               // WHY: le texte amélioré remplace l'affichage mais n'est enregistré qu'au clic
-              // sur « Enregistrer », après relecture.
-              setText(improved);
+              // sur « Enregistrer », après relecture ; on ne remplace pas un texte déjà modifié.
+              setText((current) => (current === sent ? improved : current));
               setError(null);
               announce(t('improved'));
+              // WHY: l'utilisateur doit relire le résultat.
+              textareaRef.current?.focus();
             }}
             onError={(code) => {
               setStatus(null);
