@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react';
-import { createTranslator } from 'next-intl';
+import { createTranslator, NextIntlClientProvider } from 'next-intl';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import messages from '../../../../../messages/fr.json';
 import type { EntryView } from '../model';
@@ -31,27 +31,70 @@ const pledge: EntryView = {
   paid: 20_000,
   fulfilled: false,
 };
+const receipt: EntryView = {
+  ...pledge,
+  id: '44444444-4444-4444-8444-444444444444',
+  kind: 'receipt',
+  amount: 20_000,
+  method: 'airtel_money',
+  paid: 0,
+};
+const reversal: EntryView = {
+  ...receipt,
+  id: '55555555-5555-4555-8555-555555555555',
+  kind: 'reversal',
+  method: null,
+  reversesId: receipt.id,
+  reversesKind: 'receipt',
+};
 
 afterEach(cleanup);
 
 /** Espaces insécables (format fr-FR) ramenés à des espaces simples. */
 const plain = (text: string | null) => (text ?? '').replace(/[  ]/g, ' ');
 
+async function renderList(views: EntryView[], canManage = false) {
+  render(
+    <NextIntlClientProvider locale="fr" messages={messages}>
+      {await EntryList({ dossierId: DOSSIER, locale: 'fr', views, canManage })}
+    </NextIntlClientProvider>,
+  );
+  return screen.getAllByRole('listitem').map((li) => plain(li.textContent));
+}
+
 describe('EntryList', () => {
-  it('shows what was already paid on a partly paid pledge', async () => {
-    render(
-      await EntryList({ dossierId: DOSSIER, locale: 'fr', views: [pledge], canManage: false }),
-    );
-    expect(plain(document.body.textContent)).toContain('Déjà versé : 20 000 FCFA');
-    expect(screen.queryByRole('button')).toBeNull();
+  it('shows what was already paid on a partly paid pledge, without a sign', async () => {
+    const [line] = await renderList([pledge]);
+    expect(line).toContain('Déjà versé : 20 000 FCFA');
+    expect(line).toContain('Awa Diallo · Promesse');
+    expect(line).not.toMatch(/[+−]50 000/);
   });
 
   it('labels a fulfilled pledge without the partly-paid mention', async () => {
-    const done = { ...pledge, paid: 50_000, fulfilled: true };
-    render(await EntryList({ dossierId: DOSSIER, locale: 'fr', views: [done], canManage: false }));
-    const text = plain(document.body.textContent);
-    expect(text).toContain('versée');
-    expect(text).not.toContain('Déjà versé');
+    const [line] = await renderList([{ ...pledge, paid: 50_000, fulfilled: true }]);
+    expect(line).toContain('versée');
+    expect(line).not.toContain('Déjà versé');
+  });
+
+  it('shows a reversal of a receipt with its kind and a minus sign, and the reversed line', async () => {
+    const [rev, rec] = await renderList([reversal, { ...receipt, reversed: true }]);
+    expect(rev).toContain('Annulation — Cotisation reçue');
+    expect(rev).toContain('−20 000 FCFA');
+    expect(rec).toContain('+20 000 FCFA');
+    expect(rec).toContain('Airtel Money');
+    expect(rec).toContain('annulée');
+  });
+
+  it('offers reversal only to managers, and only on reversible lines', async () => {
+    await renderList([reversal, { ...receipt, reversed: true }, pledge], true);
+    const buttons = screen.getAllByRole('button');
+    expect(buttons).toHaveLength(1);
+    expect(plain(buttons[0]?.getAttribute('aria-label') ?? '')).toBe(
+      'Annuler la ligne Awa Diallo · Promesse · 50 000 FCFA',
+    );
+    cleanup();
+    await renderList([pledge], false);
+    expect(screen.queryByRole('button')).toBeNull();
   });
 
   it('says so when there is no entry', async () => {

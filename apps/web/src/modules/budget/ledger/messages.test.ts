@@ -32,6 +32,9 @@ const PATHS = [
     'reverse',
     'confirmReverse',
     'keep',
+    'reverseLabel',
+    'reverseWarning',
+    'reversing',
   ].map((k) => `ledger.entry.${k}`),
   ...[
     'pledgeTitle',
@@ -120,6 +123,7 @@ describe('parité FR/EN du registre', () => {
   it.each([
     ['ledger.entry.partlyPaid', ['paid']],
     ['ledger.entry.reversalOf', ['kind']],
+    ['ledger.entry.reverseLabel', ['entry']],
     ['ledger.card.summary', ['budget', 'received']],
     ['ledger.card.summaryNoBudget', ['received']],
   ])('%s expose ses variables', (path, vars) => {

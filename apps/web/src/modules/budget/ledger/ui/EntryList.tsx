@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { formatXaf } from '../../format';
-import { canReverse, type EntryView } from '../model';
+import { canReverse, entrySign, type EntryView } from '../model';
 import { ReverseButton } from './ReverseButton';
 
 interface Props {
@@ -21,7 +21,7 @@ export async function EntryList({ dossierId, locale, views, canManage }: Props) 
   return (
     <ul className="border-border divide-border divide-y rounded-2xl border">
       {views.map((v) => {
-        const sign = v.kind === 'expense' ? '−' : v.kind === 'reversal' ? '±' : '+';
+        const amount = formatXaf(v.amount, locale);
         const label =
           v.kind === 'reversal' && v.reversesKind
             ? t('entry.reversalOf', { kind: t(`kind.${v.reversesKind}`) })
@@ -41,8 +41,8 @@ export async function EntryList({ dossierId, locale, views, canManage }: Props) 
                 )}
               </p>
               <p className={`font-semibold tabular-nums ${struck}`}>
-                {sign}
-                {formatXaf(v.amount, locale)}
+                {entrySign(v)}
+                {amount}
               </p>
             </div>
             <p className="text-muted-foreground text-sm">
@@ -55,7 +55,13 @@ export async function EntryList({ dossierId, locale, views, canManage }: Props) 
                 ` · ${t('entry.partlyPaid', { paid: formatXaf(v.paid, locale) })}`}
               {v.note && ` · ${v.note}`}
             </p>
-            {canManage && canReverse(v) && <ReverseButton dossierId={dossierId} entryId={v.id} />}
+            {canManage && canReverse(v) && (
+              <ReverseButton
+                dossierId={dossierId}
+                entryId={v.id}
+                label={`${v.partyName} · ${label} · ${amount}`}
+              />
+            )}
           </li>
         );
       })}

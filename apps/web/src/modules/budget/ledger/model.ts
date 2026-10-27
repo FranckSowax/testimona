@@ -98,3 +98,18 @@ export function balance(totals: LedgerTotals): number {
 export function remaining(budget: number | null, totals: LedgerTotals): number | null {
   return budget === null ? null : Math.max(0, budget - totals.received);
 }
+
+/**
+ * Signe affiché d'un mouvement : entrée d'argent « + », sortie « − », promesse sans signe.
+ * Une annulation prend le signe inverse de la ligne visée.
+ *
+ * @example
+ * entrySign({ kind: 'reversal', reversesKind: 'expense' }); // « + »
+ */
+export function entrySign(entry: Pick<LedgerEntry, 'kind' | 'reversesKind'>): '+' | '−' | '' {
+  const kind = entry.kind === 'reversal' ? entry.reversesKind : entry.kind;
+  const flip = entry.kind === 'reversal';
+  if (kind === 'receipt') return flip ? '−' : '+';
+  if (kind === 'expense') return flip ? '+' : '−';
+  return '';
+}

@@ -1512,7 +1512,10 @@
       "reversalOf": "Annulation — {kind}",
       "reverse": "Annuler cette ligne",
       "confirmReverse": "Confirmer l'annulation",
-      "keep": "Garder"
+      "keep": "Garder",
+      "reverseLabel": "Annuler la ligne {entry}",
+      "reverseWarning": "Cette annulation est définitive.",
+      "reversing": "Annulation…"
     },
     "form": {
       "pledgeTitle": "Je fais une promesse de cotisation",

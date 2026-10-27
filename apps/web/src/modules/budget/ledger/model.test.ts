@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   balance,
   canReverse,
+  entrySign,
   entryViews,
   openPledges,
   pledgeRemaining,
@@ -152,5 +153,19 @@ describe('cas limites des vues', () => {
   it('départage les dates et créations identiques par identifiant', () => {
     const views = entryViews([entry({ id: 'a' }), entry({ id: 'c' }), entry({ id: 'b' })]);
     expect(views.map((v) => v.id)).toEqual(['c', 'b', 'a']);
+  });
+});
+
+describe('entrySign', () => {
+  it.each([
+    ['receipt', null, '+'],
+    ['expense', null, '−'],
+    ['pledge', null, ''],
+    ['reversal', 'expense', '+'],
+    ['reversal', 'receipt', '−'],
+    ['reversal', 'pledge', ''],
+    ['reversal', null, ''],
+  ] as const)('%s (annule %s) → « %s »', (kind, reversesKind, sign) => {
+    expect(entrySign({ kind, reversesKind })).toBe(sign);
   });
 });

@@ -1512,7 +1512,10 @@
       "reversalOf": "Reversal — {kind}",
       "reverse": "Reverse this entry",
       "confirmReverse": "Confirm reversal",
-      "keep": "Keep"
+      "keep": "Keep",
+      "reverseLabel": "Reverse the entry {entry}",
+      "reverseWarning": "This reversal cannot be undone.",
+      "reversing": "Reversing…"
     },
     "form": {
       "pledgeTitle": "I make a pledge",
