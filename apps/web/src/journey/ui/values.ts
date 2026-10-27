@@ -61,6 +61,8 @@ export function toEditable(
       // WHY: une option retirée du registre depuis l'enregistrement ne doit pas être renvoyée.
       return known && typeof stored === 'string' && question.options.includes(stored) ? stored : '';
     case 'number':
+      // WHY: une valeur enregistrée hors des bornes actuelles est affichée telle quelle ;
+      // « Suivant » la renverra au serveur, qui répondra « out of range ».
       return known && typeof stored === 'number' ? String(stored) : '';
     default:
       return known && typeof stored === 'string' ? stored : '';

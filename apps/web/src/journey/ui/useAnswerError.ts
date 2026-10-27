@@ -61,7 +61,13 @@ export function useAnswerError(
         : [];
     });
     const specific = specificMessage(state.fieldErrors);
-    const text = specific ? tJourney(specific) : tErrors(state.error);
+    const text = specific
+      ? tJourney(
+          specific,
+          // WHY: seul `ui.outOfRange` utilise les bornes ; les autres messages ignorent les valeurs.
+          question.kind === 'number' ? { min: question.min, max: question.max } : undefined,
+        )
+      : tErrors(state.error);
     setError((prev) => ({
       text,
       seq: (prev?.seq ?? 0) + 1,

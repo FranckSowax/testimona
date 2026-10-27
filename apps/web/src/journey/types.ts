@@ -123,7 +123,12 @@ const integerIn = (min: number, max: number) =>
     .unknown()
     .transform((v, ctx) => {
       if (typeof v === 'number') return v;
-      if (typeof v === 'string' && /^\d{1,9}$/.test(v.trim())) return Number(v.trim());
+      // WHY: une suite de chiffres trop longue est un nombre bien formé mais trop grand ;
+      // `Infinity` (centaines de chiffres) est ramené à une valeur hors bornes sûre.
+      if (typeof v === 'string' && /^\d+$/.test(v.trim())) {
+        const n = Number(v.trim());
+        return Number.isFinite(n) ? n : Number.MAX_SAFE_INTEGER;
+      }
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'invalid number' });
       return z.NEVER;
     })

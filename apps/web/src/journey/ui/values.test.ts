@@ -39,6 +39,11 @@ describe('toEditable', () => {
     expect(toEditable(count, '40', 'GA')).toBe('');
     expect(toEditable(count, undefined, 'GA')).toBe('');
   });
+
+  it('affiche tel quel un nombre enregistré hors des bornes actuelles', () => {
+    const count: Question = { kind: 'number', key: 'attendance.close', min: 0, max: 2000 };
+    expect(toEditable(count, 5000, 'GA')).toBe('5000');
+  });
 });
 
 describe('toEditable : réponses enregistrées devenues invalides', () => {

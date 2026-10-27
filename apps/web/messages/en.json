@@ -1335,7 +1335,7 @@
       "invalidDate": "This date is not valid.",
       "invalidCharacter": "Your answer contains an unsupported character.",
       "invalidNumber": "Enter a whole number, in digits.",
-      "outOfRange": "This number is outside the range expected for this question."
+      "outOfRange": "Enter a number between {min} and {max}."
     },
     "dashboard": {
       "nextTitle": "Next question",

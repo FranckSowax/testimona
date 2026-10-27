@@ -112,4 +112,10 @@ describe('answerSchema : nombre', () => {
     expect(issue(2001)).toBe('out of range');
     expect(issue(-1)).toBe('out of range');
   });
+
+  it('répond « hors des bornes » pour une suite de chiffres trop longue', () => {
+    expect(issue('99999999999999')).toBe('out of range');
+    expect(issue('0000000000012')).toBeUndefined();
+    expect(answerSchema(guests).parse('0000000000012')).toBe(12);
+  });
 });
