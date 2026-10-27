@@ -3,6 +3,17 @@
 --
 -- Aucun accès direct pour anon ni authenticated : seule consume_ai_quota()
 -- (security definer) lit et écrit la table.
+--
+-- WHY (choix assumés) :
+--  - le quota est partagé par dossier : un contributeur peut épuiser celui des
+--    autres, c'est voulu (les contributeurs sont des membres invités) ;
+--  - un appel consommé n'est pas rendu si l'IA échoue ensuite : c'est un
+--    plafond anti-abus, pas une facturation ;
+--  - la fonction exige le JWT de l'utilisateur (client utilisateur, jamais
+--    service_role : auth.uid() serait nul) ;
+--  - l'upsert ON CONFLICT ... WHERE est sûr sous concurrence : en READ COMMITTED
+--    le conflit verrouille la ligne, la condition est réévaluée sur la valeur
+--    validée, donc deux appels simultanés ne dépassent jamais le plafond.
 -- ============================================================================
 
 create table public.ai_usage (
@@ -21,8 +32,9 @@ revoke all on table public.ai_usage from anon, authenticated;
 -- Consomme un appel du quota du jour. Renvoie false quand le plafond est atteint.
 -- WHY: security definer pour écrire dans ai_usage sans privilège de table ;
 -- search_path vide contre le détournement de schéma. La limite reçue est bornée
--- à 20 : la fonction est appelable en RPC par tout utilisateur connecté, une
--- valeur fournie par le client ne doit pas pouvoir lever le quota.
+-- à v_max (20) : la fonction est appelable en RPC par tout utilisateur connecté,
+-- une valeur fournie par le client ne doit pas pouvoir lever le quota.
+-- La valeur par défaut du paramètre (20) doit rester égale à v_max.
 -- ---------------------------------------------------------------------------
 create function public.consume_ai_quota(
   p_dossier_id uuid,
@@ -34,7 +46,8 @@ security definer
 set search_path = ''
 as $$
 declare
-  v_limit integer := least(greatest(coalesce(p_daily_limit, 0), 0), 20);
+  v_max constant integer := 20;
+  v_limit integer := least(greatest(coalesce(p_daily_limit, 0), 0), v_max);
   v_day date := (now() at time zone 'utc')::date;
   v_count integer;
 begin

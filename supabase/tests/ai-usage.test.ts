@@ -78,6 +78,16 @@ describe('ai_usage : accès direct', () => {
     ).rejects.toMatchObject(RLS_DENIED);
   });
 
+  it('refuse la modification et la suppression directes', async () => {
+    await consume(owner);
+    await expect(
+      asUser(db, owner, () => db.query('update ai_usage set count = 0')),
+    ).rejects.toMatchObject(RLS_DENIED);
+    await expect(asUser(db, owner, () => db.query('delete from ai_usage'))).rejects.toMatchObject(
+      RLS_DENIED,
+    );
+  });
+
   it('refuse l’exécution de consume_ai_quota à un visiteur anonyme', async () => {
     await expect(
       asRole(db, 'anon', null, () => db.query('select public.consume_ai_quota($1)', [dossierId])),
@@ -85,7 +95,37 @@ describe('ai_usage : accès direct', () => {
   });
 });
 
+describe('consume_ai_quota : entrées invalides', () => {
+  it('refuse un dossier nul ou inexistant', async () => {
+    await expect(
+      asUser(db, owner, () => db.query('select public.consume_ai_quota(null)')),
+    ).rejects.toMatchObject(RLS_DENIED);
+    await expect(
+      asUser(db, owner, () =>
+        db.query(`select public.consume_ai_quota('00000000-0000-0000-0000-000000000000')`),
+      ),
+    ).rejects.toMatchObject(RLS_DENIED);
+  });
+
+  it('refuse un rôle authenticated sans utilisateur (28000)', async () => {
+    await expect(
+      asRole(db, 'authenticated', null, () =>
+        db.query('select public.consume_ai_quota($1)', [dossierId]),
+      ),
+    ).rejects.toMatchObject({ code: '28000' });
+  });
+});
+
 describe('consume_ai_quota : rôles', () => {
+  it('accepte un coordinateur et un trésorier', async () => {
+    const coordinator = await createUser(db, 'coordinator@test.local');
+    const treasurer = await createUser(db, 'treasurer@test.local');
+    await addMember(coordinator, 'coordinator');
+    await addMember(treasurer, 'treasurer');
+    expect(await consume(coordinator)).toBe(true);
+    expect(await consume(treasurer)).toBe(true);
+  });
+
   it('laisse un contributeur consommer et compte l’appel', async () => {
     const before = await countOf(dossierId);
     expect(await consume(contributor)).toBe(true);
@@ -118,6 +158,29 @@ describe('consume_ai_quota : plafond', () => {
     expect(await consume(owner, fresh, 1)).toBe(false);
     expect(await consume(owner, fresh, 0)).toBe(false);
     expect(await consume(owner, fresh, -5)).toBe(false);
+  });
+
+  it('repart de zéro le jour suivant (jour UTC)', async () => {
+    const fresh = await createDossier(owner);
+    await db.query(
+      `insert into ai_usage (dossier_id, day, count)
+       values ($1, (now() at time zone 'utc')::date - 1, 20)`,
+      [fresh],
+    );
+    expect(await consume(owner, fresh)).toBe(true);
+    const { rows } = await db.query<{ count: number }>(
+      `select count from ai_usage where dossier_id = $1 and day = (now() at time zone 'utc')::date`,
+      [fresh],
+    );
+    expect(rows[0]?.count).toBe(1);
+  });
+
+  it('traite une limite explicitement nulle comme zéro', async () => {
+    const fresh = await createDossier(owner);
+    const { rows } = await asUser(db, owner, () =>
+      db.query<{ ok: boolean }>('select public.consume_ai_quota($1, null) as ok', [fresh]),
+    );
+    expect(rows[0]!.ok).toBe(false);
   });
 
   it('compte chaque dossier séparément', async () => {

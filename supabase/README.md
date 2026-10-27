@@ -74,7 +74,10 @@ Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Histori
 
 **Pas encore en production :**
 
-- `ai_usage` (lot 1, PR 4) : **pas encore appliquée** ; à appliquer avant de déployer le web de la PR 4.
+- `ai_usage` (lot 1, PR 4) : **pas encore appliquée** ; à appliquer avant de déployer le web de la PR 4. Après application, `get_advisors` (sécurité)
+  signalera deux alertes voulues : `consume_ai_quota`, security definer exécutable par
+  `authenticated` (0029), et `ai_usage`, RLS activée sans policy (0008, INFO). Ce paragraphe sera à
+  revérifier et mettre à jour avec `get_advisors` une fois la migration appliquée.
 
 `get_advisors` (sécurité), revérifié après la dernière migration : sur le dossier, seules
 `is_dossier_member` et `accept_dossier_invitation` restent signalées, c'est voulu (appelées par les
