@@ -39,19 +39,21 @@ client service-role.
 
 ### `dossier_finance`
 
-Une ligne par dossier, créée au premier besoin.
+Une ligne par dossier, créée par le propriétaire au premier réglage ; sans ligne, la visibilité est
+`restricted`.
 
-| Colonne              | Type                                        |
-| -------------------- | ------------------------------------------- |
-| `dossier_id`         | uuid, clé primaire, FK `dossier` (cascade)  |
-| `scenario`           | `sober` / `intermediate` / `full`, nullable |
-| `amounts_visibility` | `restricted` (défaut) / `members`           |
-| `closed_at`          | timestamptz, nullable                       |
-| `closed_by`          | uuid, nullable                              |
-| `updated_at`         | timestamptz                                 |
+| Colonne              | Type                                       |
+| -------------------- | ------------------------------------------ |
+| `dossier_id`         | uuid, clé primaire, FK `dossier` (cascade) |
+| `amounts_visibility` | `restricted` (défaut) / `members`          |
+| `updated_at`         | timestamptz                                |
 
-Lecture : tout membre. Écriture du scénario : trésorier et plus. Visibilité : propriétaire seul.
-Clôture : trésorier et plus ; réouverture (`closed_at` remis à null) : propriétaire seul.
+Lecture : tout membre. Insertion et modification : propriétaire seul (visibilité des montants
+individuels) ; aucune suppression. `dossier_id` et `updated_at` sont imposés par trigger.
+
+Colonnes ajoutées plus tard : `scenario` (`sober` / `intermediate` / `full`, nullable, écriture par le
+trésorier et plus) en PR 3 ; `closed_at` et `closed_by` (clôture par le trésorier et plus, réouverture
+par le propriétaire seul) en PR 5.
 
 ### `budget_line`
 
@@ -68,48 +70,81 @@ Les postes du budget du dossier.
 | `position`                      | integer                                                     |
 
 Unicité (`dossier_id`, `grid_key`) quand `grid_key` n'est pas nul. Lecture : tout membre. Écriture :
-trésorier et plus, refusée quand le dossier est clôturé. Les postes de la grille sont créés au premier
+trésorier et plus, refusée quand le dossier est clôturé (colonnes de clôture : PR 5). Table créée en PR 3.
+Les postes de la grille sont créés au premier
 calcul ; un nouveau calcul ne touche que les postes non modifiés (`edited = false`).
 
 ### `ledger_entry`
 
 Le registre, **en ajout seul** : aucune policy UPDATE ni DELETE, et `revoke update, delete` pour
-`anon` et `authenticated`.
+`anon` et `authenticated`. Une erreur se corrige par une annulation, jamais par une modification.
 
-| Colonne           | Type                                                                                                         |
-| ----------------- | ------------------------------------------------------------------------------------------------------------ |
-| `id`              | uuid                                                                                                         |
-| `dossier_id`      | uuid, FK `dossier` (cascade)                                                                                 |
-| `kind`            | `pledge` / `receipt` / `expense` / `reversal`                                                                |
-| `amount`          | integer, 1 à 100 000 000 (XAF)                                                                               |
-| `method`          | `cash` / `airtel_money` / `moov_money` / `transfer` / `card` / `other`, nullable pour `pledge` et `reversal` |
-| `party_name`      | text, 1 à 120 caractères (cotisant ou fournisseur)                                                           |
-| `member_id`       | uuid, nullable, membre du dossier lié                                                                        |
-| `budget_line_id`  | uuid, nullable, FK `budget_line` (dépenses seulement)                                                        |
-| `note`            | text, 0 à 500 caractères                                                                                     |
-| `occurred_on`     | date                                                                                                         |
-| `reverses_id`     | uuid, nullable, FK `ledger_entry` (annulations seulement)                                                    |
-| `idempotency_key` | uuid, unique par dossier                                                                                     |
-| `created_by`      | uuid, défaut `auth.uid()`                                                                                    |
-| `created_at`      | timestamptz                                                                                                  |
+| Colonne           | Type                                                                                                             |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `id`              | uuid                                                                                                             |
+| `dossier_id`      | uuid, FK `dossier` (`on delete restrict`)                                                                        |
+| `kind`            | `pledge` / `receipt` / `expense` / `reversal`                                                                    |
+| `amount`          | integer, 1 à 100 000 000 (XAF)                                                                                   |
+| `method`          | `cash` / `airtel_money` / `moov_money` / `transfer` / `card` / `other` ; obligatoire pour `receipt` et `expense` |
+| `party_name`      | text, 1 à 120 caractères (cotisant ou fournisseur)                                                               |
+| `member_id`       | uuid, nullable, FK `auth.users` (`on delete set null`), membre du dossier lié                                    |
+| `pledge_id`       | uuid, nullable, FK `ledger_entry` : promesse concernée, `receipt` seulement                                      |
+| `note`            | text, 0 à 500 caractères                                                                                         |
+| `occurred_on`     | date, du 2000-01-01 à demain au plus                                                                             |
+| `reverses_id`     | uuid, nullable, unique, FK `ledger_entry` (annulations seulement)                                                |
+| `reverses_kind`   | `pledge` / `receipt` / `expense`, nullable : type de la ligne annulée (annulations seulement)                    |
+| `idempotency_key` | uuid, unique par dossier                                                                                         |
+| `created_by`      | uuid, nullable, défaut `auth.uid()`, FK `auth.users` (`on delete set null`)                                      |
+| `created_at`      | timestamptz                                                                                                      |
 
-Contraintes : `reverses_id` obligatoire pour `reversal` et interdit sinon ; unicité de `reverses_id`
-(une ligne n'est annulée qu'une fois) ; une annulation ne vise ni une annulation ni une ligne d'un
-autre dossier, et reprend le montant de la ligne visée (vérifié par trigger) ; `budget_line_id`
-réservé aux dépenses et du même dossier.
+`budget_line_id` (FK `budget_line`, dépenses seulement, du même dossier) arrive avec la table
+`budget_line` en PR 3.
 
-Insertion : trésorier et plus pour tout type ; contributeur et plus pour un `pledge` à son propre nom
-(`member_id = auth.uid()`). Toute insertion refusée quand le dossier est clôturé.
+Usages : une promesse (`pledge`) est une intention de cotiser ; une cotisation reçue (`receipt`) est
+liée ou non à une promesse ; une promesse peut être honorée en plusieurs versements partiels
+(`pledge_id`), jusqu'à son montant ; une dépense (`expense`) ; une annulation (`reversal`) vise une
+ligne existante.
+
+Contraintes : `reverses_id` et `reverses_kind` obligatoires pour `reversal` et interdits sinon ;
+unicité de `reverses_id` (une ligne n'est annulée qu'une fois) ; `pledge_id` réservé aux
+cotisations reçues. Le trigger d'insertion (security definer, `search_path` vide) :
+
+1. vérifie le rôle en premier (trésorier pour tout type, contributeur pour une promesse), pour qu'un
+   non-membre ne puisse pas sonder le registre par les codes d'erreur suivants ;
+2. rejoue d'office une clé d'idempotence déjà utilisée dans le dossier par une erreur `23505`, sans
+   rejuger la ligne (le dépôt la traite comme un double envoi) ; la contrainte d'unicité couvre les
+   envois concurrents ;
+3. impose `created_by = auth.uid()` et `created_at` ; refuse une date postérieure à demain (`23514`) ;
+4. pour une annulation : verrouille la ligne visée ; refuse (`TL001`) une ligne absente, d'un autre
+   dossier ou elle-même une annulation ; reprend son montant, son nom, son membre et son type
+   (`reverses_kind`) ;
+5. pour une cotisation liée à une promesse : verrouille la promesse ; refuse (`TL002`) une promesse
+   absente, d'un autre dossier, qui n'est pas une promesse, déjà annulée ou déjà soldée par les
+   versements actifs ; reprend le membre de la promesse ;
+6. refuse (`TL003`) un `member_id` qui n'est pas membre du dossier (sauf versement lié à une promesse).
+
+Insertion (policy) : trésorier et plus pour tout type ; contributeur et plus pour un `pledge` à son
+propre nom (`member_id = auth.uid()`). Le refus des insertions quand le dossier est clôturé arrive en
+PR 5. Une ligne ne se supprime pas avec le dossier : tant qu'un dossier a des lignes de registre, il
+ne peut pas être supprimé ; l'archivage et l'export du registre à la clôture (PR 5) lèveront cette
+contrainte.
 
 Lecture : trésorier et plus, toutes les lignes. Autres membres : toutes les lignes si
 `amounts_visibility = 'members'` ; sinon seulement les dépenses, leurs propres lignes
-(`member_id = auth.uid()`) et les annulations de ces lignes.
+(`member_id = auth.uid()`) et les annulations de dépenses (`reverses_kind = 'expense'`) ou de leurs
+propres lignes.
 
 ### `ledger_totals(p_dossier_id uuid)`
 
 Fonction security definer, `search_path` vide, exécutable par `authenticated` seulement, qui exige un
-membre du dossier et renvoie uniquement des sommes : budget retenu, reçu, promis non versé, dépensé,
-reste à couvrir, dépenses par poste. Les annulations sont déduites de leur type d'origine.
+utilisateur connecté et un membre du dossier et renvoie uniquement trois sommes : `received` (reçu),
+`pledged_open` (reste à verser des promesses ouvertes : montant moins les versements actifs liés,
+jamais négatif) et `spent` (dépensé). Les lignes annulées sont écartées, et les annulations ne comptent
+pas. Le budget de référence vient du code : jusqu'au scénario retenu (PR 3), c'est le budget
+envisagé à l'étape B.2 ; le reste à couvrir se calcule à partir de ces valeurs. Les dépenses par
+poste arrivent avec `budget_line` (PR 3). Les totaux étant visibles de tout membre, un montant
+individuel peut se déduire en comparant les totaux dans le temps en mode restreint ; ce compromis est
+assumé.
 
 ### `receipt` et bucket `receipts`
 
@@ -142,16 +177,16 @@ Nouvelle sorte de question `q.number` (entier borné, sans unité dans ce lot). 
 sur la page « Budget prévisionnel » (`/dossier/[id]/budget`) : fourchette d'affluence et trois totaux
 côte à côte, calculés sur la fourchette haute. La réponse B.2 est le niveau envisagé par la famille ; le
 scénario retenu (`dossier_finance.scenario`, par un trésorier) et les postes enregistrés
-(`budget_line`) arrivent en PR 2.
+(`budget_line`) arrivent en PR 3.
 
 ### Écrans
 
-| Route                       | Contenu                                                                                                                                                                                                                                                         | Accès  |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| `/dossier/[id]/cotisations` | Totaux (budget retenu, reçu, promis non versé, dépensé, reste) ; derniers mouvements visibles ; trésorier : ajouter une cotisation, une dépense, photographier un reçu, annuler une ligne ; contributeur : « Je promets une participation » ; onglet « Postes » | membre |
-| `/dossier/[id]/bilan`       | Totaux, dépenses par poste, cotisations nominatives selon la visibilité ; « Partager le bilan » (texte de totaux, copie ou WhatsApp) ; « Clôturer » (trésorier), « Rouvrir » (propriétaire)                                                                     | membre |
+| Route                       | Contenu                                                                                                                                                                                                                                                                                                                                                  | Accès  |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| `/dossier/[id]/cotisations` | Totaux (budget de référence, reçu, promis non versé, dépensé, reste) ; derniers mouvements visibles ; trésorier : ajouter une cotisation (liée ou non à une promesse), une dépense, annuler une ligne ; contributeur : « Je promets une participation » ; propriétaire : visibilité des montants. PR 3 : onglet « Postes ». PR 4 : photographier un reçu | membre |
+| `/dossier/[id]/bilan`       | Totaux, dépenses par poste, cotisations nominatives selon la visibilité ; « Partager le bilan » (texte de totaux, copie ou WhatsApp) ; « Clôturer » (trésorier), « Rouvrir » (propriétaire)                                                                                                                                                              | membre |
 
-Tableau de bord : carte « Cotisations » (reçu sur budget retenu) avec lien vers l'écran. Une
+Tableau de bord : carte « Cotisations » (reçu sur budget de référence) avec lien vers l'écran. Une
 annulation s'affiche avec sa ligne d'origine ; aucune ligne ne disparaît.
 
 ### Reçu
@@ -202,23 +237,27 @@ jointe.
 
 - SQL (PGlite) : RLS de chaque table ; ajout seul (UPDATE et DELETE refusés) ; droits par rôle ;
   visibilité `restricted` / `members` ; clôture et réouverture ; annulation unique, même montant, même
-  dossier ; idempotence ; `ledger_totals` (sommes seulement, membre exigé) ; policies du bucket
+  dossier ; versements partiels d'une promesse (jusqu'au montant promis) ; idempotence (rejeu → 23505) ; `ledger_totals` (sommes seulement, membre exigé) ; policies du bucket
   `receipts`.
 - Unitaires : grille, affluence, scénarios, totaux avec annulations, texte de bilan, schémas,
   services (base simulée), `readReceipt` (fournisseur simulé, JSON invalide, quota, clé absente).
 - Playwright : les écrans Cotisations et Bilan exigent une connexion ; le parcours complet attend
   l'environnement e2e.
 
-### Livraison (4 PR)
+### Livraison (5 PR)
 
-1. Budget : `q.number`, grille, scénarios, étapes B.1 et B.2, page « Budget prévisionnel »
-   (`/dossier/[id]/budget`) calculée à la volée. Aucune table : la réponse B.2 est le niveau
-   envisagé par la famille.
-2. Registre : `dossier_finance` (scénario retenu par le trésorier, prérempli par le niveau
-   envisagé), `budget_line` (onglet « Postes »), `ledger_entry`, `ledger_totals`, visibilité,
-   écran Cotisations, idempotence, carte du tableau de bord.
-3. Reçus : bucket privé, `receipt`, envoi signé, `readReceipt`, préremplissage.
-4. Bilan : écran Bilan, texte de partage, clôture et réouverture.
+1. Budget (livrée, PR #9) : `q.number`, grille, scénarios, étapes B.1 et B.2, page « Budget
+   prévisionnel » (`/dossier/[id]/budget`) calculée à la volée. Aucune table : la réponse B.2 est le
+   niveau envisagé par la famille.
+2. Registre : `dossier_finance` (visibilité des montants individuels, propriétaire seul),
+   `ledger_entry` (promesses, cotisations reçues liées ou non à une promesse, versements partiels
+   d'une promesse, dépenses, annulations ; ajout seul ; clé d'idempotence), `ledger_totals`, écran
+   Cotisations, carte du tableau de bord. Le budget de référence est le budget envisagé à l'étape B.2.
+3. Postes : scénario retenu par le trésorier (`dossier_finance.scenario`), `budget_line` (onglet
+   « Postes »), rattachement d'une dépense à un poste (`ledger_entry.budget_line_id`).
+4. Reçus : bucket privé, `receipt`, envoi signé, `readReceipt`, préremplissage.
+5. Bilan et clôture : écran Bilan, texte de partage, clôture et réouverture, archivage et export du
+   registre, colonnes de clôture (`closed_at`, `closed_by`).
 
 ### Hors lot 2
 
