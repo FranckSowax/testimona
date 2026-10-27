@@ -8,5 +8,14 @@ export { emailSubject } from './email-announcement';
 
 /** Brouillon proposé pour un type de brouillon, à partir des réponses du dossier. */
 export function draftFor(kind: DraftKind, ctx: DraftContext): string {
-  return kind === 'whatsapp' ? immediateMessage(ctx) : emailAnnouncement(ctx);
+  switch (kind) {
+    case 'whatsapp':
+      return immediateMessage(ctx);
+    case 'email':
+      return emailAnnouncement(ctx);
+    default: {
+      const unreachable: never = kind;
+      return unreachable;
+    }
+  }
 }

@@ -20,9 +20,10 @@ describe('emailAnnouncement', () => {
       [
         'Chers parents, chers amis,',
         'C’est avec une profonde tristesse que nous vous faisons part du décès de Jean Ndong, survenu le 3 mars 2026.',
+        'Que Dieu l’accueille dans sa miséricorde.',
         'Instituteur aimé de tout Lambaréné.',
         'Veillée le 6 mars à Libreville, inhumation le 7 à Lambaréné.',
-        'Plutôt que des fleurs, la famille recevra avec reconnaissance vos dons.',
+        'Plutôt que des fleurs, la famille recevra vos dons avec reconnaissance.',
         'Nous vous remercions de vos prières et de votre soutien.',
         'La famille Ndong',
       ].join('\n\n'),
@@ -43,6 +44,52 @@ describe('emailAnnouncement', () => {
         'La famille Ndong',
       ].join('\n\n'),
     );
+  });
+
+  it('assemble tous les paragraphes en anglais', () => {
+    const text = emailAnnouncement({
+      locale: 'en',
+      person,
+      answers: {
+        'death.date': '2026-03-03',
+        'announce.tone': 'believer',
+        'announce.aboutPerson': 'A beloved teacher.',
+        'announce.practicalInfo': 'Wake on 6 March in Libreville, burial on 7 March.',
+        'announce.flowersOrDonations': 'donations',
+      },
+    });
+    expect(text).toBe(
+      [
+        'Dear family and friends,',
+        'It is with deep sadness that we share the news of the death of Jean Ndong, who passed away on 3 March 2026.',
+        'May God have mercy on their soul.',
+        'A beloved teacher.',
+        'Wake on 6 March in Libreville, burial on 7 March.',
+        'In lieu of flowers, the family will gratefully receive donations.',
+        'Thank you for your prayers and support.',
+        'The Ndong family',
+      ].join('\n\n'),
+    );
+  });
+
+  it('formule les fleurs en français', () => {
+    const flowers = (value: string) =>
+      emailAnnouncement({
+        locale: 'fr',
+        person,
+        answers: { 'announce.flowersOrDonations': value },
+      });
+    expect(flowers('flowers')).toContain('Les fleurs seront les bienvenues.');
+    expect(flowers('both')).toContain('Fleurs et dons seront reçus avec reconnaissance.');
+  });
+
+  it('cite le surnom en français', () => {
+    const text = emailAnnouncement({
+      locale: 'fr',
+      person: { ...person, nickname: 'Papa Jean' },
+      answers: {},
+    });
+    expect(text).toContain('décès de Jean Ndong (« Papa Jean »).');
   });
 
   it('rédige en anglais', () => {

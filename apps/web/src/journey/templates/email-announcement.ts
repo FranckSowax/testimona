@@ -1,7 +1,9 @@
 import { FLOWERS } from '../options';
 import {
+  BLESSING,
   choiceAnswer,
   deathSentence,
+  familyName,
   fullName,
   paragraphs,
   textAnswer,
@@ -15,7 +17,7 @@ const TEXT = {
     opening: 'C’est avec une profonde tristesse que nous vous faisons part du décès de',
     flowers: {
       flowers: 'Les fleurs seront les bienvenues.',
-      donations: 'Plutôt que des fleurs, la famille recevra avec reconnaissance vos dons.',
+      donations: 'Plutôt que des fleurs, la famille recevra vos dons avec reconnaissance.',
       both: 'Fleurs et dons seront reçus avec reconnaissance.',
     },
     thanks: {
@@ -27,7 +29,7 @@ const TEXT = {
   },
   en: {
     greeting: 'Dear family and friends,',
-    opening: 'It is with deep sadness that we share the news of the passing of',
+    opening: 'It is with deep sadness that we share the news of the death of',
     flowers: {
       flowers: 'Flowers are welcome.',
       donations: 'In lieu of flowers, the family will gratefully receive donations.',
@@ -48,15 +50,17 @@ const TEXT = {
  */
 export function emailAnnouncement(ctx: DraftContext): string {
   const t = TEXT[ctx.locale];
+  const tone = toneOf(ctx.answers);
   const flowers = choiceAnswer(ctx.answers, 'announce.flowersOrDonations', FLOWERS);
   return paragraphs([
     t.greeting,
     deathSentence(ctx, t.opening),
+    tone === 'believer' ? BLESSING[ctx.locale] : null,
     textAnswer(ctx.answers, 'announce.aboutPerson'),
     textAnswer(ctx.answers, 'announce.practicalInfo'),
     flowers && flowers !== 'noPreference' ? t.flowers[flowers] : null,
-    t.thanks[toneOf(ctx.answers)],
-    t.signature(ctx.person.lastName),
+    t.thanks[tone],
+    t.signature(familyName(ctx.person)),
   ]);
 }
 

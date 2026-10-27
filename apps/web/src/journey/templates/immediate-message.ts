@@ -1,9 +1,15 @@
-import { deathSentence, paragraphs, toneOf, type DraftContext } from './common';
+import {
+  BLESSING,
+  deathSentence,
+  familyName,
+  paragraphs,
+  toneOf,
+  type DraftContext,
+} from './common';
 
 const TEXT = {
   fr: {
     opening: 'C’est avec une immense tristesse que nous vous annonçons le décès de',
-    blessing: 'Que Dieu l’accueille dans sa paix.',
     next: 'Nous vous communiquerons très vite les informations sur les obsèques.',
     thanks: {
       believer: 'Merci de vos prières pour notre famille.',
@@ -12,12 +18,11 @@ const TEXT = {
     signature: (lastName: string) => `La famille ${lastName}`,
   },
   en: {
-    opening: 'It is with great sadness that we announce the passing of',
-    blessing: 'May God grant them eternal rest.',
+    opening: 'It is with great sadness that we announce the death of',
     next: 'We will share the funeral arrangements very soon.',
     thanks: {
-      believer: 'Thank you for your prayers for our family.',
-      neutral: 'Thank you for your thoughts for our family.',
+      believer: 'Thank you for keeping our family in your prayers.',
+      neutral: 'Thank you for keeping our family in your thoughts.',
     },
     signature: (lastName: string) => `The ${lastName} family`,
   },
@@ -34,9 +39,9 @@ export function immediateMessage(ctx: DraftContext): string {
   const tone = toneOf(ctx.answers);
   return paragraphs([
     deathSentence(ctx, t.opening),
-    tone === 'believer' ? t.blessing : null,
+    tone === 'believer' ? BLESSING[ctx.locale] : null,
     t.next,
     t.thanks[tone],
-    `— ${t.signature(ctx.person.lastName)}`,
+    `— ${t.signature(familyName(ctx.person))}`,
   ]);
 }

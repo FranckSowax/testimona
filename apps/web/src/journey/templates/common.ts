@@ -36,15 +36,32 @@ export function choiceAnswer<T extends string>(
     : null;
 }
 
-export function fullName(person: PersonNames): string {
-  return `${person.firstName} ${person.lastName}`.trim();
+/** Espaces internes réduits, espaces d'extrémité retirés. */
+function squash(text: string): string {
+  return text.replace(/\s+/g, ' ').trim();
 }
+
+export function fullName(person: PersonNames): string {
+  return squash(`${person.firstName} ${person.lastName}`);
+}
+
+/** Nom de famille nettoyé, pour les signatures. */
+export function familyName(person: PersonNames): string {
+  return squash(person.lastName);
+}
+
+/** Bénédiction du ton croyant, commune au message immédiat et à l'e-mail. */
+export const BLESSING: Record<TemplateLocale, string> = {
+  fr: 'Que Dieu l’accueille dans sa miséricorde.',
+  en: 'May God have mercy on their soul.',
+};
 
 /** Date AAAA-MM-JJ en toutes lettres (« 3 mars 2026 », « 3 March 2026 »), sinon null. */
 export function formatDate(iso: string | null, locale: TemplateLocale): string | null {
   if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
   const date = new Date(`${iso}T00:00:00Z`);
-  if (Number.isNaN(date.getTime())) return null;
+  // WHY: une date impossible (2026-02-31) serait réinterprétée par Date ; on la refuse.
+  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== iso) return null;
   return new Intl.DateTimeFormat(locale === 'fr' ? 'fr-FR' : 'en-GB', {
     day: 'numeric',
     month: 'long',
@@ -74,11 +91,15 @@ const CAUSE_TEXT: Record<TemplateLocale, Record<Exclude<Cause, 'none'>, string>>
  */
 export function deathSentence(ctx: DraftContext, opening: string): string {
   const { locale, person, answers } = ctx;
-  const nick = person.nickname
-    ? locale === 'fr'
-      ? ` (« ${person.nickname} »)`
-      : ` ("${person.nickname}")`
-    : '';
+  const nickname = person.nickname ? squash(person.nickname) : '';
+  const sameAsFirstName =
+    nickname.toLocaleLowerCase(locale) === squash(person.firstName).toLocaleLowerCase(locale);
+  const nick =
+    nickname === '' || sameAsFirstName
+      ? ''
+      : locale === 'fr'
+        ? ` (« ${nickname} »)`
+        : ` ("${nickname}")`;
   const date = formatDate(textAnswer(answers, 'death.date'), locale);
   const cause = choiceAnswer(answers, 'death.mentionCause', CAUSES);
   const causeText = cause && cause !== 'none' ? CAUSE_TEXT[locale][cause] : null;
@@ -87,8 +108,9 @@ export function deathSentence(ctx: DraftContext, opening: string): string {
     const parts = [date ? `le ${date}` : null, causeText].filter(Boolean);
     if (parts.length > 0) suffix = `, survenu ${parts.join(' ')}`;
   } else {
-    const parts = [date ? `on ${date}` : null, causeText].filter(Boolean);
-    if (parts.length > 0) suffix = `, ${parts.join(', ')}`;
+    const when = date ? `on ${date}` : null;
+    const parts = (cause === 'sudden' ? [causeText, when] : [when, causeText]).filter(Boolean);
+    if (parts.length > 0) suffix = `, who passed away ${parts.join(' ')}`;
   }
   return `${opening} ${fullName(person)}${nick}${suffix}.`;
 }
