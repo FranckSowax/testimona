@@ -8,6 +8,8 @@ export function ChoiceInput({
   ...props
 }: FieldProps<string> & { question: ChoiceQuestion }) {
   const t = useTranslations('journey.q');
+  // WHY: l'identifiant va sur l'option cochée (sinon la première) pour que le focus d'erreur s'y pose.
+  const anchor = question.options.includes(props.value) ? props.value : question.options[0];
   return (
     <div
       role="radiogroup"
@@ -16,7 +18,7 @@ export function ChoiceInput({
       aria-invalid={props.invalid}
       className="space-y-3"
     >
-      {question.options.map((option, i) => (
+      {question.options.map((option) => (
         <label
           key={option}
           className={`has-[:focus-visible]:ring-accent-soft block cursor-pointer rounded-xl border px-4 py-3 has-[:focus-visible]:ring-2 ${
@@ -26,7 +28,7 @@ export function ChoiceInput({
           }`}
         >
           <input
-            id={i === 0 ? props.id : undefined}
+            id={option === anchor ? props.id : undefined}
             type="radio"
             name={`choice-${question.key}`}
             value={option}

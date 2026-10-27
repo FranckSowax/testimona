@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SKIPPED, type ListQuestion, type Question } from '../types';
-import { compact, isBlank, toEditable } from './values';
+import { compact, isBlank, keptIndices, missingRequired, toEditable } from './values';
 
 const traits: ListQuestion = {
   kind: 'list',
@@ -29,6 +29,36 @@ describe('toEditable', () => {
     expect(toEditable(traits, SKIPPED, 'GA')).toEqual([
       { trait: '', anecdote: '', priority: false },
     ]);
+  });
+});
+
+describe('toEditable : réponses enregistrées devenues invalides', () => {
+  it('ignore un lieu dont les champs ne sont pas des chaînes', () => {
+    expect(toEditable(place, { city: 3, countryCode: 'GA' }, 'CM')).toEqual({
+      city: '',
+      countryCode: 'CM',
+    });
+  });
+
+  it('ne garde des éléments de liste que les champs de la question', () => {
+    const stored = [{ trait: 'Drôle', extra: 'x', priority: 'oui' }];
+    expect(toEditable(traits, stored, 'GA')).toEqual([
+      { trait: 'Drôle', anecdote: '', priority: false },
+    ]);
+  });
+
+  it('repart d’un champ vide si le choix enregistré n’existe plus', () => {
+    const choice: Question = { kind: 'choice', key: 'a.b', options: ['x', 'y'] };
+    expect(toEditable(choice, 'z', 'GA')).toBe('');
+    expect(toEditable(choice, 'y', 'GA')).toBe('y');
+  });
+});
+
+describe('keptIndices et missingRequired', () => {
+  it('indique les éléments conservés et les champs obligatoires manquants', () => {
+    const items = [{ trait: 'A' }, { trait: '' }, { trait: ' ', anecdote: 'souvenir' }];
+    expect(keptIndices(items)).toEqual([0, 2]);
+    expect(missingRequired(traits, items)).toEqual(['2.trait']);
   });
 });
 

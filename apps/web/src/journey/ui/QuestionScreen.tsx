@@ -1,13 +1,21 @@
 'use client';
 
-import { startTransition, useActionState, useEffect, useState, type FormEvent } from 'react';
+import { startTransition, useActionState, useRef, useState, type FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { saveAnswerAction, type AnswerState } from '@/modules/dossier/answers/actions';
-import type { Question } from '../types';
+import { isSkipped, type Question } from '../types';
 import { AnswerInput } from './AnswerInput';
 import type { Country } from './inputs/PlaceInput';
-import { compact, isBlank, toEditable, type EditableValue } from './values';
+import { useAnswerError } from './useAnswerError';
+import {
+  compact,
+  isBlank,
+  keptIndices,
+  missingRequired,
+  toEditable,
+  type EditableValue,
+} from './values';
 
 interface Props {
   dossierId: string;
@@ -37,7 +45,6 @@ const LINK_CLASS = 'text-sm text-white/70 underline-offset-4 hover:underline';
 export function QuestionScreen(props: Props) {
   const { dossierId, question, index, total, readOnly } = props;
   const t = useTranslations('journey.ui');
-  const tErrors = useTranslations('dossier.errors');
   const [state, formAction, pending] = useActionState<AnswerState | null, FormData>(
     saveAnswerAction,
     null,
@@ -45,28 +52,32 @@ export function QuestionScreen(props: Props) {
   const [value, setValue] = useState<EditableValue>(() =>
     toEditable(question, props.stored, props.countries[0]?.code ?? ''),
   );
-  const [blank, setBlank] = useState(false);
   const fieldId = `answer-${question.key.replace(/\./g, '-')}`;
-  const errorText = blank ? t('required') : state?.error ? tErrors(state.error) : null;
-
-  // WHY: le focus revient au champ une fois l'erreur rendue, pour qu'elle soit annoncée avec lui.
-  useEffect(() => {
-    if (errorText) document.getElementById(fieldId)?.focus();
-  }, [errorText, fieldId]);
+  const keptRef = useRef<number[]>([]);
+  const { error, show, clear } = useAnswerError(state, question, fieldId, keptRef);
+  const noAnswer = readOnly && (props.stored === undefined || isSkipped(props.stored));
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const submitter = (e.nativeEvent as SubmitEvent).submitter;
-    const data = new FormData(e.currentTarget, submitter);
-    if (data.get('intent') !== 'skip') {
-      if (isBlank(value)) return setBlank(true);
+    // WHY: le second argument de `new FormData` est ignoré par les navigateurs anciens.
+    const intent = submitter instanceof HTMLButtonElement ? submitter.value : 'next';
+    const data = new FormData(e.currentTarget);
+    data.set('intent', intent);
+    if (intent !== 'skip') {
+      if (isBlank(value)) return show(t('required'));
+      if (question.kind === 'list' && Array.isArray(value)) {
+        const missing = missingRequired(question, value);
+        if (missing.length > 0) return show(t('required'), missing);
+      }
+      keptRef.current = keptIndices(value);
       data.set('value', JSON.stringify(compact(value)));
     }
     startTransition(() => formAction(data));
   };
 
   const describedBy =
-    [props.hint ? 'question-hint' : null, errorText ? 'question-error' : null]
+    [props.hint ? 'question-hint' : null, error ? 'question-error' : null]
       .filter(Boolean)
       .join(' ') || undefined;
   const backLink = (
@@ -89,23 +100,28 @@ export function QuestionScreen(props: Props) {
         )}
       </div>
       {readOnly && <p className="text-sm text-white/70">{t('readOnly')}</p>}
-      <AnswerInput
-        id={fieldId}
-        question={question}
-        value={value}
-        onChange={(next) => {
-          setValue(next);
-          setBlank(false);
-        }}
-        readOnly={readOnly}
-        invalid={errorText !== null}
-        labelledBy="question-title"
-        describedBy={describedBy}
-        countries={props.countries}
-      />
-      {errorText && (
-        <p id="question-error" role="alert" className="text-accent-soft text-sm">
-          {errorText}
+      {noAnswer ? (
+        <p className="text-white/70">{t('noAnswer')}</p>
+      ) : (
+        <AnswerInput
+          id={fieldId}
+          question={question}
+          value={value}
+          onChange={(next) => {
+            setValue(next);
+            clear();
+          }}
+          readOnly={readOnly}
+          invalid={error !== null}
+          labelledBy="question-title"
+          describedBy={describedBy}
+          countries={props.countries}
+          invalidIds={error?.invalidIds ?? []}
+        />
+      )}
+      {error && (
+        <p key={error.seq} id="question-error" role="alert" className="text-accent-soft text-sm">
+          {error.text}
         </p>
       )}
     </>

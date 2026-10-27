@@ -9,6 +9,7 @@ export function LongTextInput(props: FieldProps<string>) {
       value={props.value}
       onChange={(e) => props.onChange(e.target.value)}
       readOnly={props.readOnly}
+      data-readonly={props.readOnly}
       maxLength={LONG_TEXT_MAX}
       aria-invalid={props.invalid}
       aria-labelledby={props.labelledBy}

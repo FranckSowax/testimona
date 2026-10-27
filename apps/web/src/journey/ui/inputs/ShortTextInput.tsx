@@ -9,6 +9,7 @@ export function ShortTextInput(props: FieldProps<string>) {
       value={props.value}
       onChange={(e) => props.onChange(e.target.value)}
       readOnly={props.readOnly}
+      data-readonly={props.readOnly}
       maxLength={SHORT_TEXT_MAX}
       autoComplete="off"
       aria-invalid={props.invalid}

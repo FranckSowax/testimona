@@ -8,13 +8,18 @@ import { PlaceInput, type Country } from './inputs/PlaceInput';
 import { ShortTextInput } from './inputs/ShortTextInput';
 import type { EditableValue } from './values';
 
-type Props = FieldProps<EditableValue> & { question: Question; countries: Country[] };
+type Props = FieldProps<EditableValue> & {
+  question: Question;
+  countries: Country[];
+  /** Identifiants DOM des champs de liste fautifs. */
+  invalidIds: readonly string[];
+};
 
 /**
  * Champ de saisie adapté au type de la question.
  * WHY: `toEditable` garantit que la valeur a la forme attendue par le type, d'où les conversions.
  */
-export function AnswerInput({ question, countries, ...props }: Props) {
+export function AnswerInput({ question, countries, invalidIds, ...props }: Props) {
   const text = { ...props, value: props.value as string };
   switch (question.kind) {
     case 'shortText':
@@ -28,6 +33,13 @@ export function AnswerInput({ question, countries, ...props }: Props) {
     case 'place':
       return <PlaceInput {...props} value={props.value as PlaceValue} countries={countries} />;
     case 'list':
-      return <ListInput {...props} value={props.value as ListItem[]} question={question} />;
+      return (
+        <ListInput
+          {...props}
+          value={props.value as ListItem[]}
+          question={question}
+          invalidIds={invalidIds}
+        />
+      );
   }
 }

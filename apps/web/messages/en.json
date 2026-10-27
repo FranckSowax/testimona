@@ -1233,6 +1233,8 @@
       "readOnly": "You can read the answers; only contributors can change them.",
       "addItem": "Add",
       "removeItem": "Remove",
+      "removeItemN": "Remove item {n}",
+      "noAnswer": "No answer yet.",
       "item": "Item {n}",
       "chooseOption": "Choose…"
     },

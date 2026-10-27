@@ -22,6 +22,7 @@ export function PlaceInput({
           value={props.value.city}
           onChange={(e) => props.onChange({ ...props.value, city: e.target.value })}
           readOnly={props.readOnly}
+          data-readonly={props.readOnly}
           maxLength={CITY_MAX}
           autoComplete="off"
           aria-invalid={props.invalid}

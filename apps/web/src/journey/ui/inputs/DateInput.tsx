@@ -8,6 +8,7 @@ export function DateInput(props: FieldProps<string>) {
       value={props.value}
       onChange={(e) => props.onChange(e.target.value)}
       readOnly={props.readOnly}
+      data-readonly={props.readOnly}
       aria-invalid={props.invalid}
       aria-labelledby={props.labelledBy}
       aria-describedby={props.describedBy}
