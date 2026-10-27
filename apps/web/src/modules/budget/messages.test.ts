@@ -40,6 +40,7 @@ const PATHS = [
     'nightsAssumed',
     'noGuests',
     'linesTitle',
+    'seeContributions',
   ].map((key) => `budget.page.${key}`),
 ];
 

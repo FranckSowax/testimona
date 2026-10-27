@@ -1445,6 +1445,7 @@
       "chooseLevel": "Choose a level",
       "changeLevel": "Change level",
       "backToDossier": "Back to the dossier",
+      "seeContributions": "Track contributions",
       "capped": "capped",
       "cappedNote": "Some items reach the {max} cap: check the attendance and the level.",
       "nightsAssumed": "Wake length not given: one night is assumed.",

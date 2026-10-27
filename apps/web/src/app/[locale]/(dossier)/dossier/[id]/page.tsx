@@ -4,8 +4,11 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { z } from 'zod';
 import { buttonClasses } from '@/components/ui/Button';
 import { Link } from '@/i18n/navigation';
-import { personStatus, stepsFor } from '@/journey/registry';
+import { isStepOpen, personStatus, stepsFor } from '@/journey/registry';
 import { JourneyOverview } from '@/journey/ui/JourneyOverview';
+import { getTotals } from '@/modules/budget/ledger/repo';
+import { LedgerCard } from '@/modules/budget/ledger/ui/LedgerCard';
+import { envisagedTotal } from '@/modules/budget/scenarios';
 import { listAnswers } from '@/modules/dossier/answers/repo';
 import { getDossier, getMyRole, getPerson, listMembers } from '@/modules/dossier/repo';
 import { canWrite } from '@/modules/dossier/roles';
@@ -25,11 +28,15 @@ export default async function DossierPage({
 
   const [t, dossier] = await Promise.all([getTranslations('dossier'), getDossier(id)]);
   if (!dossier) notFound();
-  const [person, members, answers, role] = await Promise.all([
+  const hasBudget = isStepOpen(dossier.entryPoint, 'attendance');
+  // WHY: une carte sans chiffre vaut mieux qu'un tableau de bord en erreur ; la page Cotisations,
+  // elle, refuse d'afficher des totaux illisibles.
+  const [person, members, answers, role, ledgerTotals] = await Promise.all([
     getPerson(id),
     listMembers(id),
     listAnswers(id),
     getMyRole(id),
+    hasBudget ? getTotals(id).then((result) => result.data) : null,
   ]);
   const country = new Intl.DisplayNames([locale], { type: 'region' }).of(dossier.countryCode);
 
@@ -58,6 +65,15 @@ export default async function DossierPage({
           canAnswer={canWrite(role)}
         />
       </section>
+
+      {hasBudget && (
+        <LedgerCard
+          dossierId={id}
+          locale={locale}
+          budget={envisagedTotal(answers)}
+          totals={ledgerTotals}
+        />
+      )}
 
       <section className="border-border space-y-3 rounded-2xl border p-6">
         <h2 className="font-display text-foreground text-lg font-semibold">

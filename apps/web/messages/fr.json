@@ -1445,6 +1445,7 @@
       "chooseLevel": "Choisir un niveau",
       "changeLevel": "Changer de niveau",
       "backToDossier": "Retour au dossier",
+      "seeContributions": "Suivre les cotisations",
       "capped": "plafonné",
       "cappedNote": "Certains postes atteignent le plafond de {max} : vérifiez l'affluence et le niveau.",
       "nightsAssumed": "Durée de la veillée non renseignée : une nuit est supposée.",

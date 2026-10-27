@@ -155,12 +155,20 @@ export async function BudgetOverview(props: Props) {
         </p>
       )}
 
-      <Link
-        href={`/dossier/${dossierId}`}
-        className="text-muted-foreground text-sm hover:underline"
-      >
-        ← {t('page.backToDossier')}
-      </Link>
+      <div className="flex flex-wrap justify-between gap-3 text-sm">
+        <Link
+          href={`/dossier/${dossierId}/cotisations`}
+          className="text-secondary font-semibold underline underline-offset-2"
+        >
+          {t('page.seeContributions')}
+        </Link>
+        <Link
+          href={`/dossier/${dossierId}`}
+          className="text-foreground underline underline-offset-2"
+        >
+          ← {t('page.backToDossier')}
+        </Link>
+      </div>
     </div>
   );
 }
