@@ -1159,7 +1159,8 @@
       "pendingTitle": "Pending invitations",
       "expires": "expires on {date}",
       "revoke": "Revoke",
-      "readOnly": "Only coordinators can invite new members."
+      "readOnly": "Only coordinators can invite new members.",
+      "unnamed": "Member"
     },
     "invitation": {
       "title": "Join a family space",

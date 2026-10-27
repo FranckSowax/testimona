@@ -1159,7 +1159,8 @@
       "pendingTitle": "Invitations en attente",
       "expires": "expire le {date}",
       "revoke": "Révoquer",
-      "readOnly": "Seuls les coordinateurs peuvent inviter de nouveaux membres."
+      "readOnly": "Seuls les coordinateurs peuvent inviter de nouveaux membres.",
+      "unnamed": "Membre"
     },
     "invitation": {
       "title": "Rejoindre un dossier familial",
