@@ -37,6 +37,9 @@ const PATHS = [
     'backToDossier',
     'capped',
     'cappedNote',
+    'nightsAssumed',
+    'noGuests',
+    'linesTitle',
   ].map((key) => `budget.page.${key}`),
 ];
 

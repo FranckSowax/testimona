@@ -22,7 +22,13 @@ const answers = {
 
 describe('attendanceFrom', () => {
   it('additionne les cercles et ajoute 25 % pour la fourchette haute', () => {
-    expect(attendanceFrom(answers)).toEqual({ low: 150, high: 188, nights: 2, answered: true });
+    expect(attendanceFrom(answers)).toEqual({
+      low: 150,
+      high: 188,
+      nights: 2,
+      answered: true,
+      nightsAssumed: false,
+    });
   });
 
   it('ignore les réponses passées, absentes ou invalides', () => {
@@ -33,16 +39,23 @@ describe('attendanceFrom', () => {
         'attendance.friends': '40',
         'attendance.community': -5,
       }),
-    ).toEqual({ low: 10, high: 13, nights: 1, answered: true });
+    ).toEqual({ low: 10, high: 13, nights: 1, answered: true, nightsAssumed: true });
   });
 
   it('suppose une nuit sans réponse, et respecte zéro nuit répondu', () => {
-    expect(attendanceFrom({})).toEqual({ low: 0, high: 0, nights: 1, answered: false });
+    expect(attendanceFrom({})).toEqual({
+      low: 0,
+      high: 0,
+      nights: 1,
+      answered: false,
+      nightsAssumed: true,
+    });
     expect(attendanceFrom({ 'attendance.nights': 0 })).toEqual({
       low: 0,
       high: 0,
       nights: 0,
       answered: false,
+      nightsAssumed: false,
     });
   });
 });
@@ -58,7 +71,7 @@ describe('occasions', () => {
 });
 
 describe('lineAmount', () => {
-  const attendance = { low: 150, high: 188, nights: 2, answered: true };
+  const attendance = { low: 150, high: 188, nights: 2, answered: true, nightsAssumed: false };
   const item = (mode: GridItem['mode']): GridItem => ({
     key: 'demo',
     mode,

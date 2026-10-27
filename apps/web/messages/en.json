@@ -1434,8 +1434,8 @@
       "intro": "Three budgets estimated from the expected attendance. They help you decide together and start the contributions.",
       "estimateNote": "Reference prices for Libreville: these are estimates to check with providers.",
       "attendanceTitle": "Expected attendance",
-      "attendanceRange": "Between {low} and {high} people. {nights, plural, =0 {No wake.} one {# wake night.} other {# wake nights.}}",
-      "noAttendance": "Attendance is not estimated yet: the budgets only count fixed items.",
+      "attendanceRange": "Between {low, number} and {high, number} people. {nights, plural, =0 {No wake.} one {# wake night.} other {# wake nights.}}",
+      "noAttendance": "Attendance is not estimated yet: meals, drinks, tents and chairs are not counted, and one wake night is assumed.",
       "answerAttendance": "Estimate attendance",
       "editAttendance": "Edit attendance",
       "scenariosTitle": "Three budgets",
@@ -1446,7 +1446,10 @@
       "changeLevel": "Change level",
       "backToDossier": "Back to the dossier",
       "capped": "capped",
-      "cappedNote": "Some items reach the 100,000,000 FCFA cap: check the attendance and the level."
+      "cappedNote": "Some items reach the {max} cap: check the attendance and the level.",
+      "nightsAssumed": "Wake length not given: one night is assumed.",
+      "noGuests": "No guests counted yet.",
+      "linesTitle": "Breakdown by item"
     },
     "level": {
       "sober": "Simple",

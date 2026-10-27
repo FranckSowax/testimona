@@ -3,7 +3,7 @@ import { buttonClasses } from '@/components/ui/Button';
 import { Link } from '@/i18n/navigation';
 import { LEVELS, type Level } from '@/journey/options';
 import { formatXaf } from '../format';
-import type { Attendance, Scenarios } from '../scenarios';
+import { AMOUNT_MAX, type Attendance, type Scenarios } from '../scenarios';
 
 interface Props {
   dossierId: string;
@@ -23,6 +23,8 @@ export async function BudgetOverview(props: Props) {
   const t = await getTranslations('budget');
   const money = (amount: number) => formatXaf(amount, locale);
   const stepHref = (stepId: string) => `/dossier/${dossierId}/etape/${stepId}`;
+  // WHY: le niveau envisagé reste repérable dans le détail par poste.
+  const shade = (level: Level) => (chosen === level ? 'bg-primary/5' : '');
   const anyCapped = scenarios.lines.some((line) => line.capped);
 
   return (
@@ -34,18 +36,23 @@ export async function BudgetOverview(props: Props) {
       </header>
 
       <section aria-labelledby="attendance-title" className="border-border rounded-2xl border p-5">
-        <h2 id="attendance-title" className="text-foreground font-semibold">
+        <h2 id="attendance-title" className="font-display text-foreground text-lg font-semibold">
           {t('page.attendanceTitle')}
         </h2>
         <p className="text-muted-foreground mt-1">
-          {attendance.answered
-            ? t('page.attendanceRange', {
-                low: attendance.low,
-                high: attendance.high,
-                nights: attendance.nights,
-              })
-            : t('page.noAttendance')}
+          {!attendance.answered
+            ? t('page.noAttendance')
+            : attendance.high === 0
+              ? t('page.noGuests')
+              : t('page.attendanceRange', {
+                  low: attendance.low,
+                  high: attendance.high,
+                  nights: attendance.nights,
+                })}
         </p>
+        {attendance.answered && attendance.nightsAssumed && (
+          <p className="text-muted-foreground mt-1 text-sm">{t('page.nightsAssumed')}</p>
+        )}
         {canAnswer && (
           <Link
             href={stepHref('attendance')}
@@ -57,7 +64,7 @@ export async function BudgetOverview(props: Props) {
       </section>
 
       <section aria-labelledby="scenarios-title" className="space-y-4">
-        <h2 id="scenarios-title" className="text-foreground font-semibold">
+        <h2 id="scenarios-title" className="font-display text-foreground text-lg font-semibold">
           {t('page.scenariosTitle')}
         </h2>
         <ul className="grid gap-3 sm:grid-cols-3">
@@ -90,13 +97,18 @@ export async function BudgetOverview(props: Props) {
 
       <div className="border-border overflow-x-auto rounded-2xl border">
         <table className="w-full min-w-[32rem] text-sm">
+          <caption className="sr-only">{t('page.linesTitle')}</caption>
           <thead>
             <tr className="border-border border-b text-left">
               <th scope="col" className="px-4 py-3 font-semibold">
                 {t('page.line')}
               </th>
               {LEVELS.map((level) => (
-                <th key={level} scope="col" className="px-4 py-3 text-right font-semibold">
+                <th
+                  key={level}
+                  scope="col"
+                  className={`px-4 py-3 text-right font-semibold ${shade(level)}`}
+                >
                   {t(`level.${level}`)}
                 </th>
               ))}
@@ -115,7 +127,7 @@ export async function BudgetOverview(props: Props) {
                   )}
                 </th>
                 {LEVELS.map((level) => (
-                  <td key={level} className="px-4 py-2 text-right tabular-nums">
+                  <td key={level} className={`px-4 py-2 text-right tabular-nums ${shade(level)}`}>
                     {money(line.amounts[level])}
                   </td>
                 ))}
@@ -128,7 +140,7 @@ export async function BudgetOverview(props: Props) {
                 {t('page.total')}
               </th>
               {LEVELS.map((level) => (
-                <td key={level} className="px-4 py-3 text-right tabular-nums">
+                <td key={level} className={`px-4 py-3 text-right tabular-nums ${shade(level)}`}>
                   {money(scenarios.totals[level])}
                 </td>
               ))}
@@ -139,7 +151,7 @@ export async function BudgetOverview(props: Props) {
 
       {anyCapped && (
         <p role="note" className="text-muted-foreground text-sm">
-          * {t('page.cappedNote')}
+          * {t('page.cappedNote', { max: money(AMOUNT_MAX) })}
         </p>
       )}
 

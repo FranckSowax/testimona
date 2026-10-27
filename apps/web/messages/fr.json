@@ -1434,8 +1434,8 @@
       "intro": "Trois budgets estimés à partir de l'affluence attendue. Ils aident à décider ensemble et à lancer les cotisations.",
       "estimateNote": "Prix de référence pour Libreville : ce sont des estimations à vérifier auprès des prestataires.",
       "attendanceTitle": "Affluence attendue",
-      "attendanceRange": "Entre {low} et {high} personnes. {nights, plural, =0 {Pas de veillée.} one {# nuit de veillée.} other {# nuits de veillée.}}",
-      "noAttendance": "L'affluence n'est pas encore estimée : les budgets ne comptent que les postes fixes.",
+      "attendanceRange": "Entre {low, number} et {high, number} personnes. {nights, plural, =0 {Pas de veillée.} one {# nuit de veillée.} other {# nuits de veillée.}}",
+      "noAttendance": "L'affluence n'est pas encore estimée : les repas, boissons, tentes et chaises ne sont pas comptés, et une nuit de veillée est supposée.",
       "answerAttendance": "Estimer l'affluence",
       "editAttendance": "Modifier l'affluence",
       "scenariosTitle": "Trois budgets",
@@ -1446,7 +1446,10 @@
       "changeLevel": "Changer de niveau",
       "backToDossier": "Retour au dossier",
       "capped": "plafonné",
-      "cappedNote": "Certains postes atteignent le plafond de 100 000 000 FCFA : vérifiez l'affluence et le niveau."
+      "cappedNote": "Certains postes atteignent le plafond de {max} : vérifiez l'affluence et le niveau.",
+      "nightsAssumed": "Durée de la veillée non renseignée : une nuit est supposée.",
+      "noGuests": "Aucune personne comptée pour l'instant.",
+      "linesTitle": "Détail par poste"
     },
     "level": {
       "sober": "Sobre",

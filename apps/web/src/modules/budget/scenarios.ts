@@ -31,6 +31,8 @@ export interface Attendance {
   nights: number;
   /** Vrai si au moins un cercle a reçu une réponse. */
   answered: boolean;
+  /** Vrai si la durée de la veillée n'a pas de réponse valide (une nuit supposée). */
+  nightsAssumed: boolean;
 }
 
 export interface ScenarioLine {
@@ -60,12 +62,14 @@ function count(answers: Answers, key: string): number | null {
 export function attendanceFrom(answers: Answers): Attendance {
   const counts = ATTENDANCE_KEYS.map((key) => count(answers, key));
   const low = counts.reduce<number>((sum, value) => sum + (value ?? 0), 0);
+  const nights = count(answers, NIGHTS_KEY);
   return {
     low,
     high: Math.ceil(low * ATTENDANCE_MARGIN),
     // WHY: sans réponse on suppose une nuit de veillée ; un zéro répondu est respecté.
-    nights: count(answers, NIGHTS_KEY) ?? 1,
+    nights: nights ?? 1,
     answered: counts.some((value) => value !== null),
+    nightsAssumed: nights === null,
   };
 }
 
