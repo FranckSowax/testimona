@@ -12,6 +12,7 @@ const ServerEnvSchema = z.object({
   SUPABASE_SERVICE_KEY: z.string().min(20).optional(),
   STRIPE_SECRET_KEY: z.string().startsWith('sk_').optional(),
   STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_').optional(),
+  OPENROUTER_API_KEY: z.string().min(1).optional(),
   NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional().or(z.literal('')),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
 });
