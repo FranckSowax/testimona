@@ -26,6 +26,7 @@ supabase/
 | `20261027000400_revoke_trigger_function_execute.sql`         | Lot 1 : fonctions de trigger du dossier non exécutables via l'API                              |
 | `20261027000500_ai_usage.sql`                                | Lot 1 : compteur d'appels à l'IA par dossier et par jour                                       |
 | `20261027000600_ledger.sql`                                  | Lot 2 : registre des cotisations et des dépenses, visibilité, totaux                           |
+| `20261027000700_budget_lines.sql`                            | Lot 2 : postes du budget, scénario retenu, dépenses par poste                                  |
 
 Les horodatages des migrations historiques sont **synthétiques** : ils ne servent qu'à fixer l'ordre.
 
@@ -75,7 +76,11 @@ Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Histori
 - `ai_usage` (lot 1, PR 4), version enregistrée `20261027151057` ;
 - `ledger` (lot 2, PR 2), version enregistrée `20261027190919`.
 
-Toutes les migrations du dépôt sont donc en production. Après `ledger`, vérifié : RLS active sur
+**Pas encore en production :**
+
+- `budget_lines` (lot 2, PR 3) : à appliquer avant de déployer le web de la PR. Après application, `get_advisors` signalera `set_budget_scenario` comme security definer exécutable par `authenticated` (0029), c'est voulu.
+
+Toutes les migrations du dépôt jusqu'à `ledger` sont donc en production. Après `ledger`, vérifié : RLS active sur
 `ledger_entry` et `dossier_finance`, aucun droit pour `anon`, `authenticated` limité à
 `select`/`insert` sur `ledger_entry` et `select`/`insert`/`update` sur `dossier_finance`, fonctions
 de trigger non exécutables, `ledger_totals` exécutable par `authenticated` seulement.
