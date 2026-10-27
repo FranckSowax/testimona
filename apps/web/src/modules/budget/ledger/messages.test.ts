@@ -58,6 +58,8 @@ const PATHS = [
     'outOfRange',
     'invalidDate',
     'required',
+    'tooLong',
+    'invalidCharacter',
   ].map((k) => `ledger.errors.${k}`),
   ...['title', 'summary', 'summaryNoBudget', 'open'].map((k) => `ledger.card.${k}`),
 ];
@@ -78,9 +80,57 @@ describe.each([
   });
 });
 
+const placeholders = (value: unknown): string[] =>
+  typeof value === 'string'
+    ? [...value.matchAll(/\{(\w+)/g)].map((m) => m[1] as string).sort()
+    : [];
+
+const SCHEMA_MESSAGES: Record<string, string> = {
+  'invalid number': 'invalidNumber',
+  'out of range': 'outOfRange',
+  'invalid date': 'invalidDate',
+  required: 'required',
+  'too long': 'tooLong',
+  'invalid character': 'invalidCharacter',
+};
+
 describe('parité FR/EN du registre', () => {
   it("l'espace ledger a les mêmes clés dans les deux langues", () => {
     const keys = (messages: unknown) => leafPaths(get(messages, 'ledger')).sort();
     expect(keys(en)).toEqual(keys(fr));
+  });
+
+  it('chaque texte du registre est vérifié par la liste PATHS', () => {
+    const unchecked = leafPaths(get(fr, 'ledger'))
+      .map((leaf) => `ledger.${leaf}`)
+      .filter((path) => !PATHS.includes(path));
+    expect(unchecked).toEqual([]);
+  });
+
+  it('les variables ICU sont identiques en FR et EN', () => {
+    for (const leaf of leafPaths(get(fr, 'ledger'))) {
+      const path = `ledger.${leaf}`;
+      expect({ path, vars: placeholders(get(en, path)) }).toEqual({
+        path,
+        vars: placeholders(get(fr, path)),
+      });
+    }
+  });
+
+  it.each([
+    ['ledger.entry.partlyPaid', ['paid']],
+    ['ledger.entry.reversalOf', ['kind']],
+    ['ledger.card.summary', ['budget', 'received']],
+    ['ledger.card.summaryNoBudget', ['received']],
+  ])('%s expose ses variables', (path, vars) => {
+    expect(placeholders(get(fr, path))).toEqual(vars);
+    expect(placeholders(get(en, path))).toEqual(vars);
+  });
+
+  it("chaque message de validation du schéma a un texte d'erreur", () => {
+    for (const key of Object.values(SCHEMA_MESSAGES)) {
+      expect(isFilled(get(fr, `ledger.errors.${key}`))).toBe(true);
+      expect(isFilled(get(en, `ledger.errors.${key}`))).toBe(true);
+    }
   });
 });
