@@ -1527,9 +1527,11 @@
       "method": "Moyen de paiement",
       "member": "Membre du dossier",
       "memberNone": "Autre personne (non inscrite)",
+      "memberUnnamed": "Membre sans nom affiché",
+      "memberFromPledge": "Le versement revient au membre qui a fait la promesse.",
       "pledge": "Promesse concernée",
       "pledgeNone": "Aucune",
-      "date": "Date",
+      "date": "Date (par défaut : aujourd'hui)",
       "note": "Note (facultative)",
       "submit": "Enregistrer",
       "saved": "Ligne enregistrée."

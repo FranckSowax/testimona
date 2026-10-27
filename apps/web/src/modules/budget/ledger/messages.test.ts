@@ -46,6 +46,8 @@ const PATHS = [
     'method',
     'member',
     'memberNone',
+    'memberUnnamed',
+    'memberFromPledge',
     'pledge',
     'pledgeNone',
     'date',

@@ -55,5 +55,9 @@ describe('VisibilityForm', () => {
     renderForm('restricted');
     fireEvent.click(screen.getByRole('button', { name: t.save }));
     expect((await screen.findByRole('alert')).textContent).toBe(messages.dossier.errors.forbidden);
+    // WHY: React 19 réinitialise le formulaire ; il revient au réglage enregistré, jamais à vide.
+    const checked = screen.getAllByRole('radio').filter((r) => (r as HTMLInputElement).checked);
+    expect(checked).toHaveLength(1);
+    expect(['restricted', 'members']).toContain((checked[0] as HTMLInputElement).value);
   });
 });

@@ -1527,9 +1527,11 @@
       "method": "Payment method",
       "member": "Dossier member",
       "memberNone": "Someone else (not signed up)",
+      "memberUnnamed": "Member without a display name",
+      "memberFromPledge": "The payment goes to the member who made the pledge.",
       "pledge": "Pledge this payment is for",
       "pledgeNone": "None",
-      "date": "Date",
+      "date": "Date (defaults to today)",
       "note": "Note (optional)",
       "submit": "Save",
       "saved": "Entry saved."

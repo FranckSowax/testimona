@@ -50,6 +50,16 @@ export default async function ContributionsPage({
 
   const views = entryViews(entries.data);
   const canManage = hasRole(role, 'treasurer');
+  // WHY: seuls les trésoriers et au-delà saisissent une cotisation reçue ; on n'envoie pas au
+  // navigateur des autres la liste des membres et des promesses.
+  const memberOptions = canManage
+    ? members.map((m) => ({ id: m.userId, name: m.displayName }))
+    : [];
+  // WHY: calculé sur les lignes visibles (500 au plus, limite de listEntries) ; la base revérifie
+  // de toute façon le solde de la promesse visée (TL002 → pledge_unavailable).
+  const pledgeOptions = canManage
+    ? openPledges(views).map((p) => ({ id: p.id, label: p.partyName, amount: pledgeRemaining(p) }))
+    : [];
   return (
     <div className="mx-auto w-full max-w-3xl space-y-8 px-4 py-8 sm:px-6 lg:py-12">
       <header className="space-y-2">
@@ -67,12 +77,8 @@ export default async function ContributionsPage({
         locale={locale}
         canPledge={canWrite(role)}
         canManage={canManage}
-        members={members.map((m) => ({ id: m.userId, name: m.displayName }))}
-        pledges={openPledges(views).map((p) => ({
-          id: p.id,
-          label: p.partyName,
-          amount: pledgeRemaining(p),
-        }))}
+        members={memberOptions}
+        pledges={pledgeOptions}
       />
 
       <section aria-labelledby="entries-title" className="space-y-3">

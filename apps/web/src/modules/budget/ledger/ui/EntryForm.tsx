@@ -1,7 +1,7 @@
 'use client';
 
-import { useActionState, useEffect, useId, useRef, useState } from 'react';
-import type { InputHTMLAttributes, ReactNode } from 'react';
+import { startTransition, useActionState, useEffect, useId, useRef, useState } from 'react';
+import type { ChangeEvent, FormEvent, InputHTMLAttributes, ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { buttonClasses } from '@/components/ui/Button';
 import { saveEntryAction, type LedgerFormState } from '../actions';
@@ -30,7 +30,8 @@ interface Props {
   amountLabel: (amount: number) => string;
 }
 
-const FIELD = 'border-border bg-background text-foreground w-full rounded-xl border px-3 py-2';
+const FIELD =
+  'border-border bg-background text-foreground w-full rounded-xl border px-3 py-2 disabled:opacity-60';
 const LABEL = 'text-foreground text-sm';
 
 /**
@@ -48,6 +49,8 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
   );
   const [key, renew] = useIdempotencyKey();
   const [today, setToday] = useState<string | undefined>(undefined);
+  const [pledgeId, setPledgeId] = useState('');
+  const [saved, setSaved] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const uid = useId();
 
@@ -56,9 +59,35 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
   useEffect(() => {
     if (state?.ok) {
       formRef.current?.reset();
+      setPledgeId('');
+      setSaved(true);
       renew();
+    } else if (state?.fieldErrors) {
+      // WHY: le focus va au premier champ à corriger, que le lecteur d'écran annonce.
+      formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
     }
   }, [state, renew]);
+
+  // WHY: onSubmit plutôt que `<form action>` : React 19 vide le formulaire après chaque action,
+  // même en erreur, et la personne perdrait sa saisie.
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (pending || key === '') return;
+    const data = new FormData(e.currentTarget);
+    startTransition(() => formAction(data));
+  };
+  // WHY: effacé à la saisie suivante, pour que le prochain succès soit annoncé de nouveau.
+  const clearSaved = () => setSaved(false);
+
+  const pledge = pledges.find((p) => p.id === pledgeId);
+  const onPledgeChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setPledgeId(e.target.value);
+    const chosen = pledges.find((p) => p.id === e.target.value);
+    const name = formRef.current?.elements.namedItem('partyName');
+    if (chosen && name instanceof HTMLInputElement && name.value.trim() === '') {
+      name.value = chosen.label;
+    }
+  };
 
   const showMethod = kind !== 'pledge';
   const showMember = kind === 'receipt';
@@ -81,16 +110,18 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
   };
   const idOf = (name: string) => `${uid}-${name}`;
   const errorIdOf = (name: string) => `${uid}-${name}-error`;
-  const a11y = (name: string) => {
+  const memberHintId = `${uid}-memberId-hint`;
+  const a11y = (name: string, hintId?: string) => {
     const error = fieldError(name);
+    const describedBy = [hintId, error ? errorIdOf(name) : undefined].filter(Boolean).join(' ');
     return {
       id: idOf(name),
       name,
       'aria-invalid': error ? true : undefined,
-      'aria-describedby': error ? errorIdOf(name) : undefined,
+      'aria-describedby': describedBy || undefined,
     } as const;
   };
-  const wrap = (name: string, label: string, control: ReactNode) => {
+  const wrap = (name: string, label: string, control: ReactNode, hint?: ReactNode) => {
     const error = fieldError(name);
     return (
       <div className="space-y-1">
@@ -98,6 +129,7 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
           {label}
         </label>
         {control}
+        {hint}
         {error && (
           <p id={errorIdOf(name)} role="alert" className="text-destructive text-sm">
             {error}
@@ -119,7 +151,14 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
       : null;
 
   return (
-    <form ref={formRef} action={formAction} className="grid gap-3 sm:grid-cols-2" noValidate>
+    <form
+      ref={formRef}
+      onSubmit={onSubmit}
+      onInput={clearSaved}
+      onChange={clearSaved}
+      className="grid gap-3 sm:grid-cols-2"
+      noValidate
+    >
       <input type="hidden" name="dossierId" value={dossierId} />
       <input type="hidden" name="kind" value={kind} />
       <input type="hidden" name="idempotencyKey" value={key} />
@@ -132,6 +171,7 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
         required: true,
         inputMode: 'numeric',
         autoComplete: 'off',
+        placeholder: pledge ? String(pledge.amount) : undefined,
       })}
       {showMethod &&
         wrap(
@@ -145,24 +185,16 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
             ))}
           </select>,
         )}
-      {showMember &&
-        wrap(
-          'memberId',
-          t('form.member'),
-          <select defaultValue="" className={FIELD} {...a11y('memberId')}>
-            <option value="">{t('form.memberNone')}</option>
-            {members.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name ?? m.id.slice(0, 8)}
-              </option>
-            ))}
-          </select>,
-        )}
       {showPledge &&
         wrap(
           'pledgeId',
           t('form.pledge'),
-          <select defaultValue="" className={FIELD} {...a11y('pledgeId')}>
+          <select
+            value={pledgeId}
+            onChange={onPledgeChange}
+            className={FIELD}
+            {...a11y('pledgeId')}
+          >
             <option value="">{t('form.pledgeNone')}</option>
             {pledges.map((p) => (
               <option key={p.id} value={p.id}>
@@ -170,6 +202,30 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
               </option>
             ))}
           </select>,
+        )}
+      {showMember &&
+        wrap(
+          'memberId',
+          t('form.member'),
+          // WHY: un champ désactivé n'est pas envoyé ; la base recopie le membre de la promesse.
+          <select
+            defaultValue=""
+            disabled={pledge !== undefined}
+            className={FIELD}
+            {...a11y('memberId', pledge ? memberHintId : undefined)}
+          >
+            <option value="">{t('form.memberNone')}</option>
+            {members.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name ?? t('form.memberUnnamed')}
+              </option>
+            ))}
+          </select>,
+          pledge && (
+            <p id={memberHintId} className="text-foreground text-sm">
+              {t('form.memberFromPledge')}
+            </p>
+          ),
         )}
       {input('occurredOn', t('form.date'), { type: 'date', max: today })}
       {input('note', t('form.note'), { maxLength: 500, autoComplete: 'off' })}
@@ -187,7 +243,7 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
           {t('form.submit')}
         </button>
         <p role="status" className="text-foreground text-sm">
-          {state?.ok ? t('form.saved') : ''}
+          {saved ? t('form.saved') : ''}
         </p>
       </div>
       {generalError && (

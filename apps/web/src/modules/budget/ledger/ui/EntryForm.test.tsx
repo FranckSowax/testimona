@@ -109,10 +109,17 @@ describe('EntryForm', () => {
       fieldErrors: { amount: 'invalid number', note: 'something new' },
     });
     renderForm();
+    const name = screen.getByLabelText(messages.ledger.form.party) as HTMLInputElement;
+    const amount = screen.getByLabelText(messages.ledger.form.amount) as HTMLInputElement;
+    fireEvent.change(name, { target: { value: 'Awa Diallo' } });
+    fireEvent.change(amount, { target: { value: '20 000 F' } });
     submit();
     await screen.findAllByRole('alert');
-    const amount = screen.getByLabelText(messages.ledger.form.amount);
     expect(amount.getAttribute('aria-invalid')).toBe('true');
+    // WHY: React 19 vide un `<form action>` même en erreur ; la saisie doit rester.
+    expect(name.value).toBe('Awa Diallo');
+    expect(amount.value).toBe('20 000 F');
+    expect(document.activeElement).toBe(amount);
     const error = document.getElementById(amount.getAttribute('aria-describedby') ?? '');
     expect(error?.textContent).toBe(messages.ledger.errors.invalidNumber);
     const note = screen.getByLabelText(messages.ledger.form.note);
@@ -120,6 +127,43 @@ describe('EntryForm', () => {
     expect(noteError?.textContent).toBe(messages.dossier.errors.validation);
     // WHY: le message général ne double pas les erreurs de champ.
     expect(screen.getAllByRole('alert')).toHaveLength(2);
+  });
+
+  it('ties a receipt to the pledge member and suggests the pledge name and rest', () => {
+    const { container } = renderForm({
+      kind: 'receipt',
+      members: [{ id: MEMBER, name: null }],
+      pledges: [{ id: PLEDGE, label: 'Awa Diallo', amount: 30_000 }],
+    });
+    const member = screen.getByLabelText(messages.ledger.form.member) as HTMLSelectElement;
+    expect(member.querySelector(`option[value="${MEMBER}"]`)?.textContent).toBe(
+      messages.ledger.form.memberUnnamed,
+    );
+    expect(member.disabled).toBe(false);
+    fireEvent.change(member, { target: { value: MEMBER } });
+
+    fireEvent.change(screen.getByLabelText(messages.ledger.form.pledge), {
+      target: { value: PLEDGE },
+    });
+    expect(member.disabled).toBe(true);
+    const hint = document.getElementById(member.getAttribute('aria-describedby') ?? '');
+    expect(hint?.textContent).toBe(messages.ledger.form.memberFromPledge);
+    expect((screen.getByLabelText(messages.ledger.form.party) as HTMLInputElement).value).toBe(
+      'Awa Diallo',
+    );
+    expect(screen.getByLabelText(messages.ledger.form.amount).getAttribute('placeholder')).toBe(
+      '30000',
+    );
+    const form = container.querySelector('form') as HTMLFormElement;
+    const data = new FormData(form);
+    expect(data.get('pledgeId')).toBe(PLEDGE);
+    expect(data.has('memberId')).toBe(false);
+
+    fireEvent.change(screen.getByLabelText(messages.ledger.form.pledge), {
+      target: { value: '' },
+    });
+    expect(member.disabled).toBe(false);
+    expect(member.getAttribute('aria-describedby')).toBeNull();
   });
 
   it('shows a ledger-specific error in an alert', async () => {
@@ -142,5 +186,19 @@ describe('EntryForm', () => {
     );
     await waitFor(() => expect(hidden(container, 'idempotencyKey')).not.toBe(first));
     expect((saveEntryAction.mock.calls[0]?.[1] as FormData).get('idempotencyKey')).toBe(first);
+    expect((screen.getByLabelText(messages.ledger.form.party) as HTMLInputElement).value).toBe('');
+  });
+
+  it('clears the saved status on the next input', async () => {
+    saveEntryAction.mockResolvedValue({ ok: true });
+    renderForm();
+    submit();
+    await waitFor(() =>
+      expect(screen.getByRole('status').textContent).toBe(messages.ledger.form.saved),
+    );
+    fireEvent.input(screen.getByLabelText(messages.ledger.form.party), {
+      target: { value: 'B' },
+    });
+    expect(screen.getByRole('status').textContent).toBe('');
   });
 });
