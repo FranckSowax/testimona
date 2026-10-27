@@ -10,14 +10,18 @@ import { canManageLedger } from '@/modules/budget/ledger/contributions-view';
 import { lineViews, scenarioTotals, UNASSIGNED_KEY } from '@/modules/budget/lines/model';
 import { getScenario, listLines, spentByLine } from '@/modules/budget/lines/repo';
 import { LedgerTabs } from '@/modules/budget/lines/ui/LedgerTabs';
+import { LineDeletedAnnouncer } from '@/modules/budget/lines/ui/LineDeletedAnnouncer';
 import { LinesActions } from '@/modules/budget/lines/ui/LinesActions';
-import { LinesTable } from '@/modules/budget/lines/ui/LinesTable';
+import { LINES_CAPTION_ID, LinesTable } from '@/modules/budget/lines/ui/LinesTable';
 import { ScenarioForm } from '@/modules/budget/lines/ui/ScenarioForm';
 import { getDossier, getMyRole } from '@/modules/dossier/repo';
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 const IdSchema = z.string().uuid();
+
+/** Message « aucun poste » : ancre de focus après la suppression du dernier poste. */
+const EMPTY_ID = 'budget-lines-empty';
 
 export default async function BudgetLinesPage({
   params,
@@ -49,6 +53,20 @@ export default async function BudgetLinesPage({
     LEVELS.map((level) => [level, formatXaf(totals[level], locale)]),
   ) as Record<Level, string>;
   const hasLines = views.length > 0;
+  const content = hasLines ? (
+    <LinesTable
+      dossierId={id}
+      locale={locale}
+      lines={views}
+      scenario={scenario.data}
+      unassignedSpent={spent.data.get(UNASSIGNED_KEY) ?? 0}
+      canManage={canManage}
+    />
+  ) : (
+    <p id={EMPTY_ID} tabIndex={-1} className="text-foreground">
+      {canManage ? t('page.emptyManager') : t('page.empty')}
+    </p>
+  );
   return (
     <div className="mx-auto w-full max-w-4xl space-y-8 px-4 py-8 sm:px-6 lg:py-12">
       <header className="space-y-2">
@@ -68,20 +86,20 @@ export default async function BudgetLinesPage({
         <ScenarioForm dossierId={id} scenario={scenario.data} totals={formatted} />
       )}
 
-      {hasLines ? (
-        <LinesTable
-          dossierId={id}
-          locale={locale}
-          lines={views}
-          scenario={scenario.data}
-          unassignedSpent={spent.data.get(UNASSIGNED_KEY) ?? 0}
-          canManage={canManage}
-        />
+      {canManage ? (
+        // WHY: l'annonceur entoure le tableau, le message vide et les actions : supprimer le
+        // dernier poste démonte le tableau sans perdre l'annonce ni le focus.
+        <LineDeletedAnnouncer
+          focusId={LINES_CAPTION_ID}
+          fallbackFocusId={EMPTY_ID}
+          empty={!hasLines}
+        >
+          {content}
+          <LinesActions dossierId={id} hasLines={hasLines} />
+        </LineDeletedAnnouncer>
       ) : (
-        <p className="text-foreground">{canManage ? t('page.emptyManager') : t('page.empty')}</p>
+        content
       )}
-
-      {canManage && <LinesActions dossierId={id} hasLines={hasLines} />}
 
       <Link
         href={`/dossier/${id}`}

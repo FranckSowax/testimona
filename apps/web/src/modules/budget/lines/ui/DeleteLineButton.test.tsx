@@ -20,7 +20,7 @@ const CAPTION = 'lines-caption';
 function renderButton() {
   return render(
     <NextIntlClientProvider locale="fr" messages={messages}>
-      <LineDeletedAnnouncer focusId={CAPTION}>
+      <LineDeletedAnnouncer focusId={CAPTION} fallbackFocusId="lines-empty" empty={false}>
         <p id={CAPTION} tabIndex={-1}>
           Postes
         </p>
