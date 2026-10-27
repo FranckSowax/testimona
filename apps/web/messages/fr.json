@@ -1513,7 +1513,7 @@
       "reverse": "Annuler cette ligne",
       "confirmReverse": "Confirmer l'annulation",
       "keep": "Garder",
-      "reverseLabel": "Annuler la ligne {entry}",
+      "reverseLabel": "Annuler cette ligne : {entry}",
       "reverseWarning": "Cette annulation est définitive.",
       "reversing": "Annulation…"
     },

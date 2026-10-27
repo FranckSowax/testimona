@@ -13,7 +13,7 @@ vi.mock('../actions', () => ({
 const DOSSIER = '11111111-1111-4111-8111-111111111111';
 const ENTRY = '22222222-2222-4222-8222-222222222222';
 const LABEL = 'Awa Diallo · Cotisation reçue · 20 000 FCFA';
-const TRIGGER = `Annuler la ligne ${LABEL}`;
+const TRIGGER = `Annuler cette ligne : ${LABEL}`;
 const CONFIRM = "Confirmer l'annulation";
 
 function renderButton() {

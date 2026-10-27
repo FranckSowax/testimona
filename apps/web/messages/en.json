@@ -1513,7 +1513,7 @@
       "reverse": "Reverse this entry",
       "confirmReverse": "Confirm reversal",
       "keep": "Keep",
-      "reverseLabel": "Reverse the entry {entry}",
+      "reverseLabel": "Reverse this entry: {entry}",
       "reverseWarning": "This reversal cannot be undone.",
       "reversing": "Reversing…"
     },

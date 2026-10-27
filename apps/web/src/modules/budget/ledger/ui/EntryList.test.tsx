@@ -90,7 +90,7 @@ describe('EntryList', () => {
     const buttons = screen.getAllByRole('button');
     expect(buttons).toHaveLength(1);
     expect(plain(buttons[0]?.getAttribute('aria-label') ?? '')).toBe(
-      'Annuler la ligne Awa Diallo · Promesse · 50 000 FCFA',
+      'Annuler cette ligne : Awa Diallo · Promesse · 50 000 FCFA',
     );
     cleanup();
     await renderList([pledge], false);
