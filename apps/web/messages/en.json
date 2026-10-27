@@ -1427,5 +1427,45 @@
         "failed": "The improvement did not work. Your text is kept; please try again later."
       }
     }
+  },
+  "budget": {
+    "page": {
+      "title": "Estimated budget",
+      "intro": "Three budgets estimated from the expected attendance. They help you decide together and start the contributions.",
+      "estimateNote": "Reference prices for Libreville: these are estimates to check with providers.",
+      "attendanceTitle": "Expected attendance",
+      "attendanceRange": "Between {low} and {high} people. {nights, plural, =0 {No wake.} one {# wake night.} other {# wake nights.}}",
+      "noAttendance": "Attendance is not estimated yet: the budgets only count fixed items.",
+      "answerAttendance": "Estimate attendance",
+      "editAttendance": "Edit attendance",
+      "scenariosTitle": "Three budgets",
+      "total": "Total",
+      "line": "Item",
+      "chosen": "Level in mind",
+      "chooseLevel": "Choose a level",
+      "changeLevel": "Change level",
+      "backToDossier": "Back to the dossier",
+      "capped": "capped",
+      "cappedNote": "Some items reach the 100,000,000 FCFA cap: check the attendance and the level."
+    },
+    "level": {
+      "sober": "Simple",
+      "intermediate": "Intermediate",
+      "full": "Full"
+    },
+    "grid": {
+      "mortuary": "Mortuary and preservation",
+      "coffin": "Coffin and laying in",
+      "hearse": "Hearse and transport",
+      "burial": "Burial and vault",
+      "service": "Religious ceremony",
+      "tentsChairs": "Tents and chairs",
+      "catering": "Catering",
+      "drinks": "Drinks",
+      "sound": "Sound and entertainment",
+      "printing": "Notices, booklet and posters",
+      "outfits": "Outfits and loincloths",
+      "contingency": "Contingencies"
+    }
   }
 }
