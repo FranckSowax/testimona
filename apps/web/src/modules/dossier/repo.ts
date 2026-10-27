@@ -62,6 +62,18 @@ function toDossier(r: DossierRow): DossierSummary {
   };
 }
 
+function logRead(op: string, error: { code?: string } | null): void {
+  if (error) console.error(`[dossier/repo] ${op} impossible`, { code: error.code });
+}
+
+type DossierJoinRow = DossierRow & { dossier_member?: unknown };
+
+function stripJoin(row: DossierJoinRow): DossierRow {
+  const copy = { ...row };
+  delete copy.dossier_member;
+  return copy;
+}
+
 function fail(error: { code?: string; message?: string } | null, fallback: string): RepoError {
   return { code: error?.code || 'unknown', message: error?.message || fallback };
 }
@@ -83,30 +95,46 @@ export async function insertDossierWithPerson(
   return { data, error: null };
 }
 
-/** Dossiers dont l'utilisateur est membre (filtrés par la RLS). */
+/**
+ * Dossiers dont l'utilisateur est membre.
+ * WHY: la policy dossier_select laisse aussi le créateur voir son dossier alors qu'il n'en est
+ * plus membre ; on filtre donc explicitement par appartenance (jointure interne sur dossier_member).
+ */
 export async function listMyDossiers(): Promise<DossierSummary[]> {
   const db = await getSupabaseServer();
-  const { data } = await db
+  const { data: auth } = await db.auth.getUser();
+  const user = auth.user;
+  if (!user) return [];
+  const { data, error } = await db
     .from('dossier')
-    .select(DOSSIER_COLUMNS)
+    .select(`${DOSSIER_COLUMNS}, dossier_member!inner(user_id)`)
+    .eq('dossier_member.user_id', user.id)
     .order('created_at', { ascending: false })
-    .returns<DossierRow[]>();
-  return (data ?? []).map(toDossier);
+    .returns<DossierJoinRow[]>();
+  logRead('listMyDossiers', error);
+  return (data ?? []).map((r) => toDossier(stripJoin(r)));
 }
 
+/** Un dossier dont l'utilisateur est membre (même raison que listMyDossiers). */
 export async function getDossier(id: string): Promise<DossierSummary | null> {
   const db = await getSupabaseServer();
-  const { data } = await db
+  const { data: auth } = await db.auth.getUser();
+  const user = auth.user;
+  if (!user) return null;
+  // WHY: voir listMyDossiers, la RLS seule laisse passer un créateur qui n'est plus membre.
+  const { data, error } = await db
     .from('dossier')
-    .select(DOSSIER_COLUMNS)
+    .select(`${DOSSIER_COLUMNS}, dossier_member!inner(user_id)`)
     .eq('id', id)
-    .maybeSingle<DossierRow>();
-  return data ? toDossier(data) : null;
+    .eq('dossier_member.user_id', user.id)
+    .maybeSingle<DossierJoinRow>();
+  logRead('getDossier', error);
+  return data ? toDossier(stripJoin(data)) : null;
 }
 
 export async function getPerson(dossierId: string): Promise<PersonSummary | null> {
   const db = await getSupabaseServer();
-  const { data } = await db
+  const { data, error } = await db
     .from('person')
     .select('first_name, last_name, nickname, birth_date, death_date')
     .eq('dossier_id', dossierId)
@@ -117,6 +145,7 @@ export async function getPerson(dossierId: string): Promise<PersonSummary | null
       birth_date: string | null;
       death_date: string | null;
     }>();
+  logRead('getPerson', error);
   if (!data) return null;
   return {
     firstName: data.first_name,
@@ -129,12 +158,13 @@ export async function getPerson(dossierId: string): Promise<PersonSummary | null
 
 export async function listMembers(dossierId: string): Promise<MemberSummary[]> {
   const db = await getSupabaseServer();
-  const { data } = await db
+  const { data, error } = await db
     .from('dossier_member')
     .select('user_id, role, display_name')
     .eq('dossier_id', dossierId)
     .order('created_at', { ascending: true })
     .returns<{ user_id: string; role: DossierRole; display_name: string | null }[]>();
+  logRead('listMembers', error);
   return (data ?? []).map((m) => ({
     userId: m.user_id,
     role: m.role,
@@ -144,7 +174,7 @@ export async function listMembers(dossierId: string): Promise<MemberSummary[]> {
 
 export async function listInvitations(dossierId: string): Promise<InvitationSummary[]> {
   const db = await getSupabaseServer();
-  const { data } = await db
+  const { data, error } = await db
     .from('dossier_invitation')
     .select('id, role, email, created_at, expires_at, used_at')
     .eq('dossier_id', dossierId)
@@ -159,6 +189,7 @@ export async function listInvitations(dossierId: string): Promise<InvitationSumm
         used_at: string | null;
       }[]
     >();
+  logRead('listInvitations', error);
   return (data ?? []).map((i) => ({
     id: i.id,
     role: i.role,
@@ -190,11 +221,19 @@ export async function insertInvitation(args: {
   return { data: data.id, error: null };
 }
 
-export async function deleteInvitation(id: string): Promise<RepoResult<null>> {
+export async function deleteInvitation(dossierId: string, id: string): Promise<RepoResult<true>> {
   const db = await getSupabaseServer();
-  const { error } = await db.from('dossier_invitation').delete().eq('id', id);
+  const { data, error } = await db
+    .from('dossier_invitation')
+    .delete()
+    .eq('id', id)
+    .eq('dossier_id', dossierId)
+    .select('id');
   if (error) return { data: null, error: fail(error, 'delete failed') };
-  return { data: null, error: null };
+  if (!data || data.length === 0) {
+    return { data: null, error: { code: 'not_found', message: 'invitation not found' } };
+  }
+  return { data: true, error: null };
 }
 
 export async function acceptInvitationByToken(token: string): Promise<RepoResult<string>> {
