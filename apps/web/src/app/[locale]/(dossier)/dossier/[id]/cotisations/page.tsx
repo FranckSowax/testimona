@@ -11,6 +11,7 @@ import { EntryForms } from '@/modules/budget/ledger/ui/EntryForms';
 import { EntryList } from '@/modules/budget/ledger/ui/EntryList';
 import { LedgerSummary } from '@/modules/budget/ledger/ui/LedgerSummary';
 import { VisibilityForm } from '@/modules/budget/ledger/ui/VisibilityForm';
+import { LedgerTabs } from '@/modules/budget/lines/ui/LedgerTabs';
 import { ATTENDANCE_KEYS, envisagedTotal, LEVEL_KEY, NIGHTS_KEY } from '@/modules/budget/scenarios';
 import { listAnswersResult } from '@/modules/dossier/answers/repo';
 import { getDossier, getMyRole, listMembers } from '@/modules/dossier/repo';
@@ -67,6 +68,8 @@ export default async function ContributionsPage({
           {visibility.data === 'members' ? t('membersNote') : t('restrictedNote')}
         </p>
       </header>
+
+      <LedgerTabs dossierId={id} current="entries" />
 
       <LedgerSummary locale={locale} budget={envisagedTotal(answers.data)} totals={totals.data} />
 
