@@ -51,28 +51,41 @@ Une ligne par dossier, créée par le propriétaire au premier réglage ; sans l
 Lecture : tout membre. Insertion et modification : propriétaire seul (visibilité des montants
 individuels) ; aucune suppression. `dossier_id` et `updated_at` sont imposés par trigger.
 
-Colonnes ajoutées plus tard : `scenario` (`sober` / `intermediate` / `full`, nullable, écriture par le
-trésorier et plus) en PR 3 ; `closed_at` et `closed_by` (clôture par le trésorier et plus, réouverture
-par le propriétaire seul) en PR 5.
+Colonne livrée en PR 3 : `scenario` (`sober` / `intermediate` / `full`, nullable), écrite par la
+fonction `set_budget_scenario(p_dossier_id, p_scenario)` (security definer, trésorier et plus,
+utilisateur connecté), qui laisse la mise à jour de la table au propriétaire seul. La fonction est
+signalée par l'advisor de sécurité (0029) : c'est voulu. Colonnes ajoutées plus tard : `closed_at` et
+`closed_by` (clôture par le trésorier et plus, réouverture par le propriétaire seul) en PR 5.
 
 ### `budget_line`
 
 Les postes du budget du dossier.
 
-| Colonne                         | Type                                                        |
-| ------------------------------- | ----------------------------------------------------------- |
-| `id`                            | uuid                                                        |
-| `dossier_id`                    | uuid, FK `dossier` (cascade)                                |
-| `grid_key`                      | text, nullable (clé de la grille, null pour un poste libre) |
-| `label`                         | text, 1 à 120 caractères                                    |
-| `sober`, `intermediate`, `full` | integer ≥ 0 (XAF)                                           |
-| `edited`                        | boolean (montants modifiés à la main)                       |
-| `position`                      | integer                                                     |
+| Colonne                                              | Type                                                        |
+| ---------------------------------------------------- | ----------------------------------------------------------- |
+| `id`                                                 | uuid                                                        |
+| `dossier_id`                                         | uuid, FK `dossier` (cascade)                                |
+| `grid_key`                                           | text, nullable (clé de la grille, null pour un poste libre) |
+| `label`                                              | text, 1 à 120 caractères                                    |
+| `amount_sober`, `amount_intermediate`, `amount_full` | integer 0 à 100 000 000 (XAF)                               |
+| `edited`                                             | boolean (montants modifiés à la main)                       |
+| `position`                                           | integer                                                     |
+| `created_at`, `updated_at`                           | timestamptz                                                 |
 
+Les colonnes de montant portent le préfixe `amount_` parce que `full` est un mot réservé de Postgres.
 Unicité (`dossier_id`, `grid_key`) quand `grid_key` n'est pas nul. Lecture : tout membre. Écriture :
-trésorier et plus, refusée quand le dossier est clôturé (colonnes de clôture : PR 5). Table créée en PR 3.
-Les postes de la grille sont créés au premier
-calcul ; un nouveau calcul ne touche que les postes non modifiés (`edited = false`).
+trésorier et plus et utilisateur connecté (refusée quand le dossier est clôturé : colonnes de clôture en
+PR 5). Au plus 100 postes par dossier (`too_many_lines`) : le trigger d'insertion vérifie le rôle avant
+la limite, puis sérialise le comptage par un verrou `for no key update` sur le dossier. Le dossier et la
+clé de grille sont figés après création.
+
+Suppression : un poste qui porte ou a porté des dépenses ne se supprime pas, même si elles sont toutes
+annulées (le registre est en ajout seul). La FK `ledger_entry.budget_line_id` est en
+`on delete no action` (code `23503`).
+
+Les postes de la grille sont créés par « Créer les postes », refusé sans affluence renseignée
+(`no_attendance`) et sans effet si la grille existe déjà. « Recalculer » est refusé sans affluence et ne
+touche que les postes non modifiés (`edited = false`) dont un montant change.
 
 ### `ledger_entry`
 
@@ -97,8 +110,8 @@ Le registre, **en ajout seul** : aucune policy UPDATE ni DELETE, et `revoke upda
 | `created_by`      | uuid, nullable, défaut `auth.uid()`, FK `auth.users` (`on delete set null`)                                      |
 | `created_at`      | timestamptz                                                                                                      |
 
-`budget_line_id` (FK `budget_line`, dépenses seulement, du même dossier) arrive avec la table
-`budget_line` en PR 3.
+`budget_line_id` (livré en PR 3) : FK `budget_line` en `on delete no action`, dépenses seulement
+(contrainte check), du même dossier ; effacé sur une annulation.
 
 Usages : une promesse (`pledge`) est une intention de cotiser ; une cotisation reçue (`receipt`) est
 liée ou non à une promesse ; une promesse peut être honorée en plusieurs versements partiels
@@ -121,7 +134,9 @@ cotisations reçues. Le trigger d'insertion (security definer, `search_path` vid
 5. pour une cotisation liée à une promesse : verrouille la promesse ; refuse (`TL002`) une promesse
    absente, d'un autre dossier, qui n'est pas une promesse, déjà annulée ou déjà soldée par les
    versements actifs ; reprend le membre de la promesse ;
-6. refuse (`TL003`) un `member_id` qui n'est pas membre du dossier (sauf versement lié à une promesse).
+6. refuse (`TL003`) un `member_id` qui n'est pas membre du dossier (sauf versement lié à une promesse) ;
+7. refuse (`TL004`) le poste d'une dépense qui appartient à un autre dossier. TL004 ne vise que les
+   dépenses : sur un autre type, la contrainte check refuse `budget_line_id` (`23514`).
 
 Insertion (policy) : trésorier et plus pour tout type ; contributeur et plus pour un `pledge` à son
 propre nom (`member_id = auth.uid()`). Le refus des insertions quand le dossier est clôturé arrive en
@@ -140,11 +155,15 @@ Fonction security definer, `search_path` vide, exécutable par `authenticated` s
 utilisateur connecté et un membre du dossier et renvoie uniquement trois sommes : `received` (reçu),
 `pledged_open` (reste à verser des promesses ouvertes : montant moins les versements actifs liés,
 jamais négatif) et `spent` (dépensé). Les lignes annulées sont écartées, et les annulations ne comptent
-pas. Le budget de référence vient du code : jusqu'au scénario retenu (PR 3), c'est le budget
-envisagé à l'étape B.2 ; le reste à couvrir se calcule à partir de ces valeurs. Les dépenses par
-poste arrivent avec `budget_line` (PR 3). Les totaux étant visibles de tout membre, un montant
+pas. Le budget de référence est le total du scénario retenu s'il existe des postes, sinon le budget
+envisagé à l'étape B.2 ; le reste à couvrir se calcule à partir de ces valeurs. Les totaux étant visibles de tout membre, un montant
 individuel peut se déduire en comparant les totaux dans le temps en mode restreint ; ce compromis est
 assumé.
+
+### `ledger_spent_by_line(p_dossier_id uuid)`
+
+Fonction security invoker (la RLS du registre suffit : les dépenses sont visibles de tout membre) qui
+renvoie les dépenses actives par poste, annulations écartées.
 
 ### `receipt` et bucket `receipts`
 
@@ -177,14 +196,14 @@ Nouvelle sorte de question `q.number` (entier borné, sans unité dans ce lot). 
 sur la page « Budget prévisionnel » (`/dossier/[id]/budget`) : fourchette d'affluence et trois totaux
 côte à côte, calculés sur la fourchette haute. La réponse B.2 est le niveau envisagé par la famille ; le
 scénario retenu (`dossier_finance.scenario`, par un trésorier) et les postes enregistrés
-(`budget_line`) arrivent en PR 3.
+(`budget_line`) sont livrés en PR 3.
 
 ### Écrans
 
-| Route                       | Contenu                                                                                                                                                                                                                                                                                                                                                  | Accès  |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| `/dossier/[id]/cotisations` | Totaux (budget de référence, reçu, promis non versé, dépensé, reste) ; derniers mouvements visibles ; trésorier : ajouter une cotisation (liée ou non à une promesse), une dépense, annuler une ligne ; contributeur : « Je promets une participation » ; propriétaire : visibilité des montants. PR 3 : onglet « Postes ». PR 4 : photographier un reçu | membre |
-| `/dossier/[id]/bilan`       | Totaux, dépenses par poste, cotisations nominatives selon la visibilité ; « Partager le bilan » (texte de totaux, copie ou WhatsApp) ; « Clôturer » (trésorier), « Rouvrir » (propriétaire)                                                                                                                                                              | membre |
+| Route                       | Contenu                                                                                                                                                                                                                                                                                                                                                                                                 | Accès  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| `/dossier/[id]/cotisations` | Totaux (budget de référence, reçu, promis non versé, dépensé, reste) ; derniers mouvements visibles ; trésorier : ajouter une cotisation (liée ou non à une promesse), une dépense, annuler une ligne ; contributeur : « Je promets une participation » ; propriétaire : visibilité des montants. Onglet « Postes » (PR 3) à l'adresse `/dossier/[id]/cotisations/postes`. PR 4 : photographier un reçu | membre |
+| `/dossier/[id]/bilan`       | Totaux, dépenses par poste, cotisations nominatives selon la visibilité ; « Partager le bilan » (texte de totaux, copie ou WhatsApp) ; « Clôturer » (trésorier), « Rouvrir » (propriétaire)                                                                                                                                                                                                             | membre |
 
 Tableau de bord : carte « Cotisations » (reçu sur budget de référence) avec lien vers l'écran. Une
 annulation s'affiche avec sa ligne d'origine ; aucune ligne ne disparaît.
