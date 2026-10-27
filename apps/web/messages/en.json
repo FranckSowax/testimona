@@ -1199,8 +1199,8 @@
           "hint": "Their names, their home village or region, what you know about the family."
         },
         "career": {
-          "title": "{status, select, alive {What is {name}'s working life?} other {What was {name}'s working life?}}",
-          "hint": "Their jobs, the places where {name} worked, what made them proud."
+          "title": "{status, select, alive {What does {name} do for a living?} other {What did {name} do for a living?}}",
+          "hint": "{status, select, alive {Their jobs, the places where {name} works or has worked, what makes them proud.} other {Their jobs, the places where {name} worked, what made them proud.}}"
         },
         "traits": {
           "title": "Which character traits describe {name} best?",

@@ -1200,7 +1200,7 @@
         },
         "career": {
           "title": "{status, select, alive {Quel est le parcours professionnel de {name} ?} other {Quel a été le parcours professionnel de {name} ?}}",
-          "hint": "Ses métiers, les lieux où {name} a travaillé, ses fiertés."
+          "hint": "{status, select, alive {Ses métiers, les lieux où {name} travaille ou a travaillé, ses fiertés.} other {Ses métiers, les lieux où {name} a travaillé, ses fiertés.}}"
         },
         "traits": {
           "title": "Quels traits de caractère décrivent le mieux {name} ?",
