@@ -3,12 +3,11 @@ import { CAUSES, FLOWERS, type Cause, type Flowers } from '@/journey/options';
 import type { DraftKind } from '@/journey/types';
 
 /**
- * Réponses du parcours que l'IA peut lire (union des deux types de brouillon).
+ * Réponses transmises à l'IA (union des deux types de brouillon).
  * WHY: liste blanche explicite plutôt que « les réponses de l'étape » : une liste de diffusion
  * (contacts, téléphones) ne doit jamais partir, même si une étape future en ajoute une.
- * La date de décès (`death.date`) n'y figure pas : elle passe par `person.deathDate`.
  */
-export const AI_ANSWER_KEYS = [
+export const AI_SENT_KEYS = [
   'death.mentionCause',
   'announce.tone',
   'announce.aboutPerson',
@@ -16,7 +15,15 @@ export const AI_ANSWER_KEYS = [
   'announce.flowersOrDonations',
 ] as const;
 
-export type AiAnswerKey = (typeof AI_ANSWER_KEYS)[number];
+/**
+ * Clés lues en base par le service : les réponses transmises, plus `death.date`.
+ * WHY: `death.date` sert uniquement à `person.deathDate` (une seule date de décès) et
+ * n'apparaît jamais dans `answers`.
+ */
+export const AI_ANSWER_KEYS = ['death.date', ...AI_SENT_KEYS] as const;
+
+/** Clés présentes dans `answers` (hors `death.date`). */
+export type AiAnswerKey = (typeof AI_SENT_KEYS)[number];
 
 /**
  * Réponses transmises selon le type de brouillon.
@@ -25,7 +32,7 @@ export type AiAnswerKey = (typeof AI_ANSWER_KEYS)[number];
  */
 export const AI_ANSWER_KEYS_BY_KIND: Record<DraftKind, readonly AiAnswerKey[]> = {
   whatsapp: ['death.mentionCause', 'announce.tone'],
-  email: AI_ANSWER_KEYS,
+  email: AI_SENT_KEYS,
 };
 
 const CAUSE_PHRASES: Record<Cause, string> = {

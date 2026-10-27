@@ -62,6 +62,18 @@ describe('aiFacts', () => {
     expect(facts.answers['announce.aboutPerson']).toBe('Un homme bon');
   });
 
+  it('lit death.date en base mais ne la met jamais dans les réponses', () => {
+    expect(AI_ANSWER_KEYS).toContain('death.date');
+    const facts = aiFacts('email', person, {
+      'death.date': '2026-10-05',
+      'announce.tone': 'neutral',
+    });
+    expect(Object.keys(facts.answers)).not.toContain('death.date');
+    for (const kind of ['whatsapp', 'email'] as const) {
+      expect(AI_ANSWER_KEYS_BY_KIND[kind]).not.toContain('death.date');
+    }
+  });
+
   it('utilise la date de décès de la réponse, sinon celle de la fiche', () => {
     expect(aiFacts('email', person, { 'death.date': '2026-10-05' }).person.deathDate).toBe(
       '2026-10-05',
