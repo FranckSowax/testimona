@@ -33,6 +33,17 @@ describe('CreateDossierInputSchema', () => {
   });
 });
 
+describe('bornes de longueur', () => {
+  it.each(['firstName', 'lastName', 'city'])('%s : 120 caractères passent, 121 non', (field) => {
+    expect(CreateDossierInputSchema.safeParse({ ...valid, [field]: 'a'.repeat(120) }).success).toBe(
+      true,
+    );
+    expect(CreateDossierInputSchema.safeParse({ ...valid, [field]: 'a'.repeat(121) }).success).toBe(
+      false,
+    );
+  });
+});
+
 describe('CreateInvitationInputSchema', () => {
   const dossierId = '44444444-4444-4444-8444-444444444444';
 
@@ -44,6 +55,20 @@ describe('CreateInvitationInputSchema', () => {
       role: 'contributor',
       email: undefined,
     });
+  });
+
+  it('traite un e-mail fait d’espaces comme absent', () => {
+    expect(
+      CreateInvitationInputSchema.parse({ dossierId, role: 'viewer', email: '   ' }).email,
+    ).toBeUndefined();
+  });
+
+  it('refuse un e-mail de plus de 254 caractères', () => {
+    const email = `${'a'.repeat(64)}@${'b'.repeat(63)}.${'c'.repeat(63)}.${'d'.repeat(63)}.com`;
+    expect(email.length).toBeGreaterThan(254);
+    expect(
+      CreateInvitationInputSchema.safeParse({ dossierId, role: 'viewer', email }).success,
+    ).toBe(false);
   });
 
   it('refuse le rôle de propriétaire et un e-mail invalide', () => {
@@ -61,5 +86,11 @@ describe('parseEntryPoint', () => {
     expect(parseEntryPoint('preparer')).toBe('prepare');
     expect(parseEntryPoint('autre')).toBe('death');
     expect(parseEntryPoint(undefined)).toBe('death');
+  });
+
+  it('prend le premier élément d’un tableau', () => {
+    expect(parseEntryPoint(['preparer', 'deces'])).toBe('prepare');
+    expect(parseEntryPoint(['deces', 'preparer'])).toBe('death');
+    expect(parseEntryPoint([])).toBe('death');
   });
 });

@@ -27,7 +27,10 @@ export const RELATIONSHIPS = [
   'other',
 ] as const;
 
-/** Pays proposés à la création (CEMAC, Afrique de l'Ouest proche, diaspora). */
+/**
+ * Pays proposés dans l'interface (Afrique centrale et de l'Ouest proche, diaspora), rien de plus :
+ * le serveur accepte tout code ISO à deux lettres, comme la base.
+ */
 export const COUNTRY_CODES = [
   'GA',
   'CM',
@@ -68,13 +71,18 @@ export const CreateInvitationInputSchema = z.object({
   dossierId: z.string().uuid(),
   role: z.enum(INVITABLE_ROLES),
   email: z
-    .union([z.literal(''), z.string().trim().email().max(254)])
+    .string()
+    .trim()
+    .pipe(z.union([z.literal(''), z.string().email().max(254)]))
     .optional()
     .transform((v) => v || undefined),
 });
 export type CreateInvitationInput = z.infer<typeof CreateInvitationInputSchema>;
 
 /** Paramètre `?porte=` de l'URL vers une porte d'entrée (décès par défaut). */
-export function parseEntryPoint(porte: string | undefined): (typeof OPEN_ENTRY_POINTS)[number] {
-  return porte === 'preparer' ? 'prepare' : 'death';
+export function parseEntryPoint(
+  porte: string | string[] | undefined,
+): (typeof OPEN_ENTRY_POINTS)[number] {
+  const value = Array.isArray(porte) ? porte[0] : porte;
+  return value === 'preparer' ? 'prepare' : 'death';
 }

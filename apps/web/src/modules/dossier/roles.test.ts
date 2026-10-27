@@ -14,5 +14,9 @@ describe('rôles', () => {
     expect(canWrite('contributor')).toBe(true);
     expect(canWrite('viewer')).toBe(false);
     expect(canWrite(null)).toBe(false);
+    expect(canWrite('treasurer')).toBe(true);
+    expect(canManageMembers('treasurer')).toBe(false);
+    expect(canManageMembers('owner')).toBe(true);
+    expect(canManageMembers(undefined)).toBe(false);
   });
 });
