@@ -41,4 +41,39 @@ test.describe('Parcours (compte de test)', () => {
     await expect(page.getByText('1 sur 6 réponses')).toBeVisible();
     await expect(page.getByText('1 question à compléter')).toBeVisible();
   });
+  test('décès : répondre aux trois questions, modifier et enregistrer le message immédiat', async ({
+    page,
+  }) => {
+    await page.goto('/login?next=%2Fdossier%2Fnouveau%3Fporte%3Ddeces');
+    await page.locator('input[name="email"]').fill(EMAIL);
+    await page.locator('input[name="password"]').fill(PASSWORD);
+    await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+    await expect(page).toHaveURL(/\/dossier\/nouveau/);
+
+    await page.locator('#wizard-firstName').fill('Test');
+    await page.locator('#wizard-lastName').fill(`E2E ${Date.now()}`);
+    await page.getByRole('button', { name: 'Suivant' }).click();
+    await page.locator('#wizard-city').fill('Libreville');
+    await page.getByRole('button', { name: 'Suivant' }).click();
+    await page.getByText('Enfant', { exact: true }).click();
+    await page.getByRole('button', { name: 'Ouvrir le dossier' }).click();
+    await expect(page).toHaveURL(/\/dossier\/[0-9a-f-]{36}$/);
+
+    await page.goto(`${page.url()}/etape/immediate-message`);
+    await expect(page).toHaveURL(/\/etape\/immediate-message\?q=0$/);
+    // WHY: « Passer » ramènerait aux questions passées ; on répond aux trois pour finir.
+    await page.locator('#answer-death-date').fill('2026-10-01');
+    await page.getByRole('button', { name: 'Suivant' }).click();
+    await page.getByText('Ne pas les mentionner', { exact: true }).click();
+    await page.getByRole('button', { name: 'Suivant' }).click();
+    await page.getByText('Neutre', { exact: true }).click();
+    await page.getByRole('button', { name: 'Terminer' }).click();
+    await expect(page).toHaveURL(/\/etape\/immediate-message\/brouillon$/);
+
+    const textarea = page.locator('textarea[name="text"]');
+    await textarea.fill(`${await textarea.inputValue()}\nMerci de votre soutien.`);
+    await page.getByRole('button', { name: 'Enregistrer' }).click();
+    await expect(page.getByRole('status')).toHaveText('Texte enregistré.');
+    await expect(page.locator('a[href^="https://wa.me/"]')).toBeVisible();
+  });
 });
