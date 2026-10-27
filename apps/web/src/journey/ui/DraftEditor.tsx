@@ -10,9 +10,11 @@ import {
 } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import type { AiError } from '@/modules/ai/types';
 import { saveDraftAction, type DraftState } from '@/modules/dossier/answers/actions';
 import { DRAFT_MAX, type DraftKind } from '../types';
 import { FIELD_CLASS } from './field';
+import { ImproveDraftButton } from './ImproveDraftButton';
 import { shareHref } from './share';
 import { specificMessage } from './specific-error';
 
@@ -29,6 +31,8 @@ interface Props {
   /** Objet de l'e-mail (annonce par e-mail seulement). */
   subject: string | null;
   readOnly: boolean;
+  /** Vrai quand l'IA est configurée côté serveur. */
+  aiEnabled: boolean;
 }
 
 const SHELL =
@@ -57,6 +61,7 @@ export function DraftEditor(props: Props) {
   // WHY: `seq` change à chaque annonce (clé du <p>), ce qui fait relire « Copié. » deux fois.
   const [status, setStatus] = useState<{ text: string; seq: number } | null>(null);
   const [error, setError] = useState<{ text: string; seq: number } | null>(null);
+  const [improving, setImproving] = useState(false);
   const submittedRef = useRef<string>(props.initialText);
   // WHY: sans mémoire du dernier `state` traité, un re-rendu ré-afficherait une erreur effacée.
   const handledRef = useRef<DraftState | null>(null);
@@ -65,6 +70,11 @@ export function DraftEditor(props: Props) {
 
   const announce = (message: string) =>
     setStatus((prev) => ({ text: message, seq: (prev?.seq ?? 0) + 1 }));
+
+  const aiMessage = (code: AiError) =>
+    code === 'unavailable' || code === 'quota' || code === 'failed'
+      ? t(`ai.${code}`)
+      : tErrors(code);
 
   useEffect(() => {
     if (state === handledRef.current) return;
@@ -151,8 +161,9 @@ export function DraftEditor(props: Props) {
             setStatus(null);
             setError(null);
           }}
-          readOnly={readOnly}
+          readOnly={readOnly || improving}
           data-readonly={readOnly}
+          aria-busy={improving || undefined}
           maxLength={DRAFT_MAX}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? 'draft-error' : 'draft-status'}
@@ -180,7 +191,7 @@ export function DraftEditor(props: Props) {
         {!readOnly && (
           <button
             type="submit"
-            disabled={pending || !dirty}
+            disabled={pending || improving || !dirty}
             className="bg-accent rounded-full px-5 py-2 font-semibold text-white disabled:opacity-60"
           >
             {t('save')}
@@ -221,11 +232,37 @@ export function DraftEditor(props: Props) {
               setStatus(null);
               setError(null);
             }}
-            disabled={text === props.generatedText}
+            disabled={improving || text === props.generatedText}
             className={BUTTON}
           >
             {t('regenerate')}
           </button>
+        )}
+        {props.aiEnabled && !readOnly && (
+          <ImproveDraftButton
+            dossierId={dossierId}
+            stepId={stepId}
+            text={text}
+            disabled={pending || text.trim() === ''}
+            className={BUTTON}
+            onPendingChange={(value) => {
+              setImproving(value);
+              if (value) announce(t('improving'));
+            }}
+            onImproved={(improved, sent) => {
+              // WHY: le texte amélioré remplace l'affichage mais n'est enregistré qu'au clic
+              // sur « Enregistrer », après relecture ; on ne remplace pas un texte déjà modifié.
+              setText((current) => (current === sent ? improved : current));
+              setError(null);
+              announce(t('improved'));
+              // WHY: l'utilisateur doit relire le résultat.
+              textareaRef.current?.focus();
+            }}
+            onError={(code) => {
+              setStatus(null);
+              setError((prev) => ({ text: aiMessage(code), seq: (prev?.seq ?? 0) + 1 }));
+            }}
+          />
         )}
       </div>
 

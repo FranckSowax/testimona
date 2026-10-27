@@ -1371,7 +1371,15 @@
       "readOnly": "You can read and copy this text; only contributors can change it.",
       "empty": "The text is empty: write it before saving.",
       "tooLongForLink": "Text too long to open directly: copy it instead.",
-      "newTab": "(opens in a new tab)"
+      "newTab": "(opens in a new tab)",
+      "improve": "Improve with AI",
+      "improving": "Improving…",
+      "improved": "Text improved: read it over, then save it if it suits you.",
+      "ai": {
+        "unavailable": "AI improvement is not available right now.",
+        "quota": "Today's improvement limit for this dossier has been reached. Your text is kept.",
+        "failed": "The improvement did not work. Your text is kept; please try again later."
+      }
     }
   }
 }

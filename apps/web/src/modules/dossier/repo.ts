@@ -132,7 +132,13 @@ export async function getDossier(id: string): Promise<DossierSummary | null> {
   return data ? toDossier(stripJoin(data)) : null;
 }
 
-export async function getPerson(dossierId: string): Promise<PersonSummary | null> {
+/**
+ * Fiche de la personne avec l'erreur de lecture (code seulement journalisé).
+ * WHY: l'IA doit distinguer une fiche absente (repli sur le titre) d'une lecture en échec (refus).
+ */
+export async function getPersonResult(
+  dossierId: string,
+): Promise<{ data: PersonSummary | null; error: { code: string } | null }> {
   const db = await getSupabaseServer();
   const { data, error } = await db
     .from('person')
@@ -146,14 +152,22 @@ export async function getPerson(dossierId: string): Promise<PersonSummary | null
       death_date: string | null;
     }>();
   logRead('getPerson', error);
-  if (!data) return null;
+  const err = error ? { code: error.code || 'unknown' } : null;
+  if (!data) return { data: null, error: err };
   return {
-    firstName: data.first_name,
-    lastName: data.last_name,
-    nickname: data.nickname,
-    birthDate: data.birth_date,
-    deathDate: data.death_date,
+    data: {
+      firstName: data.first_name,
+      lastName: data.last_name,
+      nickname: data.nickname,
+      birthDate: data.birth_date,
+      deathDate: data.death_date,
+    },
+    error: err,
   };
+}
+
+export async function getPerson(dossierId: string): Promise<PersonSummary | null> {
+  return (await getPersonResult(dossierId)).data;
 }
 
 export async function listMembers(dossierId: string): Promise<MemberSummary[]> {
