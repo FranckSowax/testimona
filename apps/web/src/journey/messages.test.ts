@@ -13,6 +13,50 @@ const get = (messages: unknown, path: string): unknown =>
       messages,
     );
 
+/** Un libellé vide compte comme manquant. */
+const isFilled = (value: unknown): boolean => typeof value === 'string' && value.trim() !== '';
+
+/** Clés fixes lues par l'interface (`ui/`) : `journey.ui.*` et `journey.dashboard.*`. */
+const UI_PATHS = [
+  ...[
+    'progress',
+    'back',
+    'backToDossier',
+    'skip',
+    'next',
+    'finish',
+    'required',
+    'requiredFields',
+    'readOnly',
+    'addItem',
+    'removeItem',
+    'removeItemN',
+    'noAnswer',
+    'item',
+    'chooseOption',
+    'tooLarge',
+    'invalidDate',
+    'invalidCharacter',
+  ].map((key) => `journey.ui.${key}`),
+  ...[
+    'nextTitle',
+    'answer',
+    'view',
+    'allDone',
+    'completeSkipped',
+    'stepProgress',
+    'toComplete',
+  ].map((key) => `journey.dashboard.${key}`),
+];
+
+/** Chemins de clés d'un objet de messages (feuilles uniquement). */
+function leafPaths(node: unknown, prefix = ''): string[] {
+  if (node && typeof node === 'object') {
+    return Object.entries(node).flatMap(([k, v]) => leafPaths(v, prefix ? `${prefix}.${k}` : k));
+  }
+  return [prefix];
+}
+
 /** Chemins de textes qu'une étape du registre exige. */
 function requiredPaths(step: Step): string[] {
   const paths = [`journey.steps.${step.id}.title`, `journey.steps.${step.id}.description`];
@@ -20,6 +64,7 @@ function requiredPaths(step: Step): string[] {
   for (const question of step.questions) {
     const base = `journey.q.${question.key}`;
     paths.push(`${base}.title`, `${base}.hint`);
+    if (question.kind === 'place') paths.push('journey.fields.city', 'journey.fields.country');
     if (question.kind === 'choice') {
       paths.push(...question.options.map((o) => `${base}.options.${o}`));
     }
@@ -42,7 +87,18 @@ describe.each([
   it('couvrent chaque étape, question, option et champ du registre', () => {
     const missing = allSteps()
       .flatMap(requiredPaths)
-      .filter((path) => typeof get(messages, path) !== 'string');
+      .filter((path) => !isFilled(get(messages, path)));
     expect(missing).toEqual([]);
+  });
+
+  it("couvrent les clés fixes lues par l'interface", () => {
+    expect(UI_PATHS.filter((path) => !isFilled(get(messages, path)))).toEqual([]);
+  });
+});
+
+describe('parité FR/EN', () => {
+  it("l'espace journey a les mêmes clés dans les deux langues", () => {
+    const keys = (messages: unknown) => leafPaths(get(messages, 'journey')).sort();
+    expect(keys(en)).toEqual(keys(fr));
   });
 });
