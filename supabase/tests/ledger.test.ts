@@ -353,6 +353,28 @@ describe('ledger_entry : idempotence', () => {
       code: '23505',
     });
   });
+
+  it('répond 23505 et non TL002 au second envoi d’une cotisation qui a soldé la promesse', async () => {
+    const pledge = await insert(contributor, {
+      kind: 'pledge',
+      member: contributor,
+      amount: 10_000,
+    });
+    const key = randomUUID();
+    await insert(treasurer, { kind: 'receipt', amount: 10_000, pledge: pledge.id, key });
+    await expect(
+      insert(treasurer, { kind: 'receipt', amount: 10_000, pledge: pledge.id, key }),
+    ).rejects.toMatchObject({ code: '23505' });
+  });
+
+  it('répond 23505 au second envoi d’une annulation avec sa clé', async () => {
+    const expense = await insert(treasurer, { kind: 'expense' });
+    const key = randomUUID();
+    await insert(treasurer, { kind: 'reversal', reverses: expense.id, key });
+    await expect(
+      insert(treasurer, { kind: 'reversal', reverses: expense.id, key }),
+    ).rejects.toMatchObject({ code: '23505' });
+  });
 });
 
 describe('visibilité des lignes', () => {

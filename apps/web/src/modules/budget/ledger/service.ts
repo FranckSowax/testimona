@@ -12,6 +12,7 @@ import {
   ReversalSchema,
   VisibilitySchema,
   type Visibility,
+  ledgerToday,
 } from './schema';
 
 export type LedgerError =
@@ -27,14 +28,14 @@ export type LedgerResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: LedgerError; fieldErrors?: Record<string, string> };
 
+// WHY: 'idempotency_mismatch' (clé réutilisée pour une autre saisie, signe d'un bug d'écran) reste
+// volontairement hors table : fromRepo la journalise et renvoie 'unknown'.
 const CODES: Record<string, LedgerError> = {
   '42501': 'forbidden',
   '28000': 'unauthenticated',
   '23514': 'validation',
   '22P02': 'validation',
   '23503': 'validation',
-  // WHY: hors double envoi (géré par le dépôt), une unicité violée vise une annulation.
-  '23505': 'already_reversed',
   TL001: 'validation',
   TL002: 'pledge_unavailable',
   TL003: 'validation',
@@ -57,15 +58,25 @@ function invalid(error: z.ZodError): {
 /** Le registre n'existe que pour un dossier lisible ouvert au budget (porte « décès »). */
 async function checkDossier(dossierId: string): Promise<LedgerError | null> {
   const dossier = await getDossier(dossierId);
-  if (!dossier) return 'not_found';
-  return isStepOpen(dossier.entryPoint, 'attendance') ? null : 'validation';
+  // WHY: un dossier sans étape budget n'a pas de registre : on le traite comme absent.
+  if (!dossier || !isStepOpen(dossier.entryPoint, 'attendance')) return 'not_found';
+  return null;
 }
 
 async function write(entry: NewEntry, scope: string): Promise<LedgerResult<{ id: string }>> {
   const blocked = await checkDossier(entry.dossierId);
   if (blocked) return { ok: false, error: blocked };
   const res = await repo.insertEntry(entry);
-  if (res.error) return fromRepo(res.error, scope);
+  if (res.error) {
+    // WHY: le dépôt résout le double envoi ; une unicité encore violée ne s'explique que par une
+    // seconde annulation de la même ligne. Pour un autre type, c'est inattendu.
+    if (res.error.code === '23505') {
+      if (entry.kind === 'reversal') return { ok: false, error: 'already_reversed' };
+      console.error(`[budget/ledger] ${scope} failed`, { code: res.error.code });
+      return { ok: false, error: 'unknown' };
+    }
+    return fromRepo(res.error, scope);
+  }
   return { ok: true, data: { id: res.data.id } };
 }
 
@@ -145,7 +156,9 @@ export async function recordExpense(raw: unknown) {
 
 /**
  * Annule une ligne (trésorier et plus) : la base recopie montant, nom et membre.
- * WHY: les valeurs envoyées ici sont des valeurs de remplissage, remplacées par le trigger.
+ * WHY: le trigger remplace amount, party_name, member_id, method, pledge_id et reverses_kind ;
+ * les valeurs envoyées pour ces champs ne servent qu'à remplir la ligne. occurred_on (le jour de
+ * l'annulation) et note viennent bien du service.
  */
 export async function reverseEntry(raw: unknown) {
   const input = ReversalSchema.safeParse(raw);
@@ -161,7 +174,7 @@ export async function reverseEntry(raw: unknown) {
       memberId: null,
       pledgeId: null,
       note: '',
-      occurredOn: new Date().toISOString().slice(0, 10),
+      occurredOn: ledgerToday(),
       reversesId: entryId,
       idempotencyKey,
     },

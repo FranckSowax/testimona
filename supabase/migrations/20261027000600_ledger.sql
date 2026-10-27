@@ -119,6 +119,21 @@ begin
     raise exception 'not allowed' using errcode = '42501';
   end if;
 
+  -- WHY: un second envoi (même clé d'idempotence) doit donner 23505, que le dépôt traite comme
+  -- un double envoi ; il ne doit pas être jugé à nouveau (par exemple TL002 une fois que la
+  -- première cotisation a soldé la promesse). On lève 23505 ici plutôt que de laisser passer la
+  -- ligne : non normalisée par la suite du trigger, elle échouerait d'abord sur une contrainte
+  -- check (23514, par exemple reverses_kind d'une annulation). La contrainte d'unicité reste le
+  -- garde-fou pour deux envois concurrents.
+  if exists (
+    select 1
+      from public.ledger_entry e
+     where e.dossier_id = new.dossier_id
+       and e.idempotency_key = new.idempotency_key
+  ) then
+    raise exception 'duplicate idempotency key' using errcode = '23505';
+  end if;
+
   new.created_by := auth.uid();
   new.created_at := now();
 

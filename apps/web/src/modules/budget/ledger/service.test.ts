@@ -13,6 +13,7 @@ vi.mock('@/lib/email/resend', () => ({ sendEmail: vi.fn(), dossierInviteEmail: v
 
 const { recordExpense, recordPledge, recordReceipt, reverseEntry, setVisibility } =
   await import('./service');
+const { ledgerToday } = await import('./schema');
 
 const DOSSIER = '44444444-4444-4444-8444-444444444444';
 const USER = '66666666-6666-4666-8666-666666666666';
@@ -65,11 +66,12 @@ describe('recordPledge', () => {
     expect(ledgerRepo.insertEntry).not.toHaveBeenCalled();
   });
 
-  it('refuse un dossier illisible ou une porte sans budget', async () => {
+  it('traite un dossier illisible ou une porte sans budget comme absent', async () => {
     dossierRepo.getDossier.mockResolvedValueOnce(null);
     expect(await recordPledge(base, USER)).toMatchObject({ ok: false, error: 'not_found' });
     dossierRepo.getDossier.mockResolvedValueOnce({ id: DOSSIER, entryPoint: 'prepare' });
-    expect(await recordPledge(base, USER)).toMatchObject({ ok: false, error: 'validation' });
+    expect(await recordPledge(base, USER)).toMatchObject({ ok: false, error: 'not_found' });
+    expect(ledgerRepo.insertEntry).not.toHaveBeenCalled();
   });
 });
 
@@ -105,6 +107,22 @@ describe('recordReceipt et recordExpense', () => {
     });
   });
 
+  it('ne prend pas une unicité violée hors annulation pour une double annulation', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    ledgerRepo.insertEntry.mockResolvedValueOnce({
+      data: null,
+      error: { code: '23505', message: 'x' },
+    });
+    expect(await recordExpense({ ...base, method: 'cash' })).toMatchObject({ error: 'unknown' });
+    ledgerRepo.insertEntry.mockResolvedValueOnce({
+      data: null,
+      error: { code: 'idempotency_mismatch', message: 'x' },
+    });
+    expect(await recordExpense({ ...base, method: 'cash' })).toMatchObject({ error: 'unknown' });
+    expect(error).toHaveBeenCalledTimes(2);
+    error.mockRestore();
+  });
+
   it('considère un double envoi comme réussi', async () => {
     ledgerRepo.insertEntry.mockResolvedValueOnce({
       data: { id: 'e9', duplicate: true },
@@ -121,7 +139,12 @@ describe('reverseEntry', () => {
   it('écrit une annulation qui vise la ligne', async () => {
     await reverseEntry({ dossierId: DOSSIER, idempotencyKey: KEY, entryId: USER });
     expect(ledgerRepo.insertEntry).toHaveBeenCalledWith(
-      expect.objectContaining({ kind: 'reversal', reversesId: USER, method: null }),
+      expect.objectContaining({
+        kind: 'reversal',
+        reversesId: USER,
+        method: null,
+        occurredOn: ledgerToday(),
+      }),
     );
   });
 

@@ -106,11 +106,30 @@ export async function insertEntry(
   if (error.code === '23505') {
     const existing = await db
       .from('ledger_entry')
-      .select('id')
+      .select('id, kind, amount')
       .eq('dossier_id', entry.dossierId)
       .eq('idempotency_key', entry.idempotencyKey)
-      .maybeSingle<{ id: string }>();
-    if (existing.data) return { data: { id: existing.data.id, duplicate: true }, error: null };
+      .maybeSingle<{ id: string; kind: EntryKind; amount: number }>();
+    if (existing.error) {
+      console.error('[budget/ledger] insertEntry : relecture du double envoi impossible', {
+        code: existing.error.code,
+      });
+    }
+    if (existing.data) {
+      // WHY: une clé réutilisée par erreur pour une autre saisie ne doit pas faire disparaître
+      // cette saisie en silence. Une annulation porte le montant de la ligne visée : on ne
+      // compare alors que le type.
+      const same =
+        existing.data.kind === entry.kind &&
+        (entry.kind === 'reversal' || Number(existing.data.amount) === entry.amount);
+      if (!same) {
+        return {
+          data: null,
+          error: { code: 'idempotency_mismatch', message: 'idempotency key reused' },
+        };
+      }
+      return { data: { id: existing.data.id, duplicate: true }, error: null };
+    }
   }
   return fail(error);
 }
@@ -158,11 +177,8 @@ export async function setVisibility(
 ): Promise<RepoResult<true>> {
   const db = await getSupabaseServer();
   const { error } = await db.from('dossier_finance').upsert(
-    {
-      dossier_id: dossierId,
-      amounts_visibility: visibility,
-      updated_at: new Date().toISOString(),
-    },
+    // WHY: updated_at vaut now() à l'insertion et un trigger le met à jour ensuite.
+    { dossier_id: dossierId, amounts_visibility: visibility },
     { onConflict: 'dossier_id' },
   );
   if (error) return fail(error);

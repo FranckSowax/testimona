@@ -58,9 +58,15 @@ const note = z
 
 const LEDGER_TIME_ZONE = 'Africa/Libreville';
 
-// WHY: le Gabon et l'essentiel de la CEMAC sont en UTC+1 ; une date saisie juste après minuit ne
-// doit pas devenir la veille, ce qui arriverait avec la date UTC.
-const today = () =>
+/**
+ * Date du jour (AAAA-MM-JJ) dans le fuseau du registre.
+ * WHY: le Gabon et l'essentiel de la CEMAC sont en UTC+1 ; une date saisie juste après minuit ne
+ * doit pas devenir la veille, ce qui arriverait avec la date UTC.
+ *
+ * @example
+ * ledgerToday(); // '2026-10-27'
+ */
+export const ledgerToday = () =>
   new Intl.DateTimeFormat('en-CA', { timeZone: LEDGER_TIME_ZONE }).format(new Date());
 
 // WHY: une date vide vaut aujourd'hui. Le plafond reflète le `current_date + 1` de la base (session
@@ -68,7 +74,7 @@ const today = () =>
 const occurredOn = z
   .string()
   .optional()
-  .transform((s) => (s && s.trim() ? s.trim() : today()))
+  .transform((s) => (s && s.trim() ? s.trim() : ledgerToday()))
   .pipe(
     z
       .string()
