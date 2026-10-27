@@ -57,12 +57,33 @@ describe('saveDraft', () => {
   it('refuse un texte vide ou trop long', async () => {
     const empty = await saveDraft({ dossierId: DOSSIER, stepId: 'email-announcement', text: ' ' });
     expect(empty).toMatchObject({ ok: false, error: 'validation' });
+    expect(empty.ok ? undefined : empty.fieldErrors).toHaveProperty('');
     const long = await saveDraft({
       dossierId: DOSSIER,
       stepId: 'email-announcement',
       text: 'x'.repeat(12_001),
     });
     expect(long).toMatchObject({ ok: false, error: 'validation' });
+    expect(long.ok ? undefined : long.fieldErrors).toHaveProperty('');
+    expect(answersRepo.upsertAnswer).not.toHaveBeenCalled();
+  });
+
+  it('accepte 12 000 caractères et refuse 12 001', async () => {
+    const at = (n: number) =>
+      saveDraft({ dossierId: DOSSIER, stepId: 'email-announcement', text: 'x'.repeat(n) });
+    expect(await at(12_000)).toMatchObject({ ok: true });
+    expect(await at(12_001)).toMatchObject({ ok: false, error: 'validation' });
+  });
+
+  it('refuse un dossierId non UUID ou un stepId de plus de 50 caractères', async () => {
+    expect(await saveDraft({ dossierId: 'abc', stepId: 'immediate-message', text: 'x' })).toEqual({
+      ok: false,
+      error: 'validation',
+    });
+    expect(await saveDraft({ dossierId: DOSSIER, stepId: 'a'.repeat(51), text: 'x' })).toEqual({
+      ok: false,
+      error: 'validation',
+    });
     expect(answersRepo.upsertAnswer).not.toHaveBeenCalled();
   });
 

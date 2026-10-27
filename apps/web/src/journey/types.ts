@@ -66,7 +66,10 @@ export const draftTextSchema = z
   .trim()
   .min(1)
   .max(DRAFT_MAX)
-  .refine(noNul, 'invalid character');
+  .refine(noNul, 'invalid character')
+  // WHY: les caractères de contrôle gonflent en `\u00XX` dans le JSON ; 12 000 caractères
+  // peuvent dépasser la limite SQL, donc on mesure aussi la taille réelle.
+  .refine(fitsAnswerSize, 'too large');
 const requiredText = (max: number) =>
   z.string().trim().min(1).max(max).refine(noNul, 'invalid character');
 // WHY: un champ facultatif laissé vide n'est pas enregistré, plutôt que stocké en chaîne vide.
@@ -120,10 +123,12 @@ function fieldSchema(field: ListField): z.ZodTypeAny {
 
 /** Schéma d'une vraie réponse à la question (« passée » exclue), taille bornée. */
 export function answerSchema(question: Question): z.ZodTypeAny {
-  return rawAnswerSchema(question).refine(
-    (v) => new TextEncoder().encode(JSON.stringify(v)).length <= ANSWER_MAX_BYTES,
-    'too large',
-  );
+  return rawAnswerSchema(question).refine(fitsAnswerSize, 'too large');
+}
+
+/** Vrai si la valeur sérialisée en JSON tient dans `ANSWER_MAX_BYTES`. */
+function fitsAnswerSize(v: unknown): boolean {
+  return new TextEncoder().encode(JSON.stringify(v)).length <= ANSWER_MAX_BYTES;
 }
 
 function rawAnswerSchema(question: Question): z.ZodTypeAny {

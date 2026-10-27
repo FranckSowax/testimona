@@ -59,6 +59,7 @@ export async function saveAnswerAction(
 export interface DraftState {
   error?: DossierError;
   saved?: boolean;
+  fieldErrors?: Record<string, string>;
 }
 
 /** Enregistre le brouillon d'une étape ; reste sur la page pour continuer à copier ou partager. */
@@ -68,12 +69,12 @@ export async function saveDraftAction(
 ): Promise<DraftState> {
   if (!(await getCurrentUser())) return { error: 'unauthenticated' };
   const dossierId = field(formData, 'dossierId');
-  const res = await saveDraft({
-    dossierId,
-    stepId: field(formData, 'stepId'),
-    text: field(formData, 'text'),
-  });
-  if (!res.ok) return { error: res.error };
-  revalidatePath(localizedPath(`/dossier/${dossierId}`, await getLocale()));
+  const stepId = field(formData, 'stepId');
+  const res = await saveDraft({ dossierId, stepId, text: field(formData, 'text') });
+  if (!res.ok) return { error: res.error, fieldErrors: res.fieldErrors };
+  const locale = await getLocale();
+  revalidatePath(localizedPath(`/dossier/${dossierId}`, locale));
+  // WHY: stepId est validé par le service à ce stade (étape connue et ouverte).
+  revalidatePath(localizedPath(`/dossier/${dossierId}/etape/${stepId}/brouillon`, locale));
   return { saved: true };
 }

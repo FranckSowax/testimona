@@ -68,4 +68,8 @@ describe('draftTextSchema', () => {
     expect(draftTextSchema.safeParse('x'.repeat(DRAFT_MAX + 1)).success).toBe(false);
     expect(draftTextSchema.safeParse('a\u0000b').success).toBe(false);
   });
+
+  it('refuse un texte dont la taille JSON réelle dépasse la borne', () => {
+    expect(draftTextSchema.safeParse('\u0001'.repeat(12_000)).success).toBe(false);
+  });
 });
