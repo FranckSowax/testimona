@@ -57,12 +57,16 @@ export function LineDeletedAnnouncer({ focusId, fallbackFocusId, empty, children
   useEffect(() => {
     if (!pendingFocus.current) return;
     document.getElementById(empty ? fallbackFocusId : focusId)?.focus();
-    if (empty) pendingFocus.current = false;
   }, [count, empty, focusId, fallbackFocusId]);
 
   useEffect(() => {
     if (count === 0) return;
-    const timer = setTimeout(() => setAnnounced(true), ANNOUNCE_DELAY_MS);
+    const timer = setTimeout(() => {
+      // WHY: le drapeau est consommé avec l'annonce ; une revalidation ultérieure qui vide la
+      // liste (un autre trésorier) ne doit pas déplacer le focus.
+      pendingFocus.current = false;
+      setAnnounced(true);
+    }, ANNOUNCE_DELAY_MS);
     return () => clearTimeout(timer);
   }, [count]);
 

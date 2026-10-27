@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import messages from '../../../../../messages/fr.json';
 import { LineDeletedAnnouncer, useOnLineDeleted } from './LineDeletedAnnouncer';
 
@@ -41,7 +41,10 @@ function Page({ empty }: { empty: boolean }) {
 const status = () => screen.getByRole('status').textContent;
 const remove = () => fireEvent.click(screen.getByRole('button', { name: 'Supprimer' }));
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 describe('LineDeletedAnnouncer', () => {
   it('stays silent and leaves focus alone before any deletion', () => {
@@ -68,10 +71,11 @@ describe('LineDeletedAnnouncer', () => {
     expect(document.activeElement).toBe(document.getElementById(EMPTY));
   });
 
-  it('does not steal focus when lines come back after a deletion', () => {
+  it('does not steal focus when lines come back after a deletion', async () => {
     const { rerender } = render(<Page empty={false} />);
     remove();
     rerender(<Page empty />);
+    await waitFor(() => expect(status()).toBe('Poste supprimé.'));
     const button = screen.getByRole('button', { name: 'Supprimer' });
     button.focus();
     rerender(<Page empty={false} />);
@@ -85,5 +89,33 @@ describe('LineDeletedAnnouncer', () => {
     act(() => remove());
     expect(status()).toBe('');
     await waitFor(() => expect(status()).toBe('Poste supprimé.'));
+  });
+
+  it('does not move focus when another treasurer empties the list after the announcement', () => {
+    vi.useFakeTimers();
+    const { rerender } = render(<Page empty={false} />);
+    remove();
+    act(() => vi.advanceTimersByTime(100));
+    expect(status()).toBe('Poste supprimé.');
+    const button = screen.getByRole('button', { name: 'Supprimer' });
+    button.focus();
+    // WHY: revalidation venue d'ailleurs, sans suppression locale.
+    rerender(<Page empty />);
+    expect(document.activeElement).toBe(button);
+  });
+
+  it('cancels the pending announcement when unmounted during the delay', () => {
+    vi.useFakeTimers();
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { unmount } = render(<Page empty={false} />);
+    remove();
+    const before = vi.getTimerCount();
+    expect(before).toBeGreaterThan(0);
+    unmount();
+    // WHY: le minuteur de l'annonce est annulé au démontage.
+    expect(vi.getTimerCount()).toBe(before - 1);
+    act(() => vi.advanceTimersByTime(200));
+    expect(errors).not.toHaveBeenCalled();
+    errors.mockRestore();
   });
 });

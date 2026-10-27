@@ -63,7 +63,12 @@ export default async function BudgetLinesPage({
       canManage={canManage}
     />
   ) : (
-    <p id={EMPTY_ID} tabIndex={-1} className="text-foreground">
+    // WHY: ancre de focus seulement pour le gestionnaire, le seul à pouvoir supprimer un poste.
+    <p
+      id={canManage ? EMPTY_ID : undefined}
+      tabIndex={canManage ? -1 : undefined}
+      className="text-foreground"
+    >
       {canManage ? t('page.emptyManager') : t('page.empty')}
     </p>
   );
