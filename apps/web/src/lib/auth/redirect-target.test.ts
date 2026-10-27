@@ -22,10 +22,21 @@ describe('safeNextPath', () => {
     ['https://evil.com'],
     ['//evil.com'],
     ['/\\evil.com'],
+    ['/\t/evil.com'],
+    ['/\n/evil.com'],
+    ['/\r/evil.com'],
+    ['/\u0000/evil.com'],
+    ['/\u007f/evil.com'],
     ['@evil.com'],
     ['javascript:alert(1)'],
   ])('rejette la cible %j (redirection ouverte)', (next) => {
     expect(safeNextPath(next)).toBe('/dashboard');
+  });
+
+  it('garde les chemins localisés et les query', () => {
+    expect(safeNextPath('/en/dossier/nouveau?porte=deces')).toBe('/en/dossier/nouveau?porte=deces');
+    expect(safeNextPath('/')).toBe('/');
+    expect(safeNextPath('/invitation/abc#x')).toBe('/invitation/abc#x');
   });
 
   it('utilise le repli fourni', () => {
