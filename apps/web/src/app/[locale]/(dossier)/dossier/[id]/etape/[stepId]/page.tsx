@@ -6,6 +6,7 @@ import { resolveQuestionIndex } from '@/journey/progress';
 import { getStep, isStepOpen, personStatus } from '@/journey/registry';
 import { QuestionScreen } from '@/journey/ui/QuestionScreen';
 import { listAnswers } from '@/modules/dossier/answers/repo';
+import { stepEndPath } from '@/modules/dossier/answers/redirect';
 import { getDossier, getMyRole, getPerson } from '@/modules/dossier/repo';
 import { canWrite } from '@/modules/dossier/roles';
 import { COUNTRY_CODES } from '@/modules/dossier/schema';
@@ -64,9 +65,9 @@ export default async function StepPage({
         nextHref={
           index + 1 < step.questions.length
             ? `${stepPath}?q=${index + 1}`
-            : // WHY: un lecteur ne répond pas, mais doit pouvoir lire et copier le brouillon.
-              !canWrite(role) && step.draft
-              ? `${stepPath}/brouillon`
+            : // WHY: un lecteur ne répond pas, mais doit pouvoir lire le brouillon ou la synthèse.
+              !canWrite(role) && (step.draft || step.summary)
+              ? stepEndPath(id, step)
               : null
         }
       />

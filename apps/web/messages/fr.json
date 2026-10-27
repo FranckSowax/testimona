@@ -1198,6 +1198,14 @@
       "email-announcement": {
         "title": "L'annonce par e-mail",
         "description": "Une annonce plus complète, à copier dans votre messagerie."
+      },
+      "attendance": {
+        "title": "L'affluence",
+        "description": "Combien de personnes attendre, pour dimensionner la veillée et les repas."
+      },
+      "budget": {
+        "title": "Le budget",
+        "description": "Le niveau de cérémonie envisagé, parmi trois budgets estimés."
       }
     },
     "q": {
@@ -1309,6 +1317,39 @@
             "noPreference": "Pas de préférence"
           }
         }
+      },
+      "attendance": {
+        "close": {
+          "title": "Combien de proches de {name} (famille directe) seront présents ?",
+          "hint": "Conjoint, enfants, parents, frères et sœurs, avec leurs familles. Une estimation suffit."
+        },
+        "extended": {
+          "title": "Et combien de membres de la famille élargie ?",
+          "hint": "Oncles, tantes, cousins, belle-famille. Une estimation suffit."
+        },
+        "friends": {
+          "title": "Combien d'amis, voisins et collègues ?",
+          "hint": "Une estimation suffit."
+        },
+        "community": {
+          "title": "Combien de membres de la communauté (paroisse, association, village) ?",
+          "hint": "Une estimation suffit."
+        },
+        "nights": {
+          "title": "Combien de nuits durera la veillée ?",
+          "hint": "0 s'il n'y a pas de veillée. Nous en déduisons le matériel et la restauration."
+        }
+      },
+      "budget": {
+        "level": {
+          "title": "Quel niveau de cérémonie envisagez-vous ?",
+          "hint": "Les trois budgets estimés sont affichés sur la page Budget. Vous pourrez changer d'avis.",
+          "options": {
+            "sober": "Sobre",
+            "intermediate": "Intermédiaire",
+            "full": "Complet"
+          }
+        }
       }
     },
     "fields": {
@@ -1345,7 +1386,10 @@
       "completeSkipped": "Compléter les questions passées",
       "stepProgress": "{answered} sur {total} réponses",
       "toComplete": "{count, plural, =1 {1 question à compléter} other {# questions à compléter}}",
-      "viewDraft": "Voir le brouillon"
+      "viewDraft": "Voir le brouillon",
+      "summary": {
+        "budget": "Voir le budget"
+      }
     },
     "draft": {
       "title": {

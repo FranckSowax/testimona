@@ -15,6 +15,8 @@ describe('registre du parcours', () => {
       'broadcast-list',
       'immediate-message',
       'email-announcement',
+      'attendance',
+      'budget',
       'biography',
     ]);
     expect(stepsFor('prepare').map((s) => s.id)).toEqual(['biography']);
@@ -70,6 +72,23 @@ describe('registre du parcours', () => {
       'biography.passions',
       'biography.motto',
     ]);
+  });
+
+  it('pose les questions du budget et conclut sur la page Budget', () => {
+    expect(getStep('attendance')?.questions.map((q) => q.key)).toEqual([
+      'attendance.close',
+      'attendance.extended',
+      'attendance.friends',
+      'attendance.community',
+      'attendance.nights',
+    ]);
+    expect(getStep('attendance')?.questions.every((q) => q.kind === 'number')).toBe(true);
+    expect(getStep('budget')?.questions).toEqual([
+      { kind: 'choice', key: 'budget.level', options: ['sober', 'intermediate', 'full'] },
+    ]);
+    expect(getStep('attendance')?.summary).toBe('budget');
+    expect(getStep('budget')?.summary).toBe('budget');
+    expect(isStepOpen('prepare', 'attendance')).toBe(false);
   });
 
   it('retrouve une question par sa clé', () => {

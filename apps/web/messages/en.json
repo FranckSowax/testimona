@@ -1198,6 +1198,14 @@
       "email-announcement": {
         "title": "The e-mail announcement",
         "description": "A fuller announcement to copy into your e-mail."
+      },
+      "attendance": {
+        "title": "Attendance",
+        "description": "How many people to expect, to size the wake and the meals."
+      },
+      "budget": {
+        "title": "Budget",
+        "description": "The level of ceremony you have in mind, among three estimated budgets."
       }
     },
     "q": {
@@ -1309,6 +1317,39 @@
             "noPreference": "No preference"
           }
         }
+      },
+      "attendance": {
+        "close": {
+          "title": "How many of {name}'s close family will attend?",
+          "hint": "Spouse, children, parents, brothers and sisters, with their families. An estimate is enough."
+        },
+        "extended": {
+          "title": "And how many members of the wider family?",
+          "hint": "Uncles, aunts, cousins, in-laws. An estimate is enough."
+        },
+        "friends": {
+          "title": "How many friends, neighbours and colleagues?",
+          "hint": "An estimate is enough."
+        },
+        "community": {
+          "title": "How many members of the community (parish, association, village)?",
+          "hint": "An estimate is enough."
+        },
+        "nights": {
+          "title": "How many nights will the wake last?",
+          "hint": "0 if there is no wake. We use it to work out equipment and catering."
+        }
+      },
+      "budget": {
+        "level": {
+          "title": "What level of ceremony do you have in mind?",
+          "hint": "The three estimated budgets are shown on the Budget page. You can change your mind.",
+          "options": {
+            "sober": "Simple",
+            "intermediate": "Intermediate",
+            "full": "Full"
+          }
+        }
       }
     },
     "fields": {
@@ -1345,7 +1386,10 @@
       "completeSkipped": "Complete skipped questions",
       "stepProgress": "{answered} of {total} answered",
       "toComplete": "{count, plural, =1 {1 question to complete} other {# questions to complete}}",
-      "viewDraft": "View the draft"
+      "viewDraft": "View the draft",
+      "summary": {
+        "budget": "See the budget"
+      }
     },
     "draft": {
       "title": {
