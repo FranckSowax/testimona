@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { getLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/supabase/server';
-import { loginSuccessTarget } from '@/lib/auth/redirect-target';
+import { loginSuccessTarget, withNextParam } from '@/lib/auth/redirect-target';
 import { Card } from '@/components/ui/Card';
 import { LoginForm } from './LoginForm';
 
@@ -15,9 +15,9 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ next?: string; welcome?: string; error?: string }>;
 }) {
-  const user = await getCurrentUser();
+  const [user, sp] = await Promise.all([getCurrentUser(), searchParams]);
   if (user) {
-    const [sp, locale] = await Promise.all([searchParams, getLocale()]);
+    const locale = await getLocale();
     // Localised on purpose: a bare `/dashboard` here dropped English visitors
     // back onto the French tree. `welcome=1` is carried over so the overlay
     // still fires when signup hands off to this page.
@@ -32,7 +32,10 @@ export default async function LoginPage({
           </h1>
           <p className="text-muted-foreground mt-2 text-sm">
             Pas encore de compte ?{' '}
-            <Link href="/signup" className="text-primary font-medium hover:underline">
+            <Link
+              href={withNextParam('/signup', sp.next)}
+              className="text-primary font-medium hover:underline"
+            >
               Créer un compte
             </Link>
           </p>

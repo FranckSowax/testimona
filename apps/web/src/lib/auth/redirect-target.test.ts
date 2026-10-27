@@ -4,6 +4,7 @@ import {
   localizedPath,
   loginSuccessTarget,
   safeNextPath,
+  withNextParam,
 } from './redirect-target';
 
 describe('safeNextPath', () => {
@@ -84,6 +85,20 @@ describe('loginSuccessTarget', () => {
 
   it('neutralise une cible externe', () => {
     expect(loginSuccessTarget({ next: '//evil.com' }, 'fr')).toBe('/dashboard');
+  });
+});
+
+describe('withNextParam', () => {
+  it('ajoute une cible sûre, encodée', () => {
+    expect(withNextParam('/signup', '/dossier/nouveau?porte=deces')).toBe(
+      '/signup?next=%2Fdossier%2Fnouveau%3Fporte%3Ddeces',
+    );
+  });
+
+  it('omet une cible absente ou dangereuse', () => {
+    expect(withNextParam('/signup', undefined)).toBe('/signup');
+    expect(withNextParam('/login', '//evil.com')).toBe('/login');
+    expect(withNextParam('/login', '/\t/evil.com')).toBe('/login');
   });
 });
 

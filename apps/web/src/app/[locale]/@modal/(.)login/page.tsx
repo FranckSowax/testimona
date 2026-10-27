@@ -3,7 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { Modal } from '@/components/Modal';
 import { AlreadyAuthenticated } from '@/components/auth/AlreadyAuthenticated';
 import { getCurrentUser } from '@/lib/supabase/server';
-import { loginSuccessTarget } from '@/lib/auth/redirect-target';
+import { loginSuccessTarget, withNextParam } from '@/lib/auth/redirect-target';
 import { LoginForm } from '@/app/[locale]/(auth)/login/LoginForm';
 
 export default async function LoginModalPage({
@@ -25,7 +25,7 @@ export default async function LoginModalPage({
       <h2 className="font-display text-foreground text-2xl font-semibold">Connexion</h2>
       <p className="text-muted-foreground mt-1 text-sm">
         Pas encore de compte ?{' '}
-        <Link href="/signup" className="text-primary hover:underline">
+        <Link href={withNextParam('/signup', sp.next)} className="text-primary hover:underline">
           Créer un compte
         </Link>
       </p>

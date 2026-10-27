@@ -69,6 +69,17 @@ export function loginSuccessTarget(
 }
 
 /**
+ * Appends the (sanitised) `next` target to an auth screen path, so that
+ * switching between sign-in and sign-up keeps the visitor's destination.
+ *
+ * @example withNextParam('/signup', '/invitation/abc') // '/signup?next=%2Finvitation%2Fabc'
+ */
+export function withNextParam(path: string, next: string | null | undefined): string {
+  const safe = safeNextPath(next, '');
+  return safe ? `${path}?next=${encodeURIComponent(safe)}` : path;
+}
+
+/**
  * `/auth/callback` URL carrying the (sanitised) `next` target, so that email
  * confirmation and OAuth sign-ins land back where the visitor was headed
  * (e.g. an invitation) instead of on the dashboard.
