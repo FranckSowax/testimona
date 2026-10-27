@@ -34,11 +34,14 @@ describe('saveAnswer', () => {
     const res = await saveAnswer({ dossierId: DOSSIER, key: 'creator.relationship', value: 'x' });
     expect(res).toEqual({ ok: false, error: 'validation' });
     expect(answersRepo.upsertAnswer).not.toHaveBeenCalled();
+    expect(dossierRepo.getDossier).not.toHaveBeenCalled();
   });
 
   it('refuse un identifiant de dossier invalide', async () => {
     const res = await saveAnswer({ dossierId: 'abc', key: 'biography.motto', value: 'x' });
     expect(res).toEqual({ ok: false, error: 'validation' });
+    expect(answersRepo.upsertAnswer).not.toHaveBeenCalled();
+    expect(dossierRepo.getDossier).not.toHaveBeenCalled();
   });
 
   it('renvoie les erreurs de champ d’une réponse invalide', async () => {
@@ -60,6 +63,7 @@ describe('saveAnswer', () => {
     }));
     const res = await saveAnswer({ dossierId: DOSSIER, key: 'biography.traits', value: traits });
     expect(res).toMatchObject({ ok: false, error: 'validation' });
+    expect(res.ok === false && res.fieldErrors?.['']).toBe('too large');
     expect(answersRepo.upsertAnswer).not.toHaveBeenCalled();
   });
 
@@ -78,7 +82,12 @@ describe('saveAnswer', () => {
   });
 
   it('enregistre « passée »', async () => {
-    await saveAnswer({ dossierId: DOSSIER, key: 'biography.motto', value: { skipped: true } });
+    const res = await saveAnswer({
+      dossierId: DOSSIER,
+      key: 'biography.motto',
+      value: { skipped: true },
+    });
+    expect(res).toEqual({ ok: true, data: { key: 'biography.motto' } });
     expect(answersRepo.upsertAnswer).toHaveBeenCalledWith({
       dossierId: DOSSIER,
       key: 'biography.motto',
@@ -97,6 +106,7 @@ describe('saveAnswer', () => {
     dossierRepo.getDossier.mockResolvedValue(dossier('after'));
     const res = await saveAnswer({ dossierId: DOSSIER, key: 'biography.motto', value: 'x' });
     expect(res).toEqual({ ok: false, error: 'validation' });
+    expect(answersRepo.upsertAnswer).not.toHaveBeenCalled();
   });
 
   it('traduit le refus RLS d’un lecteur en « forbidden »', async () => {
@@ -106,5 +116,26 @@ describe('saveAnswer', () => {
     });
     const res = await saveAnswer({ dossierId: DOSSIER, key: 'biography.motto', value: 'x' });
     expect(res).toEqual({ ok: false, error: 'forbidden' });
+  });
+
+  it('traduit 23514 en « validation »', async () => {
+    answersRepo.upsertAnswer.mockResolvedValue({
+      data: null,
+      error: { code: '23514', message: 'x' },
+    });
+    const res = await saveAnswer({ dossierId: DOSSIER, key: 'biography.motto', value: 'x' });
+    expect(res).toEqual({ ok: false, error: 'validation' });
+  });
+
+  it('code inconnu : « unknown », journalisation sans contenu de réponse', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    answersRepo.upsertAnswer.mockResolvedValue({
+      data: null,
+      error: { code: 'XX000', message: 'secret-contenu' },
+    });
+    const res = await saveAnswer({ dossierId: DOSSIER, key: 'biography.motto', value: 'secret' });
+    expect(res).toEqual({ ok: false, error: 'unknown' });
+    expect(spy).toHaveBeenCalledWith('[dossier] saveAnswer failed', { code: 'XX000' });
+    spy.mockRestore();
   });
 });

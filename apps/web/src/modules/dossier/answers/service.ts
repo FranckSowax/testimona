@@ -16,7 +16,8 @@ const SaveAnswerInputSchema = z.object({
  * Enregistre une réponse du parcours, ou « passée ».
  * Refuse une clé absente du registre, une étape fermée pour la porte du dossier et une valeur qui
  * ne passe pas le schéma de sa question (taille bornée comprise). Le rôle (contributor ou plus)
- * est vérifié par la RLS.
+ * est vérifié par la RLS. Une erreur sans chemin de champ (question simple, ou taille trop grande)
+ * est rangée sous la clé `''` de `fieldErrors`.
  *
  * @example
  * await saveAnswer({ dossierId, key: 'biography.motto', value: 'Toujours debout' });
