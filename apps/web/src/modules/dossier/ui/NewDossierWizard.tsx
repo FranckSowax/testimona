@@ -1,7 +1,9 @@
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { startTransition, useActionState, useEffect, useState, type FormEvent } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
+import { localizedPath } from '@/lib/auth/redirect-target';
 import { createDossierAction, type FormState } from '../actions';
 import { RELATIONSHIPS } from '../schema';
 
@@ -29,6 +31,8 @@ const INPUT_CLASS =
  */
 export function NewDossierWizard({ entryPoint, countries }: Props) {
   const t = useTranslations('dossier');
+  const tHeader = useTranslations('header');
+  const locale = useLocale();
   const [state, formAction, pending] = useActionState<FormState | null, FormData>(
     createDossierAction,
     null,
@@ -37,13 +41,15 @@ export function NewDossierWizard({ entryPoint, countries }: Props) {
   const [values, setValues] = useState({
     firstName: '',
     lastName: '',
-    countryCode: countries[0]?.code ?? 'GA',
+    countryCode: countries[0]?.code ?? '',
     city: '',
     relationship: '',
   });
   const [missing, setMissing] = useState<FieldName[]>([]);
-  const fieldsets = useRef<(HTMLFieldSetElement | null)[]>([]);
-  const moved = useRef(false);
+  // WHY: le focus est donné après le rendu, quand aria-invalid et aria-describedby sont posés.
+  const [focus, setFocus] = useState<{ id: string; seq: number } | null>(null);
+  // WHY: une `key` qui change à chaque retour du serveur force la réannonce d'une même erreur.
+  const [errorSeq, setErrorSeq] = useState(0);
 
   const set = (name: keyof typeof values) => (e: { target: { value: string } }) => {
     const value = e.target.value;
@@ -52,43 +58,51 @@ export function NewDossierWizard({ entryPoint, countries }: Props) {
   };
 
   const isEmpty = (name: FieldName) => values[name].trim() === '';
+  const focusId = (id: string) => setFocus((f) => ({ id, seq: (f?.seq ?? 0) + 1 }));
+  const fieldId = (name: FieldName) =>
+    name === 'relationship' ? 'wizard-relationship-first' : `wizard-${name}`;
 
-  // WHY: le focus suit l'écran affiché, sinon un lecteur d'écran reste sur un bouton disparu.
   useEffect(() => {
-    if (!moved.current) return;
-    fieldsets.current[step]?.focus();
-  }, [step]);
+    if (focus) document.getElementById(focus.id)?.focus();
+  }, [focus]);
 
-  // WHY: si le serveur refuse un champ, on ramène la personne à l'écran concerné.
+  // WHY: si le serveur refuse un champ, on ramène la personne au premier champ fautif.
   useEffect(() => {
-    const keys = Object.keys(state?.fieldErrors ?? {});
-    if (keys.length === 0) return;
-    const target = STEPS.findIndex((names) => names.some((n) => keys.includes(n)));
-    setMissing(keys.filter((k): k is FieldName => STEPS.flat().some((n) => n === k)));
-    if (target >= 0) {
-      moved.current = true;
-      setStep(target);
-    }
+    if (!state) return;
+    setErrorSeq((n) => n + 1);
+    const keys = Object.keys(state.fieldErrors ?? {});
+    const first = STEPS.flat().find((n) => keys.includes(n));
+    if (!first) return;
+    setMissing(STEPS.flat().filter((n) => keys.includes(n)));
+    setStep(STEPS.findIndex((names) => (names as readonly string[]).includes(first)));
+    focusId(fieldId(first));
   }, [state]);
 
   const goTo = (index: number) => {
-    moved.current = true;
     setStep(index);
+    focusId(`wizard-step-${index}`);
   };
 
-  const next = () => {
-    const empty = (STEPS[step] ?? []).filter(isEmpty);
+  const check = (index: number): boolean => {
+    const empty = (STEPS[index] ?? []).filter(isEmpty);
     setMissing(empty);
-    if (empty.length > 0) {
-      document.getElementById(`wizard-${empty[0]}`)?.focus();
-      return;
-    }
-    goTo(Math.min(step + 1, STEPS.length - 1));
+    if (empty[0]) focusId(fieldId(empty[0]));
+    return empty.length === 0;
+  };
+
+  // WHY: onSubmit plutôt que `<form action>` : React 19 réinitialise le formulaire après l'action
+  // et ramènerait le <select> contrôlé sur son premier pays. Entrée passe aussi par ici.
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!check(step)) return;
+    if (step < STEPS.length - 1) return goTo(step + 1);
+    const data = new FormData(e.currentTarget);
+    startTransition(() => formAction(data));
   };
 
   const invalid = (name: FieldName) => missing.includes(name);
   const fieldProps = (name: FieldName) => ({
-    id: `wizard-${name}`,
+    id: fieldId(name),
     name,
     value: values[name],
     onChange: set(name),
@@ -100,14 +114,16 @@ export function NewDossierWizard({ entryPoint, countries }: Props) {
   });
   const fieldError = (name: FieldName) =>
     invalid(name) && (
-      <p id={`wizard-${name}-error`} className="text-accent-soft text-sm">
+      <p
+        id={`wizard-${name}-error`}
+        role={name === 'relationship' ? 'alert' : undefined}
+        className="text-accent-soft text-sm"
+      >
         {t('new.required')}
       </p>
     );
   const fieldsetProps = (index: number) => ({
-    ref: (el: HTMLFieldSetElement | null) => {
-      fieldsets.current[index] = el;
-    },
+    id: `wizard-step-${index}`,
     hidden: step !== index,
     tabIndex: -1,
     className: 'space-y-4 focus:outline-none',
@@ -116,12 +132,12 @@ export function NewDossierWizard({ entryPoint, countries }: Props) {
 
   return (
     <form
-      action={formAction}
+      onSubmit={onSubmit}
       noValidate
       className="bg-secondary text-secondary-foreground mx-auto flex min-h-[70dvh] max-w-xl flex-col gap-6 rounded-3xl p-6 sm:p-10"
     >
       <input type="hidden" name="entryPoint" value={entryPoint} />
-      <p className="text-sm text-white/60" aria-live="polite">
+      <p className="text-sm text-white/60">
         {step + 1} / {STEPS.length}
       </p>
 
@@ -171,7 +187,7 @@ export function NewDossierWizard({ entryPoint, countries }: Props) {
         aria-describedby={invalid('relationship') ? 'wizard-relationship-error' : undefined}
       >
         <legend className={legendClass}>{t('new.relationshipTitle')}</legend>
-        {RELATIONSHIPS.map((r) => (
+        {RELATIONSHIPS.map((r, i) => (
           <label
             key={r}
             className={`has-[:focus-visible]:ring-accent-soft block cursor-pointer rounded-xl border px-4 py-3 has-[:focus-visible]:ring-2 ${
@@ -181,6 +197,7 @@ export function NewDossierWizard({ entryPoint, countries }: Props) {
             }`}
           >
             <input
+              id={i === 0 ? 'wizard-relationship-first' : undefined}
               type="radio"
               name="relationship"
               value={r}
@@ -195,9 +212,22 @@ export function NewDossierWizard({ entryPoint, countries }: Props) {
       </fieldset>
 
       {state?.error && (
-        <p role="alert" className="text-accent-soft text-sm">
-          {t(`errors.${state.error}`)}
-        </p>
+        <div key={errorSeq} role="alert" className="text-accent-soft space-y-1 text-sm">
+          <p>{t(`errors.${state.error}`)}</p>
+          {state.error === 'unauthenticated' && (
+            <Link
+              href={`/login?next=${encodeURIComponent(
+                localizedPath(
+                  `/dossier/nouveau?porte=${entryPoint === 'prepare' ? 'preparer' : 'deces'}`,
+                  locale,
+                ),
+              )}`}
+              className="font-semibold underline"
+            >
+              {tHeader('signIn')}
+            </Link>
+          )}
+        </div>
       )}
 
       <div className="mt-auto flex items-center justify-between gap-3">
@@ -209,29 +239,14 @@ export function NewDossierWizard({ entryPoint, countries }: Props) {
         >
           ← {t('new.back')}
         </button>
-        {step < STEPS.length - 1 ? (
-          <button
-            type="button"
-            onClick={next}
-            className="bg-accent rounded-full px-6 py-3 font-semibold text-white"
-          >
-            {t('new.next')}
-          </button>
-        ) : (
-          <button
-            type="submit"
-            disabled={pending}
-            onClick={(e) => {
-              if (isEmpty('relationship')) {
-                e.preventDefault();
-                setMissing(['relationship']);
-              }
-            }}
-            className="bg-accent rounded-full px-6 py-3 font-semibold text-white disabled:opacity-60"
-          >
-            {t('new.submit')}
-          </button>
-        )}
+        <button
+          key={step < STEPS.length - 1 ? 'next' : 'submit'}
+          type="submit"
+          disabled={pending}
+          className="bg-accent rounded-full px-6 py-3 font-semibold text-white disabled:opacity-60"
+        >
+          {step < STEPS.length - 1 ? t('new.next') : t('new.submit')}
+        </button>
       </div>
     </form>
   );
