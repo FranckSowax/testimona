@@ -134,7 +134,7 @@ export async function getDossier(id: string): Promise<DossierSummary | null> {
 
 /**
  * Fiche de la personne avec l'erreur de lecture (code seulement journalisé).
- * WHY: l'IA ne doit pas distinguer « pas de fiche » d'une lecture en échec.
+ * WHY: l'IA doit distinguer une fiche absente (repli sur le titre) d'une lecture en échec (refus).
  */
 export async function getPersonResult(
   dossierId: string,

@@ -175,6 +175,52 @@ describe('openRouterProvider', () => {
     expect(sleepMock).toHaveBeenCalledWith(1000);
   });
 
+  it('respecte Retry-After au format date HTTP quand il est court', async () => {
+    const sleepMock = sleep();
+    const now = () => Date.parse('Wed, 21 Oct 2026 07:28:00 GMT');
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response('{}', {
+          status: 429,
+          headers: { 'Retry-After': 'Wed, 21 Oct 2026 07:28:01 GMT' },
+        }),
+      )
+      .mockResolvedValueOnce(reply());
+    await expect(
+      openRouterProvider('k', { fetchImpl: fetchMock, sleep: sleepMock, now })(PROMPT),
+    ).resolves.toBe('Texte amélioré.');
+    expect(sleepMock).toHaveBeenCalledWith(1000);
+  });
+
+  it('ne réessaie pas quand Retry-After (date HTTP) est trop lointain', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const sleepMock = sleep();
+    const now = () => Date.parse('Wed, 21 Oct 2026 07:28:00 GMT');
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response('{}', {
+        status: 429,
+        headers: { 'Retry-After': 'Wed, 21 Oct 2026 07:30:00 GMT' },
+      }),
+    );
+    await expect(
+      openRouterProvider('k', { fetchImpl: fetchMock, sleep: sleepMock, now })(PROMPT),
+    ).rejects.toMatchObject({ reason: 'api' });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(sleepMock).not.toHaveBeenCalled();
+  });
+
+  it("libère le corps de la réponse d'erreur finale", async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const res = new Response('{}', { status: 500 });
+    const cancel = vi.spyOn(res.body!, 'cancel');
+    const fetchMock = vi.fn().mockResolvedValue(res);
+    await expect(
+      openRouterProvider('k', { fetchImpl: fetchMock, sleep: sleep() })(PROMPT),
+    ).rejects.toMatchObject({ reason: 'api' });
+    expect(cancel).toHaveBeenCalled();
+  });
+
   it('ne réessaie pas quand Retry-After est trop long', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const sleepMock = sleep();
