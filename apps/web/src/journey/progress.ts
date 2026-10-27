@@ -45,6 +45,30 @@ export function nextQuestion(steps: readonly Step[], answers: Answers): Question
   return null;
 }
 
+const isPending = (answers: Answers, key: string) =>
+  !isTreated(answers, key) || isSkipped(answers[key]);
+
+/**
+ * Question à poser après la question `fromIndex` d'une étape : la première question non traitée
+ * ou passée située après elle, sinon la première avant elle (on reboucle), sinon null.
+ * La question `fromIndex` elle-même n'est jamais renvoyée.
+ *
+ * @example
+ * nextQuestionInStep(step, { 'biography.birthPlace': 'Lambaréné' }, 0); // 1
+ */
+export function nextQuestionInStep(step: Step, answers: Answers, fromIndex: number): number | null {
+  const { questions } = step;
+  for (let i = fromIndex + 1; i < questions.length; i += 1) {
+    const question = questions[i];
+    if (question && isPending(answers, question.key)) return i;
+  }
+  for (let i = 0; i < Math.min(fromIndex, questions.length); i += 1) {
+    const question = questions[i];
+    if (question && isPending(answers, question.key)) return i;
+  }
+  return null;
+}
+
 /**
  * Question à afficher. `?q=` est suivi s'il désigne une question de l'étape, même déjà répondue
  * ou passée. Sinon : la première question non traitée, puis la première question passée (le

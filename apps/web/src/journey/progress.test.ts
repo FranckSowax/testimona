@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { defineStep, q } from './define';
-import { nextQuestion, resolveQuestionIndex, stepProgress } from './progress';
+import { nextQuestion, nextQuestionInStep, resolveQuestionIndex, stepProgress } from './progress';
 import { SKIPPED } from './types';
 
 const first = defineStep({
@@ -81,5 +81,34 @@ describe('réponse null ou undefined', () => {
     expect(nextQuestion([first, second], answers)).toEqual({ stepId: 'first', index: 0 });
     expect(resolveQuestionIndex(first, answers, undefined)).toBe(0);
     expect(stepProgress(first, { 'first.a': undefined })).toMatchObject({ answered: 0 });
+  });
+});
+
+describe('nextQuestionInStep', () => {
+  it('renvoie la question suivante non traitée', () => {
+    expect(nextQuestionInStep(first, { 'first.a': 'x' }, 0)).toBe(1);
+  });
+
+  it('saute les questions répondues et s’arrête sur une passée plus loin', () => {
+    expect(
+      nextQuestionInStep(first, { 'first.a': 'x', 'first.b': 'y', 'first.c': SKIPPED }, 0),
+    ).toBe(2);
+  });
+
+  it('reboucle sur une question non traitée ou passée avant fromIndex', () => {
+    expect(nextQuestionInStep(first, { 'first.b': 'y', 'first.c': 'z' }, 2)).toBe(0);
+    expect(nextQuestionInStep(first, { 'first.a': SKIPPED, 'first.c': 'z' }, 1)).toBe(0);
+  });
+
+  it('ne renvoie jamais fromIndex, même passée', () => {
+    expect(
+      nextQuestionInStep(first, { 'first.a': 'x', 'first.b': SKIPPED, 'first.c': 'z' }, 1),
+    ).toBeNull();
+  });
+
+  it('renvoie null quand tout est répondu', () => {
+    expect(
+      nextQuestionInStep(first, { 'first.a': 'x', 'first.b': 'y', 'first.c': 'z' }, 0),
+    ).toBeNull();
   });
 });
