@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { getStep, isStepOpen } from '@/journey/registry';
 import { draftFor, emailSubject, type DraftContext } from '@/journey/templates';
 import { DraftEditor } from '@/journey/ui/DraftEditor';
+import { isAiEnabled } from '@/modules/ai/config';
 import { listAnswersResult } from '@/modules/dossier/answers/repo';
 import { getDossier, getMyRole, getPerson } from '@/modules/dossier/repo';
 import { canWrite } from '@/modules/dossier/roles';
@@ -58,6 +59,7 @@ export default async function DraftPage({
         initiallySaved={saved !== null}
         subject={draft.kind === 'email' ? emailSubject(ctx) : null}
         readOnly={!canWrite(role)}
+        aiEnabled={isAiEnabled()}
       />
     </div>
   );

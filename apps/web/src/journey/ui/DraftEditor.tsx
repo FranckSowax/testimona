@@ -10,9 +10,11 @@ import {
 } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import type { AiError } from '@/modules/ai/types';
 import { saveDraftAction, type DraftState } from '@/modules/dossier/answers/actions';
 import { DRAFT_MAX, type DraftKind } from '../types';
 import { FIELD_CLASS } from './field';
+import { ImproveDraftButton } from './ImproveDraftButton';
 import { shareHref } from './share';
 import { specificMessage } from './specific-error';
 
@@ -29,6 +31,8 @@ interface Props {
   /** Objet de l'e-mail (annonce par e-mail seulement). */
   subject: string | null;
   readOnly: boolean;
+  /** Vrai quand l'IA est configurée côté serveur. */
+  aiEnabled: boolean;
 }
 
 const SHELL =
@@ -65,6 +69,11 @@ export function DraftEditor(props: Props) {
 
   const announce = (message: string) =>
     setStatus((prev) => ({ text: message, seq: (prev?.seq ?? 0) + 1 }));
+
+  const aiMessage = (code: AiError) =>
+    code === 'unavailable' || code === 'quota' || code === 'failed'
+      ? t(`ai.${code}`)
+      : tErrors(code);
 
   useEffect(() => {
     if (state === handledRef.current) return;
@@ -226,6 +235,26 @@ export function DraftEditor(props: Props) {
           >
             {t('regenerate')}
           </button>
+        )}
+        {props.aiEnabled && !readOnly && (
+          <ImproveDraftButton
+            dossierId={dossierId}
+            stepId={stepId}
+            text={text}
+            disabled={pending || text.trim() === ''}
+            className={BUTTON}
+            onImproved={(improved) => {
+              // WHY: le texte amélioré remplace l'affichage mais n'est enregistré qu'au clic
+              // sur « Enregistrer », après relecture.
+              setText(improved);
+              setError(null);
+              announce(t('improved'));
+            }}
+            onError={(code) => {
+              setStatus(null);
+              setError((prev) => ({ text: aiMessage(code), seq: (prev?.seq ?? 0) + 1 }));
+            }}
+          />
         )}
       </div>
 
