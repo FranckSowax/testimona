@@ -24,6 +24,7 @@ supabase/
 | `20261027000200_dossier_person_answers.sql`                  | Lot 1 : fiche de la personne, réponses du parcours, création atomique, nom affiché des membres |
 | `20261027000300_dossier_invitations.sql`                     | Lot 1 : invitations par lien à usage unique                                                    |
 | `20261027000400_revoke_trigger_function_execute.sql`         | Lot 1 : fonctions de trigger du dossier non exécutables via l'API                              |
+| `20261027000500_ai_usage.sql`                                | Lot 1 : compteur d'appels à l'IA par dossier et par jour                                       |
 
 Les horodatages des migrations historiques sont **synthétiques** : ils ne servent qu'à fixer l'ordre.
 
@@ -71,7 +72,9 @@ Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Histori
 - `dossier_invitations`, version enregistrée `20261027090710` ;
 - `revoke_trigger_function_execute`, version enregistrée `20261027094508`.
 
-Toutes les migrations du dépôt sont donc en production.
+**Pas encore en production :**
+
+- `ai_usage` (lot 1, PR 4) : **pas encore appliquée** ; à appliquer avant de déployer le web de la PR 4.
 
 `get_advisors` (sécurité), revérifié après la dernière migration : sur le dossier, seules
 `is_dossier_member` et `accept_dossier_invitation` restent signalées, c'est voulu (appelées par les
