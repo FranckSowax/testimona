@@ -784,7 +784,15 @@ describe('schémas du registre', () => {
 
 ```ts
 import { describe, expect, it } from 'vitest';
-import { balance, canReverse, entryViews, openPledges, remaining, type LedgerEntry } from './model';
+import {
+  balance,
+  canReverse,
+  entryViews,
+  openPledges,
+  pledgeRemaining,
+  remaining,
+  type LedgerEntry,
+} from './model';
 
 const entry = (over: Partial<LedgerEntry>): LedgerEntry => ({
   id: 'x',
@@ -837,6 +845,23 @@ describe('entryViews', () => {
     ]);
     expect(views.find((v) => v.id === 'p1')?.fulfilled).toBe(false);
     expect(openPledges(views).map((v) => v.id)).toEqual(['p1']);
+  });
+
+  it('cumule les versements partiels d’une promesse', () => {
+    const views = entryViews([
+      entry({ id: 'p1', kind: 'pledge', method: null, amount: 10_000 }),
+      entry({ id: 'r1', pledgeId: 'p1', amount: 4_000 }),
+    ]);
+    const pledge = views.find((v) => v.id === 'p1')!;
+    expect(pledge).toMatchObject({ paid: 4_000, fulfilled: false });
+    expect(pledgeRemaining(pledge)).toBe(6_000);
+    const paidOff = entryViews([
+      entry({ id: 'p1', kind: 'pledge', method: null, amount: 10_000 }),
+      entry({ id: 'r1', pledgeId: 'p1', amount: 4_000 }),
+      entry({ id: 'r2', pledgeId: 'p1', amount: 6_000 }),
+    ]).find((v) => v.id === 'p1')!;
+    expect(paidOff).toMatchObject({ paid: 10_000, fulfilled: true });
+    expect(pledgeRemaining(paidOff)).toBe(0);
   });
 });
 
@@ -1019,9 +1044,13 @@ export interface LedgerEntry {
   createdAt: string;
 }
 
-/** Ligne prête à afficher : annulée ou non, promesse honorée ou non. */
+/**
+ * Ligne prête à afficher : annulée ou non ; pour une promesse, montant déjà versé (`paid`) et
+ * soldée (`fulfilled`) quand les versements liés atteignent le montant promis.
+ */
 export interface EntryView extends LedgerEntry {
   reversed: boolean;
+  paid: number;
   fulfilled: boolean;
 }
 
@@ -1043,25 +1072,36 @@ export function entryViews(entries: readonly LedgerEntry[]): EntryView[] {
   const reversedIds = new Set(
     entries.filter((e) => e.kind === 'reversal' && e.reversesId).map((e) => e.reversesId),
   );
-  const fulfilledPledges = new Set(
-    entries
-      .filter((e) => e.kind === 'receipt' && e.pledgeId && !reversedIds.has(e.id))
-      .map((e) => e.pledgeId),
-  );
+  // WHY: une promesse se paie parfois en plusieurs fois ; on cumule les versements actifs liés.
+  const paidByPledge = new Map<string, number>();
+  for (const e of entries) {
+    if (e.kind === 'receipt' && e.pledgeId && !reversedIds.has(e.id)) {
+      paidByPledge.set(e.pledgeId, (paidByPledge.get(e.pledgeId) ?? 0) + e.amount);
+    }
+  }
   return entries
-    .map((e) => ({
-      ...e,
-      reversed: reversedIds.has(e.id),
-      fulfilled: e.kind === 'pledge' && fulfilledPledges.has(e.id),
-    }))
+    .map((e) => {
+      const paid = e.kind === 'pledge' ? (paidByPledge.get(e.id) ?? 0) : 0;
+      return {
+        ...e,
+        reversed: reversedIds.has(e.id),
+        paid,
+        fulfilled: e.kind === 'pledge' && paid >= e.amount,
+      };
+    })
     .sort(
       (a, b) => b.occurredOn.localeCompare(a.occurredOn) || b.createdAt.localeCompare(a.createdAt),
     );
 }
 
-/** Promesses encore attendues (ni annulées, ni honorées). */
+/** Promesses encore attendues (ni annulées, ni soldées). */
 export function openPledges(views: readonly EntryView[]): EntryView[] {
   return views.filter((v) => v.kind === 'pledge' && !v.reversed && !v.fulfilled);
+}
+
+/** Ce qu'il reste à verser sur une promesse, jamais négatif. */
+export function pledgeRemaining(view: EntryView): number {
+  return Math.max(0, view.amount - view.paid);
 }
 
 /** Une ligne active qui n'est pas elle-même une annulation peut être annulée. */
@@ -1789,9 +1829,16 @@ const PATHS = [
   ...['budget', 'budgetNone', 'received', 'pledgedOpen', 'spent', 'balance', 'remaining'].map(
     (k) => `ledger.summary.${k}`,
   ),
-  ...['listTitle', 'reversed', 'fulfilled', 'reversalOf', 'reverse', 'confirmReverse', 'keep'].map(
-    (k) => `ledger.entry.${k}`,
-  ),
+  ...[
+    'listTitle',
+    'reversed',
+    'fulfilled',
+    'partlyPaid',
+    'reversalOf',
+    'reverse',
+    'confirmReverse',
+    'keep',
+  ].map((k) => `ledger.entry.${k}`),
   ...[
     'pledgeTitle',
     'receiptTitle',
@@ -1890,6 +1937,7 @@ Dans `apps/web/messages/fr.json`, ajouter l'espace de premier niveau `ledger` :
     "listTitle": "Mouvements",
     "reversed": "annulée",
     "fulfilled": "versée",
+    "partlyPaid": "{paid} déjà versés",
     "reversalOf": "Annulation : {kind}",
     "reverse": "Annuler cette ligne",
     "confirmReverse": "Confirmer l'annulation",
@@ -1976,6 +2024,7 @@ Dans `apps/web/messages/en.json` :
     "listTitle": "Entries",
     "reversed": "reversed",
     "fulfilled": "paid",
+    "partlyPaid": "{paid} paid so far",
     "reversalOf": "Reversal: {kind}",
     "reverse": "Reverse this entry",
     "confirmReverse": "Confirm reversal",
@@ -2264,6 +2313,10 @@ export async function EntryList({ dossierId, locale, views, canManage }: Props) 
               {date.format(new Date(`${v.occurredOn}T00:00:00Z`))}
               {v.reversed && ` · ${t('entry.reversed')}`}
               {v.fulfilled && ` · ${t('entry.fulfilled')}`}
+              {v.kind === 'pledge' &&
+                !v.fulfilled &&
+                v.paid > 0 &&
+                ` · ${t('entry.partlyPaid', { paid: formatXaf(v.paid, locale) })}`}
               {v.note && ` · ${v.note}`}
             </p>
             {canManage && canReverse(v) && <ReverseButton dossierId={dossierId} entryId={v.id} />}
@@ -2286,7 +2339,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { z } from 'zod';
 import { Link } from '@/i18n/navigation';
 import { isStepOpen } from '@/journey/registry';
-import { entryViews, openPledges } from '@/modules/budget/ledger/model';
+import { entryViews, openPledges, pledgeRemaining } from '@/modules/budget/ledger/model';
 import { getTotals, getVisibility, listEntries } from '@/modules/budget/ledger/repo';
 import { EntryForms } from '@/modules/budget/ledger/ui/EntryForms';
 import { EntryList } from '@/modules/budget/ledger/ui/EntryList';
@@ -2351,7 +2404,7 @@ export default async function ContributionsPage({
         pledges={openPledges(views).map((p) => ({
           id: p.id,
           label: p.partyName,
-          amount: p.amount,
+          amount: pledgeRemaining(p),
         }))}
       />
 
