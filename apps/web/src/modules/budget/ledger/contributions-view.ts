@@ -1,8 +1,9 @@
 import type { MemberSummary } from '@/modules/dossier/repo';
 import { canWrite, hasRole } from '@/modules/dossier/roles';
 import type { DossierRole } from '@/modules/dossier/schema';
+import type { BudgetLine } from '../lines/model';
 import { openPledges, pledgeRemaining, type EntryView } from './model';
-import type { MemberOption, PledgeOption } from './ui/EntryForm';
+import type { LineOption, MemberOption, PledgeOption } from './ui/EntryForm';
 
 /** Ce que la page des cotisations affiche et propose selon le rôle de la personne. */
 export interface ContributionsView {
@@ -11,12 +12,14 @@ export interface ContributionsView {
   isOwner: boolean;
   memberOptions: MemberOption[];
   pledgeOptions: PledgeOption[];
+  lineOptions: LineOption[];
 }
 
 interface Input {
   role: DossierRole | null;
   views: readonly EntryView[];
   members: readonly Pick<MemberSummary, 'userId' | 'displayName'>[];
+  lines: readonly Pick<BudgetLine, 'id' | 'label'>[];
 }
 
 /**
@@ -36,10 +39,10 @@ export function canManageLedger(role: DossierRole | null): boolean {
  * navigateur des autres la liste des membres et des promesses.
  *
  * @example
- * const view = contributionsView({ role: 'treasurer', views, members });
+ * const view = contributionsView({ role: 'treasurer', views, members, lines });
  * view.pledgeOptions; // [{ id, label: 'Oncle Paul', amount: 6_000 }]
  */
-export function contributionsView({ role, views, members }: Input): ContributionsView {
+export function contributionsView({ role, views, members, lines }: Input): ContributionsView {
   const canManage = canManageLedger(role);
   return {
     canPledge: canWrite(role),
@@ -55,5 +58,7 @@ export function contributionsView({ role, views, members }: Input): Contribution
           amount: pledgeRemaining(p),
         }))
       : [],
+    // WHY: seul qui saisit une dépense choisit son poste ; les autres n'en reçoivent pas la liste.
+    lineOptions: canManage ? lines.map((l) => ({ id: l.id, label: l.label })) : [],
   };
 }

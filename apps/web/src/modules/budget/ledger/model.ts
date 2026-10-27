@@ -9,6 +9,7 @@ export interface LedgerEntry {
   partyName: string;
   memberId: string | null;
   pledgeId: string | null;
+  budgetLineId: string | null;
   note: string;
   occurredOn: string;
   reversesId: string | null;

@@ -38,6 +38,8 @@ const CODES: Record<string, LedgerError> = {
   TL001: 'validation',
   TL002: 'pledge_unavailable',
   TL003: 'validation',
+  // WHY: poste d'un autre dossier ; un poste d'un autre type de ligne donne 23514.
+  TL004: 'validation',
 };
 
 function fromRepo(error: { code: string }, scope: string): { ok: false; error: LedgerError } {
@@ -90,6 +92,7 @@ export async function recordPledge(raw: unknown, userId: string) {
       partyName,
       memberId: userId,
       pledgeId: null,
+      budgetLineId: null,
       note,
       occurredOn,
       reversesId: null,
@@ -113,6 +116,7 @@ export async function recordReceipt(raw: unknown) {
       partyName: d.partyName,
       memberId: d.memberId,
       pledgeId: d.pledgeId,
+      budgetLineId: null,
       note: d.note,
       occurredOn: d.occurredOn,
       reversesId: null,
@@ -136,6 +140,7 @@ export async function recordExpense(raw: unknown) {
       partyName: d.partyName,
       memberId: null,
       pledgeId: null,
+      budgetLineId: d.budgetLineId,
       note: d.note,
       occurredOn: d.occurredOn,
       reversesId: null,
@@ -164,6 +169,7 @@ export async function reverseEntry(raw: unknown) {
       partyName: '-',
       memberId: null,
       pledgeId: null,
+      budgetLineId: null,
       note: '',
       occurredOn: ledgerToday(),
       reversesId: entryId,

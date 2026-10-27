@@ -20,6 +20,7 @@ function renderForms(canPledge: boolean, canManage: boolean) {
         canManage={canManage}
         members={[]}
         pledges={[]}
+        lines={[{ id: 'l1', label: 'Traiteur' }]}
       />
     </NextIntlClientProvider>,
   );
@@ -39,6 +40,8 @@ describe('EntryForms', () => {
     renderForms(true, true);
     expect(titles()).toEqual([t.pledgeTitle, t.receiptTitle, t.expenseTitle]);
     expect(screen.getAllByRole('button', { name: t.submit, hidden: true })).toHaveLength(3);
+    // Le choix du poste n'apparaît que dans le formulaire de dépense.
+    expect(screen.getAllByLabelText(t.budgetLine)).toHaveLength(1);
   });
 
   it('offers nothing to a viewer', () => {

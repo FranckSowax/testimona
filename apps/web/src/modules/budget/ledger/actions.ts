@@ -56,7 +56,11 @@ export async function saveEntryAction(
             pledgeId: field(formData, 'pledgeId'),
           })
         : kind === 'expense'
-          ? await service.recordExpense({ ...base, method })
+          ? await service.recordExpense({
+              ...base,
+              method,
+              budgetLineId: field(formData, 'budgetLineId'),
+            })
           : ({ ok: false, error: 'validation' } as const);
   return done(base.dossierId, res);
 }

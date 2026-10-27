@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { formatXaf } from '../../format';
-import { EntryForm, type MemberOption, type PledgeOption } from './EntryForm';
+import { EntryForm, type LineOption, type MemberOption, type PledgeOption } from './EntryForm';
 
 interface Props {
   dossierId: string;
@@ -12,6 +12,7 @@ interface Props {
   canManage: boolean;
   members: readonly MemberOption[];
   pledges: readonly PledgeOption[];
+  lines: readonly LineOption[];
 }
 
 /**
@@ -19,9 +20,18 @@ interface Props {
  * dépense (trésorier et plus). Chaque formulaire est replié dans un `<details>`.
  *
  * @example
- * <EntryForms dossierId={id} locale="fr" canPledge canManage={false} members={[]} pledges={[]} />
+ * <EntryForms dossierId={id} locale="fr" canPledge canManage={false} members={[]} pledges={[]}
+ *   lines={[]} />
  */
-export function EntryForms({ dossierId, locale, canPledge, canManage, members, pledges }: Props) {
+export function EntryForms({
+  dossierId,
+  locale,
+  canPledge,
+  canManage,
+  members,
+  pledges,
+  lines,
+}: Props) {
   const t = useTranslations('ledger.form');
   if (!canPledge) return null;
   const amountLabel = (amount: number) => formatXaf(amount, locale);
@@ -51,7 +61,12 @@ export function EntryForms({ dossierId, locale, canPledge, canManage, members, p
       {canManage &&
         block(
           t('expenseTitle'),
-          <EntryForm dossierId={dossierId} kind="expense" amountLabel={amountLabel} />,
+          <EntryForm
+            dossierId={dossierId}
+            kind="expense"
+            lines={lines}
+            amountLabel={amountLabel}
+          />,
         )}
     </div>
   );

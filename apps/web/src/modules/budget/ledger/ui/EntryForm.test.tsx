@@ -28,6 +28,7 @@ const DOSSIER = '11111111-1111-4111-8111-111111111111';
 const PLEDGE = '33333333-3333-4333-8333-333333333333';
 const OTHER_PLEDGE = '55555555-5555-4555-8555-555555555555';
 const MEMBER = '44444444-4444-4444-8444-444444444444';
+const LINE = '77777777-7777-4777-8777-777777777777';
 const SUBMIT = 'Enregistrer';
 const plain = (s: string | null) => (s ?? '').replace(/[  ]/g, ' ');
 
@@ -90,6 +91,29 @@ describe('EntryForm', () => {
   it('hides the pledge choice on a receipt when no pledge is open', () => {
     renderForm({ kind: 'receipt' });
     expect(screen.queryByLabelText(messages.ledger.form.pledge)).toBeNull();
+  });
+
+  it('offers a budget line on an expense, with no line by default', async () => {
+    saveEntryAction.mockResolvedValue({ ok: true });
+    renderForm({ kind: 'expense', lines: [{ id: LINE, label: 'Traiteur' }] });
+    const line = screen.getByLabelText(messages.ledger.form.budgetLine) as HTMLSelectElement;
+    expect(Array.from(line.options, (o) => o.textContent)).toEqual([
+      messages.ledger.form.budgetLineNone,
+      'Traiteur',
+    ]);
+    expect(line.value).toBe('');
+    fireEvent.change(line, { target: { value: LINE } });
+    submit();
+    await waitFor(() => expect(saveEntryAction).toHaveBeenCalled());
+    expect((saveEntryAction.mock.calls[0]?.[1] as FormData).get('budgetLineId')).toBe(LINE);
+  });
+
+  it('hides the budget line without lines, and on a receipt', () => {
+    renderForm({ kind: 'expense' });
+    expect(screen.queryByLabelText(messages.ledger.form.budgetLine)).toBeNull();
+    cleanup();
+    renderForm({ kind: 'receipt', lines: [{ id: LINE, label: 'Traiteur' }] });
+    expect(screen.queryByLabelText(messages.ledger.form.budgetLine)).toBeNull();
   });
 
   it('keeps the submit button disabled until the key exists', () => {

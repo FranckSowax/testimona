@@ -22,11 +22,18 @@ export interface PledgeOption {
   amount: number;
 }
 
+/** Poste du budget proposé pour rattacher une dépense. */
+export interface LineOption {
+  id: string;
+  label: string;
+}
+
 interface Props {
   dossierId: string;
   kind: 'pledge' | 'receipt' | 'expense';
   members?: readonly MemberOption[];
   pledges?: readonly PledgeOption[];
+  lines?: readonly LineOption[];
   amountLabel: (amount: number) => string;
 }
 
@@ -40,7 +47,14 @@ const LABEL = 'text-foreground text-sm';
  * @example
  * <EntryForm dossierId={id} kind="pledge" amountLabel={(n) => formatXaf(n, 'fr')} />
  */
-export function EntryForm({ dossierId, kind, members = [], pledges = [], amountLabel }: Props) {
+export function EntryForm({
+  dossierId,
+  kind,
+  members = [],
+  pledges = [],
+  lines = [],
+  amountLabel,
+}: Props) {
   const t = useTranslations('ledger');
   const tErrors = useTranslations('dossier.errors');
   const locale = useLocale();
@@ -104,6 +118,7 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
   const showMethod = kind !== 'pledge';
   const showMember = kind === 'receipt';
   const showPledge = kind === 'receipt' && pledges.length > 0;
+  const showLine = kind === 'expense' && lines.length > 0;
   const shown = [
     'partyName',
     'amount',
@@ -112,6 +127,7 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
     ...(showMethod ? ['method'] : []),
     ...(showMember ? ['memberId'] : []),
     ...(showPledge ? ['pledgeId'] : []),
+    ...(showLine ? ['budgetLineId'] : []),
   ];
 
   const fieldError = (name: string): string | null => {
@@ -192,6 +208,19 @@ export function EntryForm({ dossierId, kind, members = [], pledges = [], amountL
             {ENTRY_METHODS.map((m) => (
               <option key={m} value={m}>
                 {t(`method.${m}`)}
+              </option>
+            ))}
+          </select>,
+        )}
+      {showLine &&
+        wrap(
+          'budgetLineId',
+          t('form.budgetLine'),
+          <select defaultValue="" className={FIELD} {...a11y('budgetLineId')}>
+            <option value="">{t('form.budgetLineNone')}</option>
+            {lines.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.label}
               </option>
             ))}
           </select>,

@@ -50,11 +50,14 @@ export default async function ContributionsPage({
   }
 
   const views = entryViews(entries.data);
-  const { canPledge, canManage, isOwner, memberOptions, pledgeOptions } = contributionsView({
-    role,
-    views,
-    members,
-  });
+  const { canPledge, canManage, isOwner, memberOptions, pledgeOptions, lineOptions } =
+    contributionsView({
+      role,
+      views,
+      members,
+      // HACK: postes branchés à la tâche 7 du plan PR 3 (lecture des postes du dossier).
+      lines: [],
+    });
   return (
     <div className="mx-auto w-full max-w-3xl space-y-8 px-4 py-8 sm:px-6 lg:py-12">
       <header className="space-y-2">
@@ -74,13 +77,21 @@ export default async function ContributionsPage({
         canManage={canManage}
         members={memberOptions}
         pledges={pledgeOptions}
+        lines={lineOptions}
       />
 
       <section aria-labelledby="entries-title" className="space-y-3">
         <h2 id="entries-title" className="font-display text-foreground text-lg font-semibold">
           {tEntry('listTitle')}
         </h2>
-        <EntryList dossierId={id} locale={locale} views={views} canManage={canManage} />
+        <EntryList
+          dossierId={id}
+          locale={locale}
+          views={views}
+          canManage={canManage}
+          // HACK: libellés des postes branchés à la tâche 7 du plan PR 3.
+          lineLabels={new Map()}
+        />
       </section>
 
       {isOwner && <VisibilityForm dossierId={id} visibility={visibility.data} />}

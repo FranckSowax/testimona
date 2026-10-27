@@ -31,7 +31,8 @@ vi.mock('@/lib/supabase/server', () => {
   return { getSupabaseServer: async () => chain };
 });
 
-const { getTotals, getVisibility, insertEntry, setVisibility } = await import('./repo');
+const { getTotals, getVisibility, insertEntry, listEntries, setVisibility } =
+  await import('./repo');
 import type { NewEntry } from './repo';
 
 const DOSSIER = '44444444-4444-4444-8444-444444444444';
@@ -44,6 +45,7 @@ const entry: NewEntry = {
   partyName: 'Oncle Paul',
   memberId: null,
   pledgeId: null,
+  budgetLineId: null,
   note: '',
   occurredOn: '2026-10-20',
   reversesId: null,
@@ -111,6 +113,45 @@ describe('insertEntry', () => {
     expect(await insertEntry(entry)).toEqual(duplicate);
     expect(error).toHaveBeenCalledTimes(1);
     error.mockRestore();
+  });
+});
+
+describe('poste d’une dépense', () => {
+  const LINE = '77777777-7777-4777-8777-777777777777';
+
+  it('envoie budget_line_id à l’insertion', async () => {
+    results.push({ data: { id: 'e1' }, error: null });
+    await insertEntry({ ...entry, kind: 'expense', budgetLineId: LINE });
+    expect(calls.find((c) => c.method === 'insert')?.args[0]).toMatchObject({
+      kind: 'expense',
+      budget_line_id: LINE,
+    });
+  });
+
+  it('relit budget_line_id dans les lignes du registre', async () => {
+    results.push({
+      data: [
+        {
+          id: 'e1',
+          kind: 'expense',
+          amount: 50_000,
+          method: 'cash',
+          party_name: 'Traiteur',
+          member_id: null,
+          pledge_id: null,
+          budget_line_id: LINE,
+          note: '',
+          occurred_on: '2026-10-20',
+          reverses_id: null,
+          reverses_kind: null,
+          created_at: '2026-10-20T10:00:00Z',
+        },
+      ],
+      error: null,
+    });
+    const res = await listEntries(DOSSIER);
+    expect(res.data?.[0]).toMatchObject({ id: 'e1', budgetLineId: LINE, partyName: 'Traiteur' });
+    expect(String(calls.find((c) => c.method === 'select')?.args[0])).toContain('budget_line_id');
   });
 });
 
