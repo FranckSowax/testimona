@@ -1085,6 +1085,7 @@
   "doors": {
     "title": "Que vivez-vous en ce moment ?",
     "lead": "Testimona accompagne les familles, de la fin de vie au deuil. Choisissez votre situation : nous adaptons le parcours, une question à la fois.",
+    "startTitle": "Ouvrir un nouveau dossier",
     "death": {
       "title": "Un proche vient de nous quitter",
       "desc": "Annoncer, organiser, financer les funérailles."

@@ -18,8 +18,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-12 px-4 py-10 sm:px-6 lg:py-16">
-      <EntryDoors />
+      {/* Spec : connecté, « Mes dossiers » d'abord, puis les portes ; le DOM commence par le h1. */}
+      <div className="space-y-3">
+        <h1 className="font-display text-foreground text-balance text-3xl font-bold tracking-tight sm:text-4xl">
+          {t('title')}
+        </h1>
+        <p className="text-muted-foreground max-w-2xl">{t('lead')}</p>
+      </div>
       {dossiers.length > 0 && <MyDossiers dossiers={dossiers} />}
+      <EntryDoors titleVisible={dossiers.length > 0} />
       <section aria-labelledby="search-title" className="border-border space-y-4 border-t pt-8">
         <h2 id="search-title" className="font-display text-foreground text-xl font-semibold">
           {t('searchTitle')}

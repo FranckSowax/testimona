@@ -7,19 +7,23 @@ const DOORS = [
   { key: 'after', porte: null, highlight: false },
 ] as const;
 
-export async function EntryDoors() {
+/**
+ * Grille des portes d'entrée (décès, préparer, après). Le titre de page et le chapeau
+ * vivent dans la page d'accueil, pour que « Mes dossiers » puisse s'intercaler avant.
+ *
+ * @example <EntryDoors titleVisible={dossiers.length > 0} />
+ */
+export async function EntryDoors({ titleVisible = false }: { titleVisible?: boolean }) {
   const t = await getTranslations('doors');
   return (
-    <section aria-labelledby="doors-title" className="space-y-6">
-      <div className="space-y-3">
-        <h1
-          id="doors-title"
-          className="font-display text-foreground text-balance text-3xl font-bold tracking-tight sm:text-4xl"
-        >
-          {t('title')}
-        </h1>
-        <p className="text-muted-foreground max-w-2xl">{t('lead')}</p>
-      </div>
+    <section aria-labelledby="doors-start-title" className="space-y-4">
+      {/* WHY: un h2 garde la hiérarchie sous le h1 ; visible seulement s'il suit « Mes dossiers ». */}
+      <h2
+        id="doors-start-title"
+        className={titleVisible ? 'font-display text-foreground text-xl font-semibold' : 'sr-only'}
+      >
+        {t('startTitle')}
+      </h2>
       <ul className="grid gap-4 sm:grid-cols-3">
         {DOORS.map((door) => {
           const body = (

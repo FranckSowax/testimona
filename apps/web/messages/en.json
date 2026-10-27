@@ -1085,6 +1085,7 @@
   "doors": {
     "title": "What are you going through right now?",
     "lead": "Testimona supports families from end of life to grief. Choose your situation: we adapt the journey, one question at a time.",
+    "startTitle": "Open a new family space",
     "death": {
       "title": "Someone close has just passed away",
       "desc": "Announce, organise and fund the funeral."
