@@ -455,7 +455,7 @@ describe('BUDGET_GRID', () => {
 });
 ```
 
-Vérification des montants attendus (fourchette haute 188, 2 nuits, niveau sobre) : forfaits = 150 000 + 300 000 + 50 000 + 100 000 + 25 000 + 30 000 + 50 000 + 50 000 = 755 000 ; par personne et par nuit = (500 + 2 500 + 1 000) × 188 × 2 = 1 504 000 ; par nuit = 50 000 × 2 = 100 000 ; total = 2 359 000. Sans affluence (une nuit) : 755 000 + 50 000 = 805 000.
+(Première version ; avec le modèle des occasions du commit `883cb55`, les montants de référence deviennent 2 409 000 et 855 000.) Vérification des montants attendus (fourchette haute 188, 2 nuits, niveau sobre) : forfaits = 150 000 + 300 000 + 50 000 + 100 000 + 25 000 + 30 000 + 50 000 + 50 000 = 755 000 ; par personne et par nuit = (500 + 2 500 + 1 000) × 188 × 2 = 1 504 000 ; par nuit = 50 000 × 2 = 100 000 ; total = 2 359 000. Sans affluence (une nuit) : 755 000 + 50 000 = 805 000.
 
 `apps/web/src/modules/budget/format.test.ts` :
 

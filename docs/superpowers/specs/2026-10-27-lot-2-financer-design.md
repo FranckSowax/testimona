@@ -138,9 +138,11 @@ rattaché à une dépense n'est lisible que par trésorier et plus. Pas de suppr
 | B.1 Affluence | `attendance.close` (famille directe), `attendance.extended` (famille élargie), `attendance.friends` (amis et collègues), `attendance.community` (communauté religieuse ou associative), `attendance.nights` (nuits de veillée) — nombres entiers |
 | B.2 Budget    | `budget.level` : sobre / intermédiaire / complet                                                                                                                                                                                                 |
 
-Nouvelle sorte de question `q.number` (entier borné, unité facultative). B.1 affiche en fin d'étape une
-fourchette d'affluence (basse, haute). B.2 affiche les trois totaux côte à côte, calculés sur la
-fourchette haute ; la réponse fixe `dossier_finance.scenario` et crée les postes de la grille.
+Nouvelle sorte de question `q.number` (entier borné, sans unité dans ce lot). B.1 et B.2 se terminent
+sur la page « Budget prévisionnel » (`/dossier/[id]/budget`) : fourchette d'affluence et trois totaux
+côte à côte, calculés sur la fourchette haute. La réponse B.2 est le niveau envisagé par la famille ; le
+scénario retenu (`dossier_finance.scenario`, par un trésorier) et les postes enregistrés
+(`budget_line`) arrivent en PR 2.
 
 ### Écrans
 
