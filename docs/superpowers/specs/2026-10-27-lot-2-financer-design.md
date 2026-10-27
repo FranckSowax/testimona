@@ -209,10 +209,12 @@ jointe.
 
 ### Livraison (4 PR)
 
-1. Budget : `q.number`, grille, scénarios, étapes B.1 et B.2, `dossier_finance` (scénario),
-   `budget_line`.
-2. Registre : `ledger_entry`, `ledger_totals`, visibilité, écran Cotisations, idempotence, carte du
-   tableau de bord.
+1. Budget : `q.number`, grille, scénarios, étapes B.1 et B.2, page « Budget prévisionnel »
+   (`/dossier/[id]/budget`) calculée à la volée. Aucune table : la réponse B.2 est le niveau
+   envisagé par la famille.
+2. Registre : `dossier_finance` (scénario retenu par le trésorier, prérempli par le niveau
+   envisagé), `budget_line` (onglet « Postes »), `ledger_entry`, `ledger_totals`, visibilité,
+   écran Cotisations, idempotence, carte du tableau de bord.
 3. Reçus : bucket privé, `receipt`, envoi signé, `readReceipt`, préremplissage.
 4. Bilan : écran Bilan, texte de partage, clôture et réouverture.
 
