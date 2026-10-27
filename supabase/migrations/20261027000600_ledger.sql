@@ -168,7 +168,9 @@ begin
     new.member_id := v_target.member_id;
   end if;
 
-  if new.member_id is not null and not exists (
+  -- WHY: un versement lié à une promesse reprend le membre de la promesse, même si
+  -- ce membre a quitté le dossier depuis : la somme promise reste due.
+  if new.pledge_id is null and new.member_id is not null and not exists (
     select 1 from public.dossier_member m
      where m.dossier_id = new.dossier_id and m.user_id = new.member_id
   ) then

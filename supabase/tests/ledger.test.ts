@@ -313,6 +313,18 @@ describe('ledger_entry : promesses honorées', () => {
     expect(receipt.member_id).toBe(contributor);
   });
 
+  it('accepte un versement pour la promesse d’un membre qui a quitté le dossier', async () => {
+    const former = await createUser(db, 'former@test.local');
+    await addMember(former, 'contributor');
+    const pledge = await insert(former, { kind: 'pledge', member: former });
+    await db.query('delete from dossier_member where dossier_id = $1 and user_id = $2', [
+      dossierId,
+      former,
+    ]);
+    const receipt = await insert(treasurer, { kind: 'receipt', pledge: pledge.id });
+    expect(receipt.member_id).toBe(former);
+  });
+
   it('refuse un pledge_id sur une ligne qui n’est pas une cotisation reçue', async () => {
     const pledge = await insert(contributor, { kind: 'pledge', member: contributor });
     await expect(
