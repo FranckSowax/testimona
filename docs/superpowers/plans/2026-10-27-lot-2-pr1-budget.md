@@ -347,6 +347,8 @@ git commit -m "feat(journey): add bounded whole-number questions"
 
 ### Tâche 2 : grille de référence et scénarios
 
+> **Note après revue :** le modèle de calcul a été affiné (commit `883cb55`) : modes `perOccasion` et `perGuestOccasion` à la place de `perNight` et `perPersonNight`, occasions = nuits + 1, moitié de l'affluence haute par nuit de veillée, plafond `AMOUNT_MAX` par poste avec `capped`, `GRID_KEYS` exporté. Le code de la branche fait foi ; les extraits ci-dessous sont ceux de la première version.
+
 **Files:**
 
 - Modify: `apps/web/src/journey/options.ts`

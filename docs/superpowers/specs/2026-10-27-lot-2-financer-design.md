@@ -163,14 +163,14 @@ jointe.
 
 ### `apps/web/src/modules/budget/`
 
-| Fichier                    | Rôle                                                                                                                                                  |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `grid.ts`                  | Grille de référence : une dizaine de postes, mode (`flat`, `perPerson`, `perNight`, `perPersonNight`), coût XAF par niveau, « estimation à vérifier » |
-| `scenarios.ts`             | Fonctions pures : affluence depuis B.1, postes depuis la grille et l'affluence, totaux des trois scénarios                                            |
-| `ledger.ts`                | Fonctions pures : totaux depuis les lignes (annulations comprises), texte de bilan                                                                    |
-| `schema.ts`                | Zod : montant entier 1 à 100 000 000, nom et note bornés, moyen, date, clé d'idempotence                                                              |
-| `repo.ts`                  | Seul accès base, client utilisateur                                                                                                                   |
-| `service.ts`, `actions.ts` | Promesse, cotisation reçue, dépense, annulation, postes, visibilité, clôture, réouverture, préparation d'envoi de reçu                                |
+| Fichier                    | Rôle                                                                                                                                                                                                                                                                                            |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `grid.ts`                  | Grille de référence : une dizaine de postes, mode (`flat`, `perPerson`, `perOccasion`, `perGuestOccasion` : occasions = jour des obsèques + nuits de veillée, la moitié de l'affluence haute chaque nuit), coût XAF par niveau, plafond de 100 000 000 XAF par poste, « estimation à vérifier » |
+| `scenarios.ts`             | Fonctions pures : affluence depuis B.1, postes depuis la grille et l'affluence, totaux des trois scénarios                                                                                                                                                                                      |
+| `ledger.ts`                | Fonctions pures : totaux depuis les lignes (annulations comprises), texte de bilan                                                                                                                                                                                                              |
+| `schema.ts`                | Zod : montant entier 1 à 100 000 000, nom et note bornés, moyen, date, clé d'idempotence                                                                                                                                                                                                        |
+| `repo.ts`                  | Seul accès base, client utilisateur                                                                                                                                                                                                                                                             |
+| `service.ts`, `actions.ts` | Promesse, cotisation reçue, dépense, annulation, postes, visibilité, clôture, réouverture, préparation d'envoi de reçu                                                                                                                                                                          |
 
 Étapes : `journey/steps/b-1-attendance.ts`, `journey/steps/b-2-budget.ts` ; `q.number` dans
 `journey/types.ts` et `journey/define.ts`, avec son composant de saisie.
