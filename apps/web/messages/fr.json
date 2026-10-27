@@ -1200,7 +1200,7 @@
         "description": "Une annonce plus complète, à copier dans votre messagerie."
       },
       "attendance": {
-        "title": "L'affluence",
+        "title": "Les personnes attendues",
         "description": "Combien de personnes attendre, pour dimensionner la veillée et les repas."
       },
       "budget": {
@@ -1320,19 +1320,19 @@
       },
       "attendance": {
         "close": {
-          "title": "Combien de proches de {name} (famille directe) seront présents ?",
+          "title": "Combien de membres de la famille proche de {name} attendez-vous ?",
           "hint": "Conjoint, enfants, parents, frères et sœurs, avec leurs familles. Une estimation suffit."
         },
         "extended": {
-          "title": "Et combien de membres de la famille élargie ?",
+          "title": "Et combien de membres de la famille élargie attendez-vous ?",
           "hint": "Oncles, tantes, cousins, belle-famille. Une estimation suffit."
         },
         "friends": {
-          "title": "Combien d'amis, voisins et collègues ?",
+          "title": "Combien d'amis, de voisins et de collègues attendez-vous ?",
           "hint": "Une estimation suffit."
         },
         "community": {
-          "title": "Combien de membres de la communauté (paroisse, association, village) ?",
+          "title": "Combien de membres de la communauté (paroisse, association, village) attendez-vous ?",
           "hint": "Une estimation suffit."
         },
         "nights": {
@@ -1343,7 +1343,7 @@
       "budget": {
         "level": {
           "title": "Quel niveau de cérémonie envisagez-vous ?",
-          "hint": "Les trois budgets estimés sont affichés sur la page Budget. Vous pourrez changer d'avis.",
+          "hint": "Les trois budgets estimés figurent sur la page du budget. Vous pourrez changer d'avis.",
           "options": {
             "sober": "Sobre",
             "intermediate": "Intermédiaire",

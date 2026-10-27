@@ -21,8 +21,8 @@ const field = (formData: FormData, name: string) => String(formData.get(name) ??
 
 /**
  * Enregistre la réponse (ou « passée » si `intent=skip`) puis passe à la prochaine question non
- * traitée ou passée de l'étape, sinon au brouillon de l'étape s'il existe, sinon au tableau de
- * bord du dossier.
+ * traitée ou passée de l'étape, sinon à la fin de l'étape : brouillon, page de synthèse ou
+ * tableau de bord.
  */
 export async function saveAnswerAction(
   _prev: AnswerState | null,
@@ -47,6 +47,10 @@ export async function saveAnswerAction(
   const found = findQuestion(key);
   const locale = await getLocale();
   revalidatePath(localizedPath(`/dossier/${dossierId}`, locale));
+  // WHY: la page de synthèse (budget) est calculée depuis les réponses : elle doit les refléter.
+  if (found?.step.summary) {
+    revalidatePath(localizedPath(`/dossier/${dossierId}/${found.step.summary}`, locale));
+  }
   let target = `/dossier/${dossierId}`;
   if (found) {
     // WHY: relire après l'écriture donne l'état réel (un « Passer » ignoré reste une réponse).

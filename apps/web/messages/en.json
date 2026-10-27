@@ -1200,7 +1200,7 @@
         "description": "A fuller announcement to copy into your e-mail."
       },
       "attendance": {
-        "title": "Attendance",
+        "title": "Expected guests",
         "description": "How many people to expect, to size the wake and the meals."
       },
       "budget": {
@@ -1320,19 +1320,19 @@
       },
       "attendance": {
         "close": {
-          "title": "How many of {name}'s close family will attend?",
+          "title": "How many of {name}'s close family do you expect?",
           "hint": "Spouse, children, parents, brothers and sisters, with their families. An estimate is enough."
         },
         "extended": {
-          "title": "And how many members of the wider family?",
+          "title": "And how many members of the wider family do you expect?",
           "hint": "Uncles, aunts, cousins, in-laws. An estimate is enough."
         },
         "friends": {
-          "title": "How many friends, neighbours and colleagues?",
+          "title": "How many friends, neighbours and colleagues do you expect?",
           "hint": "An estimate is enough."
         },
         "community": {
-          "title": "How many members of the community (parish, association, village)?",
+          "title": "How many members of the community (parish, association, village) do you expect?",
           "hint": "An estimate is enough."
         },
         "nights": {
@@ -1343,7 +1343,7 @@
       "budget": {
         "level": {
           "title": "What level of ceremony do you have in mind?",
-          "hint": "The three estimated budgets are shown on the Budget page. You can change your mind.",
+          "hint": "The three estimated budgets are shown on the budget page. You can change your mind.",
           "options": {
             "sober": "Simple",
             "intermediate": "Intermediate",
