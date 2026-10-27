@@ -70,18 +70,17 @@ Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Histori
 - `dossier_foundation` (lot 0), version enregistrée `20261027090617` ;
 - `dossier_person_answers`, version enregistrée `20261027090645` ;
 - `dossier_invitations`, version enregistrée `20261027090710` ;
-- `revoke_trigger_function_execute`, version enregistrée `20261027094508`.
+- `revoke_trigger_function_execute`, version enregistrée `20261027094508` ;
+- `ai_usage` (lot 1, PR 4), version enregistrée `20261027151057`.
 
-**Pas encore en production :**
+Toutes les migrations du dépôt sont donc en production.
 
-- `ai_usage` (lot 1, PR 4) : **pas encore appliquée** ; à appliquer avant de déployer le web de
-  la PR 4. Après application, `get_advisors` (sécurité) signalera deux alertes voulues : `consume_ai_quota`, security definer exécutable par
-  `authenticated` (0029), et `ai_usage`, RLS activée sans policy (0008, INFO). Ce paragraphe sera à
-  revérifier et mettre à jour avec `get_advisors` une fois la migration appliquée.
-
-`get_advisors` (sécurité), revérifié après la dernière migration : sur le dossier, seules
-`is_dossier_member` et `accept_dossier_invitation` restent signalées, c'est voulu (appelées par les
-policies et par l'acceptation d'une invitation). Les autres alertes sont antérieures au lot 1
+`get_advisors` (sécurité), revérifié le 2026-10-27 après `ai_usage` : sur le dossier, seules
+`is_dossier_member`, `accept_dossier_invitation` et `consume_ai_quota` sont signalées comme security
+definer exécutables par `authenticated` (0029), c'est voulu (appelées par les policies,
+l'acceptation d'une invitation et le quota d'IA, qui vérifie lui-même le rôle). `ai_usage` est
+signalée « RLS sans policy » (0008, INFO), c'est voulu : aucun accès direct, seule
+`consume_ai_quota` y écrit. Les autres alertes sont antérieures au lot 1
 (`search_path` non fixé sur `is_admin`, `applyCreditTransaction`, `initUserCredit`,
 `applyStudiaTransaction`, `applyShopContribution` ; `initUserCredit` exécutable par `anon` ; tables
 `PhotoReport`, `StudiaBalance`, `StudiaTransaction` sans policy ; protection des mots de passe
