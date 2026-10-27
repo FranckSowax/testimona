@@ -106,10 +106,10 @@ export async function insertEntry(
   if (error.code === '23505') {
     const existing = await db
       .from('ledger_entry')
-      .select('id, kind, amount')
+      .select('id, kind, amount, reverses_id')
       .eq('dossier_id', entry.dossierId)
       .eq('idempotency_key', entry.idempotencyKey)
-      .maybeSingle<{ id: string; kind: EntryKind; amount: number }>();
+      .maybeSingle<{ id: string; kind: EntryKind; amount: number; reverses_id: string | null }>();
     if (existing.error) {
       console.error('[budget/ledger] insertEntry : relecture du double envoi impossible', {
         code: existing.error.code,
@@ -117,11 +117,13 @@ export async function insertEntry(
     }
     if (existing.data) {
       // WHY: une clé réutilisée par erreur pour une autre saisie ne doit pas faire disparaître
-      // cette saisie en silence. Une annulation porte le montant de la ligne visée : on ne
-      // compare alors que le type.
+      // cette saisie en silence. Une annulation porte le montant de la ligne visée : on compare
+      // alors le type et la ligne visée, pas le montant.
       const same =
         existing.data.kind === entry.kind &&
-        (entry.kind === 'reversal' || Number(existing.data.amount) === entry.amount);
+        (entry.kind === 'reversal'
+          ? existing.data.reverses_id === entry.reversesId
+          : Number(existing.data.amount) === entry.amount);
       if (!same) {
         return {
           data: null,

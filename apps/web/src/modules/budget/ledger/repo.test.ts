@@ -73,11 +73,23 @@ describe('insertEntry', () => {
     expect(await insertEntry(entry)).toEqual({ data: { id: 'e0', duplicate: true }, error: null });
   });
 
-  it('ne compare que le type pour une annulation', async () => {
-    results.push(duplicate, { data: { id: 'e0', kind: 'reversal', amount: 7_000 }, error: null });
-    expect(await insertEntry({ ...entry, kind: 'reversal', amount: 1 })).toEqual({
+  it('compare la ligne visée et non le montant pour une annulation', async () => {
+    const reversal = { ...entry, kind: 'reversal' as const, amount: 1, reversesId: 'target' };
+    results.push(duplicate, {
+      data: { id: 'e0', kind: 'reversal', amount: 7_000, reverses_id: 'target' },
+      error: null,
+    });
+    expect(await insertEntry(reversal)).toEqual({
       data: { id: 'e0', duplicate: true },
       error: null,
+    });
+    results.push(duplicate, {
+      data: { id: 'e0', kind: 'reversal', amount: 1, reverses_id: 'other' },
+      error: null,
+    });
+    expect(await insertEntry(reversal)).toMatchObject({
+      data: null,
+      error: { code: 'idempotency_mismatch' },
     });
   });
 
