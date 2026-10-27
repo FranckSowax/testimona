@@ -2,6 +2,7 @@ import type { DraftKind } from '../types';
 
 // WHY: au-delà de ces tailles (texte encodé), navigateurs, messageries et WhatsApp tronquent ou
 // refusent l'URL en silence ; mieux vaut ne pas proposer le lien que partager un texte coupé.
+// Le seuil de 4000 pour `wa.me` est prudent : Meta ne documente aucune limite précise.
 // `mailto:` est le plus fragile (Outlook et certains clients plafonnent vers 2 000 caractères).
 const MAX_MAILTO_ENCODED = 1800;
 const MAX_WHATSAPP_ENCODED = 4000;

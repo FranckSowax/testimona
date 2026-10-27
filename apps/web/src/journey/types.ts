@@ -64,8 +64,8 @@ const noNul = (s: string) => !s.includes('\u0000');
 export const draftTextSchema = z
   .string()
   .trim()
-  .min(1)
-  .max(DRAFT_MAX)
+  .min(1, 'empty')
+  .max(DRAFT_MAX, 'too long')
   .refine(noNul, 'invalid character')
   // WHY: les caractères de contrôle gonflent en `\u00XX` dans le JSON ; 12 000 caractères
   // peuvent dépasser la limite SQL, donc on mesure aussi la taille réelle.

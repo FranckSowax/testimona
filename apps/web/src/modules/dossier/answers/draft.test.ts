@@ -57,7 +57,7 @@ describe('saveDraft', () => {
   it('refuse un texte vide ou trop long', async () => {
     const empty = await saveDraft({ dossierId: DOSSIER, stepId: 'email-announcement', text: ' ' });
     expect(empty).toMatchObject({ ok: false, error: 'validation' });
-    expect(empty.ok ? undefined : empty.fieldErrors).toHaveProperty('');
+    expect(empty.ok ? undefined : empty.fieldErrors).toEqual({ '': 'empty' });
     const long = await saveDraft({
       dossierId: DOSSIER,
       stepId: 'email-announcement',

@@ -46,7 +46,7 @@ const BUTTON =
 export function DraftEditor(props: Props) {
   const { dossierId, stepId, kind, readOnly } = props;
   const t = useTranslations('journey.draft');
-  const tUi = useTranslations('journey.ui');
+  const tJourney = useTranslations('journey');
   const tErrors = useTranslations('dossier.errors');
   const [state, formAction, pending] = useActionState<DraftState | null, FormData>(
     saveDraftAction,
@@ -80,15 +80,11 @@ export function DraftEditor(props: Props) {
       setStatus((prev) => ({ text: t('saved'), seq: (prev?.seq ?? 0) + 1 }));
     } else if (state?.error) {
       const specific = specificMessage(state.fieldErrors);
-      const message = specific
-        ? tUi(specific)
-        : state.error === 'validation' && state.fieldErrors
-          ? t('empty')
-          : tErrors(state.error);
+      const message = specific ? tJourney(specific) : tErrors(state.error);
       setStatus(null);
       setError((prev) => ({ text: message, seq: (prev?.seq ?? 0) + 1 }));
     }
-  }, [state, t, tUi, tErrors]);
+  }, [state, t, tJourney, tErrors]);
 
   useEffect(() => {
     if (error) textareaRef.current?.focus();
@@ -162,17 +158,19 @@ export function DraftEditor(props: Props) {
       </label>
 
       {error && (
-        <p key={error.seq} id="draft-error" role="alert" className="text-sm font-semibold">
+        <p
+          key={error.seq}
+          id="draft-error"
+          role="alert"
+          className="text-accent-soft text-sm font-semibold"
+        >
           {error.text}
         </p>
       )}
-      <p
-        key={status?.seq ?? 0}
-        id="draft-status"
-        role="status"
-        className="min-h-5 text-sm text-white/80"
-      >
+      <p id="draft-status" role="status" className="min-h-5 text-sm text-white/80">
         {statusText}
+        {/* WHY: un texte identique n'est pas ré-annoncé ; un caractère invisible alterné le force. */}
+        {status && status.seq % 2 === 0 ? '\u200B' : ''}
       </p>
 
       <div className="flex flex-wrap gap-3">
@@ -185,7 +183,12 @@ export function DraftEditor(props: Props) {
             {t('save')}
           </button>
         )}
-        <button type="button" onClick={() => copy(text, textareaRef.current)} className={BUTTON}>
+        <button
+          type="button"
+          onClick={() => copy(text, textareaRef.current)}
+          aria-describedby={href ? undefined : 'draft-too-long'}
+          className={BUTTON}
+        >
           {t('copy')}
         </button>
         {props.subject && (
@@ -223,7 +226,11 @@ export function DraftEditor(props: Props) {
         )}
       </div>
 
-      {!href && <p className="text-sm text-white/80">{t('tooLongForLink')}</p>}
+      {!href && (
+        <p id="draft-too-long" className="text-sm text-white/80">
+          {t('tooLongForLink')}
+        </p>
+      )}
 
       <div className="flex flex-wrap justify-between gap-3 text-sm text-white/70">
         <Link href={`/dossier/${dossierId}/etape/${stepId}?q=0`} className="hover:underline">

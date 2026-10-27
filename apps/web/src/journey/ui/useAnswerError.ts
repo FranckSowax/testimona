@@ -36,7 +36,7 @@ export function useAnswerError(
   keptRef: RefObject<number[]>,
 ) {
   const tErrors = useTranslations('dossier.errors');
-  const tUi = useTranslations('journey.ui');
+  const tJourney = useTranslations('journey');
   const [error, setError] = useState<AnswerError | null>(null);
   // WHY: sans mémoire du dernier `state` traité, un nouvel objet `question` rejouerait l'effet
   // et ferait réapparaître une erreur déjà effacée.
@@ -61,13 +61,13 @@ export function useAnswerError(
         : [];
     });
     const specific = specificMessage(state.fieldErrors);
-    const text = specific ? tUi(specific) : tErrors(state.error);
+    const text = specific ? tJourney(specific) : tErrors(state.error);
     setError((prev) => ({
       text,
       seq: (prev?.seq ?? 0) + 1,
       invalidIds: toIds(question, fieldId, keys),
     }));
-  }, [state, tErrors, tUi, question, fieldId, keptRef]);
+  }, [state, tErrors, tJourney, question, fieldId, keptRef]);
 
   useEffect(() => {
     if (!error) return;
