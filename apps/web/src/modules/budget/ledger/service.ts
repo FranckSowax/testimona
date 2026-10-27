@@ -1,8 +1,7 @@
 import 'server-only';
 import type { z } from 'zod';
-import { isStepOpen } from '@/journey/registry';
-import { getDossier } from '@/modules/dossier/repo';
 import { fieldErrors } from '@/modules/dossier/service';
+import { budgetGate } from '../gate';
 import * as repo from './repo';
 import type { NewEntry } from './repo';
 import {
@@ -55,16 +54,8 @@ function invalid(error: z.ZodError): {
   return { ok: false, error: 'validation', fieldErrors: fieldErrors(error.issues) };
 }
 
-/** Le registre n'existe que pour un dossier lisible ouvert au budget (porte « décès »). */
-async function checkDossier(dossierId: string): Promise<LedgerError | null> {
-  const dossier = await getDossier(dossierId);
-  // WHY: un dossier sans étape budget n'a pas de registre : on le traite comme absent.
-  if (!dossier || !isStepOpen(dossier.entryPoint, 'attendance')) return 'not_found';
-  return null;
-}
-
 async function write(entry: NewEntry, scope: string): Promise<LedgerResult<{ id: string }>> {
-  const blocked = await checkDossier(entry.dossierId);
+  const blocked = await budgetGate(entry.dossierId);
   if (blocked) return { ok: false, error: blocked };
   const res = await repo.insertEntry(entry);
   if (res.error) {
@@ -188,7 +179,7 @@ export async function setVisibility(
 ): Promise<LedgerResult<{ visibility: Visibility }>> {
   const input = VisibilitySchema.safeParse(raw);
   if (!input.success) return invalid(input.error);
-  const blocked = await checkDossier(input.data.dossierId);
+  const blocked = await budgetGate(input.data.dossierId);
   if (blocked) return { ok: false, error: blocked };
   const res = await repo.setVisibility(input.data.dossierId, input.data.visibility);
   if (res.error) return fromRepo(res.error, 'setVisibility');
