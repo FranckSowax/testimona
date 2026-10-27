@@ -3,7 +3,7 @@ import type { Level } from '@/journey/options';
 import { LEVELS } from '@/journey/options';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import type { RepoResult } from '@/modules/dossier/repo';
-import type { BudgetLine, GridRow, RecomputedRow } from './model';
+import { type BudgetLine, type GridRow, type RecomputedRow, UNASSIGNED_KEY } from './model';
 
 const COLUMNS =
   'id, grid_key, label, amount_sober, amount_intermediate, amount_full, edited, position';
@@ -193,7 +193,7 @@ export async function setScenario(
   return { data: true, error: null };
 }
 
-/** Dépenses actives par poste ; la clé '' regroupe les dépenses sans poste. */
+/** Dépenses actives par poste ; la clé UNASSIGNED_KEY regroupe les dépenses sans poste. */
 export async function spentByLine(dossierId: string): Promise<RepoResult<Map<string, number>>> {
   const db = await getSupabaseServer();
   const { data, error } = await db.rpc('ledger_spent_by_line', { p_dossier_id: dossierId });
@@ -203,7 +203,7 @@ export async function spentByLine(dossierId: string): Promise<RepoResult<Map<str
   }
   const rows = (data ?? []) as { budget_line_id: string | null; spent: number | string }[];
   return {
-    data: new Map(rows.map((r) => [r.budget_line_id ?? '', Number(r.spent)])),
+    data: new Map(rows.map((r) => [r.budget_line_id ?? UNASSIGNED_KEY, Number(r.spent)])),
     error: null,
   };
 }

@@ -7,7 +7,7 @@ import { LEVELS, type Level } from '@/journey/options';
 import { isStepOpen } from '@/journey/registry';
 import { formatXaf } from '@/modules/budget/format';
 import { canManageLedger } from '@/modules/budget/ledger/contributions-view';
-import { lineViews, scenarioTotals } from '@/modules/budget/lines/model';
+import { lineViews, scenarioTotals, UNASSIGNED_KEY } from '@/modules/budget/lines/model';
 import { getScenario, listLines, spentByLine } from '@/modules/budget/lines/repo';
 import { LedgerTabs } from '@/modules/budget/lines/ui/LedgerTabs';
 import { LinesActions } from '@/modules/budget/lines/ui/LinesActions';
@@ -74,7 +74,7 @@ export default async function BudgetLinesPage({
           locale={locale}
           lines={views}
           scenario={scenario.data}
-          unassignedSpent={spent.data.get('') ?? 0}
+          unassignedSpent={spent.data.get(UNASSIGNED_KEY) ?? 0}
           canManage={canManage}
         />
       ) : (

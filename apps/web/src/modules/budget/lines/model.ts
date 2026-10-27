@@ -31,6 +31,9 @@ export interface RecomputedRow {
   amounts: Readonly<Record<Level, number>>;
 }
 
+/** Clé des dépenses sans poste dans le total des dépenses par poste. */
+export const UNASSIGNED_KEY = '';
+
 export type BudgetSource = 'retained' | 'envisaged';
 
 /** Budget de référence de la famille et sa provenance. */

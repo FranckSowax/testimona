@@ -1618,7 +1618,9 @@
       "delete": "Delete the line: {label}",
       "deleteWarning": "The line will be removed from the budget. This deletion cannot be undone.",
       "confirmDelete": "Confirm deletion",
+      "confirmDeleteLabel": "Confirm deletion of the line: {label}",
       "deleting": "Deleting…",
+      "deleted": "Line deleted.",
       "keep": "Keep"
     },
     "errors": {

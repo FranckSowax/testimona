@@ -1618,7 +1618,9 @@
       "delete": "Supprimer le poste : {label}",
       "deleteWarning": "Le poste sera retiré du budget. Cette suppression est définitive.",
       "confirmDelete": "Confirmer la suppression",
+      "confirmDeleteLabel": "Confirmer la suppression du poste : {label}",
       "deleting": "Suppression…",
+      "deleted": "Poste supprimé.",
       "keep": "Garder"
     },
     "errors": {

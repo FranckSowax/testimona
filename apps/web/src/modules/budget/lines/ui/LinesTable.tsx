@@ -3,7 +3,11 @@ import { LEVELS, type Level } from '@/journey/options';
 import { formatXaf } from '../../format';
 import { scenarioTotals, type LineView } from '../model';
 import { DeleteLineButton } from './DeleteLineButton';
+import { LineDeletedAnnouncer } from './LineDeletedAnnouncer';
 import { LineForm } from './LineForm';
+
+/** Légende du tableau : nom de la zone de défilement et point de focus après une suppression. */
+const CAPTION_ID = 'budget-lines-caption';
 
 interface Props {
   dossierId: string;
@@ -17,8 +21,9 @@ interface Props {
 /**
  * Postes du budget : montant par niveau (le scénario retenu mis en avant) et dépenses rattachées ;
  * pour le trésorier, modification et suppression de chaque poste, et ajout d'un poste libre.
- * WHY: pas de suppression proposée pour un poste qui porte des dépenses ; la base la refuse
- * de toute façon (line_in_use).
+ * WHY: pas de suppression proposée pour un poste qui porte des dépenses actives. Un poste dont
+ * toutes les dépenses ont été annulées affiche 0 dépensé mais reste non supprimable : la base le
+ * refuse (line_in_use) et le message « porte ou a porté des dépenses » l'explique.
  *
  * @example
  * <LinesTable dossierId={id} locale="fr" lines={views} scenario="sober" unassignedSpent={0} canManage />
@@ -40,77 +45,86 @@ export async function LinesTable({
     scenario === level ? `${tLevel(level)} (${t('table.retained')})` : tLevel(level);
   const cell = (level: Level) =>
     `text-foreground px-3 py-2 text-right tabular-nums ${scenario === level ? 'font-bold' : ''}`;
-  return (
-    <div className="space-y-4">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[36rem] text-sm">
-          <caption className="text-foreground mb-2 text-left font-semibold">
-            {t('table.caption')}
-          </caption>
-          <thead>
-            <tr className="border-border border-b">
-              <th scope="col" className="text-foreground px-3 py-2 text-left">
-                {t('table.line')}
+  const table = (
+    // WHY: zone focusable et nommée, pour faire défiler au clavier un tableau plus large que l'écran.
+    <div className="overflow-x-auto" tabIndex={0} role="region" aria-labelledby={CAPTION_ID}>
+      <table className="w-full min-w-[36rem] text-sm">
+        <caption
+          id={CAPTION_ID}
+          tabIndex={-1}
+          className="text-foreground mb-2 text-left font-semibold"
+        >
+          {t('table.caption')}
+        </caption>
+        <thead>
+          <tr className="border-border border-b">
+            <th scope="col" className="text-foreground px-3 py-2 text-left">
+              {t('table.line')}
+            </th>
+            {LEVELS.map((level) => (
+              <th key={level} scope="col" className="text-foreground px-3 py-2 text-right">
+                {levelHeader(level)}
               </th>
-              {LEVELS.map((level) => (
-                <th key={level} scope="col" className="text-foreground px-3 py-2 text-right">
-                  {levelHeader(level)}
-                </th>
-              ))}
-              <th scope="col" className="text-foreground px-3 py-2 text-right">
-                {t('table.spent')}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {lines.map((line) => (
-              <tr key={line.id} className="border-border border-b">
-                <th scope="row" className="text-foreground px-3 py-2 text-left font-normal">
-                  {line.label}
-                  {line.edited && line.gridKey && <span> · {t('table.edited')}</span>}
-                </th>
-                {LEVELS.map((level) => (
-                  <td key={level} className={cell(level)}>
-                    {money(line.amounts[level])}
-                  </td>
-                ))}
-                <td className="text-foreground px-3 py-2 text-right tabular-nums">
-                  {money(line.spent)}
-                </td>
-              </tr>
             ))}
-            {unassignedSpent > 0 && (
-              <tr className="border-border border-b">
-                <th scope="row" className="text-foreground px-3 py-2 text-left font-normal">
-                  {t('table.unassigned')}
-                </th>
-                {LEVELS.map((level) => (
-                  <td key={level} className={cell(level)} />
-                ))}
-                <td className="text-foreground px-3 py-2 text-right tabular-nums">
-                  {money(unassignedSpent)}
-                </td>
-              </tr>
-            )}
-          </tbody>
-          <tfoot>
-            <tr>
-              <th scope="row" className="text-foreground px-3 py-2 text-left">
-                {t('table.total')}
+            <th scope="col" className="text-foreground px-3 py-2 text-right">
+              {t('table.spent')}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {lines.map((line) => (
+            <tr key={line.id} className="border-border border-b">
+              <th scope="row" className="text-foreground px-3 py-2 text-left font-normal">
+                {line.label}
+                {line.edited && line.gridKey && <span> · {t('table.edited')}</span>}
               </th>
               {LEVELS.map((level) => (
-                <td key={level} className={`${cell(level)} font-semibold`}>
-                  {money(totals[level])}
+                <td key={level} className={cell(level)}>
+                  {money(line.amounts[level])}
                 </td>
               ))}
-              <td className="text-foreground px-3 py-2 text-right font-semibold tabular-nums">
-                {money(spentTotal)}
+              <td className="text-foreground px-3 py-2 text-right tabular-nums">
+                {money(line.spent)}
               </td>
             </tr>
-          </tfoot>
-        </table>
-      </div>
-      {canManage && (
+          ))}
+          {unassignedSpent > 0 && (
+            <tr className="border-border border-b">
+              <th scope="row" className="text-foreground px-3 py-2 text-left font-normal">
+                {t('table.unassigned')}
+              </th>
+              {LEVELS.map((level) => (
+                <td key={level} className={cell(level)} />
+              ))}
+              <td className="text-foreground px-3 py-2 text-right tabular-nums">
+                {money(unassignedSpent)}
+              </td>
+            </tr>
+          )}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row" className="text-foreground px-3 py-2 text-left">
+              {t('table.total')}
+            </th>
+            {LEVELS.map((level) => (
+              <td key={level} className={`${cell(level)} font-semibold`}>
+                {money(totals[level])}
+              </td>
+            ))}
+            <td className="text-foreground px-3 py-2 text-right font-semibold tabular-nums">
+              {money(spentTotal)}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  );
+  if (!canManage) return <div className="space-y-4">{table}</div>;
+  return (
+    <div className="space-y-4">
+      <LineDeletedAnnouncer focusId={CAPTION_ID}>
+        {table}
         <ul className="space-y-3">
           {lines.map((line) => (
             <li key={line.id} className="border-border space-y-3 rounded-2xl border p-4">
@@ -119,7 +133,10 @@ export async function LinesTable({
                   {t('form.editTitle', { label: line.label })}
                 </summary>
                 <div className="mt-4">
-                  <LineForm dossierId={dossierId} line={line} />
+                  <LineForm
+                    dossierId={dossierId}
+                    line={{ id: line.id, label: line.label, amounts: line.amounts }}
+                  />
                 </div>
               </details>
               {line.spent === 0 && (
@@ -138,7 +155,7 @@ export async function LinesTable({
             </details>
           </li>
         </ul>
-      )}
+      </LineDeletedAnnouncer>
     </div>
   );
 }

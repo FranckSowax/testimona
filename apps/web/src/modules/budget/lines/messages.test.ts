@@ -50,7 +50,9 @@ const PATHS = [
     'delete',
     'deleteWarning',
     'confirmDelete',
+    'confirmDeleteLabel',
     'deleting',
+    'deleted',
     'keep',
   ].map((k) => `lines.form.${k}`),
   ...[
@@ -157,6 +159,7 @@ describe('parité FR/EN des postes', () => {
   it.each([
     ['lines.form.editTitle', ['label']],
     ['lines.form.delete', ['label']],
+    ['lines.form.confirmDeleteLabel', ['label']],
     ['lines.scenario.current', ['level']],
     ['lines.scenario.option', ['level', 'total']],
   ])('%s expose ses variables', (path, vars) => {

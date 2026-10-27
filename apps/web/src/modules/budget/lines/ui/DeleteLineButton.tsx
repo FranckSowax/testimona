@@ -13,6 +13,7 @@ import type { FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { buttonClasses } from '@/components/ui/Button';
 import { deleteLineAction, type LinesFormState } from '../actions';
+import { useOnLineDeleted } from './LineDeletedAnnouncer';
 import { linesErrorText } from './linesError';
 
 interface Props {
@@ -25,16 +26,24 @@ interface Props {
 interface ConfirmProps {
   dossierId: string;
   lineId: string;
+  label: string;
   onKeep: () => void;
   onDone: () => void;
 }
 
 /** Formulaire de confirmation ; remonté à chaque ouverture pour repartir sans erreur. */
-function ConfirmForm({ dossierId, lineId, onKeep, onDone }: ConfirmProps) {
+function ConfirmForm({ dossierId, lineId, label, onKeep, onDone }: ConfirmProps) {
   const t = useTranslations('lines.form');
   const tRoot = useTranslations();
+  const onDeleted = useOnLineDeleted();
+  // WHY: le succès est signalé dans l'action elle-même : la revalidation retire le poste, et ce
+  // formulaire, avant qu'un effet sur l'état ait pu s'exécuter.
   const [state, formAction, pending] = useActionState<LinesFormState | null, FormData>(
-    deleteLineAction,
+    async (prev, formData) => {
+      const res = await deleteLineAction(prev, formData);
+      if (res.ok) onDeleted();
+      return res;
+    },
     null,
   );
   const keepRef = useRef<HTMLButtonElement>(null);
@@ -66,6 +75,7 @@ function ConfirmForm({ dossierId, lineId, onKeep, onDone }: ConfirmProps) {
         disabled={pending}
         aria-busy={pending || undefined}
         aria-describedby={warningId}
+        aria-label={pending ? undefined : t('confirmDeleteLabel', { label })}
         className="bg-destructive text-destructive-foreground rounded-full px-4 py-1.5 text-sm font-semibold disabled:opacity-60"
       >
         {pending ? t('deleting') : t('confirmDelete')}
@@ -114,6 +124,11 @@ export function DeleteLineButton({ dossierId, lineId, label }: Props) {
     setConfirming(false);
     setAttempt((n) => n + 1);
   }, []);
+  // WHY: après une suppression, le focus va à l'annonceur (LineDeletedAnnouncer), pas au déclencheur.
+  const done = useCallback(() => {
+    setConfirming(false);
+    setAttempt((n) => n + 1);
+  }, []);
 
   if (!confirming) {
     return (
@@ -133,8 +148,9 @@ export function DeleteLineButton({ dossierId, lineId, label }: Props) {
       key={attempt}
       dossierId={dossierId}
       lineId={lineId}
+      label={label}
       onKeep={close}
-      onDone={close}
+      onDone={done}
     />
   );
 }

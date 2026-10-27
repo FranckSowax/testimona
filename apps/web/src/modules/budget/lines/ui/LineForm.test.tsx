@@ -65,6 +65,22 @@ describe('LineForm', () => {
     expect(screen.getAllByRole('alert')).toHaveLength(1);
   });
 
+  it('says the edited line is saved', async () => {
+    saveLineAction.mockResolvedValue({ ok: true });
+    renderForm(LINE);
+    fireEvent.click(screen.getByRole('button', { name: 'Enregistrer' }));
+    await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Poste enregistré.'));
+    expect((saveLineAction.mock.calls[0]?.[1] as FormData).get('lineId')).toBe(LINE.id);
+    expect(input('Nom du poste').value).toBe('Cercueil');
+  });
+
+  it('shows a generic error with the dossier text', async () => {
+    saveLineAction.mockResolvedValue({ error: 'forbidden' });
+    renderForm(LINE);
+    fireEvent.click(screen.getByRole('button', { name: 'Enregistrer' }));
+    expect((await screen.findByRole('alert')).textContent).toBe(messages.dossier.errors.forbidden);
+  });
+
   it('shows a lines-specific error', async () => {
     saveLineAction.mockResolvedValue({ error: 'too_many_lines' });
     renderForm(LINE);

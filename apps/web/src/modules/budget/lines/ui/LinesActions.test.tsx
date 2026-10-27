@@ -40,6 +40,20 @@ describe('LinesActions', () => {
     expect(recomputeLinesAction).not.toHaveBeenCalled();
   });
 
+  it('still says « Postes créés. » once the revalidated page has lines', async () => {
+    createLinesAction.mockResolvedValue({ ok: true });
+    const { rerender } = renderActions(false);
+    fireEvent.click(screen.getByRole('button', { name: 'Créer les postes' }));
+    await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Postes créés.'));
+    rerender(
+      <NextIntlClientProvider locale="fr" messages={messages}>
+        <LinesActions dossierId={DOSSIER} hasLines />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByRole('button', { name: "Recalculer selon l'affluence" })).toBeTruthy();
+    expect(screen.getByRole('status').textContent).toBe('Postes créés.');
+  });
+
   it('offers recomputing with its hint linked', async () => {
     recomputeLinesAction.mockResolvedValue({ ok: true });
     renderActions(true);

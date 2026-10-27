@@ -92,9 +92,16 @@ describe('LinesTable', () => {
     expect(screen.queryByRole('rowheader', { name: 'Dépenses sans poste' })).toBeNull();
   });
 
+  it('names the scrollable region after the caption and lets it take focus', async () => {
+    await renderTable();
+    const region = screen.getByRole('region', { name: messages.lines.table.caption });
+    expect(region.getAttribute('tabindex')).toBe('0');
+  });
+
   it('shows no forms to a member who cannot manage', async () => {
     await renderTable();
     expect(screen.queryByText('Ajouter un poste')).toBeNull();
+    expect(screen.queryByRole('status')).toBeNull();
     expect(screen.queryByRole('button', { name: /Supprimer/ })).toBeNull();
   });
 

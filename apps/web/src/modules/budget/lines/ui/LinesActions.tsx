@@ -1,11 +1,14 @@
 'use client';
 
-import { useId } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
+import type { FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { buttonClasses } from '@/components/ui/Button';
 import { createLinesAction, recomputeLinesAction } from '../actions';
 import { linesErrorText } from './linesError';
 import { useLinesForm } from './useLinesForm';
+
+type Done = 'created' | 'recomputed' | null;
 
 /**
  * « Créer les postes » quand il n'y en a aucun, sinon « Recalculer selon l'affluence ».
@@ -19,9 +22,20 @@ export function LinesActions({ dossierId, hasLines }: { dossierId: string; hasLi
   const { state, pending, saved, onSubmit, formRef } = useLinesForm(
     hasLines ? recomputeLinesAction : createLinesAction,
   );
+  // WHY: après « Créer les postes », la revalidation fait passer hasLines à true sans remonter le
+  // composant ; on retient donc l'opération envoyée pour annoncer celle qui a réussi.
+  const sentRef = useRef<Done>(null);
+  const [done, setDone] = useState<Done>(null);
+  useEffect(() => {
+    if (state?.ok) setDone(sentRef.current);
+  }, [state]);
+  const submit = (e: FormEvent<HTMLFormElement>) => {
+    sentRef.current = hasLines ? 'recomputed' : 'created';
+    onSubmit(e);
+  };
   const hintId = `${useId()}-recompute-hint`;
   return (
-    <form ref={formRef} onSubmit={onSubmit} className="space-y-2">
+    <form ref={formRef} onSubmit={submit} className="space-y-2">
       <input type="hidden" name="dossierId" value={dossierId} />
       {hasLines && (
         <p id={hintId} className="text-foreground text-sm">
@@ -43,7 +57,7 @@ export function LinesActions({ dossierId, hasLines }: { dossierId: string; hasLi
           {hasLines ? t('recompute') : t('create')}
         </button>
         <p role="status" className="text-foreground text-sm">
-          {saved ? (hasLines ? t('recomputed') : t('created')) : ''}
+          {saved && done ? t(done) : ''}
         </p>
       </div>
       {state?.error && (
