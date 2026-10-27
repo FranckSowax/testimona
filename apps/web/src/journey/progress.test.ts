@@ -55,8 +55,31 @@ describe('resolveQuestionIndex', () => {
     expect(resolveQuestionIndex(first, { 'first.a': 'x' }, '-1')).toBe(1);
   });
 
-  it('revient à la première question quand tout est traité', () => {
+  it('revient à la première question passée quand tout est traité', () => {
+    expect(resolveQuestionIndex(first, { 'first.a': 'x', 'first.b': SKIPPED }, undefined)).toBe(2);
     const answers = { 'first.a': 'x', 'first.b': SKIPPED, 'first.c': 'z' };
+    expect(resolveQuestionIndex(first, answers, undefined)).toBe(1);
+  });
+
+  it('revient à 0 quand tout est répondu sans question passée', () => {
+    const answers = { 'first.a': 'x', 'first.b': 'y', 'first.c': 'z' };
     expect(resolveQuestionIndex(first, answers, undefined)).toBe(0);
+  });
+
+  it('applique le repli pour les valeurs ?q= limites', () => {
+    const answers = { 'first.a': 'x' };
+    for (const q of ['007', '9'.repeat(400), '', []]) {
+      expect(resolveQuestionIndex(first, answers, q)).toBe(1);
+    }
+  });
+});
+
+describe('réponse null ou undefined', () => {
+  it('ne compte pas comme traitée', () => {
+    const answers = { 'first.a': null };
+    expect(stepProgress(first, answers)).toMatchObject({ answered: 0, skipped: 0 });
+    expect(nextQuestion([first, second], answers)).toEqual({ stepId: 'first', index: 0 });
+    expect(resolveQuestionIndex(first, answers, undefined)).toBe(0);
+    expect(stepProgress(first, { 'first.a': undefined })).toMatchObject({ answered: 0 });
   });
 });
