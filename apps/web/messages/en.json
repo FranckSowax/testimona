@@ -1204,7 +1204,15 @@
         },
         "traits": {
           "title": "Which character traits describe {name} best?",
-          "hint": "One trait per item, with an anecdote if a memory comes to mind."
+          "hint": "One trait per item, with an anecdote if a memory comes to mind.",
+          "fields": {
+            "trait": {
+              "label": "Character trait"
+            },
+            "anecdote": {
+              "label": "Anecdote (optional)"
+            }
+          }
         },
         "passions": {
           "title": "{status, select, alive {What is {name} passionate about?} other {What was {name} passionate about?}}",
@@ -1217,8 +1225,6 @@
       }
     },
     "fields": {
-      "trait": "Character trait",
-      "anecdote": "Anecdote (optional)",
       "city": "Town",
       "country": "Country"
     },

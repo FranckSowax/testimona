@@ -27,10 +27,19 @@ export type Question =
   | ChoiceQuestion
   | ListQuestion;
 
+export type DraftKind = 'whatsapp' | 'email';
+
+/** Brouillon rédigé à partir des réponses de l'étape, enregistré sous sa propre clé. */
+export interface StepDraft {
+  key: string;
+  kind: DraftKind;
+}
+
 /** Une étape du parcours : `id` sert de segment d'URL (`/etape/<id>`). */
 export interface Step {
   id: string;
   questions: readonly Question[];
+  draft?: StepDraft;
 }
 
 export interface PlaceValue {

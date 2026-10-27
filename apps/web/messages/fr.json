@@ -1204,7 +1204,15 @@
         },
         "traits": {
           "title": "Quels traits de caractère décrivent le mieux {name} ?",
-          "hint": "Un trait par élément, avec une anecdote si un souvenir vous vient."
+          "hint": "Un trait par élément, avec une anecdote si un souvenir vous vient.",
+          "fields": {
+            "trait": {
+              "label": "Trait de caractère"
+            },
+            "anecdote": {
+              "label": "Anecdote (facultatif)"
+            }
+          }
         },
         "passions": {
           "title": "{status, select, alive {Qu'est-ce qui passionne {name} ?} other {Qu'est-ce qui passionnait {name} ?}}",
@@ -1217,8 +1225,6 @@
       }
     },
     "fields": {
-      "trait": "Trait de caractère",
-      "anecdote": "Anecdote (facultatif)",
       "city": "Ville",
       "country": "Pays"
     },

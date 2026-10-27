@@ -45,6 +45,11 @@ export function stepsFor(entryPoint: EntryPoint): readonly Step[] {
   return STEPS_BY_ENTRY[entryPoint];
 }
 
+/** Toutes les étapes du registre, sans doublon (pour les contrôles transverses). */
+export function allSteps(): readonly Step[] {
+  return ALL_STEPS;
+}
+
 export function getStep(id: string): Step | undefined {
   return ALL_STEPS.find((step) => step.id === id);
 }
