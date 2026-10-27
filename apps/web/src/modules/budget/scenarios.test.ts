@@ -6,6 +6,7 @@ import {
   AMOUNT_MAX,
   attendanceFrom,
   chosenLevel,
+  envisagedTotal,
   guestOccasionsOf,
   lineAmount,
   occasionsOf,
@@ -146,5 +147,13 @@ describe('BUDGET_GRID', () => {
       expect(cost.sober, key).toBeLessThan(cost.intermediate);
       expect(cost.intermediate, key).toBeLessThan(cost.full);
     }
+  });
+});
+
+describe('envisagedTotal', () => {
+  it('donne le total du niveau envisagé, ou null sans niveau', () => {
+    const withLevel = { ...answers, 'budget.level': 'sober' };
+    expect(envisagedTotal(withLevel)).toBe(scenariosFor(attendanceFrom(withLevel)).totals.sober);
+    expect(envisagedTotal(answers)).toBeNull();
   });
 });
