@@ -16,6 +16,15 @@ function getClient(): Resend | null {
 }
 
 const FROM = process.env.RESEND_FROM_EMAIL ?? 'Testimona <no-reply@testimona.com>';
+
+/**
+ * Vrai quand `sendEmail` peut réellement envoyer. Seule la clé est exigée :
+ * `RESEND_FROM_EMAIL` a un expéditeur de repli volontaire (voir `FROM`).
+ * @example if (isEmailEnabled()) showEmailField();
+ */
+export function isEmailEnabled(): boolean {
+  return Boolean(process.env.RESEND_API_KEY);
+}
 const SITE_URL = getSiteUrl();
 
 /**

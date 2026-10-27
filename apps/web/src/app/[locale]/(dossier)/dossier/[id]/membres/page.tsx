@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getFormatter, getTranslations, setRequestLocale } from 'next-intl/server';
 import { z } from 'zod';
+import { isEmailEnabled } from '@/lib/email/resend';
 import { getCurrentUser } from '@/lib/supabase/server';
 import { getDossier, getPerson, listInvitations, listMembers } from '@/modules/dossier/repo';
 import { canManageMembers } from '@/modules/dossier/roles';
@@ -63,11 +64,7 @@ export default async function MembersPage({
           {t('members.inviteTitle')}
         </h2>
         {manager ? (
-          <InviteForm
-            dossierId={id}
-            personName={personName}
-            emailEnabled={Boolean(process.env.RESEND_API_KEY)}
-          />
+          <InviteForm dossierId={id} personName={personName} emailEnabled={isEmailEnabled()} />
         ) : (
           <p className="text-muted-foreground">{t('members.readOnly')}</p>
         )}
