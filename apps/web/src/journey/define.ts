@@ -49,6 +49,12 @@ export function defineStep(step: Step): Step {
     seen.add(question.key);
     checkQuestion(step.id, question);
   }
+  if (step.draft) {
+    const { key } = step.draft;
+    if (!ANSWER_KEY_PATTERN.test(key) || seen.has(key)) {
+      throw new Error(`Étape ${step.id} : clé de brouillon invalide « ${key} »`);
+    }
+  }
   return step;
 }
 

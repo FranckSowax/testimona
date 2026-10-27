@@ -79,3 +79,11 @@ describe('registre du parcours', () => {
     });
   });
 });
+
+describe('assertUniqueSteps et brouillons', () => {
+  it('refuse une clé de brouillon déjà utilisée par une autre étape', () => {
+    const a: Step = { id: 'a', questions: [], draft: { key: 'shared.text', kind: 'email' } };
+    const b: Step = { id: 'b', questions: [{ kind: 'shortText', key: 'shared.text' }] };
+    expect(() => assertUniqueSteps([a, b])).toThrow(/shared\.text/);
+  });
+});

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { answerSchema, type Question } from './types';
+import { answerSchema, DRAFT_MAX, draftTextSchema, type Question } from './types';
 
 const notes: Question = {
   kind: 'list',
@@ -57,5 +57,15 @@ describe('lieu', () => {
   it('refuse un code pays de 3 lettres', () => {
     const s = answerSchema({ kind: 'place', key: 'a.b' });
     expect(s.safeParse({ city: 'Libreville', countryCode: 'GAB' }).success).toBe(false);
+  });
+});
+
+describe('draftTextSchema', () => {
+  it('nettoie le texte et le borne à DRAFT_MAX', () => {
+    expect(draftTextSchema.parse('  Bonjour  ')).toBe('Bonjour');
+    expect(draftTextSchema.safeParse('   ').success).toBe(false);
+    expect(draftTextSchema.safeParse('x'.repeat(DRAFT_MAX)).success).toBe(true);
+    expect(draftTextSchema.safeParse('x'.repeat(DRAFT_MAX + 1)).success).toBe(false);
+    expect(draftTextSchema.safeParse('a\u0000b').success).toBe(false);
   });
 });

@@ -10,7 +10,7 @@ const STEPS_BY_ENTRY: Record<EntryPoint, readonly Step[]> = {
 };
 
 /**
- * Vérifie qu'aucun `id` d'étape ni aucune clé de question n'apparaît deux fois.
+ * Vérifie qu'aucun `id` d'étape ni aucune clé de question ou de brouillon n'apparaît deux fois.
  * WHY: `getStep` et `findQuestion` doivent rester sans ambiguïté quand les étapes 2.x arriveront.
  */
 export function assertUniqueSteps(steps: readonly Step[]): void {
@@ -27,6 +27,15 @@ export function assertUniqueSteps(steps: readonly Step[]): void {
         );
       }
       keys.set(question.key, step.id);
+    }
+    if (step.draft) {
+      const owner = keys.get(step.draft.key);
+      if (owner !== undefined) {
+        throw new Error(
+          `Registre : clé « ${step.draft.key} » présente dans les étapes ${owner} et ${step.id}`,
+        );
+      }
+      keys.set(step.draft.key, step.id);
     }
   }
 }

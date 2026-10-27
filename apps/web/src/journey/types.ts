@@ -9,6 +9,8 @@ export const CITY_MAX = 120;
 /** Marge sous la limite SQL de 65536 octets : `jsonb::text` ajoute des espaces. */
 export const ANSWER_MAX_BYTES = 60_000;
 export const MIN_YEAR = 1800;
+/** Taille maximale d'un brouillon (corps d'annonce compris), sous la borne de 60 000 octets. */
+export const DRAFT_MAX = 12_000;
 
 export type ListField =
   | { name: string; kind: 'shortText' | 'longText'; required?: boolean }
@@ -58,6 +60,13 @@ export function isSkipped(value: unknown): boolean {
 
 // WHY: jsonb rejette le caractère NUL (erreur 22P05).
 const noNul = (s: string) => !s.includes('\u0000');
+/** Texte d'un brouillon enregistré : nettoyé, non vide, borné, sans caractère NUL. */
+export const draftTextSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(DRAFT_MAX)
+  .refine(noNul, 'invalid character');
 const requiredText = (max: number) =>
   z.string().trim().min(1).max(max).refine(noNul, 'invalid character');
 // WHY: un champ facultatif laissé vide n'est pas enregistré, plutôt que stocké en chaîne vide.
