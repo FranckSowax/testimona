@@ -20,9 +20,16 @@ const PATHS = [
   ...['title', 'intro', 'restrictedNote', 'membersNote', 'empty', 'seeBudget', 'backToDossier'].map(
     (k) => `ledger.page.${k}`,
   ),
-  ...['budget', 'budgetNone', 'received', 'pledgedOpen', 'spent', 'balance', 'remaining'].map(
-    (k) => `ledger.summary.${k}`,
-  ),
+  ...[
+    'budget',
+    'budgetRetained',
+    'budgetNone',
+    'received',
+    'pledgedOpen',
+    'spent',
+    'balance',
+    'remaining',
+  ].map((k) => `ledger.summary.${k}`),
   ...[
     'listTitle',
     'reversed',
@@ -69,7 +76,9 @@ const PATHS = [
     'tooLong',
     'invalidCharacter',
   ].map((k) => `ledger.errors.${k}`),
-  ...['title', 'summary', 'summaryNoBudget', 'unavailable', 'open'].map((k) => `ledger.card.${k}`),
+  ...['title', 'summary', 'summaryRetained', 'summaryNoBudget', 'unavailable', 'open'].map(
+    (k) => `ledger.card.${k}`,
+  ),
 ];
 
 function leafPaths(node: unknown, prefix = ''): string[] {
@@ -131,6 +140,7 @@ describe('parité FR/EN du registre', () => {
     ['ledger.entry.line', ['line']],
     ['ledger.entry.reverseLabel', ['entry']],
     ['ledger.card.summary', ['budget', 'received']],
+    ['ledger.card.summaryRetained', ['budget', 'received']],
     ['ledger.card.summaryNoBudget', ['received']],
   ])('%s expose ses variables', (path, vars) => {
     expect(placeholders(get(fr, path))).toEqual(vars);

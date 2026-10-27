@@ -1484,6 +1484,7 @@
     },
     "summary": {
       "budget": "Budget in mind",
+      "budgetRetained": "Retained budget",
       "budgetNone": "No budget chosen",
       "received": "Received",
       "pledgedOpen": "Pledged, not paid",
@@ -1560,9 +1561,75 @@
     "card": {
       "title": "Contributions",
       "summary": "{received} received against a budget in mind of {budget}.",
+      "summaryRetained": "{received} received against a retained budget of {budget}.",
       "summaryNoBudget": "{received} received. No budget has been chosen yet.",
       "unavailable": "Amounts are temporarily unavailable.",
       "open": "See contributions"
+    }
+  },
+  "lines": {
+    "page": {
+      "title": "Budget lines",
+      "intro": "The lines start from the estimate on the Budget page. The treasurer can adjust them, add more and retain a scenario.",
+      "estimateNote": "Starting amounts: estimates to check with providers.",
+      "empty": "No lines yet. A treasurer can create them from the estimate.",
+      "emptyManager": "Create the lines from the estimate on the Budget page, then adjust them.",
+      "create": "Create the lines",
+      "created": "Lines created.",
+      "recompute": "Recalculate from attendance",
+      "recomputeHint": "Updates the lines nobody has changed, from the attendance answers.",
+      "recomputed": "Lines recalculated."
+    },
+    "tabs": {
+      "label": "Contributions sections",
+      "entries": "Entries",
+      "lines": "Lines"
+    },
+    "scenario": {
+      "title": "Retained scenario",
+      "hint": "The retained scenario becomes the family's reference budget.",
+      "none": "No scenario retained",
+      "option": "{level}: {total}",
+      "current": "Retained scenario: {level}",
+      "save": "Save the scenario",
+      "saved": "Scenario saved."
+    },
+    "table": {
+      "caption": "Budget lines, amounts in FCFA",
+      "line": "Line",
+      "spent": "Spent",
+      "unassigned": "Expenses without a line",
+      "total": "Total",
+      "edited": "edited",
+      "retained": "retained"
+    },
+    "form": {
+      "editTitle": "Edit “{label}”",
+      "addTitle": "Add a line",
+      "label": "Line name",
+      "sober": "Sober (FCFA)",
+      "intermediate": "Intermediate (FCFA)",
+      "full": "Full (FCFA)",
+      "save": "Save",
+      "saved": "Line saved.",
+      "add": "Add the line",
+      "added": "Line added.",
+      "deleteShort": "Delete",
+      "delete": "Delete the line: {label}",
+      "deleteWarning": "The line will be removed from the budget.",
+      "confirmDelete": "Confirm deletion",
+      "deleting": "Deleting…",
+      "keep": "Keep"
+    },
+    "errors": {
+      "line_in_use": "This line has or had expenses: it cannot be deleted.",
+      "no_attendance": "Fill in the attendance first to estimate the lines.",
+      "too_many_lines": "A dossier can have at most 100 lines.",
+      "invalidNumber": "Enter a whole amount, in digits.",
+      "outOfRange": "Enter an amount between 0 and 100,000,000 FCFA.",
+      "required": "This field is required.",
+      "tooLong": "This text is too long.",
+      "invalidCharacter": "This text contains a character that is not accepted."
     }
   }
 }
