@@ -70,6 +70,7 @@ export function SignupForm() {
 
   return (
     <form action={formAction} className="mt-8 space-y-4">
+      <input type="hidden" name="next" value={searchParams.get('next') ?? ''} />
       <FormField label="Pseudonyme" required error={state?.fieldErrors?.nickname}>
         <Input name="nickname" type="text" autoComplete="nickname" maxLength={50} />
       </FormField>

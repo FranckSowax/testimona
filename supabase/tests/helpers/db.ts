@@ -82,11 +82,12 @@ export function listMigrations(): string[] {
     .sort();
 }
 
-/** Démarre une base vierge et applique toutes les migrations. */
-export async function createTestDb(): Promise<PGlite> {
-  const db = new PGlite();
-  await db.exec(SUPABASE_STUBS);
-  for (const file of listMigrations()) {
+/** Applique les migrations dont le nom satisfait `filter`, dans l'ordre. */
+export async function applyMigrations(
+  db: PGlite,
+  filter: (file: string) => boolean = () => true,
+): Promise<void> {
+  for (const file of listMigrations().filter(filter)) {
     const sql = readFileSync(join(MIGRATIONS_DIR, file), 'utf8');
     try {
       await db.exec(sql);
@@ -94,6 +95,20 @@ export async function createTestDb(): Promise<PGlite> {
       throw new Error(`Migration ${file} en échec : ${(err as Error).message}`);
     }
   }
+}
+
+/**
+ * Démarre une base vierge et applique toutes les migrations, ou seulement
+ * celles antérieures à `before` (préfixe horodaté exclu).
+ *
+ * WHY: `before` permet de tester un backfill en insérant des données entre
+ * deux migrations, puis en appliquant la suite avec `applyMigrations`.
+ */
+export async function createTestDb(options: { before?: string } = {}): Promise<PGlite> {
+  const db = new PGlite();
+  await db.exec(SUPABASE_STUBS);
+  const { before } = options;
+  await applyMigrations(db, (file) => before === undefined || file < before);
   return db;
 }
 

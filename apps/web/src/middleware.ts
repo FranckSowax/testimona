@@ -16,7 +16,7 @@ interface CookiePayload {
 
 const intlMiddleware = createIntlMiddleware(routing);
 
-const PROTECTED_PREFIXES = ['/dashboard', '/admin'];
+const PROTECTED_PREFIXES = ['/dossier', '/invitation', '/dashboard', '/admin'];
 
 function stripLocale(pathname: string): string {
   for (const locale of routing.locales) {
@@ -105,7 +105,8 @@ export async function middleware(req: NextRequest) {
   if (!user && isProtected(pathname)) {
     const url = req.nextUrl.clone();
     url.pathname = localizedPath('/login', locale);
-    url.searchParams.set('next', pathname);
+    url.search = '';
+    url.searchParams.set('next', pathname + req.nextUrl.search);
     return withAuthCleanup(NextResponse.redirect(url));
   }
 

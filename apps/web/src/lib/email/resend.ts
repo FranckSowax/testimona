@@ -1,5 +1,6 @@
 import 'server-only';
 import { Resend } from 'resend';
+import { getSiteUrl } from '@/lib/site-url';
 
 interface SendArgs {
   to: string | string[];
@@ -15,7 +16,16 @@ function getClient(): Resend | null {
 }
 
 const FROM = process.env.RESEND_FROM_EMAIL ?? 'Testimona <no-reply@testimona.com>';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://testimona.com';
+
+/**
+ * Vrai quand `sendEmail` peut réellement envoyer. Seule la clé est exigée :
+ * `RESEND_FROM_EMAIL` a un expéditeur de repli volontaire (voir `FROM`).
+ * @example if (isEmailEnabled()) showEmailField();
+ */
+export function isEmailEnabled(): boolean {
+  return Boolean(process.env.RESEND_API_KEY);
+}
+const SITE_URL = getSiteUrl();
 
 /**
  * Sends an email through Resend. Returns `{ ok: false, skipped: true }` when
@@ -39,7 +49,9 @@ export async function sendEmail(args: SendArgs): Promise<{
       replyTo: args.replyTo,
     });
     if (error) {
-      console.error('[resend] send error', error);
+      // WHY: l'objet d'erreur complet peut contenir l'adresse du destinataire (PII).
+      const { name, statusCode } = error as { name?: string; statusCode?: number | null };
+      console.error('[resend] send error', { name, statusCode });
       return { ok: false, error: error.message };
     }
     return { ok: true };
@@ -283,6 +295,55 @@ export function coOwnerInviteEmail({
   };
 }
 
+interface DossierInviteArgs {
+  to: string;
+  inviterName: string | null;
+  personName: string;
+  url: string;
+  locale: 'fr' | 'en';
+}
+
+/** Invitation à rejoindre un dossier familial (lien à usage unique, 7 jours). */
+export function dossierInviteEmail({
+  to,
+  inviterName,
+  personName,
+  url,
+  locale,
+}: DossierInviteArgs) {
+  const isFr = locale === 'fr';
+  const who = inviterName
+    ? `<strong>${escapeHtml(inviterName)}</strong>`
+    : isFr
+      ? 'Un proche'
+      : 'A relative';
+  const subject = isFr
+    ? `Invitation à rejoindre le dossier de ${personName}`
+    : `Invitation to join ${personName}'s family space`;
+  const intro = isFr
+    ? `${who} vous invite à préparer avec la famille l'hommage à <strong>${escapeHtml(personName)}</strong>.`
+    : `${who} invites you to prepare <strong>${escapeHtml(personName)}</strong>'s tribute with the family.`;
+  const explain = isFr
+    ? 'Ce lien est personnel et valable 7 jours. Connectez-vous ou créez un compte pour rejoindre le dossier.'
+    : 'This link is personal and valid for 7 days. Sign in or create an account to join.';
+  const ctaText = isFr ? 'Rejoindre le dossier' : 'Join the family space';
+  return {
+    to,
+    subject,
+    html: layout({
+      heading: subject,
+      body: `
+        <p>${intro}</p>
+        <p>${explain}</p>
+        <p style="text-align:center;margin:32px 0">
+          <a href="${escapeHtml(url)}" style="${button()}">${ctaText}</a>
+        </p>
+      `,
+      locale,
+    }),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -338,7 +399,7 @@ function layout({
                 </tr>
                 <tr>
                   <td style="padding:0 32px 32px;line-height:1.6;color:#2d3250">
-                    <h1 style="margin:0 0 16px;font-size:20px;font-weight:600;color:#2d3250">${heading}</h1>
+                    <h1 style="margin:0 0 16px;font-size:20px;font-weight:600;color:#2d3250">${escapeHtml(heading)}</h1>
                     ${body}
                   </td>
                 </tr>

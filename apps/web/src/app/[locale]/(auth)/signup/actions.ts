@@ -1,6 +1,8 @@
 'use server';
 
 import { z } from 'zod';
+import { authCallbackUrl } from '@/lib/auth/redirect-target';
+import { getSiteUrl } from '@/lib/site-url';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { sendEmail, welcomeEmail } from '@/lib/email/resend';
 
@@ -42,7 +44,7 @@ export async function signupAction(
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      emailRedirectTo: authCallbackUrl(getSiteUrl(), String(formData.get('next') ?? '')),
       data: { nickname: parsed.data.nickname },
     },
   });

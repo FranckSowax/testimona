@@ -1081,5 +1081,105 @@
         "saving": "Enregistrement…"
       }
     }
+  },
+  "doors": {
+    "title": "Que vivez-vous en ce moment ?",
+    "lead": "Testimona accompagne les familles, de la fin de vie au deuil. Choisissez votre situation : nous adaptons le parcours, une question à la fois.",
+    "startTitle": "Ouvrir un nouveau dossier",
+    "death": {
+      "title": "Un proche vient de nous quitter",
+      "desc": "Annoncer, organiser, financer les funérailles."
+    },
+    "prepare": {
+      "title": "Préparer avec un proche",
+      "desc": "Recueillir ses volontés et son histoire, pendant qu'il est là."
+    },
+    "after": {
+      "title": "Après les funérailles",
+      "desc": "Remercier, clôturer les cotisations, se souvenir."
+    },
+    "soon": "Bientôt disponible",
+    "searchTitle": "Retrouver un mémorial",
+    "searchPlaceholder": "Nom, prénom ou surnom",
+    "searchSubmit": "Rechercher",
+    "browseMemorials": "Voir les mémoriaux"
+  },
+  "dossier": {
+    "myDossiers": "Mes dossiers",
+    "inCity": "{city}",
+    "new": {
+      "whoTitle": "Pour qui ouvrez-vous ce dossier ?",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "whereTitle": "Où vivait-il ou elle ?",
+      "whereTitlePrepare": "Où vit-il ou elle ?",
+      "whereHint": "Nous l'utilisons pour vous suggérer des prestataires proches.",
+      "country": "Pays",
+      "city": "Ville",
+      "relationshipTitle": "Quel est votre lien avec cette personne ?",
+      "relationships": {
+        "child": "Enfant",
+        "spouse": "Conjoint ou conjointe",
+        "parent": "Parent",
+        "sibling": "Frère ou sœur",
+        "grandchild": "Petit-enfant",
+        "friend": "Ami ou amie",
+        "other": "Autre"
+      },
+      "back": "Revenir",
+      "next": "Suivant",
+      "submit": "Ouvrir le dossier",
+      "required": "Ce champ est obligatoire."
+    },
+    "overview": {
+      "journeyTitle": "Le parcours",
+      "journeySoon": "Les premières étapes (biographie, annonces) arrivent très bientôt dans ce dossier.",
+      "membersTitle": "La famille",
+      "membersCount": "{count, plural, =1 {1 membre} other {# membres}}",
+      "manageMembers": "Gérer les membres"
+    },
+    "members": {
+      "title": "Membres du dossier",
+      "you": "vous",
+      "roles": {
+        "owner": "Propriétaire",
+        "coordinator": "Coordinateur",
+        "treasurer": "Trésorier",
+        "contributor": "Contributeur",
+        "viewer": "Lecteur"
+      },
+      "inviteTitle": "Inviter un proche",
+      "inviteRole": "Rôle",
+      "inviteEmail": "E-mail (facultatif)",
+      "inviteSubmit": "Créer le lien d'invitation",
+      "inviteReady": "Lien prêt. Il est valable 7 jours et ne sert qu'une fois.",
+      "inviteEmailSent": "L'invitation a aussi été envoyée par e-mail.",
+      "inviteEmailFailed": "L'e-mail n'a pas pu être envoyé : partagez le lien ci-dessous.",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "shareWhatsapp": "Partager sur WhatsApp",
+      "whatsappText": "Je t'invite à rejoindre le dossier de {name} sur Testimona : {url}",
+      "pendingTitle": "Invitations en attente",
+      "expires": "expire le {date}",
+      "revoke": "Révoquer",
+      "readOnly": "Seuls les coordinateurs peuvent inviter de nouveaux membres.",
+      "unnamed": "Membre",
+      "copyManual": "Sélectionnez le lien puis copiez-le (Ctrl+C, ou appui long sur mobile)."
+    },
+    "invitation": {
+      "title": "Rejoindre un dossier familial",
+      "lead": "Vous avez reçu une invitation à préparer un hommage avec la famille.",
+      "accept": "Rejoindre le dossier"
+    },
+    "errors": {
+      "validation": "Certaines informations sont incomplètes.",
+      "forbidden": "Vous n'avez pas les droits pour cette action.",
+      "not_found": "Cet élément est introuvable ou a déjà été supprimé.",
+      "invitation_invalid": "Ce lien d'invitation n'est pas valide. Demandez un nouveau lien.",
+      "invitation_expired": "Ce lien d'invitation a expiré. Demandez un nouveau lien.",
+      "invitation_used": "Ce lien a déjà été utilisé. Demandez un nouveau lien.",
+      "unauthenticated": "Connectez-vous pour continuer.",
+      "unknown": "Une erreur est survenue. Réessayez dans un instant."
+    }
   }
 }

@@ -40,4 +40,19 @@ describe('chaîne de migrations', () => {
       await expect(attempt, table).rejects.toMatchObject({ code: '42501' });
     }
   });
+
+  it("n'expose aucune fonction de trigger du dossier aux rôles de l'API", async () => {
+    const { rows } = await db.query<{ fn: string; role: string }>(`
+      select p.proname as fn, r.role
+      from pg_proc p
+      join pg_namespace n on n.oid = p.pronamespace
+      cross join (values ('anon'), ('authenticated')) as r(role)
+      where n.nspname = 'public'
+        and p.prorettype = 'trigger'::regtype
+        and (p.proname like 'dossier%' or p.proname in ('person_before_update', 'journey_answer_before_write'))
+        and has_function_privilege(r.role, p.oid, 'execute')
+      order by 1, 2
+    `);
+    expect(rows).toEqual([]);
+  });
 });

@@ -10,6 +10,7 @@ const STATIC_PATHS: {
 }[] = [
   { path: '/', priority: 1.0, freq: 'weekly' },
   { path: '/search', priority: 0.8, freq: 'daily' },
+  { path: '/memoriaux', priority: 0.8, freq: 'daily' },
   { path: '/about', priority: 0.6, freq: 'monthly' },
   { path: '/legal/terms', priority: 0.4, freq: 'yearly' },
   { path: '/legal/privacy', priority: 0.4, freq: 'yearly' },
