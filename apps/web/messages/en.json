@@ -1133,7 +1133,6 @@
     },
     "overview": {
       "journeyTitle": "The journey",
-      "journeySoon": "The first steps (biography, announcements) are coming very soon to this space.",
       "membersTitle": "The family",
       "membersCount": "{count, plural, =1 {1 member} other {# members}}",
       "manageMembers": "Manage members"
@@ -1180,6 +1179,69 @@
       "invitation_used": "This link has already been used. Ask for a new link.",
       "unauthenticated": "Sign in to continue.",
       "unknown": "Something went wrong. Please try again in a moment."
+    }
+  },
+  "journey": {
+    "steps": {
+      "biography": {
+        "title": "Their life story",
+        "description": "Tell their story, one question at a time. You can answer on their behalf, and skip a question to come back to it later."
+      }
+    },
+    "q": {
+      "biography": {
+        "birthPlace": {
+          "title": "In which town was {name} born?",
+          "hint": "The town and country of birth."
+        },
+        "parents": {
+          "title": "Tell us about {name}'s parents.",
+          "hint": "Their names, their home village or region, what you know about the family."
+        },
+        "career": {
+          "title": "{status, select, alive {What is {name}'s working life?} other {What was {name}'s working life?}}",
+          "hint": "Their jobs, the places where {name} worked, what made them proud."
+        },
+        "traits": {
+          "title": "Which character traits describe {name} best?",
+          "hint": "One trait per item, with an anecdote if a memory comes to mind."
+        },
+        "passions": {
+          "title": "{status, select, alive {What is {name} passionate about?} other {What was {name} passionate about?}}",
+          "hint": "Music, sport, cooking, faith, gardening, travel…"
+        },
+        "motto": {
+          "title": "A phrase or motto people associate with {name}?",
+          "hint": "A few words their loved ones will recognise."
+        }
+      }
+    },
+    "fields": {
+      "trait": "Character trait",
+      "anecdote": "Anecdote (optional)",
+      "city": "Town",
+      "country": "Country"
+    },
+    "ui": {
+      "progress": "Question {current} of {total}",
+      "back": "Back",
+      "backToDossier": "Back to the family space",
+      "skip": "Skip",
+      "next": "Next",
+      "finish": "Finish",
+      "required": "Answer, or choose “Skip” to come back to it later.",
+      "readOnly": "You can read the answers; only contributors can change them.",
+      "addItem": "Add",
+      "removeItem": "Remove",
+      "item": "Item {n}",
+      "chooseOption": "Choose…"
+    },
+    "dashboard": {
+      "nextTitle": "Next question",
+      "answer": "Answer",
+      "allDone": "Every question has been answered or skipped.",
+      "stepProgress": "{answered} of {total} answered",
+      "toComplete": "{count, plural, =1 {1 question to complete} other {# questions to complete}}"
     }
   }
 }
