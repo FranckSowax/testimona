@@ -6,6 +6,9 @@
 -- Nom affiché des membres (les autres membres ne lisent pas auth.users).
 alter table public.dossier_member add column display_name text;
 
+-- WHY: le nom est toujours dérivé du profil, jamais d'une valeur envoyée : un
+-- coordinateur (qui peut modifier dossier_member) ne doit pas pouvoir faire
+-- passer un membre pour « Notaire officiel ».
 create function public.dossier_member_set_display_name()
 returns trigger
 language plpgsql
@@ -13,22 +16,30 @@ security definer
 set search_path = ''
 as $$
 begin
-  if new.display_name is null then
-    select coalesce(
-             nullif(u.raw_user_meta_data ->> 'nickname', ''),
-             nullif(u.raw_user_meta_data ->> 'full_name', ''),
-             split_part(u.email, '@', 1)
-           )
-      into new.display_name
-      from auth.users u
-     where u.id = new.user_id;
-  end if;
+  select coalesce(
+           nullif(u.raw_user_meta_data ->> 'nickname', ''),
+           nullif(u.raw_user_meta_data ->> 'full_name', ''),
+           split_part(u.email, '@', 1)
+         )
+    into new.display_name
+    from auth.users u
+   where u.id = new.user_id;
   return new;
 end;
 $$;
 
+-- Backfill des membres créés avant cette migration (même règle que le trigger).
+update public.dossier_member m
+   set display_name = coalesce(
+         nullif(u.raw_user_meta_data ->> 'nickname', ''),
+         nullif(u.raw_user_meta_data ->> 'full_name', ''),
+         split_part(u.email, '@', 1)
+       )
+  from auth.users u
+ where u.id = m.user_id;
+
 create trigger dossier_member_set_display_name
-  before insert on public.dossier_member
+  before insert or update of display_name, user_id on public.dossier_member
   for each row execute function public.dossier_member_set_display_name();
 
 -- ---------------------------------------------------------------------------
@@ -48,23 +59,28 @@ create table public.person (
   constraint person_dates_order check (birth_date is null or death_date is null or death_date >= birth_date)
 );
 
-create function public.touch_updated_at()
+-- WHY: la fiche reste attachée à son dossier et sa date de création est figée
+-- (traçabilité), comme dossier_before_update au lot 0.
+create function public.person_before_update()
 returns trigger
 language plpgsql
 set search_path = ''
 as $$
 begin
+  new.dossier_id := old.dossier_id;
+  new.created_at := old.created_at;
   new.updated_at := now();
   return new;
 end;
 $$;
 
-create trigger person_touch_updated_at
+create trigger person_before_update
   before update on public.person
-  for each row execute function public.touch_updated_at();
+  for each row execute function public.person_before_update();
 
 alter table public.person enable row level security;
 revoke all on public.person from anon;
+revoke truncate, trigger, references on public.person from authenticated;
 
 create policy person_select on public.person
   for select to authenticated
@@ -85,11 +101,14 @@ create policy person_update on public.person
 create table public.journey_answer (
   dossier_id uuid not null references public.dossier (id) on delete cascade,
   key text not null check (key ~ '^[a-z][a-zA-Z0-9]*(\.[a-z][a-zA-Z0-9]*)+$'),
-  value jsonb not null,
+  -- WHY: borne à 64 Kio pour qu'un membre ne puisse pas gonfler la base.
+  value jsonb not null check (pg_column_size(value) <= 65536),
   answered_by uuid references auth.users (id) on delete set null,
   updated_at timestamptz not null default now(),
   primary key (dossier_id, key)
 );
+
+create index journey_answer_answered_by_idx on public.journey_answer (answered_by);
 
 -- WHY: l'auteur est toujours l'utilisateur courant, jamais une valeur envoyée.
 create function public.journey_answer_before_write()
@@ -110,6 +129,7 @@ create trigger journey_answer_before_write
 
 alter table public.journey_answer enable row level security;
 revoke all on public.journey_answer from anon;
+revoke truncate, trigger, references on public.journey_answer from authenticated;
 
 create policy journey_answer_select on public.journey_answer
   for select to authenticated
@@ -151,7 +171,8 @@ declare
 begin
   insert into public.dossier (title, country_code, city, entry_point)
   values (
-    trim(p_first_name) || ' ' || trim(p_last_name),
+    -- WHY: deux noms de 120 caractères dépasseraient dossier_title_check (200).
+    left(trim(p_first_name) || ' ' || trim(p_last_name), 200),
     upper(trim(p_country_code)),
     trim(p_city),
     p_entry_point
