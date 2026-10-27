@@ -18,6 +18,8 @@ export interface FormState {
 
 export interface InviteState extends FormState {
   url?: string;
+  /** Vrai quand une adresse a été saisie : on doit alors dire si l'e-mail est parti. */
+  emailRequested?: boolean;
   emailSent?: boolean;
 }
 
@@ -64,18 +66,23 @@ export async function createInvitationAction(
   );
   if (!res.ok) return { error: res.error, fieldErrors: res.fieldErrors };
   revalidatePath(localizedPath(`/dossier/${dossierId}/membres`, locale));
-  return { url: res.data.url, emailSent: res.data.emailSent };
+  return {
+    url: res.data.url,
+    emailRequested: field(formData, 'email').trim() !== '',
+    emailSent: res.data.emailSent,
+  };
 }
 
-export async function revokeInvitationAction(formData: FormData): Promise<void> {
-  if (!(await getCurrentUser())) return;
+export async function revokeInvitationAction(
+  _prev: FormState | null,
+  formData: FormData,
+): Promise<FormState> {
+  if (!(await getCurrentUser())) return { error: 'unauthenticated' };
   const dossierId = field(formData, 'dossierId');
   const res = await service.revokeInvitation(dossierId, field(formData, 'invitationId'));
-  if (!res.ok) {
-    console.error('[dossier/actions] revoke impossible', { error: res.error });
-    return;
-  }
+  if (!res.ok) return { error: res.error };
   revalidatePath(localizedPath(`/dossier/${dossierId}/membres`, await getLocale()));
+  return {};
 }
 
 export async function acceptInvitationAction(

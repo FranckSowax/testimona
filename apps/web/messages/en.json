@@ -1154,6 +1154,7 @@
       "inviteSubmit": "Create the invitation link",
       "inviteReady": "Link ready. It is valid for 7 days and works only once.",
       "inviteEmailSent": "The invitation was also sent by e-mail.",
+      "inviteEmailFailed": "The e-mail could not be sent: share the link below.",
       "copy": "Copy link",
       "copied": "Link copied",
       "shareWhatsapp": "Share on WhatsApp",

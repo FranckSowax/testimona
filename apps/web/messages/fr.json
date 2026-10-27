@@ -1154,6 +1154,7 @@
       "inviteSubmit": "Créer le lien d'invitation",
       "inviteReady": "Lien prêt. Il est valable 7 jours et ne sert qu'une fois.",
       "inviteEmailSent": "L'invitation a aussi été envoyée par e-mail.",
+      "inviteEmailFailed": "L'e-mail n'a pas pu être envoyé : partagez le lien ci-dessous.",
       "copy": "Copier le lien",
       "copied": "Lien copié",
       "shareWhatsapp": "Partager sur WhatsApp",

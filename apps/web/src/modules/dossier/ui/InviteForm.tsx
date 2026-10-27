@@ -90,6 +90,9 @@ export function InviteForm({ dossierId, personName, emailEnabled }: Props) {
             {state.emailSent && (
               <p className="text-muted-foreground text-sm">{t('members.inviteEmailSent')}</p>
             )}
+            {state.emailRequested && !state.emailSent && (
+              <p className="text-destructive text-sm">{t('members.inviteEmailFailed')}</p>
+            )}
           </>
         )}
         {state?.url && copyResult?.url === state.url && (

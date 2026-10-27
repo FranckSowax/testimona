@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation';
 import { getFormatter, getTranslations, setRequestLocale } from 'next-intl/server';
 import { z } from 'zod';
 import { getCurrentUser } from '@/lib/supabase/server';
-import { revokeInvitationAction } from '@/modules/dossier/actions';
 import { getDossier, getPerson, listInvitations, listMembers } from '@/modules/dossier/repo';
 import { canManageMembers } from '@/modules/dossier/roles';
 import { InviteForm } from '@/modules/dossier/ui/InviteForm';
@@ -95,17 +94,14 @@ export default async function MembersPage({
                     })}
                   </span>
                 </span>
-                <form action={revokeInvitationAction}>
-                  <input type="hidden" name="dossierId" value={id} />
-                  <input type="hidden" name="invitationId" value={inv.id} />
-                  <RevokeButton
-                    label={t('members.revoke')}
-                    hiddenLabel={`${t(`members.roles.${inv.role}`)}${inv.email ? `, ${inv.email}` : ''}, ${t(
-                      'members.expires',
-                      { date: format.dateTime(new Date(inv.expiresAt), { dateStyle: 'medium' }) },
-                    )}`}
-                  />
-                </form>
+                <RevokeButton
+                  dossierId={id}
+                  invitationId={inv.id}
+                  hiddenLabel={`${t(`members.roles.${inv.role}`)}${inv.email ? `, ${inv.email}` : ''}, ${t(
+                    'members.expires',
+                    { date: format.dateTime(new Date(inv.expiresAt), { dateStyle: 'medium' }) },
+                  )}`}
+                />
               </li>
             ))}
           </ul>
