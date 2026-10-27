@@ -58,6 +58,9 @@ describe('schémas du registre', () => {
     expect(PledgeSchema.parse({ ...base, amount: '1\u202f500' }).amount).toBe(1_500);
     expect(PledgeSchema.parse({ ...base, amount: '0012' }).amount).toBe(12);
     expect(
+      PledgeSchema.safeParse({ ...base, amount: '9'.repeat(400) }).error?.issues[0]?.message,
+    ).toBe('out of range');
+    expect(
       PledgeSchema.safeParse({ ...base, amount: '1234567890' }).error?.issues[0]?.message,
     ).toBe('out of range');
   });

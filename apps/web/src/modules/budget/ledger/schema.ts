@@ -34,7 +34,13 @@ const amount = z
   .transform((s) => s.replace(/[\s\u00a0\u202f]/g, ''))
   .pipe(z.string().regex(/^\d+$/, 'invalid number'))
   .transform(Number)
-  .pipe(z.number().int().min(1, 'out of range').max(AMOUNT_MAX, 'out of range'));
+  .pipe(
+    z
+      .number()
+      .min(1, 'out of range')
+      .max(AMOUNT_MAX, 'out of range')
+      .refine(Number.isSafeInteger, 'out of range'),
+  );
 
 const partyName = z
   .string()
