@@ -1186,6 +1186,18 @@
       "biography": {
         "title": "Sa biographie",
         "description": "Racontez sa vie, une question à la fois. Vous pouvez répondre à sa place, et passer une question pour y revenir plus tard."
+      },
+      "broadcast-list": {
+        "title": "La liste de diffusion",
+        "description": "Qui prévenir, et qui s'en charge. La liste reste privée au dossier."
+      },
+      "immediate-message": {
+        "title": "Le message immédiat",
+        "description": "Un court message à envoyer par WhatsApp ou SMS dès les premières heures."
+      },
+      "email-announcement": {
+        "title": "L'annonce par e-mail",
+        "description": "Une annonce plus complète, à copier dans votre messagerie."
       }
     },
     "q": {
@@ -1222,6 +1234,81 @@
           "title": "Une phrase ou une devise que l'on associe à {name} ?",
           "hint": "Quelques mots que ses proches reconnaîtront."
         }
+      },
+      "broadcast": {
+        "contacts": {
+          "title": "Qui faut-il prévenir ?",
+          "hint": "Ajoutez les personnes à appeler ou à qui écrire, avec leur cercle et le membre de la famille qui s'en charge.",
+          "fields": {
+            "name": {
+              "label": "Nom"
+            },
+            "phone": {
+              "label": "Téléphone (facultatif)"
+            },
+            "circle": {
+              "label": "Cercle",
+              "options": {
+                "close_family": "Famille proche",
+                "extended_family": "Famille élargie",
+                "colleagues": "Collègues",
+                "parish": "Paroisse ou communauté",
+                "village": "Village",
+                "other": "Autre"
+              }
+            },
+            "caller": {
+              "label": "Qui l'appelle (facultatif)"
+            },
+            "priority": {
+              "label": "À appeler en priorité"
+            }
+          }
+        }
+      },
+      "death": {
+        "date": {
+          "title": "Date du décès de {name}",
+          "hint": "Elle figurera dans les annonces."
+        },
+        "mentionCause": {
+          "title": "Souhaitez-vous mentionner les circonstances du décès ?",
+          "hint": "Facultatif : vous pouvez rester discret.",
+          "options": {
+            "none": "Ne pas les mentionner",
+            "illness": "Des suites d'une maladie",
+            "sudden": "De manière soudaine",
+            "accident": "Des suites d'un accident"
+          }
+        }
+      },
+      "announce": {
+        "tone": {
+          "title": "Quel ton souhaitez-vous pour les annonces ?",
+          "hint": "Les textes proposés s'adapteront ; vous pourrez toujours les modifier.",
+          "options": {
+            "believer": "Croyant",
+            "neutral": "Neutre"
+          }
+        },
+        "aboutPerson": {
+          "title": "Quelques mots sur {name} pour l'annonce",
+          "hint": "Ce qui caractérisait {name}, ce que l'on retiendra : deux ou trois phrases suffisent."
+        },
+        "practicalInfo": {
+          "title": "Informations pratiques",
+          "hint": "Veillée, levée du corps, messe ou cérémonie, inhumation : dates, heures et lieux connus."
+        },
+        "flowersOrDonations": {
+          "title": "Fleurs ou dons ?",
+          "hint": "Indiquez la préférence de la famille.",
+          "options": {
+            "flowers": "Fleurs bienvenues",
+            "donations": "Dons plutôt que fleurs",
+            "both": "Fleurs et dons",
+            "noPreference": "Pas de préférence"
+          }
+        }
       }
     },
     "fields": {
@@ -1255,7 +1342,33 @@
       "allDone": "Toutes les questions ont une réponse ou ont été passées.",
       "completeSkipped": "Compléter les questions passées",
       "stepProgress": "{answered} sur {total} réponses",
-      "toComplete": "{count, plural, =1 {1 question à compléter} other {# questions à compléter}}"
+      "toComplete": "{count, plural, =1 {1 question à compléter} other {# questions à compléter}}",
+      "viewDraft": "Voir le brouillon"
+    },
+    "draft": {
+      "title": {
+        "whatsapp": "Votre message immédiat",
+        "email": "Votre annonce par e-mail"
+      },
+      "intro": {
+        "whatsapp": "Voici un texte préparé à partir de vos réponses. Modifiez-le librement, puis partagez-le.",
+        "email": "Voici un texte préparé à partir de vos réponses. Modifiez-le librement, puis copiez-le dans votre messagerie."
+      },
+      "subject": "Objet",
+      "body": "Texte",
+      "save": "Enregistrer",
+      "saved": "Texte enregistré.",
+      "unsaved": "Modifications non enregistrées.",
+      "copy": "Copier le texte",
+      "copySubject": "Copier l'objet",
+      "copied": "Copié.",
+      "copyManual": "Le texte est sélectionné : copiez-le avec votre appareil.",
+      "shareWhatsapp": "Partager sur WhatsApp",
+      "openMail": "Ouvrir dans ma messagerie",
+      "regenerate": "Repartir des réponses",
+      "editAnswers": "Modifier les réponses",
+      "backToDossier": "Retour au dossier",
+      "readOnly": "Vous pouvez lire et copier ce texte ; seuls les contributeurs peuvent le modifier."
     }
   }
 }
