@@ -1445,6 +1445,7 @@
       "chooseLevel": "Choose a level",
       "changeLevel": "Change level",
       "backToDossier": "Back to the dossier",
+      "seeContributions": "Track contributions",
       "capped": "capped",
       "cappedNote": "Some items reach the {max} cap: check the attendance and the level.",
       "nightsAssumed": "Wake length not given: one night is assumed.",
@@ -1469,6 +1470,96 @@
       "printing": "Notices, booklet and posters",
       "outfits": "Outfits and loincloths",
       "contingency": "Contingencies"
+    }
+  },
+  "ledger": {
+    "page": {
+      "title": "Contributions",
+      "intro": "The family's pledges, contributions received and expenses, in one place. No payment goes through Testimona.",
+      "restrictedNote": "Individual amounts are visible to treasurers, coordinators and the owner. Everyone sees their own entries and all expenses.",
+      "membersNote": "Individual amounts are visible to every member of the dossier.",
+      "empty": "No entries yet.",
+      "seeBudget": "See the budget",
+      "backToDossier": "Back to the dossier"
+    },
+    "summary": {
+      "budget": "Budget in mind",
+      "budgetNone": "No budget chosen",
+      "received": "Received",
+      "pledgedOpen": "Pledged, not paid",
+      "spent": "Spent",
+      "balance": "Available",
+      "remaining": "Still to raise"
+    },
+    "kind": {
+      "pledge": "Pledge",
+      "receipt": "Contribution received",
+      "expense": "Expense",
+      "reversal": "Reversal"
+    },
+    "method": {
+      "cash": "Cash",
+      "airtel_money": "Airtel Money",
+      "moov_money": "Moov Money",
+      "transfer": "Bank transfer",
+      "card": "Card",
+      "other": "Other"
+    },
+    "entry": {
+      "listTitle": "Entries",
+      "reversed": "reversed",
+      "fulfilled": "paid",
+      "partlyPaid": "Paid so far: {paid}",
+      "reversalOf": "Reversal — {kind}",
+      "reverse": "Reverse this entry",
+      "confirmReverse": "Confirm reversal",
+      "keep": "Keep",
+      "reverseLabel": "Reverse this entry: {entry}",
+      "reverseWarning": "This reversal cannot be undone.",
+      "reversing": "Reversing…"
+    },
+    "form": {
+      "pledgeTitle": "I make a pledge",
+      "receiptTitle": "Add a contribution received",
+      "expenseTitle": "Add an expense",
+      "party": "Name of the contributor",
+      "supplier": "Provider",
+      "amount": "Amount (FCFA)",
+      "method": "Payment method",
+      "member": "Dossier member",
+      "memberNone": "Someone else (not signed up)",
+      "memberUnnamed": "Member without a display name",
+      "memberFromPledge": "The payment goes to the member who made the pledge.",
+      "pledge": "Pledge this payment is for",
+      "pledgeNone": "None",
+      "date": "Date (defaults to today)",
+      "note": "Note (optional)",
+      "submit": "Save",
+      "saved": "Entry saved."
+    },
+    "visibility": {
+      "title": "Who sees individual amounts?",
+      "restricted": "Treasurers, coordinators and owner",
+      "members": "Every member of the dossier",
+      "save": "Save setting",
+      "saved": "Setting saved."
+    },
+    "errors": {
+      "already_reversed": "This entry has already been reversed.",
+      "pledge_unavailable": "This pledge is no longer open: it was reversed or is already fully paid.",
+      "invalidNumber": "Enter a whole amount, in digits.",
+      "outOfRange": "Enter an amount between 1 and 100,000,000 FCFA.",
+      "invalidDate": "Enter a valid date, today or earlier.",
+      "required": "This field is required.",
+      "tooLong": "This text is too long.",
+      "invalidCharacter": "This text contains a character that is not accepted."
+    },
+    "card": {
+      "title": "Contributions",
+      "summary": "{received} received against a budget in mind of {budget}.",
+      "summaryNoBudget": "{received} received. No budget has been chosen yet.",
+      "unavailable": "Amounts are temporarily unavailable.",
+      "open": "See contributions"
     }
   }
 }

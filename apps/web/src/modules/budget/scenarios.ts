@@ -136,3 +136,16 @@ export function chosenLevel(answers: Answers): Level | null {
     ? (value as Level)
     : null;
 }
+
+/**
+ * Total du budget du niveau envisagé à l'étape B.2, ou null sans niveau choisi.
+ * WHY: en attendant le scénario retenu par le trésorier (lot 2, PR 3), c'est la référence de
+ * l'écran Cotisations et du tableau de bord.
+ *
+ * @example
+ * envisagedTotal(answers); // 2 409 000
+ */
+export function envisagedTotal(answers: Answers): number | null {
+  const level = chosenLevel(answers);
+  return level ? scenariosFor(attendanceFrom(answers)).totals[level] : null;
+}
