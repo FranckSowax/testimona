@@ -1343,7 +1343,7 @@
       "budget": {
         "level": {
           "title": "Quel niveau de cérémonie envisagez-vous ?",
-          "hint": "Les trois budgets estimés figurent sur la page du budget. Vous pourrez changer d'avis.",
+          "hint": "Les trois budgets estimés sont visibles depuis le tableau de bord (Voir le budget). Vous pourrez changer d'avis.",
           "options": {
             "sober": "Sobre",
             "intermediate": "Intermédiaire",
@@ -1376,7 +1376,7 @@
       "invalidDate": "Cette date n'est pas valide.",
       "invalidCharacter": "Votre réponse contient un caractère non pris en charge.",
       "invalidNumber": "Entrez un nombre entier, en chiffres.",
-      "outOfRange": "Entrez un nombre entre {min} et {max}."
+      "outOfRange": "Entrez un nombre entre {min, number} et {max, number}."
     },
     "dashboard": {
       "nextTitle": "Prochaine question",
@@ -1435,7 +1435,7 @@
       "estimateNote": "Prix de référence pour Libreville : ce sont des estimations à vérifier auprès des prestataires.",
       "attendanceTitle": "Affluence attendue",
       "attendanceRange": "Entre {low, number} et {high, number} personnes. {nights, plural, =0 {Pas de veillée.} one {# nuit de veillée.} other {# nuits de veillée.}}",
-      "noAttendance": "L'affluence n'est pas encore estimée : les repas, boissons, tentes et chaises ne sont pas comptés, et une nuit de veillée est supposée.",
+      "noAttendance": "L'affluence n'est pas encore estimée : les repas, boissons, tentes et chaises ne sont pas comptés.",
       "answerAttendance": "Estimer l'affluence",
       "editAttendance": "Modifier l'affluence",
       "scenariosTitle": "Trois budgets",

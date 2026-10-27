@@ -1343,7 +1343,7 @@
       "budget": {
         "level": {
           "title": "What level of ceremony do you have in mind?",
-          "hint": "The three estimated budgets are shown on the budget page. You can change your mind.",
+          "hint": "The three estimated budgets are shown from the dashboard (See the budget). You can change your mind.",
           "options": {
             "sober": "Simple",
             "intermediate": "Intermediate",
@@ -1376,7 +1376,7 @@
       "invalidDate": "This date is not valid.",
       "invalidCharacter": "Your answer contains an unsupported character.",
       "invalidNumber": "Enter a whole number, in digits.",
-      "outOfRange": "Enter a number between {min} and {max}."
+      "outOfRange": "Enter a number between {min, number} and {max, number}."
     },
     "dashboard": {
       "nextTitle": "Next question",
@@ -1435,7 +1435,7 @@
       "estimateNote": "Reference prices for Libreville: these are estimates to check with providers.",
       "attendanceTitle": "Expected attendance",
       "attendanceRange": "Between {low, number} and {high, number} people. {nights, plural, =0 {No wake.} one {# wake night.} other {# wake nights.}}",
-      "noAttendance": "Attendance is not estimated yet: meals, drinks, tents and chairs are not counted, and one wake night is assumed.",
+      "noAttendance": "Attendance is not estimated yet: meals, drinks, tents and chairs are not counted.",
       "answerAttendance": "Estimate attendance",
       "editAttendance": "Edit attendance",
       "scenariosTitle": "Three budgets",

@@ -23,6 +23,19 @@ describe('aiFacts', () => {
     expect(JSON.stringify(facts)).not.toContain('Marie');
   });
 
+  it("ignore les réponses du budget et de l'affluence", () => {
+    const facts = aiFacts('email', person, {
+      'attendance.close': 20,
+      'attendance.nights': 2,
+      'budget.level': 'full',
+    });
+    expect(facts.answers).toEqual({});
+    const json = JSON.stringify(facts);
+    for (const key of ['attendance.close', 'attendance.nights', 'budget.level']) {
+      expect(json).not.toContain(key);
+    }
+  });
+
   it("pour WhatsApp, n'envoie ni texte libre ni préférence de fleurs", () => {
     const facts = aiFacts('whatsapp', person, {
       'announce.tone': 'neutral',

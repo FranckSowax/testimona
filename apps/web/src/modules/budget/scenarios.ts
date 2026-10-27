@@ -12,12 +12,15 @@ export const ATTENDANCE_KEYS = [
 export const NIGHTS_KEY = 'attendance.nights';
 export const LEVEL_KEY = 'budget.level';
 
-/** WHY: les invités viennent souvent accompagnés ; la fourchette haute ajoute un quart. */
+/**
+ * WHY: les invités viennent souvent accompagnés ; la fourchette haute ajoute un quart.
+ * Exporté pour les tests et la PR 2.
+ */
 export const ATTENDANCE_MARGIN = 1.25;
 
 /**
  * WHY: le jour des obsèques reçoit toute l'affluence haute ; chaque nuit de veillée environ la
- * moitié.
+ * moitié. Exporté pour les tests et la PR 2.
  */
 export const WAKE_ATTENDANCE_RATIO = 0.5;
 
@@ -57,7 +60,7 @@ function count(answers: Answers, key: string): number | null {
  * Fourchette d'affluence et nombre de nuits, à partir des réponses de l'étape B.1.
  *
  * @example
- * attendanceFrom(answers); // { low: 150, high: 188, nights: 2, answered: true }
+ * attendanceFrom(answers); // { low: 150, high: 188, nights: 2, answered: true, nightsAssumed: false }
  */
 export function attendanceFrom(answers: Answers): Attendance {
   const counts = ATTENDANCE_KEYS.map((key) => count(answers, key));

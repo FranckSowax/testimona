@@ -50,7 +50,7 @@ export async function BudgetOverview(props: Props) {
                   nights: attendance.nights,
                 })}
         </p>
-        {attendance.answered && attendance.nightsAssumed && (
+        {attendance.nightsAssumed && (
           <p className="text-muted-foreground mt-1 text-sm">{t('page.nightsAssumed')}</p>
         )}
         {canAnswer && (
