@@ -10,7 +10,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import type { DossierError } from '../service';
 import { answerRedirectTarget } from './redirect';
 import { listAnswers } from './repo';
-import { saveAnswer } from './service';
+import { saveAnswer, saveDraft } from './service';
 
 export interface AnswerState {
   error?: DossierError;
@@ -54,4 +54,26 @@ export async function saveAnswerAction(
     target = answerRedirectTarget(dossierId, found.step, answers, found.index);
   }
   redirect(localizedPath(target, locale));
+}
+
+export interface DraftState {
+  error?: DossierError;
+  saved?: boolean;
+}
+
+/** Enregistre le brouillon d'une étape ; reste sur la page pour continuer à copier ou partager. */
+export async function saveDraftAction(
+  _prev: DraftState | null,
+  formData: FormData,
+): Promise<DraftState> {
+  if (!(await getCurrentUser())) return { error: 'unauthenticated' };
+  const dossierId = field(formData, 'dossierId');
+  const res = await saveDraft({
+    dossierId,
+    stepId: field(formData, 'stepId'),
+    text: field(formData, 'text'),
+  });
+  if (!res.ok) return { error: res.error };
+  revalidatePath(localizedPath(`/dossier/${dossierId}`, await getLocale()));
+  return { saved: true };
 }
