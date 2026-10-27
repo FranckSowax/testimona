@@ -1241,7 +1241,9 @@
     "dashboard": {
       "nextTitle": "Prochaine question",
       "answer": "Répondre",
+      "view": "Consulter",
       "allDone": "Toutes les questions ont une réponse ou ont été passées.",
+      "completeSkipped": "Compléter les questions passées",
       "stepProgress": "{answered} sur {total} réponses",
       "toComplete": "{count, plural, =1 {1 question à compléter} other {# questions à compléter}}"
     }

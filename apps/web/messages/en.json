@@ -1241,7 +1241,9 @@
     "dashboard": {
       "nextTitle": "Next question",
       "answer": "Answer",
+      "view": "View",
       "allDone": "Every question has been answered or skipped.",
+      "completeSkipped": "Complete skipped questions",
       "stepProgress": "{answered} of {total} answered",
       "toComplete": "{count, plural, =1 {1 question to complete} other {# questions to complete}}"
     }

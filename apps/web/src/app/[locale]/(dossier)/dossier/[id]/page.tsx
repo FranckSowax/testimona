@@ -7,7 +7,8 @@ import { Link } from '@/i18n/navigation';
 import { personStatus, stepsFor } from '@/journey/registry';
 import { JourneyOverview } from '@/journey/ui/JourneyOverview';
 import { listAnswers } from '@/modules/dossier/answers/repo';
-import { getDossier, getPerson, listMembers } from '@/modules/dossier/repo';
+import { getDossier, getMyRole, getPerson, listMembers } from '@/modules/dossier/repo';
+import { canWrite } from '@/modules/dossier/roles';
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
@@ -24,10 +25,11 @@ export default async function DossierPage({
 
   const [t, dossier] = await Promise.all([getTranslations('dossier'), getDossier(id)]);
   if (!dossier) notFound();
-  const [person, members, answers] = await Promise.all([
+  const [person, members, answers, role] = await Promise.all([
     getPerson(id),
     listMembers(id),
     listAnswers(id),
+    getMyRole(id),
   ]);
   const country = new Intl.DisplayNames([locale], { type: 'region' }).of(dossier.countryCode);
 
@@ -53,6 +55,7 @@ export default async function DossierPage({
           answers={answers}
           name={person?.firstName ?? dossier.title}
           status={personStatus(dossier.entryPoint)}
+          canAnswer={canWrite(role)}
         />
       </section>
 

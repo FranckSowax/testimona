@@ -11,15 +11,26 @@ interface Props {
   answers: Answers;
   name: string;
   status: 'alive' | 'deceased';
+  canAnswer: boolean;
 }
 
 /** Carte « Prochaine question » et avancement de chaque étape (questions passées « à compléter »). */
-export async function JourneyOverview({ dossierId, steps, answers, name, status }: Props) {
+export async function JourneyOverview({
+  dossierId,
+  steps,
+  answers,
+  name,
+  status,
+  canAnswer,
+}: Props) {
   const t = await getTranslations('journey');
   const next = nextQuestion(steps, answers);
   const nextKey = next
     ? steps.find((step) => step.id === next.stepId)?.questions[next.index]?.key
     : undefined;
+  const firstSkipped = next
+    ? undefined
+    : steps.find((step) => stepProgress(step, answers).skipped > 0);
 
   return (
     <div className="space-y-4">
@@ -32,11 +43,21 @@ export async function JourneyOverview({ dossierId, steps, answers, name, status 
               href={`/dossier/${dossierId}/etape/${next.stepId}?q=${next.index}`}
               className={`${buttonClasses({ variant: 'primary', size: 'md' })} mt-4`}
             >
-              {t('dashboard.answer')}
+              {t(canAnswer ? 'dashboard.answer' : 'dashboard.view')}
             </Link>
           </>
         ) : (
-          <p className="mt-2 text-white/80">{t('dashboard.allDone')}</p>
+          <>
+            <p className="mt-2 text-white/80">{t('dashboard.allDone')}</p>
+            {firstSkipped && (
+              <Link
+                href={`/dossier/${dossierId}/etape/${firstSkipped.id}`}
+                className={`${buttonClasses({ variant: 'primary', size: 'md' })} mt-4`}
+              >
+                {t('dashboard.completeSkipped')}
+              </Link>
+            )}
+          </>
         )}
       </div>
 
@@ -53,14 +74,18 @@ export async function JourneyOverview({ dossierId, steps, answers, name, status 
                 >
                   {title}
                 </Link>
-                <span className="text-muted-foreground text-sm">
-                  {t('dashboard.stepProgress', {
-                    answered: progress.answered,
-                    total: progress.total,
-                  })}
-                </span>
+                {progress.total > 0 && (
+                  <span className="text-muted-foreground text-sm">
+                    {t('dashboard.stepProgress', {
+                      answered: progress.answered,
+                      total: progress.total,
+                    })}
+                  </span>
+                )}
               </div>
-              <ProgressBar value={progress.answered} max={progress.total} ariaLabel={title} />
+              {progress.total > 0 && (
+                <ProgressBar value={progress.answered} max={progress.total} ariaLabel={title} />
+              )}
               {progress.skipped > 0 && (
                 <p className="text-muted-foreground text-sm">
                   {t('dashboard.toComplete', { count: progress.skipped })}
