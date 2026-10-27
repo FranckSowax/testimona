@@ -65,7 +65,12 @@ export async function JourneyOverview({
       </div>
 
       <ul className="border-border divide-border divide-y rounded-2xl border">
-        {steps.map((step) => {
+        {steps.map((step, position) => {
+          // WHY: B.1 et B.2 mènent à la même page ; un seul lien « Voir le budget », sur la
+          // dernière étape qui porte cette synthèse.
+          const showSummary =
+            step.summary !== undefined &&
+            steps.findLastIndex((other) => other.summary === step.summary) === position;
           const progress = stepProgress(step, answers);
           const title = t(`steps.${step.id}.title`);
           return (
@@ -93,6 +98,14 @@ export async function JourneyOverview({
                   className="text-primary text-sm font-semibold hover:underline"
                 >
                   {t('dashboard.viewDraft')} <span className="sr-only">{title}</span>
+                </Link>
+              )}
+              {showSummary && step.summary && (
+                <Link
+                  href={`/dossier/${dossierId}/${step.summary}`}
+                  className="text-primary text-sm font-semibold hover:underline"
+                >
+                  {t(`dashboard.summary.${step.summary}`)}
                 </Link>
               )}
               {progress.total > 0 && (

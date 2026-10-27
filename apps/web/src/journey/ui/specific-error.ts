@@ -7,6 +7,8 @@ export const SPECIFIC_MESSAGES = {
   'too long': 'ui.tooLarge',
   'invalid date': 'ui.invalidDate',
   'invalid character': 'ui.invalidCharacter',
+  'invalid number': 'ui.invalidNumber',
+  'out of range': 'ui.outOfRange',
   empty: 'draft.empty',
 } as const;
 

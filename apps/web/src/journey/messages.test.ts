@@ -38,6 +38,8 @@ const UI_PATHS = [
     'tooLarge',
     'invalidDate',
     'invalidCharacter',
+    'invalidNumber',
+    'outOfRange',
   ].map((key) => `journey.ui.${key}`),
   ...[
     'nextTitle',
@@ -48,7 +50,7 @@ const UI_PATHS = [
     'stepProgress',
     'toComplete',
   ].map((key) => `journey.dashboard.${key}`),
-  ...['viewDraft'].map((key) => `journey.dashboard.${key}`),
+  ...['viewDraft', 'summary.budget'].map((key) => `journey.dashboard.${key}`),
   ...[
     'title.whatsapp',
     'title.email',
@@ -94,6 +96,7 @@ function leafPaths(node: unknown, prefix = ''): string[] {
 function requiredPaths(step: Step): string[] {
   const paths = [`journey.steps.${step.id}.title`, `journey.steps.${step.id}.description`];
   if (step.draft) paths.push(`journey.draft.title.${step.draft.kind}`);
+  if (step.summary) paths.push(`journey.dashboard.summary.${step.summary}`);
   for (const question of step.questions) {
     const base = `journey.q.${question.key}`;
     paths.push(`${base}.title`, `${base}.hint`);

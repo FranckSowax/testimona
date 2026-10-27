@@ -4,6 +4,7 @@ import { ChoiceInput } from './inputs/ChoiceInput';
 import { DateInput } from './inputs/DateInput';
 import { ListInput } from './inputs/ListInput';
 import { LongTextInput } from './inputs/LongTextInput';
+import { NumberInput } from './inputs/NumberInput';
 import { PlaceInput, type Country } from './inputs/PlaceInput';
 import { ShortTextInput } from './inputs/ShortTextInput';
 import type { EditableValue } from './values';
@@ -32,6 +33,8 @@ export function AnswerInput({ question, countries, invalidIds, busy, ...props }:
       return <DateInput {...text} />;
     case 'choice':
       return <ChoiceInput {...text} question={question} />;
+    case 'number':
+      return <NumberInput {...text} />;
     case 'place':
       return <PlaceInput {...props} value={props.value as PlaceValue} countries={countries} />;
     case 'list':

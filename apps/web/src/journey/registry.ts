@@ -3,15 +3,24 @@ import { biographyStep } from './steps/1-6-biography';
 import { broadcastListStep } from './steps/2-1-broadcast-list';
 import { immediateMessageStep } from './steps/2-2-immediate-message';
 import { emailAnnouncementStep } from './steps/2-3-email-announcement';
+import { attendanceStep } from './steps/b-1-attendance';
+import { budgetStep } from './steps/b-2-budget';
 import type { Question, Step } from './types';
 
 /**
  * Étapes proposées, dans l'ordre, selon la porte d'entrée du dossier.
- * WHY: après un décès, prévenir est plus urgent que raconter : les annonces passent avant la
- * biographie.
+ * WHY: après un décès, prévenir est plus urgent que raconter : les annonces passent en premier,
+ * puis l'estimation du budget (on cotise dès les premiers jours), puis la biographie.
  */
 const STEPS_BY_ENTRY: Record<EntryPoint, readonly Step[]> = {
-  death: [broadcastListStep, immediateMessageStep, emailAnnouncementStep, biographyStep],
+  death: [
+    broadcastListStep,
+    immediateMessageStep,
+    emailAnnouncementStep,
+    attendanceStep,
+    budgetStep,
+    biographyStep,
+  ],
   prepare: [biographyStep],
   after: [],
 };

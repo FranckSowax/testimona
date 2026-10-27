@@ -11,6 +11,11 @@ describe('specificMessage', () => {
     expect(specificMessage({ '': 'invalid character' })).toBe('ui.invalidCharacter');
   });
 
+  it('reconnaît un nombre invalide ou hors des bornes', () => {
+    expect(specificMessage({ '': 'invalid number' })).toBe('ui.invalidNumber');
+    expect(specificMessage({ '': 'out of range' })).toBe('ui.outOfRange');
+  });
+
   it('reconnaît un texte vide', () => {
     expect(specificMessage({ '': 'empty' })).toBe('draft.empty');
   });

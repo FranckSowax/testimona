@@ -89,6 +89,8 @@ export function DraftEditor(props: Props) {
       setError(null);
       setStatus((prev) => ({ text: t('saved'), seq: (prev?.seq ?? 0) + 1 }));
     } else if (state?.error) {
+      // WHY: `ui.outOfRange` (à paramètres min/max) ne peut pas venir d'un brouillon, dont le
+      // schéma est textuel ; `tJourney` sans paramètres suffit donc ici.
       const specific = specificMessage(state.fieldErrors);
       const message = specific ? tJourney(specific) : tErrors(state.error);
       setStatus(null);

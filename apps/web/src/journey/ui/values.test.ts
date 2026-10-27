@@ -30,6 +30,20 @@ describe('toEditable', () => {
       { trait: '', anecdote: '', priority: false },
     ]);
   });
+
+  it('reprend un nombre enregistré sous forme de texte, sinon un champ vide', () => {
+    const count: Question = { kind: 'number', key: 'attendance.close', min: 0, max: 2000 };
+    expect(toEditable(count, 40, 'GA')).toBe('40');
+    expect(toEditable(count, 0, 'GA')).toBe('0');
+    expect(toEditable(count, SKIPPED, 'GA')).toBe('');
+    expect(toEditable(count, '40', 'GA')).toBe('');
+    expect(toEditable(count, undefined, 'GA')).toBe('');
+  });
+
+  it('affiche tel quel un nombre enregistré hors des bornes actuelles', () => {
+    const count: Question = { kind: 'number', key: 'attendance.close', min: 0, max: 2000 };
+    expect(toEditable(count, 5000, 'GA')).toBe('5000');
+  });
 });
 
 describe('toEditable : réponses enregistrées devenues invalides', () => {

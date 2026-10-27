@@ -1198,6 +1198,14 @@
       "email-announcement": {
         "title": "L'annonce par e-mail",
         "description": "Une annonce plus complète, à copier dans votre messagerie."
+      },
+      "attendance": {
+        "title": "Les personnes attendues",
+        "description": "Combien de personnes attendre, pour dimensionner la veillée et les repas."
+      },
+      "budget": {
+        "title": "Le budget",
+        "description": "Le niveau de cérémonie envisagé, parmi trois budgets estimés."
       }
     },
     "q": {
@@ -1309,6 +1317,39 @@
             "noPreference": "Pas de préférence"
           }
         }
+      },
+      "attendance": {
+        "close": {
+          "title": "Combien de membres de la famille proche de {name} attendez-vous ?",
+          "hint": "Conjoint, enfants, parents, frères et sœurs, avec leurs familles. Une estimation suffit."
+        },
+        "extended": {
+          "title": "Et combien de membres de la famille élargie attendez-vous ?",
+          "hint": "Oncles, tantes, cousins, belle-famille. Une estimation suffit."
+        },
+        "friends": {
+          "title": "Combien d'amis, de voisins et de collègues attendez-vous ?",
+          "hint": "Une estimation suffit."
+        },
+        "community": {
+          "title": "Combien de membres de la communauté (paroisse, association, village) attendez-vous ?",
+          "hint": "Une estimation suffit."
+        },
+        "nights": {
+          "title": "Combien de nuits durera la veillée ?",
+          "hint": "0 s'il n'y a pas de veillée. Nous en déduisons le matériel et la restauration."
+        }
+      },
+      "budget": {
+        "level": {
+          "title": "Quel niveau de cérémonie envisagez-vous ?",
+          "hint": "Les trois budgets estimés sont visibles depuis le tableau de bord (Voir le budget). Vous pourrez changer d'avis.",
+          "options": {
+            "sober": "Sobre",
+            "intermediate": "Intermédiaire",
+            "full": "Complet"
+          }
+        }
       }
     },
     "fields": {
@@ -1333,7 +1374,9 @@
       "chooseOption": "Choisir…",
       "tooLarge": "Votre réponse est trop longue : raccourcissez-la.",
       "invalidDate": "Cette date n'est pas valide.",
-      "invalidCharacter": "Votre réponse contient un caractère non pris en charge."
+      "invalidCharacter": "Votre réponse contient un caractère non pris en charge.",
+      "invalidNumber": "Entrez un nombre entier, en chiffres.",
+      "outOfRange": "Entrez un nombre entre {min, number} et {max, number}."
     },
     "dashboard": {
       "nextTitle": "Prochaine question",
@@ -1343,7 +1386,10 @@
       "completeSkipped": "Compléter les questions passées",
       "stepProgress": "{answered} sur {total} réponses",
       "toComplete": "{count, plural, =1 {1 question à compléter} other {# questions à compléter}}",
-      "viewDraft": "Voir le brouillon"
+      "viewDraft": "Voir le brouillon",
+      "summary": {
+        "budget": "Voir le budget"
+      }
     },
     "draft": {
       "title": {
@@ -1380,6 +1426,49 @@
         "quota": "Limite d'améliorations atteinte pour aujourd'hui sur ce dossier. Votre texte est conservé.",
         "failed": "L'amélioration n'a pas abouti. Votre texte est conservé ; réessayez plus tard."
       }
+    }
+  },
+  "budget": {
+    "page": {
+      "title": "Budget prévisionnel",
+      "intro": "Trois budgets estimés à partir de l'affluence attendue. Ils aident à décider ensemble et à lancer les cotisations.",
+      "estimateNote": "Prix de référence pour Libreville : ce sont des estimations à vérifier auprès des prestataires.",
+      "attendanceTitle": "Affluence attendue",
+      "attendanceRange": "Entre {low, number} et {high, number} personnes. {nights, plural, =0 {Pas de veillée.} one {# nuit de veillée.} other {# nuits de veillée.}}",
+      "noAttendance": "L'affluence n'est pas encore estimée : les repas, boissons, tentes et chaises ne sont pas comptés.",
+      "answerAttendance": "Estimer l'affluence",
+      "editAttendance": "Modifier l'affluence",
+      "scenariosTitle": "Trois budgets",
+      "total": "Total",
+      "line": "Poste",
+      "chosen": "Niveau envisagé",
+      "chooseLevel": "Choisir un niveau",
+      "changeLevel": "Changer de niveau",
+      "backToDossier": "Retour au dossier",
+      "capped": "plafonné",
+      "cappedNote": "Certains postes atteignent le plafond de {max} : vérifiez l'affluence et le niveau.",
+      "nightsAssumed": "Durée de la veillée non renseignée : une nuit est supposée.",
+      "noGuests": "Aucune personne comptée pour l'instant.",
+      "linesTitle": "Détail par poste"
+    },
+    "level": {
+      "sober": "Sobre",
+      "intermediate": "Intermédiaire",
+      "full": "Complet"
+    },
+    "grid": {
+      "mortuary": "Morgue et conservation",
+      "coffin": "Cercueil et mise en bière",
+      "hearse": "Corbillard et transport",
+      "burial": "Inhumation et caveau",
+      "service": "Cérémonie religieuse",
+      "tentsChairs": "Tentes et chaises",
+      "catering": "Restauration",
+      "drinks": "Boissons",
+      "sound": "Sonorisation et animation",
+      "printing": "Faire-part, livret et affiches",
+      "outfits": "Tenues et pagnes",
+      "contingency": "Imprévus"
     }
   }
 }

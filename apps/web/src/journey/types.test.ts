@@ -89,3 +89,33 @@ describe('isSkipped', () => {
     expect(isSkipped('skipped')).toBe(false);
   });
 });
+
+describe('answerSchema : nombre', () => {
+  const guests: Question = { kind: 'number', key: 'attendance.close', min: 0, max: 2000 };
+  const issue = (value: unknown) => answerSchema(guests).safeParse(value).error?.issues[0]?.message;
+
+  it('accepte un entier ou une chaîne de chiffres, et rend un nombre', () => {
+    expect(answerSchema(guests).parse(12)).toBe(12);
+    expect(answerSchema(guests).parse(' 12 ')).toBe(12);
+    expect(answerSchema(guests).parse(0)).toBe(0);
+  });
+
+  it('refuse un nombre mal formé', () => {
+    expect(issue('-3')).toBe('invalid number');
+    expect(issue('1.5')).toBe('invalid number');
+    expect(issue(1.5)).toBe('invalid number');
+    expect(issue('abc')).toBe('invalid number');
+    expect(issue(true)).toBe('invalid number');
+  });
+
+  it('refuse un nombre hors des bornes', () => {
+    expect(issue(2001)).toBe('out of range');
+    expect(issue(-1)).toBe('out of range');
+  });
+
+  it('répond « hors des bornes » pour une suite de chiffres trop longue', () => {
+    expect(issue('99999999999999')).toBe('out of range');
+    expect(issue('0000000000012')).toBeUndefined();
+    expect(answerSchema(guests).parse('0000000000012')).toBe(12);
+  });
+});

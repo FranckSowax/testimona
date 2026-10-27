@@ -1198,6 +1198,14 @@
       "email-announcement": {
         "title": "The e-mail announcement",
         "description": "A fuller announcement to copy into your e-mail."
+      },
+      "attendance": {
+        "title": "Expected guests",
+        "description": "How many people to expect, to size the wake and the meals."
+      },
+      "budget": {
+        "title": "Budget",
+        "description": "The level of ceremony you have in mind, among three estimated budgets."
       }
     },
     "q": {
@@ -1309,6 +1317,39 @@
             "noPreference": "No preference"
           }
         }
+      },
+      "attendance": {
+        "close": {
+          "title": "How many of {name}'s close family do you expect?",
+          "hint": "Spouse, children, parents, brothers and sisters, with their families. An estimate is enough."
+        },
+        "extended": {
+          "title": "And how many members of the wider family do you expect?",
+          "hint": "Uncles, aunts, cousins, in-laws. An estimate is enough."
+        },
+        "friends": {
+          "title": "How many friends, neighbours and colleagues do you expect?",
+          "hint": "An estimate is enough."
+        },
+        "community": {
+          "title": "How many members of the community (parish, association, village) do you expect?",
+          "hint": "An estimate is enough."
+        },
+        "nights": {
+          "title": "How many nights will the wake last?",
+          "hint": "0 if there is no wake. We use it to work out equipment and catering."
+        }
+      },
+      "budget": {
+        "level": {
+          "title": "What level of ceremony do you have in mind?",
+          "hint": "The three estimated budgets are shown from the dashboard (See the budget). You can change your mind.",
+          "options": {
+            "sober": "Simple",
+            "intermediate": "Intermediate",
+            "full": "Full"
+          }
+        }
       }
     },
     "fields": {
@@ -1333,7 +1374,9 @@
       "chooseOption": "Choose…",
       "tooLarge": "Your answer is too long: please shorten it.",
       "invalidDate": "This date is not valid.",
-      "invalidCharacter": "Your answer contains an unsupported character."
+      "invalidCharacter": "Your answer contains an unsupported character.",
+      "invalidNumber": "Enter a whole number, in digits.",
+      "outOfRange": "Enter a number between {min, number} and {max, number}."
     },
     "dashboard": {
       "nextTitle": "Next question",
@@ -1343,7 +1386,10 @@
       "completeSkipped": "Complete skipped questions",
       "stepProgress": "{answered} of {total} answered",
       "toComplete": "{count, plural, =1 {1 question to complete} other {# questions to complete}}",
-      "viewDraft": "View the draft"
+      "viewDraft": "View the draft",
+      "summary": {
+        "budget": "See the budget"
+      }
     },
     "draft": {
       "title": {
@@ -1380,6 +1426,49 @@
         "quota": "Today's improvement limit for this dossier has been reached. Your text is kept.",
         "failed": "The improvement did not work. Your text is kept; please try again later."
       }
+    }
+  },
+  "budget": {
+    "page": {
+      "title": "Estimated budget",
+      "intro": "Three budgets estimated from the expected attendance. They help you decide together and start the contributions.",
+      "estimateNote": "Reference prices for Libreville: these are estimates to check with providers.",
+      "attendanceTitle": "Expected attendance",
+      "attendanceRange": "Between {low, number} and {high, number} people. {nights, plural, =0 {No wake.} one {# wake night.} other {# wake nights.}}",
+      "noAttendance": "Attendance is not estimated yet: meals, drinks, tents and chairs are not counted.",
+      "answerAttendance": "Estimate attendance",
+      "editAttendance": "Edit attendance",
+      "scenariosTitle": "Three budgets",
+      "total": "Total",
+      "line": "Item",
+      "chosen": "Level in mind",
+      "chooseLevel": "Choose a level",
+      "changeLevel": "Change level",
+      "backToDossier": "Back to the dossier",
+      "capped": "capped",
+      "cappedNote": "Some items reach the {max} cap: check the attendance and the level.",
+      "nightsAssumed": "Wake length not given: one night is assumed.",
+      "noGuests": "No guests counted yet.",
+      "linesTitle": "Breakdown by item"
+    },
+    "level": {
+      "sober": "Simple",
+      "intermediate": "Intermediate",
+      "full": "Full"
+    },
+    "grid": {
+      "mortuary": "Mortuary and preservation",
+      "coffin": "Coffin and laying in",
+      "hearse": "Hearse and transport",
+      "burial": "Burial and vault",
+      "service": "Religious ceremony",
+      "tentsChairs": "Tents and chairs",
+      "catering": "Catering",
+      "drinks": "Drinks",
+      "sound": "Sound and entertainment",
+      "printing": "Notices, booklet and posters",
+      "outfits": "Outfits and loincloths",
+      "contingency": "Contingencies"
     }
   }
 }
