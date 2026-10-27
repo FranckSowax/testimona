@@ -61,7 +61,14 @@ export default async function StepPage({
         readOnly={!canWrite(role)}
         countries={countries}
         backHref={index > 0 ? `${stepPath}?q=${index - 1}` : `/dossier/${id}`}
-        nextHref={index + 1 < step.questions.length ? `${stepPath}?q=${index + 1}` : null}
+        nextHref={
+          index + 1 < step.questions.length
+            ? `${stepPath}?q=${index + 1}`
+            : // WHY: un lecteur ne répond pas, mais doit pouvoir lire et copier le brouillon.
+              !canWrite(role) && step.draft
+              ? `${stepPath}/brouillon`
+              : null
+        }
       />
     </div>
   );

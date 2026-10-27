@@ -12,6 +12,7 @@ import { emptyItem, listFieldId } from '../values';
 
 interface ItemFieldProps {
   id: string;
+  questionKey: string;
   field: ListField;
   value: string | boolean | undefined;
   onChange: (value: string | boolean) => void;
@@ -19,10 +20,13 @@ interface ItemFieldProps {
   invalid: boolean;
 }
 
-/** Un champ d'un élément ; libellés : `journey.fields.<nom>` et `journey.fields.options.<nom>.<option>`. */
-function ItemField({ id, field, value, onChange, readOnly, invalid }: ItemFieldProps) {
+/**
+ * Un champ d'un élément ; libellés : `journey.q.<clé>.fields.<nom>.label` et
+ * `journey.q.<clé>.fields.<nom>.options.<option>`.
+ */
+function ItemField({ id, questionKey, field, value, onChange, readOnly, invalid }: ItemFieldProps) {
   const t = useTranslations('journey');
-  const label = t(`fields.${field.name}`);
+  const label = t(`q.${questionKey}.fields.${field.name}.label`);
   const a11y = {
     'aria-invalid': invalid,
     'aria-describedby': invalid ? 'question-error' : undefined,
@@ -61,7 +65,7 @@ function ItemField({ id, field, value, onChange, readOnly, invalid }: ItemFieldP
           </option>
           {field.options.map((option) => (
             <option key={option} value={option} className="text-foreground">
-              {t(`fields.options.${field.name}.${option}`)}
+              {t(`q.${questionKey}.fields.${field.name}.options.${option}`)}
             </option>
           ))}
         </select>
@@ -144,6 +148,7 @@ export function ListInput({
               <ItemField
                 key={field.name}
                 id={id}
+                questionKey={question.key}
                 field={field}
                 value={item[field.name]}
                 onChange={(value) => update(index, field.name, value)}

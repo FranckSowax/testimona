@@ -1,7 +1,7 @@
 import 'server-only';
 import { z } from 'zod';
-import { findQuestion, isStepOpen } from '@/journey/registry';
-import { answerSchema, isSkipped, SKIPPED } from '@/journey/types';
+import { findQuestion, getStep, isStepOpen } from '@/journey/registry';
+import { answerSchema, draftTextSchema, isSkipped, SKIPPED } from '@/journey/types';
 import { getDossier } from '../repo';
 import { fieldErrors, fromRepo, type Result } from '../service';
 import * as repo from './repo';
@@ -56,4 +56,39 @@ export async function saveAnswer(raw: unknown): Promise<Result<{ key: string }>>
   const res = await repo.upsertAnswer({ dossierId, key, value });
   if (res.error) return fromRepo(res.error, 'saveAnswer');
   return { ok: true, data: { key } };
+}
+
+const SaveDraftInputSchema = z.object({
+  dossierId: z.string().uuid(),
+  stepId: z.string().max(50),
+  text: z.string(),
+});
+
+/**
+ * Enregistre le brouillon d'une étape (message immédiat, annonce par e-mail) sous sa clé.
+ * Refuse une étape sans brouillon, fermée pour la porte du dossier, ou un texte vide ou trop long.
+ *
+ * @example
+ * await saveDraft({ dossierId, stepId: 'immediate-message', text });
+ */
+export async function saveDraft(raw: unknown): Promise<Result<{ key: string }>> {
+  const input = SaveDraftInputSchema.safeParse(raw);
+  if (!input.success) return { ok: false, error: 'validation' };
+  const { dossierId, stepId } = input.data;
+  const step = getStep(stepId);
+  const draft = step?.draft;
+  if (!step || !draft) return { ok: false, error: 'validation' };
+
+  const text = draftTextSchema.safeParse(input.data.text);
+  if (!text.success) {
+    return { ok: false, error: 'validation', fieldErrors: fieldErrors(text.error.issues) };
+  }
+
+  const dossier = await getDossier(dossierId);
+  if (!dossier) return { ok: false, error: 'not_found' };
+  if (!isStepOpen(dossier.entryPoint, step.id)) return { ok: false, error: 'validation' };
+
+  const res = await repo.upsertAnswer({ dossierId, key: draft.key, value: text.data });
+  if (res.error) return fromRepo(res.error, 'saveDraft');
+  return { ok: true, data: { key: draft.key } };
 }

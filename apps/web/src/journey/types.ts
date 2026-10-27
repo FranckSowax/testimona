@@ -9,6 +9,8 @@ export const CITY_MAX = 120;
 /** Marge sous la limite SQL de 65536 octets : `jsonb::text` ajoute des espaces. */
 export const ANSWER_MAX_BYTES = 60_000;
 export const MIN_YEAR = 1800;
+/** Taille maximale d'un brouillon (corps d'annonce compris), sous la borne de 60 000 octets. */
+export const DRAFT_MAX = 12_000;
 
 export type ListField =
   | { name: string; kind: 'shortText' | 'longText'; required?: boolean }
@@ -27,10 +29,19 @@ export type Question =
   | ChoiceQuestion
   | ListQuestion;
 
+export type DraftKind = 'whatsapp' | 'email';
+
+/** Brouillon rédigé à partir des réponses de l'étape, enregistré sous sa propre clé. */
+export interface StepDraft {
+  key: string;
+  kind: DraftKind;
+}
+
 /** Une étape du parcours : `id` sert de segment d'URL (`/etape/<id>`). */
 export interface Step {
   id: string;
   questions: readonly Question[];
+  draft?: StepDraft;
 }
 
 export interface PlaceValue {
@@ -49,6 +60,23 @@ export function isSkipped(value: unknown): boolean {
 
 // WHY: jsonb rejette le caractère NUL (erreur 22P05).
 const noNul = (s: string) => !s.includes('\u0000');
+/** Texte d'un brouillon enregistré : nettoyé, non vide, borné, sans caractère NUL. */
+export const draftTextSchema = z
+  .string()
+  // WHY: un navigateur envoie les retours à la ligne d'un textarea en CRLF ; on stocke du LF
+  // pour que la limite compte une seule unité par ligne.
+  .transform((s) => s.replace(/\r\n?/g, '\n'))
+  .pipe(
+    z
+      .string()
+      .trim()
+      .min(1, 'empty')
+      .max(DRAFT_MAX, 'too long')
+      .refine(noNul, 'invalid character')
+      // WHY: les caractères de contrôle gonflent en `\u00XX` dans le JSON ; 12 000 caractères
+      // peuvent dépasser la limite SQL, donc on mesure aussi la taille réelle.
+      .refine(fitsAnswerSize, 'too large'),
+  );
 const requiredText = (max: number) =>
   z.string().trim().min(1).max(max).refine(noNul, 'invalid character');
 // WHY: un champ facultatif laissé vide n'est pas enregistré, plutôt que stocké en chaîne vide.
@@ -102,10 +130,12 @@ function fieldSchema(field: ListField): z.ZodTypeAny {
 
 /** Schéma d'une vraie réponse à la question (« passée » exclue), taille bornée. */
 export function answerSchema(question: Question): z.ZodTypeAny {
-  return rawAnswerSchema(question).refine(
-    (v) => new TextEncoder().encode(JSON.stringify(v)).length <= ANSWER_MAX_BYTES,
-    'too large',
-  );
+  return rawAnswerSchema(question).refine(fitsAnswerSize, 'too large');
+}
+
+/** Vrai si la valeur sérialisée en JSON tient dans `ANSWER_MAX_BYTES`. */
+function fitsAnswerSize(v: unknown): boolean {
+  return new TextEncoder().encode(JSON.stringify(v)).length <= ANSWER_MAX_BYTES;
 }
 
 function rawAnswerSchema(question: Question): z.ZodTypeAny {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Step } from './types';
+import { answerSchema, type Step } from './types';
 import {
   assertUniqueSteps,
   findQuestion,
@@ -10,12 +10,55 @@ import {
 } from './registry';
 
 describe('registre du parcours', () => {
-  it('propose la biographie aux portes décès et préparer', () => {
-    expect(stepsFor('death').map((s) => s.id)).toEqual(['biography']);
+  it('annonce d’abord, puis raconte, pour la porte décès', () => {
+    expect(stepsFor('death').map((s) => s.id)).toEqual([
+      'broadcast-list',
+      'immediate-message',
+      'email-announcement',
+      'biography',
+    ]);
     expect(stepsFor('prepare').map((s) => s.id)).toEqual(['biography']);
     expect(stepsFor('after')).toEqual([]);
+    expect(isStepOpen('prepare', 'immediate-message')).toBe(false);
     expect(isStepOpen('death', 'biography')).toBe(true);
-    expect(isStepOpen('after', 'biography')).toBe(false);
+  });
+
+  it('pose les questions des étapes 2.x avec les clés de la spec', () => {
+    expect(getStep('broadcast-list')?.questions.map((q) => q.key)).toEqual(['broadcast.contacts']);
+    expect(getStep('immediate-message')?.questions.map((q) => q.key)).toEqual([
+      'death.date',
+      'death.mentionCause',
+      'announce.tone',
+    ]);
+    expect(getStep('email-announcement')?.questions.map((q) => q.key)).toEqual([
+      'announce.aboutPerson',
+      'announce.practicalInfo',
+      'announce.flowersOrDonations',
+    ]);
+  });
+
+  it('associe un brouillon WhatsApp à 2.2 et un brouillon e-mail à 2.3', () => {
+    expect(getStep('immediate-message')?.draft).toEqual({
+      key: 'announce.whatsapp.text',
+      kind: 'whatsapp',
+    });
+    expect(getStep('email-announcement')?.draft).toEqual({
+      key: 'announce.email.text',
+      kind: 'email',
+    });
+    expect(getStep('broadcast-list')?.draft).toBeUndefined();
+  });
+
+  it('décrit chaque contact de la liste de diffusion', () => {
+    const contacts = findQuestion('broadcast.contacts')?.question;
+    expect(contacts).toMatchObject({ kind: 'list', maxItems: 80 });
+    expect(contacts?.kind === 'list' && contacts.fields.map((f) => [f.name, f.kind])).toEqual([
+      ['name', 'shortText'],
+      ['phone', 'shortText'],
+      ['circle', 'choice'],
+      ['caller', 'shortText'],
+      ['priority', 'boolean'],
+    ]);
   });
 
   it('pose les six questions de la biographie dans l’ordre de la spec', () => {
@@ -77,5 +120,44 @@ describe('registre du parcours', () => {
     it('accepte le registre réel', () => {
       expect(() => assertUniqueSteps(stepsFor('death'))).not.toThrow();
     });
+  });
+});
+
+describe('assertUniqueSteps et brouillons', () => {
+  it('refuse une clé de brouillon déjà utilisée par une autre étape', () => {
+    const a: Step = { id: 'a', questions: [], draft: { key: 'shared.text', kind: 'email' } };
+    const b: Step = { id: 'b', questions: [{ kind: 'shortText', key: 'shared.text' }] };
+    expect(() => assertUniqueSteps([a, b])).toThrow(/shared\.text/);
+  });
+});
+
+describe('taille de la liste de diffusion', () => {
+  const schema = () => {
+    const question = findQuestion('broadcast.contacts')?.question;
+    if (!question) throw new Error('question absente');
+    return answerSchema(question);
+  };
+
+  it('accepte 80 contacts réalistes', () => {
+    const items = Array.from({ length: 80 }, (_, i) => ({
+      name: `Contact ${i}`,
+      phone: '+241 06 12 34 56',
+      circle: 'close_family',
+      caller: 'Marie',
+      priority: false,
+    }));
+    expect(schema().safeParse(items).success).toBe(true);
+  });
+
+  it('accepte 80 contacts ASCII à 200 caractères', () => {
+    const long = 'a'.repeat(200);
+    const items = Array.from({ length: 80 }, () => ({
+      name: long,
+      phone: long,
+      circle: 'other',
+      caller: long,
+      priority: true,
+    }));
+    expect(schema().safeParse(items).success).toBe(true);
   });
 });

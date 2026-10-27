@@ -1186,6 +1186,18 @@
       "biography": {
         "title": "Their life story",
         "description": "Tell their story, one question at a time. You can answer on their behalf, and skip a question to come back to it later."
+      },
+      "broadcast-list": {
+        "title": "Who to tell",
+        "description": "Who to tell, and who will reach them. The list stays private to the family space."
+      },
+      "immediate-message": {
+        "title": "The first message",
+        "description": "A short message to send by WhatsApp or text in the first hours."
+      },
+      "email-announcement": {
+        "title": "The e-mail announcement",
+        "description": "A fuller announcement to copy into your e-mail."
       }
     },
     "q": {
@@ -1204,7 +1216,15 @@
         },
         "traits": {
           "title": "Which character traits describe {name} best?",
-          "hint": "One trait per item, with an anecdote if a memory comes to mind."
+          "hint": "One trait per item, with an anecdote if a memory comes to mind.",
+          "fields": {
+            "trait": {
+              "label": "Character trait"
+            },
+            "anecdote": {
+              "label": "Anecdote (optional)"
+            }
+          }
         },
         "passions": {
           "title": "{status, select, alive {What is {name} passionate about?} other {What was {name} passionate about?}}",
@@ -1214,11 +1234,84 @@
           "title": "A phrase or motto people associate with {name}?",
           "hint": "A few words their loved ones will recognise."
         }
+      },
+      "broadcast": {
+        "contacts": {
+          "title": "Who needs to be told?",
+          "hint": "Add the people to call or write to, with their circle and the family member who will reach them.",
+          "fields": {
+            "name": {
+              "label": "Name"
+            },
+            "phone": {
+              "label": "Phone (optional)"
+            },
+            "circle": {
+              "label": "Circle",
+              "options": {
+                "close_family": "Close family",
+                "extended_family": "Extended family",
+                "colleagues": "Colleagues",
+                "parish": "Parish or community",
+                "village": "Village",
+                "other": "Other"
+              }
+            },
+            "caller": {
+              "label": "Who will call (optional)"
+            },
+            "priority": {
+              "label": "Call first"
+            }
+          }
+        }
+      },
+      "death": {
+        "date": {
+          "title": "When did {name} pass away?",
+          "hint": "It will appear in the announcements."
+        },
+        "mentionCause": {
+          "title": "Would you like to mention the circumstances?",
+          "hint": "Optional: you can stay discreet.",
+          "options": {
+            "none": "Do not mention them",
+            "illness": "After an illness",
+            "sudden": "Suddenly",
+            "accident": "Following an accident"
+          }
+        }
+      },
+      "announce": {
+        "tone": {
+          "title": "Which tone would you like for the announcements?",
+          "hint": "The suggested texts will adapt; you can always edit them.",
+          "options": {
+            "believer": "With faith",
+            "neutral": "Neutral"
+          }
+        },
+        "aboutPerson": {
+          "title": "A few words about {name} for the announcement",
+          "hint": "What defined {name}, what people will remember: two or three sentences are enough."
+        },
+        "practicalInfo": {
+          "title": "Practical information",
+          "hint": "Wake, viewing, service, burial: known dates, times and places."
+        },
+        "flowersOrDonations": {
+          "title": "Flowers or donations?",
+          "hint": "State the family's preference.",
+          "options": {
+            "flowers": "Flowers welcome",
+            "donations": "Donations instead of flowers",
+            "both": "Flowers and donations",
+            "noPreference": "No preference"
+          }
+        }
       }
     },
     "fields": {
-      "trait": "Character trait",
-      "anecdote": "Anecdote (optional)",
       "city": "Town",
       "country": "Country"
     },
@@ -1249,7 +1342,36 @@
       "allDone": "Every question has been answered or skipped.",
       "completeSkipped": "Complete skipped questions",
       "stepProgress": "{answered} of {total} answered",
-      "toComplete": "{count, plural, =1 {1 question to complete} other {# questions to complete}}"
+      "toComplete": "{count, plural, =1 {1 question to complete} other {# questions to complete}}",
+      "viewDraft": "View the draft"
+    },
+    "draft": {
+      "title": {
+        "whatsapp": "Your first message",
+        "email": "Your e-mail announcement"
+      },
+      "intro": {
+        "whatsapp": "Here is a text prepared from your answers. Edit it freely, then share it.",
+        "email": "Here is a text prepared from your answers. Edit it freely, then copy it into your e-mail."
+      },
+      "subject": "Subject",
+      "body": "Text",
+      "save": "Save",
+      "saved": "Text saved.",
+      "unsaved": "Unsaved changes.",
+      "copy": "Copy the text",
+      "copySubject": "Copy the subject",
+      "copied": "Copied.",
+      "copyManual": "The text is selected: copy it with your device.",
+      "shareWhatsapp": "Share on WhatsApp",
+      "openMail": "Open in my e-mail",
+      "regenerate": "Start again from the answers",
+      "editAnswers": "Edit the answers",
+      "backToDossier": "Back to the family space",
+      "readOnly": "You can read and copy this text; only contributors can change it.",
+      "empty": "The text is empty: write it before saving.",
+      "tooLongForLink": "Text too long to open directly: copy it instead.",
+      "newTab": "(opens in a new tab)"
     }
   }
 }

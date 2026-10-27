@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type RefObject } from 'react';
 import { useTranslations } from 'next-intl';
 import type { AnswerState } from '@/modules/dossier/answers/actions';
 import type { Question } from '../types';
+import { specificMessage } from './specific-error';
 import { listFieldId } from './values';
 
 /** Erreur affichée : `seq` change à chaque apparition, même pour un texte identique. */
@@ -10,24 +11,6 @@ export interface AnswerError {
   seq: number;
   /** Identifiants DOM des champs de liste fautifs. */
   invalidIds: readonly string[];
-}
-
-// WHY: ces messages Zod (types.ts) ont une cause précise que l'utilisateur peut corriger ;
-// le message générique « validation » ne lui dirait pas quoi changer.
-const SPECIFIC_MESSAGES = {
-  'too large': 'tooLarge',
-  'invalid date': 'invalidDate',
-  'invalid character': 'invalidCharacter',
-} as const;
-
-type SpecificMessage = keyof typeof SPECIFIC_MESSAGES;
-
-function specificMessage(fieldErrors: Record<string, string> | undefined) {
-  const messages = Object.values(fieldErrors ?? {});
-  const found = (Object.keys(SPECIFIC_MESSAGES) as SpecificMessage[]).find((message) =>
-    messages.includes(message),
-  );
-  return found ? SPECIFIC_MESSAGES[found] : null;
 }
 
 /** Clés `<index>.<nom>` des champs de liste → identifiants DOM (vide hors des listes). */
@@ -53,7 +36,7 @@ export function useAnswerError(
   keptRef: RefObject<number[]>,
 ) {
   const tErrors = useTranslations('dossier.errors');
-  const tUi = useTranslations('journey.ui');
+  const tJourney = useTranslations('journey');
   const [error, setError] = useState<AnswerError | null>(null);
   // WHY: sans mémoire du dernier `state` traité, un nouvel objet `question` rejouerait l'effet
   // et ferait réapparaître une erreur déjà effacée.
@@ -78,13 +61,13 @@ export function useAnswerError(
         : [];
     });
     const specific = specificMessage(state.fieldErrors);
-    const text = specific ? tUi(specific) : tErrors(state.error);
+    const text = specific ? tJourney(specific) : tErrors(state.error);
     setError((prev) => ({
       text,
       seq: (prev?.seq ?? 0) + 1,
       invalidIds: toIds(question, fieldId, keys),
     }));
-  }, [state, tErrors, tUi, question, fieldId, keptRef]);
+  }, [state, tErrors, tJourney, question, fieldId, keptRef]);
 
   useEffect(() => {
     if (!error) return;

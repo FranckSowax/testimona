@@ -49,4 +49,26 @@ describe('defineStep', () => {
       );
     }
   });
+
+  it('accepte un brouillon à clé valide et distincte des questions', () => {
+    const step = {
+      id: 'demo',
+      questions: [q.shortText('demo.one')],
+      draft: { key: 'demo.draft.text', kind: 'whatsapp' as const },
+    };
+    expect(defineStep(step)).toBe(step);
+  });
+
+  it('refuse un brouillon à clé invalide ou reprise d’une question', () => {
+    expect(() =>
+      defineStep({ id: 'demo', questions: [], draft: { key: 'Demo', kind: 'email' } }),
+    ).toThrow(/brouillon/);
+    expect(() =>
+      defineStep({
+        id: 'demo',
+        questions: [q.shortText('demo.one')],
+        draft: { key: 'demo.one', kind: 'email' },
+      }),
+    ).toThrow(/brouillon/);
+  });
 });

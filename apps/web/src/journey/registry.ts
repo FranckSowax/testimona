@@ -1,17 +1,24 @@
 import type { EntryPoint } from '@/modules/dossier/schema';
 import { biographyStep } from './steps/1-6-biography';
+import { broadcastListStep } from './steps/2-1-broadcast-list';
+import { immediateMessageStep } from './steps/2-2-immediate-message';
+import { emailAnnouncementStep } from './steps/2-3-email-announcement';
 import type { Question, Step } from './types';
 
-/** Étapes proposées, dans l'ordre, selon la porte d'entrée du dossier. */
+/**
+ * Étapes proposées, dans l'ordre, selon la porte d'entrée du dossier.
+ * WHY: après un décès, prévenir est plus urgent que raconter : les annonces passent avant la
+ * biographie.
+ */
 const STEPS_BY_ENTRY: Record<EntryPoint, readonly Step[]> = {
-  death: [biographyStep],
+  death: [broadcastListStep, immediateMessageStep, emailAnnouncementStep, biographyStep],
   prepare: [biographyStep],
   after: [],
 };
 
 /**
- * Vérifie qu'aucun `id` d'étape ni aucune clé de question n'apparaît deux fois.
- * WHY: `getStep` et `findQuestion` doivent rester sans ambiguïté quand les étapes 2.x arriveront.
+ * Vérifie qu'aucun `id` d'étape ni aucune clé de question ou de brouillon n'apparaît deux fois.
+ * WHY: `getStep` et `findQuestion` doivent rester sans ambiguïté quand plusieurs étapes déclarent des questions et des brouillons.
  */
 export function assertUniqueSteps(steps: readonly Step[]): void {
   const stepIds = new Set<string>();
@@ -28,6 +35,15 @@ export function assertUniqueSteps(steps: readonly Step[]): void {
       }
       keys.set(question.key, step.id);
     }
+    if (step.draft) {
+      const owner = keys.get(step.draft.key);
+      if (owner !== undefined) {
+        throw new Error(
+          `Registre : clé « ${step.draft.key} » présente dans les étapes ${owner} et ${step.id}`,
+        );
+      }
+      keys.set(step.draft.key, step.id);
+    }
   }
 }
 
@@ -43,6 +59,11 @@ export interface FoundQuestion {
 
 export function stepsFor(entryPoint: EntryPoint): readonly Step[] {
   return STEPS_BY_ENTRY[entryPoint];
+}
+
+/** Toutes les étapes du registre, sans doublon (pour les contrôles transverses). */
+export function allSteps(): readonly Step[] {
+  return ALL_STEPS;
 }
 
 export function getStep(id: string): Step | undefined {

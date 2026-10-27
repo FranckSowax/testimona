@@ -10,7 +10,7 @@ import { getCurrentUser } from '@/lib/supabase/server';
 import type { DossierError } from '../service';
 import { answerRedirectTarget } from './redirect';
 import { listAnswers } from './repo';
-import { saveAnswer } from './service';
+import { saveAnswer, saveDraft } from './service';
 
 export interface AnswerState {
   error?: DossierError;
@@ -21,7 +21,8 @@ const field = (formData: FormData, name: string) => String(formData.get(name) ??
 
 /**
  * Enregistre la réponse (ou « passée » si `intent=skip`) puis passe à la prochaine question non
- * traitée ou passée de l'étape, ou revient au tableau de bord quand il n'en reste aucune.
+ * traitée ou passée de l'étape, sinon au brouillon de l'étape s'il existe, sinon au tableau de
+ * bord du dossier.
  */
 export async function saveAnswerAction(
   _prev: AnswerState | null,
@@ -54,4 +55,27 @@ export async function saveAnswerAction(
     target = answerRedirectTarget(dossierId, found.step, answers, found.index);
   }
   redirect(localizedPath(target, locale));
+}
+
+export interface DraftState {
+  error?: DossierError;
+  saved?: boolean;
+  fieldErrors?: Record<string, string>;
+}
+
+/** Enregistre le brouillon d'une étape ; reste sur la page pour continuer à copier ou partager. */
+export async function saveDraftAction(
+  _prev: DraftState | null,
+  formData: FormData,
+): Promise<DraftState> {
+  if (!(await getCurrentUser())) return { error: 'unauthenticated' };
+  const dossierId = field(formData, 'dossierId');
+  const stepId = field(formData, 'stepId');
+  const res = await saveDraft({ dossierId, stepId, text: field(formData, 'text') });
+  if (!res.ok) return { error: res.error, fieldErrors: res.fieldErrors };
+  const locale = await getLocale();
+  revalidatePath(localizedPath(`/dossier/${dossierId}`, locale));
+  // WHY: stepId est validé par le service à ce stade (étape connue et ouverte).
+  revalidatePath(localizedPath(`/dossier/${dossierId}/etape/${stepId}/brouillon`, locale));
+  return { saved: true };
 }
