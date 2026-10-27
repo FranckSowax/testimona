@@ -1,10 +1,13 @@
 import type { Level } from '@/journey/options';
 
 /**
- * Mode de calcul d'un poste : forfait, par personne, par nuit de veillée, ou par personne et
- * par nuit.
+ * Mode de calcul d'un poste. Une « occasion » est le jour des obsèques ou une nuit de veillée.
+ * - `flat` : forfait ;
+ * - `perPerson` : par personne (fourchette haute) ; réservé, aucun poste aujourd'hui ;
+ * - `perOccasion` : par occasion (nuits de veillée + jour des obsèques) ;
+ * - `perGuestOccasion` : par invité et par occasion, la veillée comptant moins d'invités.
  */
-export type CostMode = 'flat' | 'perPerson' | 'perNight' | 'perPersonNight';
+export type CostMode = 'flat' | 'perPerson' | 'perOccasion' | 'perGuestOccasion';
 
 export interface GridItem {
   /** Clé stable (texte `budget.grid.<clé>`, et `budget_line.grid_key` à la PR 2). */
@@ -18,7 +21,7 @@ export interface GridItem {
  * Grille de référence des postes de funérailles à Libreville, en XAF.
  * WHY: ce sont des estimations à vérifier, affichées comme telles ; elles servent à donner un
  * ordre de grandeur avant les vrais prix des prestataires (lot 3). Les quantités (tentes,
- * repas, boissons) suivent la fourchette haute d'affluence et le nombre de nuits.
+ * repas, boissons) suivent la fourchette haute d'affluence, le jour des obsèques et les nuits.
  */
 export const BUDGET_GRID: readonly GridItem[] = [
   { key: 'mortuary', mode: 'flat', cost: { sober: 150_000, intermediate: 250_000, full: 400_000 } },
@@ -28,20 +31,24 @@ export const BUDGET_GRID: readonly GridItem[] = [
   { key: 'service', mode: 'flat', cost: { sober: 25_000, intermediate: 50_000, full: 100_000 } },
   {
     key: 'tentsChairs',
-    mode: 'perPersonNight',
+    mode: 'perGuestOccasion',
     cost: { sober: 500, intermediate: 800, full: 1_200 },
   },
   {
     key: 'catering',
-    mode: 'perPersonNight',
+    mode: 'perGuestOccasion',
     cost: { sober: 2_500, intermediate: 4_000, full: 7_000 },
   },
   {
     key: 'drinks',
-    mode: 'perPersonNight',
+    mode: 'perGuestOccasion',
     cost: { sober: 1_000, intermediate: 2_000, full: 3_500 },
   },
-  { key: 'sound', mode: 'perNight', cost: { sober: 50_000, intermediate: 100_000, full: 200_000 } },
+  {
+    key: 'sound',
+    mode: 'perOccasion',
+    cost: { sober: 50_000, intermediate: 100_000, full: 200_000 },
+  },
   { key: 'printing', mode: 'flat', cost: { sober: 30_000, intermediate: 80_000, full: 200_000 } },
   { key: 'outfits', mode: 'flat', cost: { sober: 50_000, intermediate: 150_000, full: 400_000 } },
   {
@@ -50,3 +57,6 @@ export const BUDGET_GRID: readonly GridItem[] = [
     cost: { sober: 50_000, intermediate: 100_000, full: 200_000 },
   },
 ];
+
+/** Clés des postes de la grille, dans l'ordre (réutilisées en PR 2). */
+export const GRID_KEYS: readonly string[] = BUDGET_GRID.map((item) => item.key);
