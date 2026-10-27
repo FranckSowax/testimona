@@ -23,6 +23,7 @@ supabase/
 | `20261027000100_shop_contribution_hide_personal_columns.sql` | Contributions boutique : colonnes personnelles masquées à l'API publique                       |
 | `20261027000200_dossier_person_answers.sql`                  | Lot 1 : fiche de la personne, réponses du parcours, création atomique, nom affiché des membres |
 | `20261027000300_dossier_invitations.sql`                     | Lot 1 : invitations par lien à usage unique                                                    |
+| `20261027000400_revoke_trigger_function_execute.sql`         | Lot 1 : fonctions de trigger du dossier non exécutables via l'API                              |
 
 Les horodatages des migrations historiques sont **synthétiques** : ils ne servent qu'à fixer l'ordre.
 
@@ -58,19 +59,21 @@ La production a reçu ces migrations à la main. Avant le premier `supabase db p
 ## État de la production (2026-10-27)
 
 Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Historique vérifié le
-2026-10-27 avec `list_migrations` (MCP Supabase), sans aucune écriture.
+2026-10-27 avec `list_migrations` (MCP Supabase).
 
 **Déjà en production :**
 
 - v2 à v16 ;
 - `v24_contribution_privacy`, version enregistrée `20261026234530` ;
-- `shop_contribution_hide_personal_columns`, version enregistrée `20261026235537`.
+- `shop_contribution_hide_personal_columns`, version enregistrée `20261026235537` ;
+- `dossier_foundation` (lot 0), version enregistrée `20261027090617` ;
+- `dossier_person_answers`, version enregistrée `20261027090645` ;
+- `dossier_invitations`, version enregistrée `20261027090710`.
 
-**Pas encore appliquées :**
+**Pas encore appliquée :**
 
-- `20261026000100_dossier_foundation` (lot 0) ;
-- `20261027000200_dossier_person_answers` ;
-- `20261027000300_dossier_invitations`.
+- `20261027000400_revoke_trigger_function_execute` (retire l'exécution RPC des fonctions de trigger
+  du dossier, signalée par `get_advisors` après l'application des trois migrations ci-dessus).
 
 Les versions enregistrées par `apply_migration` sont des horodatages d'application, **pas** les noms
 de fichiers du dépôt (ex. `20261026235537` pour `20261027000100_shop_contribution_hide_personal_columns.sql`,
@@ -87,11 +90,14 @@ Autres constats de la comparaison du schéma (chaîne du repo rejouée dans PGli
 
 ### À faire avant de déployer le web de la PR « dossier et membres »
 
-Le web de cette PR dépend des tables et fonctions créées par ces trois migrations.
+Le web de cette PR dépend des tables et fonctions créées par ces migrations.
 
-1. Appliquer, **dans cet ordre** : `20261026000100_dossier_foundation`, puis
-   `20261027000200_dossier_person_answers`, puis `20261027000300_dossier_invitations`.
-2. Vérifier `get_advisors` (sécurité et performance) et traiter toute alerte sur les nouvelles tables.
+1. ~~Appliquer, **dans cet ordre** : `20261026000100_dossier_foundation`, puis
+   `20261027000200_dossier_person_answers`, puis `20261027000300_dossier_invitations`.~~ Fait le
+   2026-10-27.
+2. Appliquer `20261027000400_revoke_trigger_function_execute`, puis revérifier `get_advisors`
+   (sécurité) : `is_dossier_member` et `accept_dossier_invitation` restent signalées, c'est voulu
+   (appelées par les policies et par l'acceptation d'une invitation).
 3. Seulement ensuite, déployer le web.
 
 Avant le premier `supabase db push`, marquer les versions de production comme `reverted` et celles du
