@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import en from '../../../../messages/en.json';
 import fr from '../../../../messages/fr.json';
+import { AMOUNT_MAX } from '../scenarios';
+import { LineSchema } from './schema';
 import type { LinesError } from './service';
 
 const get = (messages: unknown, path: string): unknown =>
@@ -75,13 +77,20 @@ const placeholders = (value: unknown): string[] =>
     ? [...value.matchAll(/\{(\w+)/g)].map((m) => m[1] as string).sort()
     : [];
 
-// WHY : `satisfies` fait échouer le typecheck si un code propre aux postes quitte `LinesError`.
-const LINE_ERRORS = [
-  'line_in_use',
-  'no_attendance',
-  'too_many_lines',
-] as const satisfies readonly LinesError[];
+// WHY : le `Record` fait échouer le typecheck si un code est ajouté à `LinesError` sans texte.
+// Les codes propres aux postes sont dans `lines.errors`, les autres dans `dossier.errors`.
+const ERROR_PATHS: Record<LinesError, string> = {
+  validation: 'dossier.errors.validation',
+  forbidden: 'dossier.errors.forbidden',
+  not_found: 'dossier.errors.not_found',
+  unauthenticated: 'dossier.errors.unauthenticated',
+  unknown: 'dossier.errors.unknown',
+  line_in_use: 'lines.errors.line_in_use',
+  no_attendance: 'lines.errors.no_attendance',
+  too_many_lines: 'lines.errors.too_many_lines',
+};
 
+// WHY : table message Zod -> clé de texte ; le test vérifie qu'elle couvre les messages réels.
 const SCHEMA_MESSAGES: Record<string, string> = {
   'invalid number': 'invalidNumber',
   'out of range': 'outOfRange',
@@ -89,6 +98,29 @@ const SCHEMA_MESSAGES: Record<string, string> = {
   'too long': 'tooLong',
   'invalid character': 'invalidCharacter',
 };
+
+/** Messages réels du schéma, obtenus en le faisant échouer. */
+function schemaIssueMessages(): string[] {
+  const base = {
+    dossierId: '00000000-0000-4000-8000-000000000000',
+    lineId: '00000000-0000-4000-8000-000000000001',
+    label: 'Salle',
+    sober: '1',
+    intermediate: '1',
+    full: '1',
+  };
+  const bad = [
+    { ...base, sober: 'abc' },
+    { ...base, sober: String(AMOUNT_MAX + 1) },
+    { ...base, label: '   ' },
+    { ...base, label: 'x'.repeat(121) },
+    { ...base, label: 'a\u0000b' },
+  ];
+  return bad.flatMap((input) => {
+    const result = LineSchema.safeParse(input);
+    return result.success ? ['(aucune erreur)'] : result.error.issues.map((i) => i.message);
+  });
+}
 
 describe.each([
   ['fr', fr],
@@ -132,15 +164,28 @@ describe('parité FR/EN des postes', () => {
     expect(placeholders(get(en, path))).toEqual(vars);
   });
 
-  it("chaque message de validation du schéma a un texte d'erreur", () => {
-    for (const key of Object.values(SCHEMA_MESSAGES)) {
+  it('chaque message réel du schéma a une clé et un texte FR et EN', () => {
+    const messages = schemaIssueMessages();
+    expect(new Set(messages).size).toBe(Object.keys(SCHEMA_MESSAGES).length);
+    for (const message of messages) {
+      const key = SCHEMA_MESSAGES[message];
+      expect({ message, key }).toEqual({ message, key: expect.any(String) });
       expect(isFilled(get(fr, `lines.errors.${key}`))).toBe(true);
       expect(isFilled(get(en, `lines.errors.${key}`))).toBe(true);
     }
   });
 
-  it.each(LINE_ERRORS)('le code %s a son texte en FR et en EN', (code) => {
-    expect(isFilled(get(fr, `lines.errors.${code}`))).toBe(true);
-    expect(isFilled(get(en, `lines.errors.${code}`))).toBe(true);
+  it.each(Object.entries(ERROR_PATHS))('le code %s a son texte en FR et en EN', (_code, path) => {
+    expect(isFilled(get(fr, path))).toBe(true);
+    expect(isFilled(get(en, path))).toBe(true);
+  });
+
+  it('les bornes citées dans les textes suivent le code', () => {
+    // WHY : 100 = MAX_LINES de service.ts (non exporté, le module est « server-only »).
+    expect(String(get(fr, 'lines.errors.outOfRange'))).toContain('100 000 000');
+    expect(String(get(en, 'lines.errors.outOfRange'))).toContain('100,000,000');
+    expect(AMOUNT_MAX).toBe(100_000_000);
+    expect(String(get(fr, 'lines.errors.too_many_lines'))).toContain('100');
+    expect(String(get(en, 'lines.errors.too_many_lines'))).toContain('100');
   });
 });

@@ -1616,7 +1616,7 @@
       "added": "Poste ajouté.",
       "deleteShort": "Supprimer",
       "delete": "Supprimer le poste : {label}",
-      "deleteWarning": "Le poste sera retiré du budget.",
+      "deleteWarning": "Le poste sera retiré du budget. Cette suppression est définitive.",
       "confirmDelete": "Confirmer la suppression",
       "deleting": "Suppression…",
       "keep": "Garder"
