@@ -156,7 +156,10 @@ export function NewDossierWizard({ entryPoint, countries }: Props) {
       </fieldset>
 
       <fieldset {...fieldsetProps(1)}>
-        <legend className={legendClass}>{t('new.whereTitle')}</legend>
+        <legend className={legendClass}>
+          {/* WHY: porte « préparer » : la personne est vivante, la question passe au présent. */}
+          {t(entryPoint === 'prepare' ? 'new.whereTitlePrepare' : 'new.whereTitle')}
+        </legend>
         <p className="text-sm text-white/70">{t('new.whereHint')}</p>
         <label className="block space-y-1">
           <span className="text-sm">{t('new.country')}</span>
