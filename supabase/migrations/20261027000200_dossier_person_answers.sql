@@ -8,7 +8,9 @@ alter table public.dossier_member add column display_name text;
 
 -- WHY: le nom est toujours dérivé du profil, jamais d'une valeur envoyée : un
 -- coordinateur (qui peut modifier dossier_member) ne doit pas pouvoir faire
--- passer un membre pour « Notaire officiel ».
+-- passer un membre pour « Notaire officiel ». Pas de repli sur l'e-mail : sa
+-- partie locale (souvent « prénom.nom ») serait exposée à tous les membres ;
+-- sans pseudonyme ni nom complet, le nom reste null (l'interface affiche « Membre »).
 create function public.dossier_member_set_display_name()
 returns trigger
 language plpgsql
@@ -18,8 +20,7 @@ as $$
 begin
   select coalesce(
            nullif(u.raw_user_meta_data ->> 'nickname', ''),
-           nullif(u.raw_user_meta_data ->> 'full_name', ''),
-           split_part(u.email, '@', 1)
+           nullif(u.raw_user_meta_data ->> 'full_name', '')
          )
     into new.display_name
     from auth.users u
@@ -32,8 +33,7 @@ $$;
 update public.dossier_member m
    set display_name = coalesce(
          nullif(u.raw_user_meta_data ->> 'nickname', ''),
-         nullif(u.raw_user_meta_data ->> 'full_name', ''),
-         split_part(u.email, '@', 1)
+         nullif(u.raw_user_meta_data ->> 'full_name', '')
        )
   from auth.users u
  where u.id = m.user_id;

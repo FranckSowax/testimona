@@ -13,13 +13,16 @@ supabase/
   seed-avatars.sql
 ```
 
-| Migration                               | Origine                                                           |
-| --------------------------------------- | ----------------------------------------------------------------- |
-| `20260501000000_baseline_prisma.sql`    | Tables historiques, générées depuis l'ancien `schema.prisma`      |
-| `20260501000100_rls_policies.sql`       | Ancien `infra/supabase/rls/policies.sql`                          |
-| `20260501000200_storage_buckets.sql`    | Ancien `infra/supabase/storage/buckets.sql`                       |
-| `20260502000001` → `20260502000024`     | Anciennes migrations `migration-v2` → `migration-v24`, même ordre |
-| `20261026000100_dossier_foundation.sql` | Lot 0 : dossier familial, rôles, RLS par dossier                  |
+| Migration                                                    | Origine                                                                                        |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `20260501000000_baseline_prisma.sql`                         | Tables historiques, générées depuis l'ancien `schema.prisma`                                   |
+| `20260501000100_rls_policies.sql`                            | Ancien `infra/supabase/rls/policies.sql`                                                       |
+| `20260501000200_storage_buckets.sql`                         | Ancien `infra/supabase/storage/buckets.sql`                                                    |
+| `20260502000001` → `20260502000024`                          | Anciennes migrations `migration-v2` → `migration-v24`, même ordre                              |
+| `20261026000100_dossier_foundation.sql`                      | Lot 0 : dossier familial, rôles, RLS par dossier                                               |
+| `20261027000100_shop_contribution_hide_personal_columns.sql` | Contributions boutique : colonnes personnelles masquées à l'API publique                       |
+| `20261027000200_dossier_person_answers.sql`                  | Lot 1 : fiche de la personne, réponses du parcours, création atomique, nom affiché des membres |
+| `20261027000300_dossier_invitations.sql`                     | Lot 1 : invitations par lien à usage unique                                                    |
 
 Les horodatages des migrations historiques sont **synthétiques** : ils ne servent qu'à fixer l'ordre.
 
@@ -54,17 +57,42 @@ La production a reçu ces migrations à la main. Avant le premier `supabase db p
 
 ## État de la production (2026-10-27)
 
-Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Comparaison faite avec le MCP
-Supabase, en rejouant la chaîne du repo dans PGlite :
+Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Historique vérifié le
+2026-10-27 avec `list_migrations` (MCP Supabase), sans aucune écriture.
 
-- mêmes 26 tables, mêmes policies RLS ;
-- la v24 (`isAnonymous`, `wantsItem`) manquait : appliquée le 2026-10-27, enregistrée sous la version
-  `20261026234530` ;
-- l'historique de production ne contient que v2 à v16 et v24, sous des versions différentes du repo
-  (ex. `20260510104839_v2_popups_schema_additions`) ; v17 à v23 y ont été appliquées sans historique ;
+**Déjà en production :**
+
+- v2 à v16 ;
+- `v24_contribution_privacy`, version enregistrée `20261026234530` ;
+- `shop_contribution_hide_personal_columns`, version enregistrée `20261026235537`.
+
+**Pas encore appliquées :**
+
+- `20261026000100_dossier_foundation` (lot 0) ;
+- `20261027000200_dossier_person_answers` ;
+- `20261027000300_dossier_invitations`.
+
+Les versions enregistrées par `apply_migration` sont des horodatages d'application, **pas** les noms
+de fichiers du dépôt (ex. `20261026235537` pour `20261027000100_shop_contribution_hide_personal_columns.sql`,
+`20260510104839_v2_popups_schema_additions` pour la v2). Comparer par nom de migration, pas par
+version.
+
+Autres constats de la comparaison du schéma (chaîne du repo rejouée dans PGlite) :
+
+- mêmes 26 tables historiques, mêmes policies RLS ;
+- v17 à v23 ont été appliquées sans historique ;
 - écarts mineurs : `MemorialFavorite.id` a un défaut `gen_random_uuid()` en production, index en double
   `chapter_biography_position_idx` en production, index `MemorialFavorite_userId_createdAt_idx` absent
   de la production.
+
+### À faire avant de déployer le web de la PR « dossier et membres »
+
+Le web de cette PR dépend des tables et fonctions créées par ces trois migrations.
+
+1. Appliquer, **dans cet ordre** : `20261026000100_dossier_foundation`, puis
+   `20261027000200_dossier_person_answers`, puis `20261027000300_dossier_invitations`.
+2. Vérifier `get_advisors` (sécurité et performance) et traiter toute alerte sur les nouvelles tables.
+3. Seulement ensuite, déployer le web.
 
 Avant le premier `supabase db push`, marquer les versions de production comme `reverted` et celles du
 repo (`20260501000000` → `20260502000024`) comme `applied` avec `supabase migration repair`.

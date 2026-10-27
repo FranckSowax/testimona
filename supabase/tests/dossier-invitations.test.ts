@@ -229,11 +229,42 @@ describe('accept_dossier_invitation', () => {
       'select role, display_name from dossier_member where dossier_id = $1 and user_id = $2',
       [dossierId, guest],
     );
-    expect(member.rows[0]).toEqual({ role: 'contributor', display_name: 'guest' });
+    expect(member.rows[0]).toEqual({ role: 'contributor', display_name: null });
   });
 
-  it('refuse une invitation déjà utilisée', async () => {
+  it('refuse une invitation déjà utilisée par un autre utilisateur', async () => {
     await expect(accept(other, 'token-valide-000000000000')).rejects.toMatchObject({
+      code: 'TI003',
+    });
+  });
+
+  it('renvoie le dossier au même invité sans toucher à son rôle', async () => {
+    const again = await createUser(db, 'again@test.local');
+    await invite(owner, 'token-rejoue-000000000000', 'contributor');
+    await accept(again, 'token-rejoue-000000000000');
+    await asUser(db, owner, () =>
+      db.query(`update dossier_member set role = 'viewer' where dossier_id = $1 and user_id = $2`, [
+        dossierId,
+        again,
+      ]),
+    );
+    const { rows } = await accept(again, 'token-rejoue-000000000000');
+    expect(rows[0]?.id).toBe(dossierId);
+    expect(await roleOf(again)).toBe('viewer');
+  });
+
+  it('renvoie le dossier au même invité même après expiration du lien', async () => {
+    const late = await createUser(db, 'late@test.local');
+    await invite(owner, 'token-tardif-000000000000', 'contributor');
+    await accept(late, 'token-tardif-000000000000');
+    await db.query(
+      `update dossier_invitation set expires_at = now() - interval '1 day' where token_hash = $1`,
+      [hash('token-tardif-000000000000')],
+    );
+    const { rows } = await accept(late, 'token-tardif-000000000000');
+    expect(rows[0]?.id).toBe(dossierId);
+    expect(await roleOf(late)).toBe('contributor');
+    await expect(accept(other, 'token-tardif-000000000000')).rejects.toMatchObject({
       code: 'TI003',
     });
   });

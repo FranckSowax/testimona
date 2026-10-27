@@ -48,7 +48,8 @@ create policy dossier_invitation_delete on public.dossier_invitation
 
 -- ---------------------------------------------------------------------------
 -- Acceptation. Codes d'erreur : TI001 jeton inconnu (ou auteur qui n'est plus
--- coordinateur), TI002 expiré, TI003 déjà utilisé, 28000 non connecté.
+-- coordinateur), TI002 expiré, TI003 déjà utilisé par un autre utilisateur,
+-- 28000 non connecté. Le même invité qui réaccepte reçoit le dossier.
 -- WHY: security definer, car l'invité n'est pas encore membre et ne peut ni lire
 -- l'invitation ni s'ajouter lui-même ; la fonction fait ces vérifications.
 -- ---------------------------------------------------------------------------
@@ -75,7 +76,13 @@ begin
   if not found then
     raise exception 'invitation invalid' using errcode = 'TI001';
   end if;
+  -- WHY: idempotent pour le même invité (double clic, lien rouvert), même si le
+  -- lien a expiré depuis ; on renvoie le dossier sans rien modifier. Ce contrôle
+  -- précède donc celui de l'expiration.
   if v_inv.used_at is not null then
+    if v_inv.used_by = v_uid then
+      return v_inv.dossier_id;
+    end if;
     raise exception 'invitation already used' using errcode = 'TI003';
   end if;
   if v_inv.expires_at < now() then

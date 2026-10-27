@@ -111,11 +111,11 @@ describe('create_dossier_with_person', () => {
 });
 
 describe('dossier_member.display_name', () => {
-  it('renseigne le nom affiché du propriétaire', async () => {
-    expect(await displayNameOf(owner)).toBe('owner');
+  it("n'expose pas l'e-mail : sans pseudonyme ni nom complet, le nom reste vide", async () => {
+    expect(await displayNameOf(owner)).toBeNull();
   });
 
-  it('préfère le surnom, puis le nom complet, puis la partie locale de l’e-mail', async () => {
+  it('préfère le pseudonyme, puis le nom complet', async () => {
     const nick = await createUser(db, 'nick@test.local');
     const full = await createUser(db, 'full@test.local');
     await db.query(
@@ -135,7 +135,7 @@ describe('dossier_member.display_name', () => {
   it('écrase un nom affiché fourni à l’insertion', async () => {
     const spoofer = await createUser(db, 'spoofer@test.local');
     await addMember(owner, spoofer, 'viewer', 'Notaire officiel');
-    expect(await displayNameOf(spoofer)).toBe('spoofer');
+    expect(await displayNameOf(spoofer)).toBeNull();
   });
 
   it('empêche un coordinateur de renommer un autre membre', async () => {
@@ -145,7 +145,7 @@ describe('dossier_member.display_name', () => {
         [dossierId, viewer],
       ),
     );
-    expect(await displayNameOf(viewer)).toBe('viewer');
+    expect(await displayNameOf(viewer)).toBeNull();
   });
 });
 
