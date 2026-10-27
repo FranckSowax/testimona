@@ -14,7 +14,10 @@ interface Props {
   canAnswer: boolean;
 }
 
-/** Carte « Prochaine question » et avancement de chaque étape (questions passées « à compléter »). */
+/**
+ * Carte « Prochaine question » et avancement de chaque étape (questions passées « à compléter »).
+ * Un lecteur (`canAnswer` faux) est mené au début de l'étape pour la consulter dans l'ordre.
+ */
 export async function JourneyOverview({
   dossierId,
   steps,
@@ -40,7 +43,7 @@ export async function JourneyOverview({
           <>
             <p className="mt-2 text-white/80">{t(`q.${nextKey}.title`, { name, status })}</p>
             <Link
-              href={`/dossier/${dossierId}/etape/${next.stepId}?q=${next.index}`}
+              href={`/dossier/${dossierId}/etape/${next.stepId}?q=${canAnswer ? next.index : 0}`}
               className={`${buttonClasses({ variant: 'primary', size: 'md' })} mt-4`}
             >
               {t(canAnswer ? 'dashboard.answer' : 'dashboard.view')}
@@ -83,6 +86,7 @@ export async function JourneyOverview({
                   </span>
                 )}
               </div>
+              <p className="text-muted-foreground text-sm">{t(`steps.${step.id}.description`)}</p>
               {progress.total > 0 && (
                 <ProgressBar value={progress.answered} max={progress.total} ariaLabel={title} />
               )}
