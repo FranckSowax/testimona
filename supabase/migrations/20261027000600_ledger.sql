@@ -4,8 +4,10 @@
 -- WHY (choix assumés) :
 --  - registre en ajout seul : aucune modification ni suppression ; une erreur se
 --    corrige par une ligne « reversal » qui annule une ligne existante ;
---  - le trigger impose l'auteur, recopie dans une annulation le montant, le nom et
---    le membre de la ligne visée, et vérifie promesses et membres liés ;
+--  - le trigger vérifie d'abord le rôle, impose l'auteur, recopie dans une
+--    annulation le montant, le nom et le membre de la ligne visée, et vérifie
+--    promesses, dates et membres liés ;
+--  - une promesse peut être honorée en plusieurs versements, jusqu'à son montant ;
 --  - la RLS de lecture dépend du réglage de visibilité du dossier ; une
 --    annulation porte le type de la ligne visée (reverses_kind) pour éviter une
 --    politique qui relirait sa propre table ;
@@ -19,6 +21,25 @@ create table public.dossier_finance (
     check (amounts_visibility in ('restricted', 'members')),
   updated_at timestamptz not null default now()
 );
+
+-- WHY: le dossier et la date de mise à jour ne sont jamais fournis par le client.
+create function public.dossier_finance_before_update()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  new.dossier_id := old.dossier_id;
+  new.updated_at := now();
+  return new;
+end;
+$$;
+
+create trigger dossier_finance_before_update
+  before update on public.dossier_finance
+  for each row execute function public.dossier_finance_before_update();
+
+revoke execute on function public.dossier_finance_before_update() from public, anon, authenticated;
 
 alter table public.dossier_finance enable row level security;
 revoke all on public.dossier_finance from anon;
@@ -42,7 +63,10 @@ create policy dossier_finance_update on public.dossier_finance
 -- ---------------------------------------------------------------------------
 create table public.ledger_entry (
   id uuid primary key default gen_random_uuid(),
-  dossier_id uuid not null references public.dossier (id) on delete cascade,
+  -- WHY: restrict et non cascade : le registre trace de l'argent reçu de tiers, il
+  -- ne doit pas disparaître avec le dossier. L'archivage et l'export viendront avec
+  -- la clôture (lot 2, PR 5).
+  dossier_id uuid not null references public.dossier (id) on delete restrict,
   kind text not null check (kind in ('pledge', 'receipt', 'expense', 'reversal')),
   amount integer not null check (amount between 1 and 100000000),
   method text check (
@@ -52,11 +76,15 @@ create table public.ledger_entry (
   member_id uuid references auth.users (id) on delete set null,
   pledge_id uuid references public.ledger_entry (id),
   note text not null default '' check (char_length(note) <= 500),
-  occurred_on date not null default current_date,
+  occurred_on date not null default current_date check (occurred_on >= date '2000-01-01'),
   reverses_id uuid unique references public.ledger_entry (id),
   reverses_kind text check (reverses_kind in ('pledge', 'receipt', 'expense')),
   idempotency_key uuid not null,
-  created_by uuid not null default auth.uid() references auth.users (id),
+  -- WHY: nullable et « on delete set null » pour qu'un membre puisse supprimer son
+  -- compte sans effacer le registre. Le trigger l'impose à auth.uid() : une
+  -- insertion côté serveur sans utilisateur (auth.uid() nul) n'est pas prise en
+  -- charge, le contrôle d'appartenance du trigger la refuse.
+  created_by uuid default auth.uid() references auth.users (id) on delete set null,
   created_at timestamptz not null default now(),
   unique (dossier_id, idempotency_key),
   check ((kind = 'reversal') = (reverses_id is not null)),
@@ -81,11 +109,27 @@ as $$
 declare
   v_target public.ledger_entry;
 begin
+  -- WHY: contrôle du rôle avant tout autre, pour qu'un non-membre ou un lecteur
+  -- ne puisse pas sonder le registre par les codes TL001 à TL003. La RLS reste la
+  -- règle de référence.
+  if not public.is_dossier_member(
+    new.dossier_id,
+    (case when new.kind = 'pledge' then 'contributor' else 'treasurer' end)::public.dossier_role
+  ) then
+    raise exception 'not allowed' using errcode = '42501';
+  end if;
+
   new.created_by := auth.uid();
   new.created_at := now();
 
+  if new.occurred_on > current_date + 1 then
+    raise exception 'invalid date' using errcode = '23514';
+  end if;
+
   if new.kind = 'reversal' then
-    select * into v_target from public.ledger_entry where id = new.reverses_id;
+    -- WHY: verrou sur la ligne visée, pour sérialiser une annulation et un
+    -- versement concurrents qui la concernent.
+    select * into v_target from public.ledger_entry where id = new.reverses_id for update;
     if not found or v_target.dossier_id <> new.dossier_id or v_target.kind = 'reversal' then
       raise exception 'invalid reversal' using errcode = 'TL001';
     end if;
@@ -99,23 +143,29 @@ begin
   end if;
   new.reverses_kind := null;
 
-  if new.pledge_id is not null then
-    select * into v_target from public.ledger_entry where id = new.pledge_id;
+  -- WHY: seule une cotisation reçue peut viser une promesse ; pour les autres types,
+  -- la contrainte check sur pledge_id refuse la ligne (23514).
+  if new.pledge_id is not null and new.kind = 'receipt' then
+    -- WHY: verrou sur la promesse avant de compter ses versements : deux cotisations
+    -- concurrentes sur la même promesse se sérialisent sur ce verrou, la seconde
+    -- voit donc la première.
+    select * into v_target from public.ledger_entry where id = new.pledge_id for update;
     if not found
       or v_target.dossier_id <> new.dossier_id
       or v_target.kind <> 'pledge'
       or exists (select 1 from public.ledger_entry r where r.reverses_id = v_target.id)
-      or exists (
-        select 1 from public.ledger_entry rc
+      or (
+        select coalesce(sum(rc.amount), 0)
+          from public.ledger_entry rc
          where rc.pledge_id = v_target.id
            and rc.kind = 'receipt'
            and not exists (select 1 from public.ledger_entry rv where rv.reverses_id = rc.id)
-      )
+      ) >= v_target.amount
     then
       raise exception 'invalid pledge' using errcode = 'TL002';
     end if;
     -- WHY: le membre qui a promis doit voir sa cotisation, même en mode restreint.
-    new.member_id := coalesce(new.member_id, v_target.member_id);
+    new.member_id := v_target.member_id;
   end if;
 
   if new.member_id is not null and not exists (
@@ -169,6 +219,10 @@ create policy ledger_entry_insert on public.ledger_entry
 
 -- ---------------------------------------------------------------------------
 -- Totaux du registre, sommes seulement, pour tout membre du dossier.
+-- WHY: les totaux sont visibles de tout membre par choix ; en mode restreint, un
+-- montant individuel peut donc se déduire en comparant les totaux dans le temps.
+-- Le promis non versé compte, pour chaque promesse active, le reste à verser
+-- (montant moins les versements actifs liés, jamais négatif).
 -- ---------------------------------------------------------------------------
 create function public.ledger_totals(p_dossier_id uuid)
 returns table (received bigint, pledged_open bigint, spent bigint)
@@ -194,10 +248,14 @@ begin
   )
   select
     (select coalesce(sum(a.amount), 0)::bigint from active a where a.kind = 'receipt'),
-    (select coalesce(sum(p.amount), 0)::bigint
+    (select coalesce(sum(greatest(
+              p.amount - coalesce((
+                select sum(rc.amount) from active rc
+                 where rc.kind = 'receipt' and rc.pledge_id = p.id
+              ), 0),
+              0)), 0)::bigint
        from active p
-      where p.kind = 'pledge'
-        and not exists (select 1 from active rc where rc.kind = 'receipt' and rc.pledge_id = p.id)),
+      where p.kind = 'pledge'),
     (select coalesce(sum(a.amount), 0)::bigint from active a where a.kind = 'expense');
 end;
 $$;
