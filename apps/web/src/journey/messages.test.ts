@@ -38,6 +38,8 @@ const UI_PATHS = [
     'tooLarge',
     'invalidDate',
     'invalidCharacter',
+    'invalidNumber',
+    'outOfRange',
   ].map((key) => `journey.ui.${key}`),
   ...[
     'nextTitle',

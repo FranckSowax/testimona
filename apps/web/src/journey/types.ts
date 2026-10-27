@@ -24,9 +24,12 @@ export type ListQuestion = {
   maxItems: number;
 };
 export type ChoiceQuestion = { kind: 'choice'; key: string; options: readonly string[] };
+/** Nombre entier borné (affluence, nuits…), saisi en chiffres. */
+export type NumberQuestion = { kind: 'number'; key: string; min: number; max: number };
 export type Question =
   | { kind: 'shortText' | 'longText' | 'date' | 'place'; key: string }
   | ChoiceQuestion
+  | NumberQuestion
   | ListQuestion;
 
 export type DraftKind = 'whatsapp' | 'email';
@@ -37,11 +40,16 @@ export interface StepDraft {
   kind: DraftKind;
 }
 
+/** Page qui conclut une étape sans brouillon (segment sous `/dossier/<id>/`). */
+export type StepSummary = 'budget';
+
 /** Une étape du parcours : `id` sert de segment d'URL (`/etape/<id>`). */
 export interface Step {
   id: string;
   questions: readonly Question[];
   draft?: StepDraft;
+  /** Page de synthèse affichée à la fin de l'étape ; exclusive de `draft`. */
+  summary?: StepSummary;
 }
 
 export interface PlaceValue {
@@ -107,6 +115,20 @@ const isoDate = z
 const oneOf = (options: readonly string[]) =>
   z.string().refine((v) => options.includes(v), 'invalid option');
 
+// WHY: le navigateur envoie le champ en texte ; on accepte aussi un nombre JSON, et on stocke
+// toujours un entier. Une seule erreur précise (« invalid number ») plutôt que l'erreur
+// générique d'une union Zod.
+const integerIn = (min: number, max: number) =>
+  z
+    .unknown()
+    .transform((v, ctx) => {
+      if (typeof v === 'number') return v;
+      if (typeof v === 'string' && /^\d{1,9}$/.test(v.trim())) return Number(v.trim());
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'invalid number' });
+      return z.NEVER;
+    })
+    .pipe(z.number().int('invalid number').min(min, 'out of range').max(max, 'out of range'));
+
 // WHY: un choix facultatif vide vaut « absent », comme un texte facultatif vide.
 const optionalChoice = (options: readonly string[]) =>
   z
@@ -148,6 +170,8 @@ function rawAnswerSchema(question: Question): z.ZodTypeAny {
       return isoDate;
     case 'choice':
       return oneOf(question.options);
+    case 'number':
+      return integerIn(question.min, question.max);
     case 'place':
       return z
         .object({

@@ -3,6 +3,7 @@ import {
   type ChoiceQuestion,
   type ListField,
   type ListQuestion,
+  type NumberQuestion,
   type Question,
   type Step,
 } from './types';
@@ -19,6 +20,12 @@ export const q = {
     kind: 'choice',
     key,
     options,
+  }),
+  number: (key: string, bounds: { min?: number; max: number }): NumberQuestion => ({
+    kind: 'number',
+    key,
+    min: bounds.min ?? 0,
+    max: bounds.max,
   }),
   list: (key: string, fields: readonly ListField[], maxItems = 20): ListQuestion => ({
     kind: 'list',
@@ -37,6 +44,9 @@ export const q = {
 export function defineStep(step: Step): Step {
   if (!STEP_ID_PATTERN.test(step.id)) {
     throw new Error(`Étape « ${step.id} » : identifiant invalide pour une URL`);
+  }
+  if (step.draft && step.summary) {
+    throw new Error(`Étape ${step.id} : brouillon et page de synthèse sont exclusifs`);
   }
   const seen = new Set<string>();
   for (const question of step.questions) {
@@ -59,6 +69,20 @@ export function defineStep(step: Step): Step {
 }
 
 function checkQuestion(stepId: string, question: Question): void {
+  if (question.kind === 'number') {
+    const { min, max } = question;
+    // WHY: au-delà de 9 chiffres, la saisie (texte) et le schéma ne se comprennent plus.
+    if (
+      !Number.isInteger(min) ||
+      !Number.isInteger(max) ||
+      min < 0 ||
+      max <= min ||
+      max > 999_999_999
+    ) {
+      throw new Error(`Étape ${stepId} : bornes invalides pour « ${question.key} »`);
+    }
+    return;
+  }
   if (question.kind === 'choice' && question.options.length === 0) {
     throw new Error(`Étape ${stepId} : options vides pour « ${question.key} »`);
   }

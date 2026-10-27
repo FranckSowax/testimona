@@ -72,3 +72,34 @@ describe('defineStep', () => {
     ).toThrow(/brouillon/);
   });
 });
+
+describe('q.number', () => {
+  it('crée une question nombre, bornée à partir de 0 par défaut', () => {
+    expect(q.number('demo.count', { max: 10 })).toEqual({
+      kind: 'number',
+      key: 'demo.count',
+      min: 0,
+      max: 10,
+    });
+  });
+
+  it('refuse des bornes invalides', () => {
+    const step = (min: number, max: number) =>
+      defineStep({ id: 'demo', questions: [q.number('demo.count', { min, max })] });
+    expect(() => step(5, 5)).toThrow(/bornes invalides/);
+    expect(() => step(-1, 5)).toThrow(/bornes invalides/);
+    expect(() => step(0, 1.5)).toThrow(/bornes invalides/);
+    expect(() => step(0, 2_000_000_000)).toThrow(/bornes invalides/);
+  });
+
+  it('refuse une étape qui a à la fois un brouillon et une page de synthèse', () => {
+    expect(() =>
+      defineStep({
+        id: 'demo',
+        questions: [q.number('demo.count', { max: 10 })],
+        draft: { key: 'demo.text', kind: 'whatsapp' },
+        summary: 'budget',
+      }),
+    ).toThrow(/brouillon et page de synthèse/);
+  });
+});

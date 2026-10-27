@@ -60,6 +60,8 @@ export function toEditable(
     case 'choice':
       // WHY: une option retirée du registre depuis l'enregistrement ne doit pas être renvoyée.
       return known && typeof stored === 'string' && question.options.includes(stored) ? stored : '';
+    case 'number':
+      return known && typeof stored === 'number' ? String(stored) : '';
     default:
       return known && typeof stored === 'string' ? stored : '';
   }
