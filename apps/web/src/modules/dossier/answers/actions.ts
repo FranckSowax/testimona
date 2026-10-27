@@ -21,7 +21,8 @@ const field = (formData: FormData, name: string) => String(formData.get(name) ??
 
 /**
  * Enregistre la réponse (ou « passée » si `intent=skip`) puis passe à la prochaine question non
- * traitée ou passée de l'étape, ou revient au tableau de bord quand il n'en reste aucune.
+ * traitée ou passée de l'étape, sinon au brouillon de l'étape s'il existe, sinon au tableau de
+ * bord du dossier.
  */
 export async function saveAnswerAction(
   _prev: AnswerState | null,

@@ -18,7 +18,7 @@ const STEPS_BY_ENTRY: Record<EntryPoint, readonly Step[]> = {
 
 /**
  * Vérifie qu'aucun `id` d'étape ni aucune clé de question ou de brouillon n'apparaît deux fois.
- * WHY: `getStep` et `findQuestion` doivent rester sans ambiguïté quand les étapes 2.x arriveront.
+ * WHY: `getStep` et `findQuestion` doivent rester sans ambiguïté quand plusieurs étapes déclarent des questions et des brouillons.
  */
 export function assertUniqueSteps(steps: readonly Step[]): void {
   const stepIds = new Set<string>();

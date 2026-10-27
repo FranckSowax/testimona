@@ -2,7 +2,7 @@
 // le message générique « validation » ne lui dirait pas quoi changer.
 // Les valeurs sont des chemins de texte sous `journey` (espace de noms `journey.ui` ou
 // `journey.draft`), pour ne dépendre d'aucune clé inexistante.
-const SPECIFIC_MESSAGES = {
+export const SPECIFIC_MESSAGES = {
   'too large': 'ui.tooLarge',
   'too long': 'ui.tooLarge',
   'invalid date': 'ui.invalidDate',

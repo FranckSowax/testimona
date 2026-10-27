@@ -106,6 +106,9 @@ export function DraftEditor(props: Props) {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // WHY: Entrée dans le champ objet (lecture seule) soumettrait le formulaire malgré l'absence
+    // du bouton Enregistrer.
+    if (readOnly) return;
     submittedRef.current = text;
     const data = new FormData(e.currentTarget);
     startTransition(() => formAction(data));

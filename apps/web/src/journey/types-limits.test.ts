@@ -72,4 +72,15 @@ describe('draftTextSchema', () => {
   it('refuse un texte dont la taille JSON réelle dépasse la borne', () => {
     expect(draftTextSchema.safeParse('\u0001'.repeat(12_000)).success).toBe(false);
   });
+
+  it('normalise CRLF et CR en LF avant de mesurer la longueur', () => {
+    // WHY: DRAFT_MAX caractères en LF valent plus du double une fois envoyés en CRLF.
+    const lf = 'x\n'.repeat(DRAFT_MAX / 2 - 1) + 'xy';
+    const crlf = lf.replace(/\n/g, '\r\n');
+    expect(crlf.length).toBeGreaterThan(DRAFT_MAX);
+    const parsed = draftTextSchema.safeParse(crlf);
+    expect(parsed.success).toBe(true);
+    expect(parsed.success && parsed.data).toBe(lf);
+    expect(draftTextSchema.parse('a\rb\r\nc')).toBe('a\nb\nc');
+  });
 });

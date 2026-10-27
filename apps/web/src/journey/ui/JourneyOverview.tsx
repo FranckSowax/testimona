@@ -92,7 +92,7 @@ export async function JourneyOverview({
                   href={`/dossier/${dossierId}/etape/${step.id}/brouillon`}
                   className="text-primary text-sm font-semibold hover:underline"
                 >
-                  {t('dashboard.viewDraft')}
+                  {t('dashboard.viewDraft')} <span className="sr-only">{title}</span>
                 </Link>
               )}
               {progress.total > 0 && (

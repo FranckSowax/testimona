@@ -63,13 +63,20 @@ const noNul = (s: string) => !s.includes('\u0000');
 /** Texte d'un brouillon enregistré : nettoyé, non vide, borné, sans caractère NUL. */
 export const draftTextSchema = z
   .string()
-  .trim()
-  .min(1, 'empty')
-  .max(DRAFT_MAX, 'too long')
-  .refine(noNul, 'invalid character')
-  // WHY: les caractères de contrôle gonflent en `\u00XX` dans le JSON ; 12 000 caractères
-  // peuvent dépasser la limite SQL, donc on mesure aussi la taille réelle.
-  .refine(fitsAnswerSize, 'too large');
+  // WHY: un navigateur envoie les retours à la ligne d'un textarea en CRLF ; on stocke du LF
+  // pour que la limite compte une seule unité par ligne.
+  .transform((s) => s.replace(/\r\n?/g, '\n'))
+  .pipe(
+    z
+      .string()
+      .trim()
+      .min(1, 'empty')
+      .max(DRAFT_MAX, 'too long')
+      .refine(noNul, 'invalid character')
+      // WHY: les caractères de contrôle gonflent en `\u00XX` dans le JSON ; 12 000 caractères
+      // peuvent dépasser la limite SQL, donc on mesure aussi la taille réelle.
+      .refine(fitsAnswerSize, 'too large'),
+  );
 const requiredText = (max: number) =>
   z.string().trim().min(1).max(max).refine(noNul, 'invalid character');
 // WHY: un champ facultatif laissé vide n'est pas enregistré, plutôt que stocké en chaîne vide.

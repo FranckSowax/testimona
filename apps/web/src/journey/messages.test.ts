@@ -3,6 +3,7 @@ import en from '../../messages/en.json';
 import fr from '../../messages/fr.json';
 import { allSteps } from './registry';
 import type { Step } from './types';
+import { SPECIFIC_MESSAGES } from './ui/specific-error';
 
 const get = (messages: unknown, path: string): unknown =>
   path
@@ -47,6 +48,32 @@ const UI_PATHS = [
     'stepProgress',
     'toComplete',
   ].map((key) => `journey.dashboard.${key}`),
+  ...['viewDraft'].map((key) => `journey.dashboard.${key}`),
+  ...[
+    'title.whatsapp',
+    'title.email',
+    'intro.whatsapp',
+    'intro.email',
+    'subject',
+    'body',
+    'save',
+    'saved',
+    'unsaved',
+    'copy',
+    'copySubject',
+    'copied',
+    'copyManual',
+    'shareWhatsapp',
+    'openMail',
+    'regenerate',
+    'editAnswers',
+    'backToDossier',
+    'readOnly',
+    'empty',
+    'tooLongForLink',
+    'newTab',
+  ].map((key) => `journey.draft.${key}`),
+  ...Object.values(SPECIFIC_MESSAGES).map((path) => `journey.${path}`),
 ];
 
 /** Chemins de clés d'un objet de messages (feuilles uniquement). */

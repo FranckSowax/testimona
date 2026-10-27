@@ -38,9 +38,9 @@ export default async function DraftPage({
   const answers = answersResult.data;
   const ctx: DraftContext = {
     locale: locale === 'en' ? 'en' : 'fr',
-    // WHY: sans fiche personne lisible, le titre du dossier tient lieu de prénom plutôt que de
+    // WHY: sans fiche personne lisible, le titre du dossier tient lieu de nom de famille (il alimente aussi la signature) plutôt que de
     // bloquer l'écran ; le modèle reste utilisable et modifiable.
-    person: person ?? { firstName: dossier.title, lastName: '', nickname: null },
+    person: person ?? { firstName: '', lastName: dossier.title, nickname: null },
     answers,
   };
   const generated = draftFor(draft.kind, ctx);

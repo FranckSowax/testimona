@@ -3,7 +3,8 @@ import type { Step } from '@/journey/types';
 
 /**
  * Chemin (non localisé) où aller après avoir enregistré la question `index` de `step` : la
- * prochaine question non traitée ou passée de l'étape, sinon le brouillon de l'étape s'il existe, sinon le tableau de bord du dossier.
+ * prochaine question non traitée ou passée de l'étape, sinon le brouillon de l'étape s'il
+ * existe, sinon le tableau de bord du dossier.
  *
  * @example
  * answerRedirectTarget(dossierId, biography, answers, 0); // '/dossier/<id>/etape/biography?q=1'
