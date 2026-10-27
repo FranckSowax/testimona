@@ -1081,5 +1081,100 @@
         "saving": "Saving…"
       }
     }
+  },
+  "doors": {
+    "title": "What are you going through right now?",
+    "lead": "Testimona supports families from end of life to grief. Choose your situation: we adapt the journey, one question at a time.",
+    "death": {
+      "title": "Someone close has just passed away",
+      "desc": "Announce, organise and fund the funeral."
+    },
+    "prepare": {
+      "title": "Prepare with a loved one",
+      "desc": "Gather their wishes and their story while they are here."
+    },
+    "after": {
+      "title": "After the funeral",
+      "desc": "Say thank you, close the contributions, remember."
+    },
+    "soon": "Coming soon",
+    "searchTitle": "Find a memorial",
+    "searchPlaceholder": "First name, last name or nickname",
+    "searchSubmit": "Search",
+    "browseMemorials": "Browse memorials"
+  },
+  "dossier": {
+    "myDossiers": "My family spaces",
+    "inCity": "{city}",
+    "new": {
+      "whoTitle": "Who is this family space for?",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "whereTitle": "Where did they live?",
+      "whereHint": "We use it to suggest providers near you.",
+      "country": "Country",
+      "city": "City",
+      "relationshipTitle": "How are you related to this person?",
+      "relationships": {
+        "child": "Child",
+        "spouse": "Spouse or partner",
+        "parent": "Parent",
+        "sibling": "Brother or sister",
+        "grandchild": "Grandchild",
+        "friend": "Friend",
+        "other": "Other"
+      },
+      "back": "Back",
+      "next": "Next",
+      "submit": "Open the family space",
+      "required": "This field is required."
+    },
+    "overview": {
+      "journeyTitle": "The journey",
+      "journeySoon": "The first steps (biography, announcements) are coming very soon to this space.",
+      "membersTitle": "The family",
+      "membersCount": "{count, plural, =1 {1 member} other {# members}}",
+      "manageMembers": "Manage members"
+    },
+    "members": {
+      "title": "Members",
+      "you": "you",
+      "roles": {
+        "owner": "Owner",
+        "coordinator": "Coordinator",
+        "treasurer": "Treasurer",
+        "contributor": "Contributor",
+        "viewer": "Viewer"
+      },
+      "inviteTitle": "Invite a relative",
+      "inviteRole": "Role",
+      "inviteEmail": "E-mail (optional)",
+      "inviteSubmit": "Create the invitation link",
+      "inviteReady": "Link ready. It is valid for 7 days and works only once.",
+      "inviteEmailSent": "The invitation was also sent by e-mail.",
+      "copy": "Copy link",
+      "copied": "Link copied",
+      "shareWhatsapp": "Share on WhatsApp",
+      "whatsappText": "Join {name}'s family space on Testimona: {url}",
+      "pendingTitle": "Pending invitations",
+      "expires": "expires on {date}",
+      "revoke": "Revoke",
+      "readOnly": "Only coordinators can invite new members."
+    },
+    "invitation": {
+      "title": "Join a family space",
+      "lead": "You have been invited to prepare a tribute with the family.",
+      "accept": "Join the family space"
+    },
+    "errors": {
+      "validation": "Some information is missing.",
+      "forbidden": "You are not allowed to do this.",
+      "not_found": "This item could not be found or was already removed.",
+      "invitation_invalid": "This invitation link is not valid. Ask for a new link.",
+      "invitation_expired": "This invitation link has expired. Ask for a new link.",
+      "invitation_used": "This link has already been used. Ask for a new link.",
+      "unauthenticated": "Sign in to continue.",
+      "unknown": "Something went wrong. Please try again in a moment."
+    }
   }
 }
