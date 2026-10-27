@@ -39,13 +39,13 @@ const CODE_TO_ERROR: Record<string, DossierError> = {
   '28000': 'unauthenticated',
 };
 
-function fromRepo(error: repo.RepoError, scope: string): { ok: false; error: DossierError } {
+export function fromRepo(error: repo.RepoError, scope: string): { ok: false; error: DossierError } {
   const mapped = CODE_TO_ERROR[error.code];
   if (!mapped) console.error(`[dossier] ${scope} failed`, { code: error.code });
   return { ok: false, error: mapped ?? 'unknown' };
 }
 
-function fieldErrors(issues: z.ZodIssue[]): Record<string, string> {
+export function fieldErrors(issues: z.ZodIssue[]): Record<string, string> {
   const out: Record<string, string> = {};
   for (const issue of issues) {
     const key = issue.path.join('.');
