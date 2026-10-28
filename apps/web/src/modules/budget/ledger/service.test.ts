@@ -1,13 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // WHY: vi.mock est remonté en tête de fichier ; les doublures sont créées avec vi.hoisted.
-const { ledgerRepo, dossierRepo } = vi.hoisted(() => ({
+const { ledgerRepo, dossierRepo, receiptsRepo } = vi.hoisted(() => ({
   ledgerRepo: { insertEntry: vi.fn(), setVisibility: vi.fn() },
   dossierRepo: { getDossier: vi.fn() },
+  receiptsRepo: { attachReceipt: vi.fn() },
 }));
 
 vi.mock('server-only', () => ({}));
 vi.mock('./repo', () => ledgerRepo);
+vi.mock('../receipts/repo', () => receiptsRepo);
 vi.mock('@/modules/dossier/repo', () => dossierRepo);
 vi.mock('@/lib/email/resend', () => ({ sendEmail: vi.fn(), dossierInviteEmail: vi.fn() }));
 
@@ -39,6 +41,7 @@ beforeEach(() => {
   });
   ledgerRepo.insertEntry.mockResolvedValue({ data: { id: 'e1', duplicate: false }, error: null });
   ledgerRepo.setVisibility.mockResolvedValue({ data: true, error: null });
+  receiptsRepo.attachReceipt.mockResolvedValue({ data: true, error: null });
 });
 
 describe('recordPledge', () => {
@@ -207,5 +210,37 @@ describe('setVisibility', () => {
     expect(await setVisibility({ dossierId: DOSSIER, visibility: 'restricted' })).toMatchObject({
       error: 'forbidden',
     });
+  });
+});
+
+describe('recordExpense et le reçu', () => {
+  const RECEIPT = '77777777-7777-4777-8777-777777777777';
+  const expense = { ...base, method: 'cash', budgetLineId: '', receiptId: RECEIPT };
+
+  it('rattache le reçu à la dépense enregistrée', async () => {
+    expect(await recordExpense(expense)).toEqual({ ok: true, data: { id: 'e1' } });
+    expect(receiptsRepo.attachReceipt).toHaveBeenCalledWith(DOSSIER, RECEIPT, 'e1');
+  });
+
+  it('garde la dépense et signale le reçu non joint', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    receiptsRepo.attachReceipt.mockResolvedValueOnce({
+      data: null,
+      error: { code: 'TL006', message: 'x' },
+    });
+    expect(await recordExpense(expense)).toEqual({ ok: false, error: 'receipt_unlinked' });
+    expect(ledgerRepo.insertEntry).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith('[budget/ledger] attachReceipt failed', { code: 'TL006' });
+    spy.mockRestore();
+  });
+
+  it('ne rattache rien sans reçu ou quand la dépense est refusée', async () => {
+    await recordExpense({ ...expense, receiptId: '' });
+    ledgerRepo.insertEntry.mockResolvedValueOnce({
+      data: null,
+      error: { code: '42501', message: 'x' },
+    });
+    expect(await recordExpense(expense)).toMatchObject({ ok: false, error: 'forbidden' });
+    expect(receiptsRepo.attachReceipt).not.toHaveBeenCalled();
   });
 });

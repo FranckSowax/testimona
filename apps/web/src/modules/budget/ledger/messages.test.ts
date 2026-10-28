@@ -69,6 +69,7 @@ const PATHS = [
   ...[
     'already_reversed',
     'pledge_unavailable',
+    'receipt_unlinked',
     'invalidNumber',
     'outOfRange',
     'invalidDate',

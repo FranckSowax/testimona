@@ -28,12 +28,16 @@ async function done(
   dossierId: string,
   res: { ok: boolean; error?: LedgerError; fieldErrors?: Record<string, string> },
 ): Promise<LedgerFormState> {
-  if (!res.ok) return { error: res.error, fieldErrors: res.fieldErrors };
+  // WHY: « receipt_unlinked » : la dépense est enregistrée, seul le reçu manque ; les pages
+  // doivent l'afficher, et l'écran garde la saisie pour retenter le rattachement.
+  if (!res.ok && res.error !== 'receipt_unlinked') {
+    return { error: res.error, fieldErrors: res.fieldErrors };
+  }
   const locale = await getLocale();
   revalidatePath(localizedPath(`/dossier/${dossierId}/cotisations`, locale));
   revalidatePath(localizedPath(`/dossier/${dossierId}/cotisations/postes`, locale));
   revalidatePath(localizedPath(`/dossier/${dossierId}`, locale));
-  return { ok: true };
+  return res.ok ? { ok: true } : { error: res.error };
 }
 
 /** Ajoute une ligne au registre selon `kind` (promesse, cotisation reçue ou dépense). */
@@ -61,6 +65,7 @@ export async function saveEntryAction(
               ...base,
               method,
               budgetLineId: field(formData, 'budgetLineId'),
+              receiptId: field(formData, 'receiptId'),
             })
           : ({ ok: false, error: 'validation' } as const);
   return done(base.dossierId, res);

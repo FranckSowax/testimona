@@ -2,6 +2,7 @@ import 'server-only';
 import type { z } from 'zod';
 import { fieldErrors } from '@/modules/dossier/service';
 import { budgetGate } from '../gate';
+import { attachReceipt } from '../receipts/repo';
 import * as repo from './repo';
 import type { NewEntry } from './repo';
 import {
@@ -21,6 +22,7 @@ export type LedgerError =
   | 'unauthenticated'
   | 'already_reversed'
   | 'pledge_unavailable'
+  | 'receipt_unlinked'
   | 'unknown';
 
 export type LedgerResult<T> =
@@ -126,12 +128,18 @@ export async function recordReceipt(raw: unknown) {
   );
 }
 
-/** Dépense (trésorier et plus) ; `partyName` est le fournisseur. */
-export async function recordExpense(raw: unknown) {
+/**
+ * Dépense (trésorier et plus) ; `partyName` est le fournisseur. Un reçu préparé est rattaché
+ * après l'enregistrement.
+ * WHY: le registre est en ajout seul, la dépense reste si le rattachement échoue
+ * (`receipt_unlinked`). Renvoyer le formulaire rejoue la même clé : le dépôt renvoie la dépense
+ * existante et le rattachement est retenté (sans effet s'il avait réussi).
+ */
+export async function recordExpense(raw: unknown): Promise<LedgerResult<{ id: string }>> {
   const input = ExpenseSchema.safeParse(raw);
   if (!input.success) return invalid(input.error);
   const d = input.data;
-  return write(
+  const res = await write(
     {
       dossierId: d.dossierId,
       kind: 'expense',
@@ -148,6 +156,13 @@ export async function recordExpense(raw: unknown) {
     },
     'recordExpense',
   );
+  if (!res.ok || !d.receiptId) return res;
+  const linked = await attachReceipt(d.dossierId, d.receiptId, res.data.id);
+  if (linked.error) {
+    console.error('[budget/ledger] attachReceipt failed', { code: linked.error.code });
+    return { ok: false, error: 'receipt_unlinked' };
+  }
+  return res;
 }
 
 /**

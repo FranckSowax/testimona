@@ -113,10 +113,11 @@ export const ReceiptSchema = PledgeSchema.extend({
   pledgeId: optionalId,
 });
 
-/** Saisie d'une dépense payée, éventuellement rattachée à un poste du budget. */
+/** Saisie d'une dépense payée, éventuellement rattachée à un poste et à un reçu. */
 export const ExpenseSchema = PledgeSchema.extend({
   method: z.enum(ENTRY_METHODS),
   budgetLineId: optionalId,
+  receiptId: optionalId,
 });
 
 /** Demande d'annulation d'une ligne du registre. */
