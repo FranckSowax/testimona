@@ -167,21 +167,38 @@ renvoie les dépenses actives par poste, annulations écartées.
 
 ### `receipt` et bucket `receipts`
 
-| Colonne        | Type                                                     |
-| -------------- | -------------------------------------------------------- |
-| `id`           | uuid                                                     |
-| `dossier_id`   | uuid, FK `dossier` (cascade)                             |
-| `entry_id`     | uuid, nullable, FK `ledger_entry` (la dépense justifiée) |
-| `storage_path` | text, `<dossier_id>/<uuid>.<ext>`                        |
-| `mime_type`    | `image/jpeg` / `image/png` / `image/webp`                |
-| `size_bytes`   | integer, ≤ 5 Mo                                          |
-| `created_by`   | uuid                                                     |
-| `created_at`   | timestamptz                                              |
+| Colonne        | Type                                                             |
+| -------------- | ---------------------------------------------------------------- |
+| `id`           | uuid                                                             |
+| `dossier_id`   | uuid, FK `dossier` (cascade)                                     |
+| `entry_id`     | uuid, nullable, unique, FK `ledger_entry` (la dépense justifiée) |
+| `storage_path` | text, `<dossier_id>/<uuid>.<ext>`                                |
+| `mime_type`    | `image/jpeg` / `image/png` / `image/webp`                        |
+| `size_bytes`   | integer, 1 à 5 242 880                                           |
+| `created_by`   | uuid, nullable, `on delete set null`                             |
+| `created_at`   | timestamptz                                                      |
 
-Bucket `receipts` privé, 5 Mo, JPEG, PNG et WebP. Envoi et création : trésorier et plus, sur le
-préfixe du dossier. Lecture : tout membre du dossier, comme les dépenses, qui sont visibles de tous
-quel que soit le réglage ; servie par lien signé de courte durée (5 minutes). Un reçu pas encore
-rattaché à une dépense n'est lisible que par trésorier et plus. Pas de suppression dans ce lot.
+Bucket `receipts` privé, 5 Mo, JPEG, PNG et WebP.
+
+- Un reçu par dépense (`entry_id` unique, `on delete no action`). `entry_id` est la seule colonne
+  modifiable (droit de colonne et trigger) : une seule fois, vers une dépense du même dossier
+  (`TL006`), et seulement une fois la photo présente au stockage (version courante, non archivée ;
+  `TL006` sinon). Le même rattachement rejoué est sans effet. Aucune suppression dans ce lot.
+- `storage_path` est imposé par le trigger (`<dossier_id>/<id>.<ext>`), unique, et vérifié par une
+  contrainte check ; `created_by` et `created_at` sont imposés (`auth.uid()`, `now()`).
+- Limite `TL007` : au plus 200 reçus par dossier, en comptant les rattachés et les non rattachés de
+  moins de 24 h (une préparation abandonnée ne bloque pas le dossier, faute de suppression). Rôle
+  vérifié avant la limite, verrou `for no key update` sur le dossier.
+- Envoi : seulement sur le chemin d'un reçu préparé, non rattaché, par un trésorier. Le lien d'envoi
+  est un lien signé de Supabase (2 heures, non réglable) à usage unique : l'unicité du stockage
+  l'impose, jamais d'upsert, donc aucun remplacement d'une photo.
+- Lecture : l'objet suit la RLS de `receipt` (une seule règle). Tout membre lit un reçu rattaché,
+  comme les dépenses, visibles de tous quel que soit le réglage ; un reçu non rattaché n'est lisible
+  que par trésorier et plus. Lien de lecture signé de 5 minutes, créé à la demande par la route
+  `/api/receipts/[receiptId]` : 303 vers le lien (`no-store`, `Referrer-Policy: no-referrer`), 401
+  sans session, 404 si le reçu est absent ou interdit.
+- Un dossier sans registre peut être supprimé : ses reçus non rattachés partent avec lui, les objets
+  restent au stockage (nettoyage hors lot 2).
 
 ## 2. Parcours et écrans
 
@@ -210,10 +227,21 @@ annulation s'affiche avec sa ligne d'origine ; aucune ligne ne disparaît.
 
 ### Reçu
 
-Photo → lien d'envoi signé préparé par le serveur → envoi direct au stockage → `readReceipt` →
-formulaire de dépense prérempli (montant, date, fournisseur, poste proposé) → le trésorier corrige et
-enregistre. Sans IA (clé absente, quota atteint, échec), le formulaire reste vide avec la photo
-jointe.
+Photo (réduite dans le navigateur : 1600 px, JPEG) → lien d'envoi signé préparé par le serveur →
+envoi direct au stockage → `readReceipt` → formulaire de dépense prérempli (montant, date,
+fournisseur, poste proposé) → le trésorier corrige et enregistre. Sans IA (clé absente, quota
+atteint, échec, photo trop lourde pour l'IA), le formulaire reste vide avec la photo jointe.
+
+- Lecture IA réservée au trésorier et plus. Le préremplissage ne remplace jamais un champ déjà saisi.
+- Rattachement après l'enregistrement : la dépense est d'abord enregistrée, puis le reçu rattaché.
+  - `receipt_unlinked` : la dépense reste enregistrée, le rattachement a échoué (provisoire). Les
+    champs sont figés ; « Réessayer de joindre le reçu » rejoue la même clé d'idempotence (le dépôt
+    renvoie la dépense existante) ; « Continuer sans le reçu » abandonne la photo.
+  - `receipt_unavailable` : échec définitif (photo absente, reçu déjà rattaché ou invalide) ; la
+    dépense reste, le reçu ne se joint plus.
+  - `changed_since_saved` : renvoi dont la saisie a changé depuis l'enregistrement ; la comparaison
+    du double envoi porte sur tous les champs de la dépense, pas seulement la clé.
+- « Voir le reçu » sur chaque dépense qui en a un (ouvre `/api/receipts/[receiptId]`).
 
 ## 3. Code et IA
 
@@ -233,11 +261,15 @@ jointe.
 
 ### `readReceipt` (dans `modules/ai`)
 
-- Télécharge l'image côté serveur, consomme `consume_ai_quota` (même quota que le lot 1 : 20 appels
-  par dossier et par jour), puis appelle OpenRouter avec le fournisseur du lot 1, un modèle qui lit
-  les images (choisi à l'implémentation ; Claude Opus 5.5 le fait), `data_collection: 'deny'`.
-- Demande une réponse JSON stricte `{ amount, date, vendor, gridKey }`, validée par Zod ; `gridKey`
-  doit être une clé de la grille ou null.
+- Le téléchargement est fait par `modules/budget/receipts` (seul accès au stockage), qui vérifie la
+  signature des octets (JPEG, PNG, WebP) et lit les postes. Une garde de 3,5 Mio s'applique avant le
+  quota : au-delà, `too_large_to_read` sans consommer d'appel, photo gardée, saisie manuelle.
+- `readReceipt` consomme ensuite `takeAiQuota` / `consume_ai_quota` (même quota que le lot 1 : 20
+  appels par dossier et par jour), puis appelle OpenRouter avec le fournisseur du lot 1, modèle
+  `anthropic/claude-opus-5.5` (lit les images), `data_collection: 'deny'`.
+- Demande du JSON par la consigne `{ amount, date, vendor, gridKey }`, validé champ par champ par
+  Zod : un champ invalide devient null ; `gridKey` doit être une clé de la grille ou null. Une
+  réponse vide est traitée comme un échec.
 - Envoie seulement l'image, aucune donnée du dossier. Ne journalise ni le contenu du reçu ni la
   réponse. Le résultat n'est qu'un préremplissage.
 
@@ -249,7 +281,11 @@ jointe.
 - Double envoi : clé d'idempotence générée par le navigateur, unique par dossier ; un second envoi
   renvoie la ligne existante.
 - Annulation d'une ligne déjà annulée ou d'une annulation : refus explicite.
-- Reçu trop lourd, mauvais type, IA en échec, quota atteint : photo jointe, saisie manuelle possible.
+- Reçu trop lourd, mauvais type, IA en échec, quota atteint, image trop lourde pour l'IA
+  (`too_large_to_read`) : photo jointe, saisie manuelle possible.
+- Rattachement du reçu après l'enregistrement : `receipt_unlinked` (provisoire, réessai ou abandon),
+  `receipt_unavailable` (définitif), `changed_since_saved` (saisie modifiée depuis l'enregistrement).
+- Limite de reçus (`TL007`) et rattachement refusé (`TL006`) : message explicite, dépense conservée.
 - Journalisation : codes et contexte, jamais de montant nominatif ni de contenu de reçu.
 
 ### Tests
@@ -274,7 +310,9 @@ jointe.
    Cotisations, carte du tableau de bord. Le budget de référence est le budget envisagé à l'étape B.2.
 3. Postes : scénario retenu par le trésorier (`dossier_finance.scenario`), `budget_line` (onglet
    « Postes »), rattachement d'une dépense à un poste (`ledger_entry.budget_line_id`).
-4. Reçus : bucket privé, `receipt`, envoi signé, `readReceipt`, préremplissage.
+4. Reçus : bucket privé, `receipt` (un par dépense, rattaché une fois, photo exigée, limite de 200),
+   envoi signé à usage unique, lecture par lien de 5 minutes, `readReceipt`, préremplissage,
+   rattachement après l'enregistrement, « Voir le reçu ».
 5. Bilan et clôture : écran Bilan, texte de partage, clôture et réouverture, archivage et export du
    registre, colonnes de clôture (`closed_at`, `closed_by`).
 
