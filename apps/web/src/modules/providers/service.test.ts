@@ -53,6 +53,7 @@ describe('contrôle administrateur', () => {
       ok: false,
       error: 'forbidden',
     });
+    expect(await getProvider(PROVIDER)).toEqual({ ok: false, error: 'forbidden' });
     for (const fn of Object.values(repo)) expect(fn).not.toHaveBeenCalled();
   });
 });
@@ -78,8 +79,36 @@ describe('createProvider', () => {
   it('traduit un refus de la base', async () => {
     repo.insertProvider.mockResolvedValue(fail('42501'));
     expect(await createProvider(input)).toEqual({ ok: false, error: 'forbidden' });
-    repo.insertProvider.mockResolvedValue(fail('XX000'));
+  });
+
+  it('journalise seulement le code d’une erreur inconnue', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    repo.insertProvider.mockResolvedValue({
+      data: null,
+      error: { code: 'XX000', message: 'detail sensible' },
+    });
     expect(await createProvider(input)).toEqual({ ok: false, error: 'unknown' });
+    expect(log).toHaveBeenCalledTimes(1);
+    expect(log).toHaveBeenCalledWith('[providers] createProvider failed', { code: 'XX000' });
+    log.mockRestore();
+  });
+
+  it('traite une catégorie absente en base (23503) comme une erreur inconnue journalisée', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    repo.insertProvider.mockResolvedValue(fail('23503'));
+    expect(await createProvider(input)).toEqual({ ok: false, error: 'unknown' });
+    expect(log).toHaveBeenCalledWith('[providers] createProvider failed', { code: '23503' });
+    log.mockRestore();
+  });
+
+  it.each([
+    ['23514', 'validation'],
+    ['22P02', 'validation'],
+    ['28000', 'unauthenticated'],
+    ['no_rows', 'not_found'],
+  ])('traduit le code %s en %s', async (code, error) => {
+    repo.insertProvider.mockResolvedValue(fail(code));
+    expect(await createProvider(input)).toEqual({ ok: false, error });
   });
 });
 
@@ -125,9 +154,43 @@ describe('updateProvider', () => {
     });
     expect(repo.updateProvider).not.toHaveBeenCalled();
   });
+
+  it('signale introuvable une ligne que la mise à jour ne touche pas', async () => {
+    repo.getProvider.mockResolvedValue({ data: stored, error: null });
+    repo.updateProvider.mockResolvedValue(fail('no_rows'));
+    expect(await updateProvider({ ...input, providerId: PROVIDER })).toEqual({
+      ok: false,
+      error: 'not_found',
+    });
+  });
+
+  it('refuse sans écrire quand la lecture est interdite', async () => {
+    repo.getProvider.mockResolvedValue(fail('42501'));
+    expect(await updateProvider({ ...input, providerId: PROVIDER })).toEqual({
+      ok: false,
+      error: 'forbidden',
+    });
+    expect(repo.updateProvider).not.toHaveBeenCalled();
+  });
+
+  it('rejette un identifiant invalide sans toucher la base', async () => {
+    expect(await updateProvider({ ...input, providerId: 'pas-un-uuid' })).toEqual({
+      ok: false,
+      error: 'validation',
+      fieldErrors: { providerId: 'Invalid uuid' },
+    });
+    expect(repo.getProvider).not.toHaveBeenCalled();
+    expect(repo.updateProvider).not.toHaveBeenCalled();
+  });
 });
 
 describe('lecture', () => {
+  it('rend le prestataire lu', async () => {
+    repo.getProvider.mockResolvedValue({ data: stored, error: null });
+    expect(await getProvider(PROVIDER)).toEqual({ ok: true, data: stored });
+    expect(repo.getProvider).toHaveBeenCalledWith(PROVIDER);
+  });
+
   it('passe les filtres validés au dépôt', async () => {
     repo.listProviders.mockResolvedValue({ data: [], error: null });
     expect(await listProviders({ city: ' Libreville ', category: 'flowers' })).toEqual({

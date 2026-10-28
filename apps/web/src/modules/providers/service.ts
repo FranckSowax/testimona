@@ -21,11 +21,12 @@ export type ProvidersResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: ProvidersError; fieldErrors?: Record<string, string> };
 
+// WHY: pas de 23503 (clé étrangère) : une catégorie absente en base trahit un décalage entre le
+// code et la base ; elle doit devenir `unknown` et être journalisée.
 const CODES: Record<string, ProvidersError> = {
   '42501': 'forbidden',
   '28000': 'unauthenticated',
   '23514': 'validation',
-  '23503': 'validation',
   '22P02': 'validation',
   no_rows: 'not_found',
 };
@@ -87,7 +88,11 @@ export async function createProvider(raw: unknown): Promise<ProvidersResult<{ id
   return res.error ? fromRepo(res.error, 'createProvider') : { ok: true, data: res.data };
 }
 
-/** Modifie un prestataire existant. */
+/**
+ * Modifie un prestataire existant.
+ * WHY: la lecture (date de vérification) puis l'écriture ne sont pas atomiques ; la dernière
+ * écriture gagne, acceptable pour un back-office à très peu d'administrateurs.
+ */
 export async function updateProvider(raw: unknown): Promise<ProvidersResult<true>> {
   if (!(await isPlatformAdmin())) return FORBIDDEN;
   const parsed = ProviderUpdateSchema.safeParse(raw);
