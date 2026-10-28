@@ -10,6 +10,12 @@
 
 Spec : `docs/superpowers/specs/2026-10-28-lot-3-funerailles-design.md` (§ 1 « `provider_category` », « `provider` », « `quote_request` » ; § 3 « Écran d'administration » ; § 6 point 1).
 
+> **Écarts à l'exécution (le code fait foi).** Les revues ont ajouté, après ce plan :
+>
+> - **Base :** trigger `provider_before_insert` (dates imposées) ; policies en `(select public.is_admin())` ; le devis exige aussi un prestataire **vérifié** ; les familles ne lisent que les prestataires actifs vérifiés ou d'exemple ; contrainte `provider_verified_has_number`.
+> - **Tests SQL :** les demandes de devis sont dans `supabase/tests/quote-requests.test.ts`, avec un banc commun `supabase/tests/helpers/providers.ts` ; les comptes de tests annoncés ci-dessous ne sont plus exacts.
+> - **Web :** normalisation du « (0) » national ; filtre de ville tolérant ; `23503` journalisé comme erreur inconnue ; `repo.test.ts` et `ProvidersTable.test.tsx` ; formulaire qui vide le numéro et la vérification d'un exemple, erreur globale de repli, date de vérification formatée côté serveur (`verifiedOnLabel`) ; refus d'un prestataire vérifié sans numéro.
+
 ---
 
 ## Décisions de ce plan (à valider dans la PR)

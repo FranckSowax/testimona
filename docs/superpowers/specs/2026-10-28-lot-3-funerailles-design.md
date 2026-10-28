@@ -65,11 +65,14 @@ utilisateur connecté. Aucune écriture par l'API.
 | `active`                   | boolean, défaut `true`                                     |
 | `created_at`, `updated_at` | timestamptz                                                |
 
-Contrainte : `check (not is_example or (whatsapp is null and verified_at is null))`. Index sur
-`(city, category_key) where active`.
+Contraintes : `check (not is_example or (whatsapp is null and verified_at is null))` (un exemple
+n'est jamais contactable) et `check (verified_at is null or whatsapp is not null)` (un prestataire
+vérifié a un numéro). Index sur `(city, category_key) where active`. Dates de création et de
+modification imposées par trigger.
 
-Lecture : tout utilisateur connecté, prestataires actifs seulement (les inactifs restent lisibles par
-`is_admin()`). Insertion et modification : `is_admin()`. Aucune suppression : on désactive.
+Lecture : tout utilisateur connecté voit les prestataires actifs qui sont vérifiés ou d'exemple ; un
+prestataire non vérifié ou inactif n'est lisible que par `is_admin()`. Insertion et modification :
+`is_admin()`. Aucune suppression : on désactive.
 
 La migration fixe `search_path = ''` sur `is_admin()` (alerte ancienne de l'advisor) sans changer
 sa logique : rôle lu dans `app_metadata` du JWT, que l'utilisateur ne peut pas modifier.
@@ -91,8 +94,8 @@ Trace d'une demande de devis, en ajout seul.
 | `created_by`  | uuid, FK `auth.users` (`on delete set null`), imposé       |
 | `created_at`  | timestamptz, imposé                                        |
 
-Insertion : coordinateur et plus. Un trigger refuse (TL010) un prestataire d'exemple, inactif ou
-sans numéro. `created_by` et `created_at` sont imposés par trigger. Lecture : membres du dossier.
+Insertion : coordinateur et plus. Un trigger vérifie d'abord le rôle (42501), puis refuse
+(TL010) un prestataire d'exemple, inactif, non vérifié, sans numéro ou inexistant. `created_by` et `created_at` sont imposés par trigger. Lecture : membres du dossier.
 Ni modification ni suppression.
 
 ### `dossier_photo` et bucket `dossier-photos`
