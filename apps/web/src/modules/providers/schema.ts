@@ -29,10 +29,10 @@ const optionalText = (max: number) =>
     );
 
 // WHY: un numéro se saisit avec des espaces, tirets, points ou parenthèses ; on ne garde que
-// l'indicatif et les chiffres.
+// l'indicatif et les chiffres. Le « (0) » national (« +241 (0)77… ») est retiré d'abord.
 const whatsapp = z
   .string()
-  .transform((s) => s.replace(/[\s().-]/g, ''))
+  .transform((s) => s.replace(/\(0\)/g, '').replace(/[\s().-]/g, ''))
   .transform((s) => (s === '' ? null : s))
   .pipe(z.union([z.null(), z.string().regex(PHONE, 'invalid phone')]));
 
@@ -67,11 +67,14 @@ export type ProviderInput = z.infer<typeof ProviderSchema>;
 
 /** Filtres de la liste admin ; une valeur vide ou inconnue est ignorée. */
 export const ProviderFiltersSchema = z.object({
+  // WHY: comme `category`, une ville invalide (trop longue, NUL, non textuelle) est ignorée.
   city: z
     .string()
     .trim()
-    .max(120)
+    .refine(maxChars(120))
+    .refine(noNul)
     .optional()
+    .catch(undefined)
     .transform((v) => v || undefined),
   category: z.enum(PROVIDER_CATEGORIES).optional().catch(undefined),
 });

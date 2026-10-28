@@ -29,6 +29,18 @@ describe('ProviderSchema', () => {
     expect(data).toMatchObject({ whatsapp: '+24177123456', district: 'Akanda', priceNote: null });
   });
 
+  it('retire le (0) national et accepte tabulation, points et espaces', () => {
+    const phone = (whatsapp: string) => ProviderSchema.parse({ ...base, whatsapp }).whatsapp;
+    expect(phone('+241 (0)77 12 34 56')).toBe('+24177123456');
+    expect(phone('+241\t77.12.34.56')).toBe('+24177123456');
+    expect(phone('+241 77123456')).toBe('+24177123456');
+  });
+
+  it('refuse le préfixe 00 et le plus pleine largeur', () => {
+    expect(messages({ ...base, whatsapp: '0024177123456' })).toEqual({ whatsapp: 'invalid phone' });
+    expect(messages({ ...base, whatsapp: '＋24177123456' })).toEqual({ whatsapp: 'invalid phone' });
+  });
+
   it('refuse un numéro sans indicatif international', () => {
     expect(messages({ ...base, whatsapp: '077123456' })).toEqual({ whatsapp: 'invalid phone' });
   });
@@ -66,9 +78,32 @@ describe('ProviderUpdateSchema', () => {
     expect(ProviderUpdateSchema.safeParse(base).success).toBe(false);
     expect(ProviderUpdateSchema.parse({ ...base, providerId: PROVIDER }).providerId).toBe(PROVIDER);
   });
+
+  it('refuse un exemple avec un numéro', () => {
+    const res = ProviderUpdateSchema.safeParse({
+      ...base,
+      providerId: PROVIDER,
+      isExample: true,
+      whatsapp: '+24177123456',
+    });
+    expect(res.success).toBe(false);
+    if (!res.success) {
+      expect(res.error.issues.map((i) => [i.path[0], i.message])).toEqual([
+        ['isExample', 'example with contact'],
+      ]);
+    }
+  });
 });
 
 describe('ProviderFiltersSchema', () => {
+  it('ignore une ville trop longue, NUL ou non textuelle', () => {
+    const city = (v: unknown) => ProviderFiltersSchema.parse({ city: v }).city;
+    expect(city('é'.repeat(121))).toBeUndefined();
+    expect(city('é'.repeat(120))).toBe('é'.repeat(120));
+    expect(city('a\u0000b')).toBeUndefined();
+    expect(city(['a', 'b'])).toBeUndefined();
+  });
+
   it('ignore un filtre vide ou une catégorie inconnue', () => {
     expect(ProviderFiltersSchema.parse({ city: '  ', category: 'flowers' })).toEqual({
       city: undefined,
