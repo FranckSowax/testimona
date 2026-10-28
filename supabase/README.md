@@ -80,7 +80,8 @@ Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Histori
 - `ledger` (lot 2, PR 2), version enregistrée `20261027190919` ;
 - `budget_lines` (lot 2, PR 3), version enregistrée `20261028001104` ;
 - `receipts` (lot 2, PR 4), version enregistrée `20261028095748` ;
-- `closing` (lot 2, PR 5), version enregistrée `20261028101409`.
+- `closing` (lot 2, PR 5), version enregistrée `20261028101409` ;
+- `providers` (lot 3, PR 1), version enregistrée `20261028201418`.
 
 Toutes les migrations du dépôt sont donc en production. Après `ledger`, vérifié : RLS active sur
 `ledger_entry` et `dossier_finance`, aucun droit pour `anon`, `authenticated` limité à
@@ -106,7 +107,17 @@ Après `closing`, vérifié : `authenticated` n'a plus que `select` sur `dossier
 trigger non exécutables ; `close_ledger` et `reopen_ledger` exécutables par `authenticated`
 seulement ; aucun dossier clôturé.
 
-`get_advisors` (sécurité), revérifié le 2026-10-28 après `closing` : sur le dossier, seules
+Après `providers`, vérifié : RLS active sur `provider_category`, `provider` et `quote_request`
+avec leurs six policies ; aucun droit pour `anon` ; `authenticated` limité à `select` sur
+`provider_category`, `select`/`insert`/`update` sur `provider` et `select`/`insert` sur
+`quote_request` ; 7 catégories et 10 prestataires d'exemple sans numéro ni vérification ; trois
+triggers, fonctions de trigger non exécutables ; `is_admin()` a désormais `search_path = ''`.
+
+`get_advisors` (sécurité), revérifié le 2026-10-28 après `providers` : aucune alerte nouvelle sur
+les tables du lot 3 ; l'alerte `search_path` de `is_admin` a disparu. En performance, seuls les
+index neufs du lot 3 sont signalés « non utilisés » (0005), attendu sur des tables vides.
+
+`get_advisors` (sécurité), vérifié le 2026-10-28 après `closing` : sur le dossier, seules
 `is_dossier_member`, `accept_dossier_invitation`, `consume_ai_quota`, `ledger_totals`,
 `set_budget_scenario`, `close_ledger` et `reopen_ledger` sont signalées comme security definer
 exécutables par `authenticated` (0029), c'est voulu (appelées par les policies, l'acceptation d'une
@@ -114,7 +125,7 @@ invitation, le quota d'IA, les totaux du registre, le choix du scénario, la cl�
 réouverture, qui vérifient eux-mêmes l'appartenance ou le rôle). `ai_usage` est
 signalée « RLS sans policy » (0008, INFO), c'est voulu : aucun accès direct, seule
 `consume_ai_quota` y écrit. Les autres alertes sont antérieures au lot 1
-(`search_path` non fixé sur `is_admin`, `applyCreditTransaction`, `initUserCredit`,
+(`search_path` non fixé sur `is_admin` — corrigé par `providers` —, `applyCreditTransaction`, `initUserCredit`,
 `applyStudiaTransaction`, `applyShopContribution` ; `initUserCredit` exécutable par `anon` ; tables
 `PhotoReport`, `StudiaBalance`, `StudiaTransaction` sans policy ; protection des mots de passe
 compromis désactivée dans Supabase Auth).
