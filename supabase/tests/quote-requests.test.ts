@@ -8,7 +8,6 @@ let verified: string;
 let example: string;
 let inactive: string;
 let unverified: string;
-let noNumber: string;
 
 /**
  * Envoie volontairement un `created_by` falsifié (le propriétaire) : le trigger doit le remplacer
@@ -46,7 +45,6 @@ beforeAll(async () => {
   example = await f.insertProvider({ name: 'Tentes de test', is_example: true });
   inactive = await f.insertProvider({ ...reachable, active: false });
   unverified = await f.insertProvider({ whatsapp: '+24166123456' });
-  noNumber = await f.insertProvider({ verified_at: new Date() });
   await requestQuoteWithForgedAuthor(f.coordinator, verified);
 });
 
@@ -67,8 +65,9 @@ describe('quote_request', () => {
     expect(rows[0]!.created_at.getFullYear()).toBeGreaterThan(2020);
   });
 
-  it('refuse un prestataire d’exemple, inactif, non vérifié ou sans numéro (TL010)', async () => {
-    for (const provider of [example, inactive, unverified, noNumber]) {
+  // WHY: un prestataire vérifié sans numéro ne peut pas exister (provider_verified_has_number).
+  it('refuse un prestataire d’exemple, inactif ou non vérifié (TL010)', async () => {
+    for (const provider of [example, inactive, unverified]) {
       await expect(requestQuoteWithForgedAuthor(f.owner, provider)).rejects.toMatchObject({
         code: 'TL010',
       });

@@ -15,7 +15,8 @@ type FieldMessageKey =
   | 'errors.tooLong'
   | 'errors.invalidCharacter'
   | 'errors.invalidPhone'
-  | 'errors.exampleWithContact';
+  | 'errors.exampleWithContact'
+  | 'errors.verifiedWithoutNumber';
 
 const FIELD_MESSAGES: Record<string, FieldMessageKey> = {
   required: 'errors.required',
@@ -23,6 +24,7 @@ const FIELD_MESSAGES: Record<string, FieldMessageKey> = {
   'invalid character': 'errors.invalidCharacter',
   'invalid phone': 'errors.invalidPhone',
   'example with contact': 'errors.exampleWithContact',
+  'verified without number': 'errors.verifiedWithoutNumber',
 };
 
 type TextName = 'name' | 'city' | 'district' | 'whatsapp' | 'priceNote';

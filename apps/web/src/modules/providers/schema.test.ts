@@ -54,6 +54,11 @@ describe('ProviderSchema', () => {
     });
   });
 
+  it('refuse un prestataire vérifié sans numéro', () => {
+    expect(messages({ ...base, verified: true })).toEqual({ verified: 'verified without number' });
+    expect(messages({ ...base, verified: true, whatsapp: '+24177123456' })).toEqual({});
+  });
+
   it('exige un nom et une ville', () => {
     expect(messages({ ...base, name: ' ', city: '' })).toEqual({
       name: 'required',

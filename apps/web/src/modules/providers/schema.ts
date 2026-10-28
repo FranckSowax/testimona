@@ -48,10 +48,16 @@ const fields = z.object({
   active: z.boolean(),
 });
 
-/** WHY: miroir de la contrainte `provider_example_unreachable`, pour un message lisible. */
+/**
+ * WHY: miroir des contraintes `provider_example_unreachable` et `provider_verified_has_number`,
+ * pour un message lisible.
+ */
 function exampleUnreachable(p: z.infer<typeof fields>, ctx: z.RefinementCtx) {
   if (p.isExample && (p.whatsapp !== null || p.verified)) {
     ctx.addIssue({ code: 'custom', path: ['isExample'], message: 'example with contact' });
+  }
+  if (p.verified && p.whatsapp === null && !p.isExample) {
+    ctx.addIssue({ code: 'custom', path: ['verified'], message: 'verified without number' });
   }
 }
 

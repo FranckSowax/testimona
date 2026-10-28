@@ -57,7 +57,10 @@ create table public.provider (
   updated_at timestamptz not null default now(),
   -- WHY: un prestataire d'exemple ne doit jamais pouvoir être contacté par une famille.
   constraint provider_example_unreachable
-    check (not is_example or (whatsapp is null and verified_at is null))
+    check (not is_example or (whatsapp is null and verified_at is null)),
+  -- WHY: « vérifié » veut dire joignable : une vérification sans numéro n'a pas de sens.
+  constraint provider_verified_has_number
+    check (verified_at is null or whatsapp is not null)
 );
 
 create index provider_city_category_idx on public.provider (city, category_key) where active;
@@ -107,12 +110,14 @@ revoke all on public.provider from anon, authenticated;
 grant select, insert, update on public.provider to authenticated;
 
 -- WHY: les numéros WhatsApp sont professionnels ; tout utilisateur connecté peut lire les
--- prestataires actifs, choix assumé. Seul un administrateur voit les inactifs.
+-- prestataires actifs qui sont d'exemple ou vérifiés, choix assumé. Un prestataire non vérifié ou
+-- inactif n'est visible que d'un administrateur.
 -- WHY: `(select public.is_admin())` est évalué une fois par requête (initplan). La clause
 -- `set search_path` empêche l'inlining de is_admin() : les anciennes policies l'appellent
 -- désormais par ligne, coût faible car le corps ne fait que lire le JWT.
 create policy provider_select on public.provider
-  for select to authenticated using (active or (select public.is_admin()));
+  for select to authenticated
+  using ((active and (is_example or verified_at is not null)) or (select public.is_admin()));
 create policy provider_insert on public.provider
   for insert to authenticated with check ((select public.is_admin()));
 create policy provider_update on public.provider

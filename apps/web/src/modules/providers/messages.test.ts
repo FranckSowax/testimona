@@ -64,9 +64,14 @@ const PATHS = [
     'saving',
     'saved',
   ].map((k) => `providers.form.${k}`),
-  ...['required', 'tooLong', 'invalidCharacter', 'invalidPhone', 'exampleWithContact'].map(
-    (k) => `providers.errors.${k}`,
-  ),
+  ...[
+    'required',
+    'tooLong',
+    'invalidCharacter',
+    'invalidPhone',
+    'exampleWithContact',
+    'verifiedWithoutNumber',
+  ].map((k) => `providers.errors.${k}`),
   ...Object.keys(ERRORS).map((k) => `dossier.errors.${k}`),
 ];
 

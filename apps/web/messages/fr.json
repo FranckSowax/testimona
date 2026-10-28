@@ -1811,7 +1811,8 @@
       "tooLong": "Ce texte est trop long.",
       "invalidCharacter": "Ce texte contient un caractère non autorisé.",
       "invalidPhone": "Saisissez le numéro au format international, par exemple +241 77 12 34 56.",
-      "exampleWithContact": "Un prestataire d'exemple ne peut avoir ni numéro ni vérification."
+      "exampleWithContact": "Un prestataire d'exemple ne peut avoir ni numéro ni vérification.",
+      "verifiedWithoutNumber": "Un prestataire vérifié doit avoir un numéro WhatsApp."
     }
   }
 }

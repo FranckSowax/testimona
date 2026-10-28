@@ -76,11 +76,34 @@ describe('provider', () => {
     expect(rows.map((r) => r.id)).toEqual([verified]);
   });
 
+  it('cache un prestataire actif non vérifié aux familles mais pas à l’administrateur', async () => {
+    const unverified = await f.insertProvider({ whatsapp: '+24155123456' });
+    const ids = (rows: { id: string }[]) => rows.map((r) => r.id);
+    const select = () =>
+      f.db.query<{ id: string }>('select id from provider where id = $1', [unverified]);
+    expect(ids((await asUser(f.db, f.contributor, select)).rows)).toEqual([]);
+    expect(ids((await asAdmin(f.db, f.admin, select)).rows)).toEqual([unverified]);
+  });
+
+  it('montre les exemples actifs aux familles', async () => {
+    const { rows } = await asUser(f.db, f.contributor, () =>
+      f.db.query<{ n: number }>('select count(*)::int as n from provider where is_example'),
+    );
+    expect(rows[0]!.n).toBe(10);
+  });
+
   it('montre les prestataires inactifs à un administrateur', async () => {
     const { rows } = await asAdmin(f.db, f.admin, () =>
       f.db.query<{ id: string }>('select id from provider where id = $1', [inactive]),
     );
     expect(rows).toHaveLength(1);
+  });
+
+  it('refuse un prestataire vérifié sans numéro', async () => {
+    await expect(f.insertProvider({ verified_at: new Date() })).rejects.toMatchObject({
+      code: '23514',
+      constraint: 'provider_verified_has_number',
+    });
   });
 
   it('laisse un administrateur modifier un prestataire inactif', async () => {
