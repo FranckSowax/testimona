@@ -1589,7 +1589,8 @@
     "tabs": {
       "label": "Contributions sections",
       "entries": "Entries",
-      "lines": "Lines"
+      "lines": "Lines",
+      "summary": "Summary"
     },
     "scenario": {
       "title": "Retained scenario",
@@ -1667,6 +1668,89 @@
       "continue": "Continue without the receipt",
       "next": "Continue",
       "frozen": "The expense is saved. Its fields can no longer be changed here."
+    }
+  },
+  "closing": {
+    "page": {
+      "title": "Contributions summary",
+      "intro": "What the family raised and spent, in one place.",
+      "provisional": "Contributions are still open: this summary may still change.",
+      "spentTitle": "Spending by budget line",
+      "receivedTitleAll": "Contributions received",
+      "receivedTitleOwn": "Your contributions received",
+      "receivedEmpty": "No contributions received to show.",
+      "exportTitle": "Keep a copy of the ledger",
+      "exportHint": "Every ledger line, reversals included, in a CSV file to open with a spreadsheet.",
+      "export": "Download the ledger (CSV)"
+    },
+    "spent": {
+      "line": "Budget line",
+      "spent": "Spent",
+      "unassigned": "No budget line",
+      "total": "Total",
+      "empty": "No spending yet."
+    },
+    "share": {
+      "title": "Share the summary",
+      "hint": "This text only contains totals: no names and no individual amounts.",
+      "label": "Summary text",
+      "copy": "Copy the text",
+      "copied": "Text copied.",
+      "copyManual": "The text is selected: copy it with your device.",
+      "share": "Share…",
+      "whatsapp": "Open in WhatsApp",
+      "whatsappLabel": "Open in WhatsApp (new tab)",
+      "heading": "Contributions for {name}",
+      "headingNoName": "Contributions summary",
+      "budget": "Budget in mind: {amount}",
+      "budgetRetained": "Retained budget: {amount}",
+      "received": "Received: {amount}",
+      "pledgedOpen": "Pledged, not paid: {amount}",
+      "spent": "Spent: {amount}",
+      "balance": "Available: {amount}",
+      "remaining": "Still to raise: {amount}",
+      "closed": "Contributions closed on {date}.",
+      "provisional": "Provisional summary: contributions are still open."
+    },
+    "control": {
+      "title": "Closing contributions",
+      "close": "Close contributions",
+      "closeWarning": "Once closed, no more pledges, contributions, expenses, reversals or budget line changes are possible. Only the dossier owner can reopen them.",
+      "confirmClose": "Confirm closing",
+      "keepOpen": "Keep open",
+      "closing": "Closing…",
+      "closed": "Contributions closed.",
+      "reopen": "Reopen contributions",
+      "reopenHint": "Reopening allows entries again. It is recorded in the dossier log.",
+      "reopening": "Reopening…",
+      "reopened": "Contributions reopened.",
+      "reopenOwnerOnly": "Only the dossier owner can reopen contributions."
+    },
+    "notice": {
+      "closed": "Contributions have been closed since {date}. No more entries can be made.",
+      "seeSummary": "See the summary"
+    },
+    "card": {
+      "closed": "Contributions closed on {date}.",
+      "seeSummary": "See the summary"
+    },
+    "export": {
+      "fileName": "ledger",
+      "columns": {
+        "date": "Date",
+        "kind": "Type",
+        "amount": "Amount (XAF)",
+        "method": "Payment method",
+        "party": "Name",
+        "line": "Budget line",
+        "note": "Note",
+        "reverses": "Reversed line",
+        "id": "Identifier",
+        "createdAt": "Recorded at"
+      }
+    },
+    "errors": {
+      "too_large": "The ledger is too large to export in one go."
     }
   }
 }

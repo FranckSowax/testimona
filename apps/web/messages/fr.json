@@ -1589,7 +1589,8 @@
     "tabs": {
       "label": "Sections des cotisations",
       "entries": "Mouvements",
-      "lines": "Postes"
+      "lines": "Postes",
+      "summary": "Bilan"
     },
     "scenario": {
       "title": "Scénario retenu",
@@ -1667,6 +1668,89 @@
       "continue": "Continuer sans le reçu",
       "next": "Continuer",
       "frozen": "La dépense est enregistrée. Ses champs ne peuvent plus être modifiés ici."
+    }
+  },
+  "closing": {
+    "page": {
+      "title": "Bilan des cotisations",
+      "intro": "Ce que la famille a réuni et dépensé, au même endroit.",
+      "provisional": "Les cotisations sont encore ouvertes : ce bilan peut encore évoluer.",
+      "spentTitle": "Dépenses par poste",
+      "receivedTitleAll": "Cotisations reçues",
+      "receivedTitleOwn": "Vos cotisations reçues",
+      "receivedEmpty": "Aucune cotisation reçue à afficher.",
+      "exportTitle": "Garder une copie du registre",
+      "exportHint": "Toutes les lignes du registre, annulations comprises, dans un fichier CSV à ouvrir avec un tableur.",
+      "export": "Télécharger le registre (CSV)"
+    },
+    "spent": {
+      "line": "Poste",
+      "spent": "Dépensé",
+      "unassigned": "Sans poste",
+      "total": "Total",
+      "empty": "Aucune dépense pour l'instant."
+    },
+    "share": {
+      "title": "Partager le bilan",
+      "hint": "Ce texte ne contient que les totaux : aucun nom ni montant individuel.",
+      "label": "Texte du bilan",
+      "copy": "Copier le texte",
+      "copied": "Texte copié.",
+      "copyManual": "Le texte est sélectionné : copiez-le avec votre appareil.",
+      "share": "Partager…",
+      "whatsapp": "Ouvrir dans WhatsApp",
+      "whatsappLabel": "Ouvrir dans WhatsApp (nouvel onglet)",
+      "heading": "Cotisations pour {name}",
+      "headingNoName": "Bilan des cotisations",
+      "budget": "Budget envisagé : {amount}",
+      "budgetRetained": "Budget retenu : {amount}",
+      "received": "Reçu : {amount}",
+      "pledgedOpen": "Promis, non versé : {amount}",
+      "spent": "Dépensé : {amount}",
+      "balance": "Disponible : {amount}",
+      "remaining": "Reste à réunir : {amount}",
+      "closed": "Cotisations clôturées le {date}.",
+      "provisional": "Bilan provisoire : les cotisations sont encore ouvertes."
+    },
+    "control": {
+      "title": "Clôture des cotisations",
+      "close": "Clôturer les cotisations",
+      "closeWarning": "Une fois clôturées, plus aucune promesse, cotisation, dépense, annulation ni modification des postes n'est possible. Seul le propriétaire du dossier peut les rouvrir.",
+      "confirmClose": "Confirmer la clôture",
+      "keepOpen": "Garder ouvert",
+      "closing": "Clôture…",
+      "closed": "Cotisations clôturées.",
+      "reopen": "Rouvrir les cotisations",
+      "reopenHint": "La réouverture permet de nouveau les saisies. Elle est notée dans le journal du dossier.",
+      "reopening": "Réouverture…",
+      "reopened": "Cotisations rouvertes.",
+      "reopenOwnerOnly": "Seul le propriétaire du dossier peut rouvrir les cotisations."
+    },
+    "notice": {
+      "closed": "Les cotisations sont clôturées depuis le {date}. Plus aucune saisie n'est possible.",
+      "seeSummary": "Voir le bilan"
+    },
+    "card": {
+      "closed": "Cotisations clôturées le {date}.",
+      "seeSummary": "Voir le bilan"
+    },
+    "export": {
+      "fileName": "registre",
+      "columns": {
+        "date": "Date",
+        "kind": "Type",
+        "amount": "Montant (FCFA)",
+        "method": "Moyen de paiement",
+        "party": "Nom",
+        "line": "Poste",
+        "note": "Note",
+        "reverses": "Ligne annulée",
+        "id": "Identifiant",
+        "createdAt": "Enregistrée le"
+      }
+    },
+    "errors": {
+      "too_large": "Le registre est trop volumineux pour être exporté en une seule fois."
     }
   }
 }

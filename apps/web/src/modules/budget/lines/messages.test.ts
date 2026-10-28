@@ -28,7 +28,7 @@ const PATHS = [
     'recomputeHint',
     'recomputed',
   ].map((k) => `lines.page.${k}`),
-  ...['label', 'entries', 'lines'].map((k) => `lines.tabs.${k}`),
+  ...['label', 'entries', 'lines', 'summary'].map((k) => `lines.tabs.${k}`),
   ...['title', 'hint', 'none', 'option', 'current', 'save', 'saved'].map(
     (k) => `lines.scenario.${k}`,
   ),
