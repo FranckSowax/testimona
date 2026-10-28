@@ -10,10 +10,19 @@ interface Props {
   canManage: boolean;
   /** Libellé de chaque poste du budget, par identifiant. */
   lineLabels: ReadonlyMap<string, string>;
+  /** Reçu rattaché à chaque dépense, par identifiant de dépense. */
+  receiptByEntry: ReadonlyMap<string, string>;
 }
 
 /** Mouvements visibles ; une annulation apparaît comme une ligne, rien ne disparaît. */
-export async function EntryList({ dossierId, locale, views, canManage, lineLabels }: Props) {
+export async function EntryList({
+  dossierId,
+  locale,
+  views,
+  canManage,
+  lineLabels,
+  receiptByEntry,
+}: Props) {
   const t = await getTranslations('ledger');
   const date = new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'fr-FR', {
     dateStyle: 'medium',
@@ -32,6 +41,8 @@ export async function EntryList({ dossierId, locale, views, canManage, lineLabel
         const struck = v.reversed ? 'line-through' : '';
         const lineLabel =
           v.kind === 'expense' && v.budgetLineId ? lineLabels.get(v.budgetLineId) : undefined;
+        const receiptId = v.kind === 'expense' ? receiptByEntry.get(v.id) : undefined;
+        const entryLabel = `${v.partyName}, ${label}, ${amount}, ${day}`;
         return (
           <li key={v.id} className="space-y-1 px-5 py-4">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
@@ -63,12 +74,23 @@ export async function EntryList({ dossierId, locale, views, canManage, lineLabel
                 ` · ${t('entry.partlyPaid', { paid: formatXaf(v.paid, locale) })}`}
               {v.note && ` · ${v.note}`}
             </p>
+            {receiptId && (
+              <p className="text-sm">
+                {/* WHY: lien simple (pas de prélecture de <Link>) ; la route crée un lien signé de
+                    5 minutes à chaque clic. */}
+                <a
+                  href={`/api/receipts/${receiptId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={t('entry.receiptLabel', { entry: entryLabel })}
+                  className="text-secondary font-semibold underline underline-offset-2"
+                >
+                  {t('entry.receipt')}
+                </a>
+              </p>
+            )}
             {canManage && canReverse(v) && (
-              <ReverseButton
-                dossierId={dossierId}
-                entryId={v.id}
-                label={`${v.partyName}, ${label}, ${amount}, ${day}`}
-              />
+              <ReverseButton dossierId={dossierId} entryId={v.id} label={entryLabel} />
             )}
           </li>
         );

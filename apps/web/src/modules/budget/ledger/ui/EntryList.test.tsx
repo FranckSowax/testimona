@@ -56,11 +56,23 @@ const plain = (text: string | null) => (text ?? '').replace(/[  ]/g, ' ');
 
 const LINE = '66666666-6666-4666-8666-666666666666';
 const lineLabels = new Map([[LINE, 'Traiteur']]);
+const RECEIPT = '77777777-7777-4777-8777-777777777777';
 
-async function renderList(views: EntryView[], canManage = false) {
+async function renderList(
+  views: EntryView[],
+  canManage = false,
+  receiptByEntry: ReadonlyMap<string, string> = new Map(),
+) {
   render(
     <NextIntlClientProvider locale="fr" messages={messages}>
-      {await EntryList({ dossierId: DOSSIER, locale: 'fr', views, canManage, lineLabels })}
+      {await EntryList({
+        dossierId: DOSSIER,
+        locale: 'fr',
+        views,
+        canManage,
+        lineLabels,
+        receiptByEntry,
+      })}
     </NextIntlClientProvider>,
   );
   return screen.getAllByRole('listitem').map((li) => plain(li.textContent));
@@ -117,8 +129,28 @@ describe('EntryList', () => {
 
   it('says so when there is no entry', async () => {
     render(
-      await EntryList({ dossierId: DOSSIER, locale: 'fr', views: [], canManage: true, lineLabels }),
+      await EntryList({
+        dossierId: DOSSIER,
+        locale: 'fr',
+        views: [],
+        canManage: true,
+        lineLabels,
+        receiptByEntry: new Map(),
+      }),
     );
     expect(screen.getByText("Aucune ligne pour l'instant.")).toBeTruthy();
+  });
+
+  it('links an expense to its receipt, in a new tab', async () => {
+    const expense: EntryView = { ...receipt, kind: 'expense', partyName: 'Mba', method: 'cash' };
+    await renderList([expense, pledge], false, new Map([[expense.id, RECEIPT]]));
+    const links = screen.getAllByRole('link');
+    expect(links).toHaveLength(1);
+    expect(links[0]!.getAttribute('href')).toBe(`/api/receipts/${RECEIPT}`);
+    expect(links[0]!.getAttribute('target')).toBe('_blank');
+    expect(links[0]!.getAttribute('rel')).toBe('noopener noreferrer');
+    expect(plain(links[0]!.getAttribute('aria-label'))).toBe(
+      'Voir le reçu : Mba, Dépense, 20 000 FCFA, 20 oct. 2026',
+    );
   });
 });

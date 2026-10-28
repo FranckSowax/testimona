@@ -128,3 +128,12 @@ test.describe('Auth flow (UI only — no Supabase mutation)', () => {
     await expect(page.getByRole('link', { name: /oublié|forgot/i })).toBeVisible();
   });
 });
+
+test.describe('Receipts', () => {
+  test('a receipt link requires a session', async ({ request }) => {
+    const res = await request.get('/api/receipts/00000000-0000-4000-8000-000000000000', {
+      maxRedirects: 0,
+    });
+    expect(res.status()).toBe(401);
+  });
+});

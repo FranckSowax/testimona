@@ -14,6 +14,7 @@ import { VisibilityForm } from '@/modules/budget/ledger/ui/VisibilityForm';
 import { referenceBudget } from '@/modules/budget/lines/model';
 import { getScenario, listLines } from '@/modules/budget/lines/repo';
 import { LedgerTabs } from '@/modules/budget/lines/ui/LedgerTabs';
+import { listReceiptsByEntry } from '@/modules/budget/receipts/repo';
 import { ATTENDANCE_KEYS, LEVEL_KEY, NIGHTS_KEY } from '@/modules/budget/scenarios';
 import { listAnswersResult } from '@/modules/dossier/answers/repo';
 import { getDossier, getMyRole, listMembers } from '@/modules/dossier/repo';
@@ -36,7 +37,7 @@ export default async function ContributionsPage({
   const [dossier, role] = await Promise.all([getDossier(id), getMyRole(id)]);
   if (!dossier || !isStepOpen(dossier.entryPoint, 'attendance')) notFound();
 
-  const [t, tEntry, totals, entries, visibility, answers, lines, scenario, members] =
+  const [t, tEntry, totals, entries, visibility, answers, lines, scenario, members, receipts] =
     await Promise.all([
       getTranslations('ledger.page'),
       getTranslations('ledger.entry'),
@@ -49,6 +50,7 @@ export default async function ContributionsPage({
       // WHY: listMembers journalise ses erreurs et renvoie [] ; la saisie reste possible avec
       // « Autre personne », rien de faux n'est affiché.
       canManageLedger(role) ? listMembers(id) : Promise.resolve([]),
+      listReceiptsByEntry(id),
     ]);
   // WHY: des totaux ou des lignes faux seraient pires qu'un écran d'erreur ; error.tsx prend le relais.
   if (
@@ -65,6 +67,9 @@ export default async function ContributionsPage({
   const views = entryViews(entries.data);
   const budget = referenceBudget(scenario.data, lines.data, answers.data);
   const lineLabels = new Map(lines.data.map((l) => [l.id, l.label]));
+  // WHY: sans la liste des reçus, les mouvements restent justes ; on n'affiche simplement pas
+  // « Voir le reçu » (listReceiptsByEntry journalise l'erreur).
+  const receiptByEntry = receipts.data ?? new Map<string, string>();
   const { canPledge, canManage, isOwner, memberOptions, pledgeOptions, lineOptions } =
     contributionsView({
       role,
@@ -106,6 +111,7 @@ export default async function ContributionsPage({
           views={views}
           canManage={canManage}
           lineLabels={lineLabels}
+          receiptByEntry={receiptByEntry}
         />
       </section>
 
