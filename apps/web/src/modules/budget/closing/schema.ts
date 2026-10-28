@@ -27,6 +27,8 @@ export interface ExportRow {
   note: string;
   occurredOn: string;
   reversesId: string | null;
+  /** Type de la ligne annulée (annulation seulement), ou null. */
+  reversesKind: Exclude<EntryKind, 'reversal'> | null;
   /** Promesse à laquelle se rattache ce versement, ou null. */
   pledgeId: string | null;
   createdAt: string;

@@ -15,7 +15,7 @@ const PAGE = 1000;
 export const EXPORT_MAX_ROWS = 50_000;
 
 const EXPORT_COLUMNS =
-  'id, kind, amount, method, party_name, budget_line_id, note, occurred_on, reverses_id, pledge_id, created_at';
+  'id, kind, amount, method, party_name, budget_line_id, note, occurred_on, reverses_id, reverses_kind, pledge_id, created_at';
 
 interface ExportDbRow {
   id: string;
@@ -27,6 +27,7 @@ interface ExportDbRow {
   note: string;
   occurred_on: string;
   reverses_id: string | null;
+  reverses_kind: Exclude<EntryKind, 'reversal'> | null;
   pledge_id: string | null;
   created_at: string;
 }
@@ -41,6 +42,7 @@ const toRow = (r: ExportDbRow): ExportRow => ({
   note: r.note,
   occurredOn: r.occurred_on,
   reversesId: r.reverses_id,
+  reversesKind: r.reverses_kind,
   pledgeId: r.pledge_id,
   createdAt: r.created_at,
 });

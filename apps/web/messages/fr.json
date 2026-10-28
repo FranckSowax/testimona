@@ -1739,12 +1739,13 @@
       "columns": {
         "date": "Date",
         "kind": "Type",
-        "amount": "Montant (FCFA)",
+        "amount": "Montant (FCFA, toujours positif : voir le type)",
         "method": "Moyen de paiement",
         "party": "Nom ou prestataire",
         "line": "Poste",
         "note": "Note",
         "reverses": "Identifiant de la ligne annulée",
+        "reversesKind": "Type de la ligne annulée",
         "pledge": "Identifiant de la promesse liée",
         "id": "Identifiant",
         "createdAt": "Enregistrée le"

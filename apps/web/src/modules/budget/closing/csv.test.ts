@@ -30,6 +30,7 @@ const row = (over: Partial<ExportRow>): ExportRow => ({
   note: '',
   occurredOn: '2026-10-20',
   reversesId: null,
+  reversesKind: null,
   pledgeId: null,
   createdAt: '2026-10-20T10:00:00Z',
   ...over,
@@ -47,6 +48,7 @@ const COLUMN_OF: Record<keyof ExportRow, CsvColumn> = {
   budgetLineId: 'line',
   note: 'note',
   reversesId: 'reverses',
+  reversesKind: 'reversesKind',
   pledgeId: 'pledge',
   id: 'id',
   createdAt: 'createdAt',
@@ -64,7 +66,7 @@ describe('ledgerCsv', () => {
     expect(csv.startsWith('﻿')).toBe(true);
     expect(csv.endsWith('\r\n')).toBe(true);
     expect(lines(csv)[0]).toBe(
-      '"DATE";"KIND";"AMOUNT";"METHOD";"PARTY";"LINE";"NOTE";"REVERSES";"PLEDGE";"ID";"CREATEDAT"',
+      '"DATE";"KIND";"AMOUNT";"METHOD";"PARTY";"LINE";"NOTE";"REVERSES";"REVERSESKIND";"PLEDGE";"ID";"CREATEDAT"',
     );
   });
 
@@ -72,16 +74,23 @@ describe('ledgerCsv', () => {
     const csv = ledgerCsv(
       [
         row({}),
-        row({ id: 'v1', kind: 'reversal', method: null, budgetLineId: null, reversesId: 'e1' }),
+        row({
+          id: 'v1',
+          kind: 'reversal',
+          method: null,
+          budgetLineId: null,
+          reversesId: 'e1',
+          reversesKind: 'expense',
+        }),
       ],
       new Map([['l1', 'Cercueil']]),
       labels,
     );
     expect(lines(csv)[1]).toBe(
-      '"2026-10-20";"Dépense";"25000";"Espèces";"Pompes funèbres";"Cercueil";"";"";"";"e1";"2026-10-20T10:00:00Z"',
+      '"2026-10-20";"Dépense";"25000";"Espèces";"Pompes funèbres";"Cercueil";"";"";"";"";"e1";"2026-10-20T11:00:00+01:00"',
     );
     expect(lines(csv)[2]).toBe(
-      '"2026-10-20";"Annulation";"25000";"";"Pompes funèbres";"";"";"e1";"";"v1";"2026-10-20T10:00:00Z"',
+      '"2026-10-20";"Annulation";"25000";"";"Pompes funèbres";"";"";"e1";"Dépense";"";"v1";"2026-10-20T11:00:00+01:00"',
     );
   });
 
@@ -91,7 +100,7 @@ describe('ledgerCsv', () => {
       new Map(),
       labels,
     );
-    expect(lines(csv)[1]).toContain('"";"p1";"r1";');
+    expect(lines(csv)[1]).toContain('"";"";"p1";"r1";');
   });
 
   it('double les guillemets et garde un retour à la ligne dans sa cellule', () => {
@@ -100,9 +109,38 @@ describe('ledgerCsv', () => {
   });
 
   it('neutralise une cellule qui serait lue comme une formule', () => {
-    for (const value of ['=SUM(A1)', '+33', '-2', '@cmd', '\tx', '\rx']) {
+    for (const value of [
+      '=SUM(A1)',
+      '+33',
+      '-2',
+      '@cmd',
+      '\tx',
+      '\rx',
+      ' =1',
+      '\n=1',
+      '＝1',
+      '＋1',
+      '－1',
+      '＠1',
+    ]) {
       const csv = ledgerCsv([row({ partyName: value })], new Map(), labels);
       expect(csv).toContain(`"'${value}"`);
     }
+  });
+
+  it('laisse un montant tel quel, sans apostrophe', () => {
+    const csv = ledgerCsv([row({})], new Map(), labels);
+    expect(lines(csv)[1]).toContain(';"25000";');
+    expect(csv).not.toContain("'25000");
+  });
+
+  it('écrit l’heure d’enregistrement à Libreville (UTC+1), même au changement de jour', () => {
+    const csv = ledgerCsv([row({ createdAt: '2026-10-20T23:30:00Z' })], new Map(), labels);
+    expect(lines(csv)[1]?.endsWith('"2026-10-21T00:30:00+01:00"')).toBe(true);
+  });
+
+  it('garde une date illisible telle quelle', () => {
+    const csv = ledgerCsv([row({ createdAt: 'inconnue' })], new Map(), labels);
+    expect(lines(csv)[1]?.endsWith('"inconnue"')).toBe(true);
   });
 });

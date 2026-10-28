@@ -11,6 +11,7 @@ export const CSV_COLUMNS = [
   'line',
   'note',
   'reverses',
+  'reversesKind',
   'pledge',
   'id',
   'createdAt',
@@ -29,9 +30,33 @@ export interface CsvLabels {
 const SEPARATOR = ';';
 const BOM = '﻿';
 
-// WHY: une cellule qui commence par =, +, -, @, tabulation ou retour chariot serait exécutée
-// comme une formule par un tableur (injection CSV) ; on la préfixe d'une apostrophe.
-const FORMULA_START = /^[=+\-@\t\r]/;
+// WHY: une cellule qui commence par =, +, -, @ (y compris en pleine chasse, et après des espaces
+// que certains tableurs ignorent), par une tabulation ou un retour chariot serait exécutée comme
+// une formule par un tableur (injection CSV) ; on la préfixe d'une apostrophe.
+const FORMULA_START = /^\s*[=+\-@＝＋－＠]|^[\t\r]/u;
+
+// WHY: l'heure d'enregistrement se lit dans le fuseau des familles (Gabon, UTC+1 sans heure
+// d'été), pas en UTC ; le décalage reste écrit pour lever toute ambiguïté.
+const LIBREVILLE = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'Africa/Libreville',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23',
+  timeZoneName: 'longOffset',
+});
+
+/** Date ISO à l'heure de Libreville, avec son décalage ; la valeur brute si elle est illisible. */
+function librevilleIso(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const p = Object.fromEntries(LIBREVILLE.formatToParts(date).map((x) => [x.type, x.value]));
+  const offset = (p.timeZoneName ?? '').replace('GMT', '') || '+00:00';
+  return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second}${offset}`;
+}
 
 function cell(value: string): string {
   const safe = FORMULA_START.test(value) ? `'${value}` : value;
@@ -61,9 +86,10 @@ export function ledgerCsv(
       r.budgetLineId ? (lineLabels.get(r.budgetLineId) ?? '') : '',
       r.note,
       r.reversesId ?? '',
+      r.reversesKind ? labels.kind[r.reversesKind] : '',
       r.pledgeId ?? '',
       r.id,
-      r.createdAt,
+      librevilleIso(r.createdAt),
     ]
       .map(cell)
       .join(SEPARATOR),

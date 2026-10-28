@@ -33,6 +33,7 @@ const row = {
   note: '',
   occurredOn: '2026-10-20',
   reversesId: null,
+  reversesKind: null,
   pledgeId: null,
   createdAt: '2026-10-20T10:00:00Z',
 };
@@ -69,6 +70,20 @@ describe('ledgerExportResponse', () => {
     expect(res.headers.get('Cache-Control')).toBe('no-store');
   });
 
+  it('répond 500 sans corps ni cache si une exception est levée', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    service.exportLedger.mockRejectedValueOnce(new TypeError('Oncle Paul 10000'));
+    const res = await ledgerExportResponse(DOSSIER, 'fr');
+    expect(res.status).toBe(500);
+    expect(res.headers.get('Cache-Control')).toBe('no-store');
+    expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff');
+    expect(await res.text()).toBe('');
+    expect(log).toHaveBeenCalledWith('[budget/closing] ledger export failed', {
+      name: 'TypeError',
+    });
+    log.mockRestore();
+  });
+
   it('renvoie le CSV en pièce jointe, avec les libellés français par défaut', async () => {
     const res = await ledgerExportResponse(DOSSIER, null);
     expect(res.status).toBe(200);
@@ -79,7 +94,7 @@ describe('ledgerExportResponse', () => {
     expect(res.headers.get('Cache-Control')).toBe('no-store');
     expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff');
     const body = await res.text();
-    expect(body).toContain('"Date";"Type";"Montant (FCFA)"');
+    expect(body).toContain('"Date";"Type";"Montant (FCFA, toujours positif : voir le type)"');
     expect(body).toContain('"Cotisation reçue";"10000";"Airtel Money";"Oncle Paul"');
     expect(service.exportLedger).toHaveBeenCalledWith({ dossierId: DOSSIER });
   });

@@ -6,7 +6,7 @@ import { CSV_COLUMNS, ledgerCsv, type CsvLabels } from './csv';
 import { ExportLangSchema } from './schema';
 import { exportLedger, type ClosingError } from './service';
 
-const NO_STORE = { 'Cache-Control': 'no-store' };
+const NO_STORE = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
 
 // WHY: absent, interdit et invalide donnent 404, pour ne pas révéler l'existence d'un dossier.
 const STATUS: Record<ClosingError, number> = {
@@ -32,6 +32,18 @@ export async function ledgerExportResponse(
   dossierId: string,
   lang: string | null,
 ): Promise<Response> {
+  try {
+    return await exportResponse(dossierId, lang);
+  } catch (error) {
+    // WHY: seul le nom de l'erreur est journalisé : jamais de montant ni de nom du registre.
+    console.error('[budget/closing] ledger export failed', {
+      name: error instanceof Error ? error.name : 'unknown',
+    });
+    return new Response(null, { status: 500, headers: NO_STORE });
+  }
+}
+
+async function exportResponse(dossierId: string, lang: string | null): Promise<Response> {
   if (!(await getCurrentUser())) return new Response(null, { status: 401, headers: NO_STORE });
   const res = await exportLedger({ dossierId });
   if (!res.ok) return new Response(null, { status: STATUS[res.error], headers: NO_STORE });
@@ -54,7 +66,6 @@ export async function ledgerExportResponse(
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
       'Content-Disposition': `attachment; filename="${t('fileName')}-${ledgerToday()}.csv"`,
-      'X-Content-Type-Options': 'nosniff',
       ...NO_STORE,
     },
   });

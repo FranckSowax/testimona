@@ -1739,12 +1739,13 @@
       "columns": {
         "date": "Date",
         "kind": "Type",
-        "amount": "Amount (FCFA)",
+        "amount": "Amount (FCFA, always positive: see type)",
         "method": "Payment method",
         "party": "Name or provider",
         "line": "Budget line",
         "note": "Note",
         "reverses": "Reversed entry identifier",
+        "reversesKind": "Reversed entry type",
         "pledge": "Linked pledge identifier",
         "id": "Identifier",
         "createdAt": "Recorded at"

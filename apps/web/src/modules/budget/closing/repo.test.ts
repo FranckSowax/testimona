@@ -51,6 +51,7 @@ const dbRow = (id: string) => ({
   note: '',
   occurred_on: '2026-10-20',
   reverses_id: null,
+  reverses_kind: null,
   pledge_id: null,
   created_at: '2026-10-20T10:00:00Z',
 });
@@ -139,6 +140,7 @@ describe('listExportRows', () => {
       note: '',
       occurredOn: '2026-10-20',
       reversesId: null,
+      reversesKind: null,
       pledgeId: null,
       createdAt: '2026-10-20T10:00:00Z',
     });
@@ -147,6 +149,7 @@ describe('listExportRows', () => {
       [1000, 1999],
     ]);
     expect(callsOf('from')[0]!.args).toEqual(['ledger_entry']);
+    expect(String(callsOf('select')[0]!.args[0])).toContain('reverses_kind');
     expect(callsOf('eq')[0]!.args).toEqual(['dossier_id', DOSSIER]);
     expect(callsOf('order').map((c) => c.args)).toEqual([
       ['created_at', { ascending: true }],
@@ -154,6 +157,15 @@ describe('listExportRows', () => {
       ['created_at', { ascending: true }],
       ['id', { ascending: true }],
     ]);
+  });
+
+  it('reprend le type de la ligne annulée', async () => {
+    results.push({
+      data: [{ ...dbRow('v1'), kind: 'reversal', reverses_id: 'e1', reverses_kind: 'receipt' }],
+      error: null,
+    });
+    const res = await listExportRows(DOSSIER);
+    expect(res.data?.[0]).toMatchObject({ reversesId: 'e1', reversesKind: 'receipt' });
   });
 
   it('trie la sortie par date d’opération, puis création, puis id', async () => {
