@@ -1556,6 +1556,7 @@
       "receipt_unlinked": "The expense is saved, but the receipt could not be attached.",
       "receipt_unavailable": "This receipt can no longer be attached: the expense is saved without it.",
       "changed_since_saved": "This entry has changed since it was first saved: start again from an empty form.",
+      "closed": "Contributions are closed: no more entries can be made.",
       "invalidNumber": "Enter a whole amount, in digits.",
       "outOfRange": "Enter an amount between 1 and 100,000,000 FCFA.",
       "invalidDate": "Enter a valid date, today or earlier.",
@@ -1579,6 +1580,7 @@
       "estimateNote": "Starting amounts: estimates to check with providers.",
       "empty": "No lines yet. A treasurer can create them from the estimate.",
       "emptyManager": "Create the lines from the estimate on the Budget page, then adjust them.",
+      "emptyClosed": "No budget line was created before closing.",
       "create": "Create the lines",
       "created": "Lines created.",
       "recompute": "Recalculate from attendance",
@@ -1588,7 +1590,8 @@
     "tabs": {
       "label": "Contributions sections",
       "entries": "Entries",
-      "lines": "Lines"
+      "lines": "Lines",
+      "summary": "Summary"
     },
     "scenario": {
       "title": "Retained scenario",
@@ -1632,6 +1635,7 @@
       "line_in_use": "This line has or had expenses: it cannot be deleted.",
       "no_attendance": "Add the expected attendance first so the lines can be estimated.",
       "too_many_lines": "A dossier can have at most 100 lines.",
+      "closed": "Contributions are closed: budget lines and the scenario can no longer be changed.",
       "invalidNumber": "Enter a whole amount, in digits.",
       "outOfRange": "Enter an amount between 0 and 100,000,000 FCFA.",
       "required": "This field is required.",
@@ -1657,13 +1661,100 @@
       "receipt_type": "Choose a JPEG, PNG or WebP photo.",
       "receipt_size": "This photo is larger than 5 MB. Choose a lighter one.",
       "too_many_receipts": "This dossier has reached its limit of 200 receipts.",
-      "upload_failed": "The photo could not be sent. Try again, or save the expense without a photo."
+      "upload_failed": "The photo could not be sent. Try again, or save the expense without a photo.",
+      "closed": "Contributions are closed: no more receipts can be added."
     },
     "unlinked": {
       "retry": "Try attaching the receipt again",
       "continue": "Continue without the receipt",
       "next": "Continue",
       "frozen": "The expense is saved. Its fields can no longer be changed here."
+    }
+  },
+  "closing": {
+    "page": {
+      "title": "Contributions summary",
+      "intro": "What the family raised and spent, in one place.",
+      "provisional": "Contributions are still open: this summary may still change.",
+      "spentTitle": "Spending by budget line",
+      "receivedTitleAll": "Contributions received",
+      "receivedTitleOwn": "Your contributions received",
+      "receivedEmpty": "No contributions received to show.",
+      "receivedTruncated": "List limited to the last {limit} entries; the totals remain complete.",
+      "exportTitle": "Keep a copy of the ledger",
+      "exportHint": "Every ledger line, reversals included, in a CSV file to open with a spreadsheet.",
+      "export": "Download the ledger (CSV)"
+    },
+    "spent": {
+      "line": "Budget line",
+      "spent": "Spent",
+      "unassigned": "Expenses without a line",
+      "total": "Total",
+      "empty": "No spending yet."
+    },
+    "share": {
+      "title": "Share the summary",
+      "hint": "This text only contains the totals and the name of the deceased: no contributor names and no individual amounts.",
+      "label": "Summary text",
+      "copy": "Copy the text",
+      "copied": "Text copied.",
+      "copyManual": "The text is selected: copy it using your device's menu.",
+      "share": "Share…",
+      "whatsapp": "Open in WhatsApp",
+      "whatsappLabel": "Open in WhatsApp (new tab)",
+      "heading": "Contributions summary for {name}",
+      "headingNoName": "Contributions summary",
+      "budget": "Budget in mind: {amount}",
+      "budgetRetained": "Retained budget: {amount}",
+      "received": "Received: {amount}",
+      "pledgedOpen": "Pledged, not paid: {amount}",
+      "spent": "Spent: {amount}",
+      "balance": "Available: {amount}",
+      "remaining": "Still to raise: {amount}",
+      "closed": "Contributions closed on {date}.",
+      "provisional": "Provisional summary: contributions are still open."
+    },
+    "control": {
+      "title": "Closing contributions",
+      "close": "Close contributions",
+      "closeWarning": "Once contributions are closed, no more pledges, contributions, expenses, reversals, receipts or changes to budget lines or the scenario are possible. The summary and the ledger stay available. Only the dossier owner can reopen contributions.",
+      "confirmClose": "Confirm closing",
+      "keepOpen": "Keep open",
+      "closing": "Closing…",
+      "closed": "Contributions closed.",
+      "reopen": "Reopen contributions",
+      "reopenHint": "Entries become possible again.",
+      "reopening": "Reopening…",
+      "reopened": "Contributions reopened.",
+      "reopenOwnerOnly": "Only the dossier owner can reopen contributions."
+    },
+    "notice": {
+      "closed": "Contributions have been closed since {date}. No more entries can be made.",
+      "seeSummary": "See the summary"
+    },
+    "card": {
+      "closed": "Contributions closed on {date}.",
+      "seeSummary": "See the summary"
+    },
+    "export": {
+      "fileName": "ledger",
+      "columns": {
+        "date": "Date",
+        "kind": "Type",
+        "amount": "Amount (FCFA, always positive: see type)",
+        "method": "Payment method",
+        "party": "Name or provider",
+        "line": "Budget line",
+        "note": "Note",
+        "reverses": "Reversed entry identifier",
+        "reversesKind": "Reversed entry type",
+        "pledge": "Linked pledge identifier",
+        "id": "Identifier",
+        "createdAt": "Recorded at"
+      }
+    },
+    "errors": {
+      "too_large": "The ledger is too large to export in one go."
     }
   }
 }

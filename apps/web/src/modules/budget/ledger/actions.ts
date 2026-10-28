@@ -24,7 +24,13 @@ const entryFields = (formData: FormData) => ({
   occurredOn: field(formData, 'occurredOn'),
 });
 
-const EXPENSE_SAVED = new Set<LedgerError | undefined>(['receipt_unlinked', 'receipt_unavailable']);
+// WHY: « closed » : le formulaire était périmé (dossier clôturé entre-temps) ; revalider fait
+// apparaître l'avis de clôture et retire les formulaires de saisie.
+const REVALIDATE_ON_ERROR = new Set<LedgerError | undefined>([
+  'receipt_unlinked',
+  'receipt_unavailable',
+  'closed',
+]);
 
 async function done(
   dossierId: string,
@@ -33,12 +39,13 @@ async function done(
   // WHY: « receipt_unlinked » et « receipt_unavailable » : la dépense est enregistrée, seul le
   // reçu manque ; les pages doivent l'afficher. L'écran garde la saisie pour retenter le
   // rattachement (un renvoi rejoue la clé et ne crée pas de seconde dépense).
-  if (!res.ok && !EXPENSE_SAVED.has(res.error)) {
+  if (!res.ok && !REVALIDATE_ON_ERROR.has(res.error)) {
     return { error: res.error, fieldErrors: res.fieldErrors };
   }
   const locale = await getLocale();
   revalidatePath(localizedPath(`/dossier/${dossierId}/cotisations`, locale));
   revalidatePath(localizedPath(`/dossier/${dossierId}/cotisations/postes`, locale));
+  revalidatePath(localizedPath(`/dossier/${dossierId}/cotisations/bilan`, locale));
   revalidatePath(localizedPath(`/dossier/${dossierId}`, locale));
   return res.ok ? { ok: true } : { error: res.error };
 }

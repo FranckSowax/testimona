@@ -62,6 +62,13 @@ function fail(error: { code?: string; message?: string }) {
   };
 }
 
+/**
+ * Nombre maximal de lignes renvoyées par `listEntries`.
+ * WHY: borne l'écran ; les totaux viennent de `ledger_totals`, calculés en base sur tout le
+ * registre, et l'export CSV pagine au-delà.
+ */
+export const LEDGER_LIST_LIMIT = 500;
+
 /** Lignes du registre que l'utilisateur peut voir (RLS), les plus récentes d'abord. */
 export async function listEntries(dossierId: string): Promise<RepoResult<LedgerEntry[]>> {
   const db = await getSupabaseServer();
@@ -71,7 +78,7 @@ export async function listEntries(dossierId: string): Promise<RepoResult<LedgerE
     .eq('dossier_id', dossierId)
     .order('occurred_on', { ascending: false })
     .order('created_at', { ascending: false })
-    .limit(500)
+    .limit(LEDGER_LIST_LIMIT)
     .returns<EntryRow[]>();
   if (error) {
     console.error('[budget/ledger] listEntries impossible', { code: error.code });

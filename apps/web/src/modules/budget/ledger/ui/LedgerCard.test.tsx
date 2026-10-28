@@ -80,5 +80,22 @@ describe('LedgerCard', () => {
       await LedgerCard({ dossierId: 'abc', locale: 'fr', budget: null, totals: null }),
     );
     expect(container.querySelector('a')?.getAttribute('href')).toBe('/dossier/abc/cotisations');
+    expect(container.textContent).not.toContain(messages.closing.card.seeSummary);
+  });
+
+  it('dit que les cotisations sont clôturées et mène au bilan', async () => {
+    const { container, getByRole } = render(
+      await LedgerCard({
+        dossierId: 'abc',
+        locale: 'fr',
+        budget: { amount: 1_000_000, source: 'envisaged' },
+        totals,
+        closedOn: '28 octobre 2026',
+      }),
+    );
+    expect(container.textContent).toContain('Cotisations clôturées le 28 octobre 2026.');
+    expect(getByRole('link', { name: messages.closing.card.seeSummary }).getAttribute('href')).toBe(
+      '/dossier/abc/cotisations/bilan',
+    );
   });
 });

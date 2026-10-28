@@ -1556,6 +1556,7 @@
       "receipt_unlinked": "La dépense est enregistrée, mais le reçu n'a pas pu être joint.",
       "receipt_unavailable": "Ce reçu ne peut plus être joint : la dépense est enregistrée sans lui.",
       "changed_since_saved": "Cette saisie a changé depuis un premier enregistrement : repartez d'un formulaire vide.",
+      "closed": "Les cotisations sont clôturées : plus aucune saisie n'est possible.",
       "invalidNumber": "Entrez un montant entier, en chiffres.",
       "outOfRange": "Entrez un montant entre 1 et 100 000 000 FCFA.",
       "invalidDate": "Entrez une date valide, au plus tard aujourd'hui.",
@@ -1579,6 +1580,7 @@
       "estimateNote": "Montants de départ : estimations à vérifier auprès des prestataires.",
       "empty": "Aucun poste pour l'instant. Un trésorier peut les créer à partir de l'estimation.",
       "emptyManager": "Créez les postes à partir de l'estimation de la page Budget, puis ajustez-les.",
+      "emptyClosed": "Aucun poste n'a été créé avant la clôture.",
       "create": "Créer les postes",
       "created": "Postes créés.",
       "recompute": "Recalculer selon l'affluence",
@@ -1588,7 +1590,8 @@
     "tabs": {
       "label": "Sections des cotisations",
       "entries": "Mouvements",
-      "lines": "Postes"
+      "lines": "Postes",
+      "summary": "Bilan"
     },
     "scenario": {
       "title": "Scénario retenu",
@@ -1632,6 +1635,7 @@
       "line_in_use": "Ce poste porte ou a porté des dépenses : il ne peut pas être supprimé.",
       "no_attendance": "Renseignez d'abord l'affluence pour estimer les postes.",
       "too_many_lines": "Un dossier compte au plus 100 postes.",
+      "closed": "Les cotisations sont clôturées : les postes et le scénario ne se modifient plus.",
       "invalidNumber": "Entrez un montant entier, en chiffres.",
       "outOfRange": "Entrez un montant entre 0 et 100 000 000 FCFA.",
       "required": "Ce champ est obligatoire.",
@@ -1657,13 +1661,100 @@
       "receipt_type": "Choisissez une photo JPEG, PNG ou WebP.",
       "receipt_size": "Cette photo dépasse 5 Mo. Choisissez une photo plus légère.",
       "too_many_receipts": "Ce dossier a atteint la limite de 200 reçus.",
-      "upload_failed": "La photo n'a pas pu être envoyée. Réessayez, ou enregistrez la dépense sans photo."
+      "upload_failed": "La photo n'a pas pu être envoyée. Réessayez, ou enregistrez la dépense sans photo.",
+      "closed": "Les cotisations sont clôturées : aucun reçu ne peut plus être ajouté."
     },
     "unlinked": {
       "retry": "Réessayer de joindre le reçu",
       "continue": "Continuer sans le reçu",
       "next": "Continuer",
       "frozen": "La dépense est enregistrée. Ses champs ne peuvent plus être modifiés ici."
+    }
+  },
+  "closing": {
+    "page": {
+      "title": "Bilan des cotisations",
+      "intro": "Ce que la famille a réuni et dépensé, au même endroit.",
+      "provisional": "Les cotisations sont encore ouvertes : ce bilan peut encore évoluer.",
+      "spentTitle": "Dépenses par poste",
+      "receivedTitleAll": "Cotisations reçues",
+      "receivedTitleOwn": "Vos cotisations reçues",
+      "receivedEmpty": "Aucune cotisation reçue à afficher.",
+      "receivedTruncated": "Liste limitée aux {limit} derniers mouvements ; les totaux restent complets.",
+      "exportTitle": "Garder une copie du registre",
+      "exportHint": "Toutes les lignes du registre, annulations comprises, dans un fichier CSV à ouvrir avec un tableur.",
+      "export": "Télécharger le registre (CSV)"
+    },
+    "spent": {
+      "line": "Poste",
+      "spent": "Dépensé",
+      "unassigned": "Dépenses sans poste",
+      "total": "Total",
+      "empty": "Aucune dépense pour l'instant."
+    },
+    "share": {
+      "title": "Partager le bilan",
+      "hint": "Ce texte ne contient que les totaux et le nom de la personne décédée : aucun nom de contributeur ni montant individuel.",
+      "label": "Texte du bilan",
+      "copy": "Copier le texte",
+      "copied": "Texte copié.",
+      "copyManual": "Le texte est sélectionné : copiez-le depuis le menu de votre appareil.",
+      "share": "Partager…",
+      "whatsapp": "Ouvrir dans WhatsApp",
+      "whatsappLabel": "Ouvrir dans WhatsApp (nouvel onglet)",
+      "heading": "Bilan des cotisations pour {name}",
+      "headingNoName": "Bilan des cotisations",
+      "budget": "Budget envisagé : {amount}",
+      "budgetRetained": "Budget retenu : {amount}",
+      "received": "Reçu : {amount}",
+      "pledgedOpen": "Promis, non versé : {amount}",
+      "spent": "Dépensé : {amount}",
+      "balance": "Disponible : {amount}",
+      "remaining": "Reste à réunir : {amount}",
+      "closed": "Cotisations clôturées le {date}.",
+      "provisional": "Bilan provisoire : les cotisations sont encore ouvertes."
+    },
+    "control": {
+      "title": "Clôture des cotisations",
+      "close": "Clôturer les cotisations",
+      "closeWarning": "Une fois les cotisations clôturées, plus aucune promesse, cotisation, dépense, annulation, reçu ni modification des postes ou du scénario n'est possible. Le bilan et le registre restent consultables. Seul le propriétaire du dossier peut rouvrir les cotisations.",
+      "confirmClose": "Confirmer la clôture",
+      "keepOpen": "Garder ouvert",
+      "closing": "Clôture…",
+      "closed": "Cotisations clôturées.",
+      "reopen": "Rouvrir les cotisations",
+      "reopenHint": "Les saisies redeviennent possibles.",
+      "reopening": "Réouverture…",
+      "reopened": "Cotisations rouvertes.",
+      "reopenOwnerOnly": "Seul le propriétaire du dossier peut rouvrir les cotisations."
+    },
+    "notice": {
+      "closed": "Les cotisations sont clôturées depuis le {date}. Plus aucune saisie n'est possible.",
+      "seeSummary": "Voir le bilan"
+    },
+    "card": {
+      "closed": "Cotisations clôturées le {date}.",
+      "seeSummary": "Voir le bilan"
+    },
+    "export": {
+      "fileName": "registre",
+      "columns": {
+        "date": "Date",
+        "kind": "Type",
+        "amount": "Montant (FCFA, toujours positif : voir le type)",
+        "method": "Moyen de paiement",
+        "party": "Nom ou prestataire",
+        "line": "Poste",
+        "note": "Note",
+        "reverses": "Identifiant de la ligne annulée",
+        "reversesKind": "Type de la ligne annulée",
+        "pledge": "Identifiant de la promesse liée",
+        "id": "Identifiant",
+        "createdAt": "Enregistrée le"
+      }
+    },
+    "errors": {
+      "too_large": "Le registre est trop volumineux pour être exporté en une seule fois."
     }
   }
 }

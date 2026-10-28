@@ -59,6 +59,11 @@ test.describe('Public pages', () => {
     await expect(page).toHaveURL(/\/login\?next=.*postes/);
   });
 
+  test('Contributions summary page requires sign-in', async ({ page }) => {
+    await page.goto('/dossier/44444444-4444-4444-8444-444444444444/cotisations/bilan');
+    await expect(page).toHaveURL(/\/login\?next=.*bilan/);
+  });
+
   test('Login page — V2 form on mesh background', async ({ page }) => {
     await page.goto('/login');
     await expect(page.getByRole('heading', { name: /Connexion|Login/i })).toBeVisible();
@@ -134,6 +139,16 @@ test.describe('Receipts', () => {
     const res = await request.get('/api/receipts/00000000-0000-4000-8000-000000000000', {
       maxRedirects: 0,
     });
+    expect(res.status()).toBe(401);
+  });
+});
+
+test.describe('Ledger export', () => {
+  test('the ledger export requires a session', async ({ request }) => {
+    const res = await request.get(
+      '/api/dossiers/00000000-0000-4000-8000-000000000000/ledger-export',
+      { maxRedirects: 0 },
+    );
     expect(res.status()).toBe(401);
   });
 });

@@ -31,7 +31,7 @@ vi.mock('@/lib/supabase/server', () => {
   return { getSupabaseServer: async () => chain };
 });
 
-const { getTotals, getVisibility, insertEntry, listEntries, setVisibility } =
+const { getTotals, getVisibility, insertEntry, LEDGER_LIST_LIMIT, listEntries, setVisibility } =
   await import('./repo');
 import type { NewEntry } from './repo';
 
@@ -199,6 +199,13 @@ describe('poste d’une dépense', () => {
     const res = await listEntries(DOSSIER);
     expect(res.data?.[0]).toMatchObject({ id: 'e1', budgetLineId: LINE, partyName: 'Traiteur' });
     expect(String(calls.find((c) => c.method === 'select')?.args[0])).toContain('budget_line_id');
+  });
+
+  it('borne la liste à LEDGER_LIST_LIMIT lignes (500)', async () => {
+    results.push({ data: [], error: null });
+    await listEntries(DOSSIER);
+    expect(LEDGER_LIST_LIMIT).toBe(500);
+    expect(calls.find((c) => c.method === 'limit')?.args[0]).toBe(LEDGER_LIST_LIMIT);
   });
 });
 

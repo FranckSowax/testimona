@@ -72,3 +72,16 @@ describe('contributionsView', () => {
     },
   );
 });
+
+describe('cotisations clôturées', () => {
+  it('ne propose plus aucune saisie, même au propriétaire', () => {
+    expect(contributionsView({ role: 'owner', views, members, lines, closed: true })).toEqual({
+      canPledge: false,
+      canManage: false,
+      isOwner: true,
+      memberOptions: [],
+      pledgeOptions: [],
+      lineOptions: [],
+    });
+  });
+});

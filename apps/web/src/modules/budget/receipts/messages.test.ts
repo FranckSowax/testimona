@@ -36,6 +36,7 @@ const RECEIPTS_ERROR_PATHS: Record<ReceiptsError, string> = {
   receipt_type: 'receipts.errors.receipt_type',
   receipt_size: 'receipts.errors.receipt_size',
   too_many_receipts: 'receipts.errors.too_many_receipts',
+  closed: 'receipts.errors.closed',
 };
 
 // WHY : `upload_failed` est un code du navigateur (envoi au stockage en échec), pas du service ;
@@ -51,7 +52,7 @@ const READ_ERROR_PATHS: Record<ReadError, string> = {
 const PATHS = [
   ...['label', 'hint', 'uploading', 'reading', 'read'].map((k) => `receipts.capture.${k}`),
   ...['unavailable', 'quota', 'failed', 'too_large_to_read'].map((k) => `receipts.manual.${k}`),
-  ...['receipt_type', 'receipt_size', 'too_many_receipts', 'upload_failed'].map(
+  ...['receipt_type', 'receipt_size', 'too_many_receipts', 'upload_failed', 'closed'].map(
     (k) => `receipts.errors.${k}`,
   ),
   ...['retry', 'continue', 'next', 'frozen'].map((k) => `receipts.unlinked.${k}`),

@@ -6,6 +6,8 @@ import { buttonClasses } from '@/components/ui/Button';
 import { Link } from '@/i18n/navigation';
 import { isStepOpen, personStatus, stepsFor } from '@/journey/registry';
 import { JourneyOverview } from '@/journey/ui/JourneyOverview';
+import { formatClosedOn } from '@/modules/budget/closing/model';
+import { getClosure } from '@/modules/budget/closing/repo';
 import { getTotals } from '@/modules/budget/ledger/repo';
 import { LedgerCard } from '@/modules/budget/ledger/ui/LedgerCard';
 import { referenceBudget } from '@/modules/budget/lines/model';
@@ -32,15 +34,18 @@ export default async function DossierPage({
   const hasBudget = isStepOpen(dossier.entryPoint, 'attendance');
   // WHY: une carte sans chiffre vaut mieux qu'un tableau de bord en erreur ; la page Cotisations,
   // elle, refuse d'afficher des totaux illisibles.
-  const [person, members, answersResult, role, ledgerTotals, lines, scenario] = await Promise.all([
-    getPerson(id),
-    listMembers(id),
-    listAnswersResult(id),
-    getMyRole(id),
-    hasBudget ? getTotals(id).then((result) => result.data) : null,
-    hasBudget ? listLines(id) : null,
-    hasBudget ? getScenario(id) : null,
-  ]);
+  // WHY: une clôture illisible laisse la carte sans mention de clôture (getClosure journalise).
+  const [person, members, answersResult, role, ledgerTotals, lines, scenario, closure] =
+    await Promise.all([
+      getPerson(id),
+      listMembers(id),
+      listAnswersResult(id),
+      getMyRole(id),
+      hasBudget ? getTotals(id).then((result) => result.data) : null,
+      hasBudget ? listLines(id) : null,
+      hasBudget ? getScenario(id) : null,
+      hasBudget ? getClosure(id).then((result) => result.data) : null,
+    ]);
   // WHY: si les postes ou le scénario sont illisibles, la carte dit « momentanément
   // indisponibles » plutôt que d'afficher un budget faux (envisagé au lieu de retenu, ou aucun).
   // WHY: les réponses servent aussi au parcours, qui s'affiche avec un objet vide en cas d'échec.
@@ -85,6 +90,7 @@ export default async function DossierPage({
           locale={locale}
           budget={budgetReadable ? referenceBudget(scenario.data, lines.data, answers) : null}
           totals={budgetReadable ? ledgerTotals : null}
+          closedOn={closure?.closedAt ? formatClosedOn(closure.closedAt, locale) : null}
         />
       )}
 

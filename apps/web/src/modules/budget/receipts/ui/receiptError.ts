@@ -13,6 +13,7 @@ const GROUP: Record<CaptureError, 'errors' | 'manual' | 'generic'> = {
   receipt_size: 'errors',
   too_many_receipts: 'errors',
   upload_failed: 'errors',
+  closed: 'errors',
   unavailable: 'manual',
   quota: 'manual',
   failed: 'manual',

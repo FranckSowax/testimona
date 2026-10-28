@@ -59,7 +59,16 @@ describe('saveEntryAction', () => {
     expect(await saveEntryAction(null, entry('expense'))).toEqual({
       error: 'receipt_unavailable',
     });
-    expect(cache.revalidatePath).toHaveBeenCalledTimes(3);
+    expect(cache.revalidatePath).toHaveBeenCalledTimes(4);
+  });
+
+  it('revalide les pages quand le dossier a été clôturé entre-temps (formulaire périmé)', async () => {
+    service.recordPledge.mockResolvedValueOnce({ ok: false, error: 'closed' });
+    expect(await saveEntryAction(null, entry('pledge'))).toEqual({ error: 'closed' });
+    expect(cache.revalidatePath).toHaveBeenCalledTimes(4);
+    expect(cache.revalidatePath).toHaveBeenCalledWith(
+      localizedPath(`/dossier/${DOSSIER}/cotisations`, 'en'),
+    );
   });
 
   it('refuse une annulation ou un type inconnu sans appeler le service', async () => {
@@ -107,6 +116,9 @@ describe('saveEntryAction', () => {
     );
     expect(cache.revalidatePath).toHaveBeenCalledWith(
       localizedPath(`/dossier/${DOSSIER}/cotisations/postes`, 'en'),
+    );
+    expect(cache.revalidatePath).toHaveBeenCalledWith(
+      localizedPath(`/dossier/${DOSSIER}/cotisations/bilan`, 'en'),
     );
     expect(cache.revalidatePath).toHaveBeenCalledWith(localizedPath(`/dossier/${DOSSIER}`, 'en'));
   });

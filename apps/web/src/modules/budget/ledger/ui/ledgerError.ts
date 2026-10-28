@@ -17,6 +17,7 @@ const LEDGER_SPECIFIC = [
   'receipt_unlinked',
   'receipt_unavailable',
   'changed_since_saved',
+  'closed',
 ] as const;
 
 export function isLedgerSpecific(error: LedgerError): error is (typeof LEDGER_SPECIFIC)[number] {

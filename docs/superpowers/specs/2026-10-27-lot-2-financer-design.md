@@ -17,18 +17,18 @@ Aucun argent ne transite par Testimona dans ce lot.
 
 ## Décisions prises
 
-| Sujet        | Décision                                                                                                                                                                                                                                         |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Paiement     | Registre seul. Espèces, Airtel Money, Moov Money, virement, carte et autre sont des moyens notés dans le registre ; aucun paiement en ligne.                                                                                                     |
-| Visibilité   | Réglage par dossier, `restricted` par défaut : propriétaire, coordinateurs et trésoriers voient toutes les lignes ; contributeurs et lecteurs voient les totaux, leurs propres lignes et les dépenses. Le propriétaire peut passer en `members`. |
-| Saisie       | Trésorier et plus : cotisations reçues, dépenses, annulations, postes du budget, réglages. Contributeur et plus : déclarer sa propre promesse.                                                                                                   |
-| Cotisants    | Nom libre sur chaque ligne, lien facultatif vers un membre du dossier (ce membre voit alors ses propres lignes).                                                                                                                                 |
-| Scénarios    | Grille de référence de postes en code, avec un coût par niveau ; calcul à partir de l'affluence ; postes ensuite modifiables.                                                                                                                    |
-| Prix         | Première grille proposée par Claude, chaque prix marqué « estimation à vérifier » ; à corriger par le propriétaire du projet avant la mise en production ; remplacée par les prix prestataires au lot 3.                                         |
-| Reçus        | Photo conservée dans un bucket privé ; lue par l'IA (OpenRouter, modèle qui lit les images) pour préremplir la dépense ; le trésorier valide toujours.                                                                                           |
-| Bilan        | Écran dans l'application et texte de synthèse partageable (totaux seulement). Clôture par le trésorier, réouverture par le propriétaire seul.                                                                                                    |
-| Monnaie      | XAF uniquement, montants entiers. Une cotisation en devise est saisie convertie, avec une note.                                                                                                                                                  |
-| Architecture | B.1 et B.2 dans le moteur de questions du lot 1 ; registre, reçus et bilan dans un module `budget` avec ses écrans et ses tables. Aucun montant dans `journey_answer`.                                                                           |
+| Sujet        | Décision                                                                                                                                                                                                                                                                           |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Paiement     | Registre seul. Espèces, Airtel Money, Moov Money, virement, carte et autre sont des moyens notés dans le registre ; aucun paiement en ligne.                                                                                                                                       |
+| Visibilité   | Réglage par dossier, `restricted` par défaut : propriétaire, coordinateurs et trésoriers voient toutes les lignes ; contributeurs et lecteurs voient les totaux, leurs propres lignes et les dépenses. Le propriétaire peut passer en `members`.                                   |
+| Saisie       | Trésorier et plus : cotisations reçues, dépenses, annulations, postes du budget, réglages. Contributeur et plus : déclarer sa propre promesse.                                                                                                                                     |
+| Cotisants    | Nom libre sur chaque ligne, lien facultatif vers un membre du dossier (ce membre voit alors ses propres lignes).                                                                                                                                                                   |
+| Scénarios    | Grille de référence de postes en code, avec un coût par niveau ; calcul à partir de l'affluence ; postes ensuite modifiables.                                                                                                                                                      |
+| Prix         | Première grille proposée par Claude, chaque prix marqué « estimation à vérifier » ; à corriger par le propriétaire du projet avant la mise en production ; remplacée par les prix prestataires au lot 3.                                                                           |
+| Reçus        | Photo conservée dans un bucket privé ; lue par l'IA (OpenRouter, modèle qui lit les images) pour préremplir la dépense ; le trésorier valide toujours.                                                                                                                             |
+| Bilan        | Écran dans l'application (onglet « Bilan » des cotisations), texte de synthèse partageable (totaux seulement) et export CSV du registre (trésorier et plus). Clôture par le trésorier, réouverture par le propriétaire seul ; un dossier clôturé refuse toute écriture financière. |
+| Monnaie      | XAF uniquement, montants entiers. Une cotisation en devise est saisie convertie, avec une note.                                                                                                                                                                                    |
+| Architecture | B.1 et B.2 dans le moteur de questions du lot 1 ; registre, reçus et bilan dans un module `budget` avec ses écrans et ses tables. Aucun montant dans `journey_answer`.                                                                                                             |
 
 ## 1. Données et sécurité
 
@@ -54,8 +54,28 @@ individuels) ; aucune suppression. `dossier_id` et `updated_at` sont imposés pa
 Colonne livrée en PR 3 : `scenario` (`sober` / `intermediate` / `full`, nullable), écrite par la
 fonction `set_budget_scenario(p_dossier_id, p_scenario)` (security definer, trésorier et plus,
 utilisateur connecté), qui laisse la mise à jour de la table au propriétaire seul. La fonction est
-signalée par l'advisor de sécurité (0029) : c'est voulu. Colonnes ajoutées plus tard : `closed_at` et
-`closed_by` (clôture par le trésorier et plus, réouverture par le propriétaire seul) en PR 5.
+signalée par l'advisor de sécurité (0029) : c'est voulu.
+
+Colonnes `closed_at` et `closed_by` (PR 5), écrites seulement par `close_ledger(p_dossier_id)`
+(trésorier et plus, idempotente : la première clôture garde sa date et son auteur, aucun nouvel
+événement) et `reopen_ledger(p_dossier_id)` (propriétaire seul, sans effet sur un dossier ouvert),
+security definer, `search_path` vide, utilisateur connecté puis rôle vérifiés d'abord. La date de
+clôture est prise après le verrou (`clock_timestamp()`), pour suivre toute écriture déjà acceptée.
+Droits de colonne : le propriétaire n'écrit directement que `amounts_visibility` (et `dossier_id`,
+figé par le trigger) ; une mise à jour directe de `scenario` est refusée. Journal
+`ledger_closure_event` (qui, quand, clôture ou réouverture effective), lisible par trésorier et plus,
+écrit seulement par les deux fonctions. Le réglage de visibilité reste modifiable une fois clôturé : il
+ne change aucun montant. `close_ledger` et `reopen_ledger` sont signalées par l'advisor (0029), c'est
+voulu.
+
+Contrôle commun `ledger_assert_open(p_dossier_id)` (security definer, non exécutable via l'API, appelé
+par les triggers et `set_budget_scenario`) : refuse toute écriture financière d'un dossier clôturé
+(`TL009`), toujours après le contrôle du rôle, pour qu'un non-membre ne sonde pas l'état du dossier.
+Il prend un verrou partagé (`for share`) sur la ligne du dossier, en face du verrou exclusif
+(`for no key update`) de `close_ledger` et `reopen_ledger` : une écriture en cours finit avant la
+clôture, une écriture qui suit la voit ; les écritures entre elles ne se bloquent pas. Cette garantie
+suppose le niveau READ COMMITTED (celui de PostgREST). Un dossier introuvable (suppression en cascade
+en cours) laisse passer.
 
 ### `budget_line`
 
@@ -74,8 +94,8 @@ Les postes du budget du dossier.
 
 Les colonnes de montant portent le préfixe `amount_` parce que `full` est un mot réservé de Postgres.
 Unicité (`dossier_id`, `grid_key`) quand `grid_key` n'est pas nul. Lecture : tout membre. Écriture :
-trésorier et plus et utilisateur connecté (refusée quand le dossier est clôturé : colonnes de clôture en
-PR 5). Au plus 100 postes par dossier (`too_many_lines`, code `TL005` levé par le trigger) : le trigger d'insertion vérifie le rôle avant
+trésorier et plus et utilisateur connecté (création, modification et suppression refusées quand le
+dossier est clôturé : `TL009`). Au plus 100 postes par dossier (`too_many_lines`, code `TL005` levé par le trigger) : le trigger d'insertion vérifie le rôle avant
 la limite, puis sérialise le comptage par un verrou `for no key update` sur le dossier. Le dossier et la
 clé de grille sont figés après création.
 
@@ -127,22 +147,25 @@ cotisations reçues. Le trigger d'insertion (security definer, `search_path` vid
 2. rejoue d'office une clé d'idempotence déjà utilisée dans le dossier par une erreur `23505`, sans
    rejuger la ligne (le dépôt la traite comme un double envoi) ; la contrainte d'unicité couvre les
    envois concurrents ;
-3. impose `created_by = auth.uid()` et `created_at` ; refuse une date postérieure à demain (`23514`) ;
-4. pour une annulation : verrouille la ligne visée ; refuse (`TL001`) une ligne absente, d'un autre
+3. refuse (`TL009`) une ligne sur un dossier clôturé (`ledger_assert_open`) ;
+4. impose `created_by = auth.uid()` et `created_at` ; refuse une date postérieure à demain (`23514`) ;
+5. pour une annulation : verrouille la ligne visée ; refuse (`TL001`) une ligne absente, d'un autre
    dossier ou elle-même une annulation ; reprend son montant, son nom, son membre et son type
    (`reverses_kind`) ;
-5. pour une cotisation liée à une promesse : verrouille la promesse ; refuse (`TL002`) une promesse
+6. pour une cotisation liée à une promesse : verrouille la promesse ; refuse (`TL002`) une promesse
    absente, d'un autre dossier, qui n'est pas une promesse, déjà annulée ou déjà soldée par les
    versements actifs ; reprend le membre de la promesse ;
-6. refuse (`TL003`) un `member_id` qui n'est pas membre du dossier (sauf versement lié à une promesse) ;
-7. refuse (`TL004`) le poste d'une dépense qui appartient à un autre dossier. TL004 ne vise que les
+7. refuse (`TL003`) un `member_id` qui n'est pas membre du dossier (sauf versement lié à une promesse) ;
+8. refuse (`TL004`) le poste d'une dépense qui appartient à un autre dossier. TL004 ne vise que les
    dépenses : sur un autre type, la contrainte check refuse `budget_line_id` (`23514`).
 
 Insertion (policy) : trésorier et plus pour tout type ; contributeur et plus pour un `pledge` à son
-propre nom (`member_id = auth.uid()`). Le refus des insertions quand le dossier est clôturé arrive en
-PR 5. Une ligne ne se supprime pas avec le dossier : tant qu'un dossier a des lignes de registre, il
-ne peut pas être supprimé ; l'archivage et l'export du registre à la clôture (PR 5) lèveront cette
-contrainte.
+propre nom (`member_id = auth.uid()`). Une insertion sur un dossier clôturé est refusée (`TL009`),
+après le contrôle du rôle et après le rejeu d'une clé d'idempotence déjà utilisée (un double envoi
+renvoie toujours la ligne existante). Une ligne ne se supprime pas avec le dossier : tant qu'un
+dossier a des lignes de registre, il ne peut pas être supprimé, même clôturé : aucune donnée
+financière n'est effacée ; l'export CSV du registre (PR 5) sert d'archive à la famille, une politique
+de conservation est hors lot 2.
 
 Lecture : trésorier et plus, toutes les lignes. Autres membres : toutes les lignes si
 `amounts_visibility = 'members'` ; sinon seulement les dépenses, leurs propres lignes
@@ -201,6 +224,10 @@ Bucket `receipts` privé, 5 Mo, JPEG, PNG et WebP.
   sans session, 404 si le reçu est absent ou interdit, ou si l'étape budget du dossier est fermée.
 - Un dossier sans registre peut être supprimé : ses reçus non rattachés partent avec lui, les objets
   restent au stockage (nettoyage hors lot 2).
+- Dossier clôturé (PR 5) : préparation et rattachement refusés (`TL009`), vérifiés aussi par le
+  service avant de préparer un envoi ou de lire une photo (aucun appel d'IA décompté). Une photo
+  préparée avant la clôture peut encore être envoyée au stockage (lien déjà signé) mais ne se
+  rattache plus ; elle y reste. Le même rattachement rejoué reste sans effet, même clôturé.
 
 ## 2. Parcours et écrans
 
@@ -219,13 +246,34 @@ scénario retenu (`dossier_finance.scenario`, par un trésorier) et les postes e
 
 ### Écrans
 
-| Route                       | Contenu                                                                                                                                                                                                                                                                                                                                                                                                 | Accès  |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| `/dossier/[id]/cotisations` | Totaux (budget de référence, reçu, promis non versé, dépensé, reste) ; derniers mouvements visibles ; trésorier : ajouter une cotisation (liée ou non à une promesse), une dépense, annuler une ligne ; contributeur : « Je promets une participation » ; propriétaire : visibilité des montants. Onglet « Postes » (PR 3) à l'adresse `/dossier/[id]/cotisations/postes`. PR 4 : photographier un reçu | membre |
-| `/dossier/[id]/bilan`       | Totaux, dépenses par poste, cotisations nominatives selon la visibilité ; « Partager le bilan » (texte de totaux, copie ou WhatsApp) ; « Clôturer » (trésorier), « Rouvrir » (propriétaire)                                                                                                                                                                                                             | membre |
+| Route                             | Contenu                                                                                                                                                                                                                                                                                                                                                                                                 | Accès  |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| `/dossier/[id]/cotisations`       | Totaux (budget de référence, reçu, promis non versé, dépensé, reste) ; derniers mouvements visibles ; trésorier : ajouter une cotisation (liée ou non à une promesse), une dépense, annuler une ligne ; contributeur : « Je promets une participation » ; propriétaire : visibilité des montants. Onglet « Postes » (PR 3) à l'adresse `/dossier/[id]/cotisations/postes`. PR 4 : photographier un reçu | membre |
+| `/dossier/[id]/cotisations/bilan` | Onglet « Bilan », après « Mouvements » et « Postes » : état (clôturé le … / provisoire), totaux, dépenses par poste, cotisations reçues nominatives selon la visibilité (500 dernières lignes lues au plus, avec un avis ; les totaux restent complets) ; « Partager le bilan » ; « Télécharger le registre (CSV) » (trésorier et plus) ; « Clôturer » (trésorier), « Rouvrir » (propriétaire)          | membre |
 
-Tableau de bord : carte « Cotisations » (reçu sur budget de référence) avec lien vers l'écran. Une
-annulation s'affiche avec sa ligne d'origine ; aucune ligne ne disparaît.
+Tableau de bord : carte « Cotisations » (reçu sur budget de référence) avec lien vers l'écran ; une
+fois clôturé, elle dit « Cotisations clôturées le … » et mène au bilan. Cotisations et Postes
+affichent l'avis de clôture et retirent les saisies. Les actions du registre, des postes et de la
+clôture revalident aussi le bilan. Une annulation s'affiche avec sa ligne d'origine ; aucune ligne ne
+disparaît.
+
+### Bilan (PR 5)
+
+- Date de clôture lue à l'heure de Libreville ; une date illisible s'affiche brute (dix premiers
+  caractères) plutôt que vide, pour que l'écran, la carte et le texte partagé disent tous « clôturé ».
+- Texte partagé : totaux (budget de référence, reçu, promis non versé, dépensé, solde, reste) et nom de
+  la personne décédée seulement ; aucun nom de cotisant ni montant individuel. Copie, Web Share,
+  WhatsApp (nouvel onglet).
+- Export CSV : route `/api/dossiers/[dossierId]/ledger-export` (trésorier et plus, client de
+  l'utilisateur, `no-store`), 401 sans session, 404 si absent, interdit ou invalide, 413 au-delà de
+  50 000 lignes (refusé plutôt que tronqué). Les échecs 413 et 5xx renvoient un corps
+  `text/plain; charset=utf-8` avec le message traduit (`closing.errors.too_large`, `dossier.errors.unknown`),
+  pour qu'un fichier enregistré par erreur ne reste pas vide ; 401 et 404 restent sans corps. Toutes les lignes, annulations comprises ; colonnes : date,
+  type, montant (toujours positif), moyen, nom, poste, note, ligne annulée et son type, promesse liée,
+  identifiant, enregistrement (horodatage à l'heure de Libreville, décalage écrit). Séparateur `;` pour
+  l'export français et `,` pour l'export anglais (`lang=en`), BOM UTF-8, cellules commençant par `=`, `+`, `-`, `@` (pleine chasse comprise), une tabulation ou un
+  retour chariot préfixées d'une apostrophe (injection de formules). Lecture paginée par
+  (`created_at`, `id`) puis dédoublonnée par identifiant, triée par date de la ligne.
 
 ### Reçu
 
@@ -296,6 +344,8 @@ atteint, échec, photo trop lourde pour l'IA), le formulaire reste vide avec la 
   `receipt_unavailable` (définitif), `changed_since_saved` (saisie modifiée depuis l'enregistrement).
 - Limite de reçus (`TL007`) et rattachement refusé (`TL006` provisoire, `TL008` définitif) : message
   explicite, dépense conservée.
+- Dossier clôturé (`TL009`) : erreur `closed`, saisie conservée ; un reçu dont la dépense est
+  enregistrée juste avant la clôture n'est plus joint (`receipt_unavailable`).
 - Journalisation : codes et contexte, jamais de montant nominatif ni de contenu de reçu.
 
 ### Tests
@@ -323,13 +373,13 @@ atteint, échec, photo trop lourde pour l'IA), le formulaire reste vide avec la 
 4. Reçus : bucket privé, `receipt` (un par dépense, rattaché une fois, photo exigée, limite de 200),
    envoi signé à usage unique, lecture par lien de 5 minutes, `readReceipt`, préremplissage,
    rattachement après l'enregistrement, « Voir le reçu ».
-5. Bilan et clôture : écran Bilan, texte de partage, clôture et réouverture, archivage et export du
-   registre, colonnes de clôture (`closed_at`, `closed_by`).
+5. Bilan et clôture : écran Bilan, texte de partage, clôture et réouverture (`TL009`, journal
+   `ledger_closure_event`), export CSV du registre, colonnes de clôture (`closed_at`, `closed_by`).
 
 ### Hors lot 2
 
 Paiement en ligne (Stripe diaspora, Mobile Money) ; prix réels des prestataires (lot 3) ; export
-PDF ; lien public vers le bilan ; suppression de reçus.
+PDF ; lien public vers le bilan ; suppression de reçus ; suppression d'un dossier qui a un registre.
 
 ### Configuration
 

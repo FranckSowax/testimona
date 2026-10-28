@@ -4,6 +4,9 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { z } from 'zod';
 import { Link } from '@/i18n/navigation';
 import { isStepOpen } from '@/journey/registry';
+import { formatClosedOn } from '@/modules/budget/closing/model';
+import { getClosure } from '@/modules/budget/closing/repo';
+import { ClosedNotice } from '@/modules/budget/closing/ui/ClosedNotice';
 import { canManageLedger, contributionsView } from '@/modules/budget/ledger/contributions-view';
 import { entryViews } from '@/modules/budget/ledger/model';
 import { getTotals, getVisibility, listEntries } from '@/modules/budget/ledger/repo';
@@ -32,10 +35,17 @@ export default async function ContributionsPage({
   setRequestLocale(locale);
   if (!IdSchema.safeParse(id).success) notFound();
 
-  // WHY: le rôle est lu avec le dossier, avant le reste, pour ne lire les membres que s'ils
-  // serviront (trésorier et au-delà).
-  const [dossier, role] = await Promise.all([getDossier(id), getMyRole(id)]);
+  // WHY: le rôle et la clôture sont lus avec le dossier, avant le reste, pour ne lire les membres
+  // que s'ils serviront (trésorier et au-delà, cotisations ouvertes).
+  const [dossier, role, closure] = await Promise.all([
+    getDossier(id),
+    getMyRole(id),
+    getClosure(id),
+  ]);
   if (!dossier || !isStepOpen(dossier.entryPoint, 'attendance')) notFound();
+  // WHY: une clôture illisible pourrait proposer des saisies refusées ; error.tsx prend le relais.
+  if (closure.error) throw new Error('ledger unreadable');
+  const closedAt = closure.data.closedAt;
 
   const [t, tEntry, totals, entries, visibility, answers, lines, scenario, members, receipts] =
     await Promise.all([
@@ -49,7 +59,7 @@ export default async function ContributionsPage({
       getScenario(id),
       // WHY: listMembers journalise ses erreurs et renvoie [] ; la saisie reste possible avec
       // « Autre personne », rien de faux n'est affiché.
-      canManageLedger(role) ? listMembers(id) : Promise.resolve([]),
+      canManageLedger(role) && !closedAt ? listMembers(id) : Promise.resolve([]),
       listReceiptsByEntry(id),
     ]);
   // WHY: des totaux ou des lignes faux seraient pires qu'un écran d'erreur ; error.tsx prend le relais.
@@ -76,6 +86,7 @@ export default async function ContributionsPage({
       views,
       members,
       lines: lines.data,
+      closed: closedAt !== null,
     });
   return (
     <div className="mx-auto w-full max-w-3xl space-y-8 px-4 py-8 sm:px-6 lg:py-12">
@@ -88,6 +99,10 @@ export default async function ContributionsPage({
       </header>
 
       <LedgerTabs dossierId={id} current="entries" />
+
+      {closedAt && (
+        <ClosedNotice dossierId={id} closedOn={formatClosedOn(closedAt, locale)} showSummaryLink />
+      )}
 
       <LedgerSummary locale={locale} budget={budget} totals={totals.data} />
 

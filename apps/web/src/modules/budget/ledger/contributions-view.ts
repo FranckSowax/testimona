@@ -20,6 +20,8 @@ interface Input {
   views: readonly EntryView[];
   members: readonly Pick<MemberSummary, 'userId' | 'displayName'>[];
   lines: readonly Pick<BudgetLine, 'id' | 'label'>[];
+  /** Cotisations clôturées : plus aucune saisie (la base refuse aussi, TL009). */
+  closed?: boolean;
 }
 
 /**
@@ -41,11 +43,20 @@ export function canManageLedger(role: DossierRole | null): boolean {
  * @example
  * const view = contributionsView({ role: 'treasurer', views, members, lines });
  * view.pledgeOptions; // [{ id, label: 'Oncle Paul', amount: 6_000 }]
+ * contributionsView({ role: 'owner', views, members, lines, closed: true }).canManage; // false
  */
-export function contributionsView({ role, views, members, lines }: Input): ContributionsView {
-  const canManage = canManageLedger(role);
+export function contributionsView({
+  role,
+  views,
+  members,
+  lines,
+  closed = false,
+}: Input): ContributionsView {
+  // WHY: une fois les cotisations clôturées, ni promesse, ni cotisation, ni dépense, ni
+  // annulation : les formulaires et les boutons disparaissent, et rien n'est envoyé au navigateur.
+  const canManage = !closed && canManageLedger(role);
   return {
-    canPledge: canWrite(role),
+    canPledge: !closed && canWrite(role),
     canManage,
     isOwner: role === 'owner',
     memberOptions: canManage ? members.map((m) => ({ id: m.userId, name: m.displayName })) : [],
