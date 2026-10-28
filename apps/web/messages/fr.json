@@ -1552,6 +1552,8 @@
       "already_reversed": "Cette ligne a déjà été annulée.",
       "pledge_unavailable": "Cette promesse n'est plus ouverte : elle a été annulée ou elle est déjà entièrement versée.",
       "receipt_unlinked": "La dépense est enregistrée, mais la photo du reçu n'a pas pu être jointe. Enregistrez de nouveau pour réessayer.",
+      "receipt_unavailable": "Ce reçu ne peut plus être joint : la dépense est enregistrée sans lui.",
+      "changed_since_saved": "Cette saisie a changé depuis un premier enregistrement. Rechargez la page pour repartir d'un formulaire vide.",
       "invalidNumber": "Entrez un montant entier, en chiffres.",
       "outOfRange": "Entrez un montant entre 1 et 100 000 000 FCFA.",
       "invalidDate": "Entrez une date valide, au plus tard aujourd'hui.",

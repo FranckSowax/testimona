@@ -24,13 +24,16 @@ const entryFields = (formData: FormData) => ({
   occurredOn: field(formData, 'occurredOn'),
 });
 
+const EXPENSE_SAVED = new Set<LedgerError | undefined>(['receipt_unlinked', 'receipt_unavailable']);
+
 async function done(
   dossierId: string,
   res: { ok: boolean; error?: LedgerError; fieldErrors?: Record<string, string> },
 ): Promise<LedgerFormState> {
-  // WHY: « receipt_unlinked » : la dépense est enregistrée, seul le reçu manque ; les pages
-  // doivent l'afficher, et l'écran garde la saisie pour retenter le rattachement.
-  if (!res.ok && res.error !== 'receipt_unlinked') {
+  // WHY: « receipt_unlinked » et « receipt_unavailable » : la dépense est enregistrée, seul le
+  // reçu manque ; les pages doivent l'afficher. L'écran garde la saisie pour retenter le
+  // rattachement (un renvoi rejoue la clé et ne crée pas de seconde dépense).
+  if (!res.ok && !EXPENSE_SAVED.has(res.error)) {
     return { error: res.error, fieldErrors: res.fieldErrors };
   }
   const locale = await getLocale();

@@ -45,7 +45,20 @@ const expense = {
   receiptId: RECEIPT,
 };
 const duplicate = { data: null, error: { code: '23505', message: 'duplicate key' } };
-const existing = { data: { id: 'e1', kind: 'expense', amount: 50_000 }, error: null };
+const existing = {
+  data: {
+    id: 'e1',
+    kind: 'expense',
+    amount: 50_000,
+    method: 'cash',
+    party_name: 'Pompes funèbres',
+    budget_line_id: null,
+    note: '',
+    occurred_on: '2026-10-20',
+    reverses_id: null,
+  },
+  error: null,
+};
 const attachCalls = () => calls.filter((c) => c.method === 'update').map((c) => c.args[0]);
 
 beforeEach(() => {
@@ -83,12 +96,23 @@ describe('recordExpense : renvoi après un reçu non joint', () => {
     expect(attachCalls()).toEqual([{ entry_id: 'e1' }]);
   });
 
+  it('refuse un renvoi de même clé et même montant pour un autre fournisseur', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    results.push(duplicate, existing);
+    expect(await recordExpense({ ...expense, partyName: 'Menuiserie Obame' })).toEqual({
+      ok: false,
+      error: 'changed_since_saved',
+    });
+    expect(attachCalls()).toEqual([]);
+    spy.mockRestore();
+  });
+
   it('ne rattache rien si la clé est rejouée pour un autre montant', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     results.push(duplicate, existing);
     expect(await recordExpense({ ...expense, amount: '60000' })).toEqual({
       ok: false,
-      error: 'unknown',
+      error: 'changed_since_saved',
     });
     expect(attachCalls()).toEqual([]);
     expect(spy).toHaveBeenCalledWith('[budget/ledger] recordExpense failed', {

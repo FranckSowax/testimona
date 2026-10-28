@@ -1552,6 +1552,8 @@
       "already_reversed": "This entry has already been reversed.",
       "pledge_unavailable": "This pledge is no longer open: it was reversed or is already fully paid.",
       "receipt_unlinked": "The expense is saved, but the receipt photo could not be attached. Save again to retry.",
+      "receipt_unavailable": "This receipt can no longer be attached: the expense is saved without it.",
+      "changed_since_saved": "This entry has changed since it was first saved. Reload the page to start again from an empty form.",
       "invalidNumber": "Enter a whole amount, in digits.",
       "outOfRange": "Enter an amount between 1 and 100,000,000 FCFA.",
       "invalidDate": "Enter a valid date, today or earlier.",

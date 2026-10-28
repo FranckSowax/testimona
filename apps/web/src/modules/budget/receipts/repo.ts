@@ -153,7 +153,8 @@ export async function downloadReceipt(path: string): Promise<RepoResult<Uint8Arr
   const db = await getSupabaseServer();
   const { data, error } = await db.storage.from(RECEIPT_BUCKET).download(path);
   if (error) return storageFail(error);
-  // WHY: le bucket borne déjà la taille ; on ne charge pas en mémoire un objet qui la dépasse.
+  // WHY: la vraie borne est la limite de 5 Mo du bucket. `download()` a déjà chargé le corps en
+  // mémoire ; ce contrôle évite seulement d'en faire une seconde copie au-delà de cette limite.
   if (data.size > RECEIPT_MAX_BYTES) {
     return { data: null, error: { code: 'receipt_too_large', message: 'receipt too large' } };
   }

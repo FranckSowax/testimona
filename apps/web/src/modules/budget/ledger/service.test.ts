@@ -138,7 +138,7 @@ describe('recordReceipt et recordExpense', () => {
     }
   });
 
-  it('ne prend pas une unicité violée hors annulation pour une double annulation', async () => {
+  it('distingue une unicité violée hors annulation et une saisie modifiée', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
     ledgerRepo.insertEntry.mockResolvedValueOnce({
       data: null,
@@ -149,7 +149,9 @@ describe('recordReceipt et recordExpense', () => {
       data: null,
       error: { code: 'idempotency_mismatch', message: 'x' },
     });
-    expect(await recordExpense({ ...base, method: 'cash' })).toMatchObject({ error: 'unknown' });
+    expect(await recordExpense({ ...base, method: 'cash' })).toMatchObject({
+      error: 'changed_since_saved',
+    });
     expect(error).toHaveBeenCalledTimes(2);
     error.mockRestore();
   });
@@ -231,6 +233,23 @@ describe('recordExpense et le reçu', () => {
     expect(await recordExpense(expense)).toEqual({ ok: false, error: 'receipt_unlinked' });
     expect(ledgerRepo.insertEntry).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith('[budget/ledger] attachReceipt failed', { code: 'TL006' });
+    spy.mockRestore();
+  });
+
+  it('signale un reçu qui ne pourra plus être joint', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    for (const code of ['no_rows', '23505']) {
+      receiptsRepo.attachReceipt.mockResolvedValueOnce({
+        data: null,
+        error: { code, message: 'x' },
+      });
+      expect(await recordExpense(expense)).toEqual({ ok: false, error: 'receipt_unavailable' });
+    }
+    receiptsRepo.attachReceipt.mockResolvedValueOnce({
+      data: null,
+      error: { code: '08006', message: 'x' },
+    });
+    expect(await recordExpense(expense)).toEqual({ ok: false, error: 'receipt_unlinked' });
     spy.mockRestore();
   });
 

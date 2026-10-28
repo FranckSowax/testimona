@@ -54,6 +54,14 @@ describe('saveEntryAction', () => {
     );
   });
 
+  it('revalide aussi une dépense gardée avec un reçu qui ne peut plus être joint', async () => {
+    service.recordExpense.mockResolvedValueOnce({ ok: false, error: 'receipt_unavailable' });
+    expect(await saveEntryAction(null, entry('expense'))).toEqual({
+      error: 'receipt_unavailable',
+    });
+    expect(cache.revalidatePath).toHaveBeenCalledTimes(3);
+  });
+
   it('refuse une annulation ou un type inconnu sans appeler le service', async () => {
     for (const kind of ['reversal', 'other', '']) {
       expect(await saveEntryAction(null, entry(kind))).toEqual({ error: 'validation' });

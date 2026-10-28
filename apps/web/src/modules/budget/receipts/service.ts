@@ -55,8 +55,6 @@ const CODES: Record<string, ReceiptsError> = {
   no_rows: 'not_found',
   // WHY: reçu préparé dont la photo n'a jamais été envoyée (stockage).
   object_missing: 'not_found',
-  // WHY: objet au-delà de 5 Mo, refusé par le dépôt avant lecture des octets.
-  receipt_too_large: 'receipt_size',
 };
 
 /**

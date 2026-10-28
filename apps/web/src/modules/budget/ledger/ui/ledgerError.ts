@@ -11,10 +11,14 @@ export const FIELD_MESSAGES: Record<string, string> = {
 };
 
 /** Erreurs propres au registre ; les autres reprennent `dossier.errors`. */
-export function isLedgerSpecific(
-  error: LedgerError,
-): error is 'already_reversed' | 'pledge_unavailable' | 'receipt_unlinked' {
-  return (
-    error === 'already_reversed' || error === 'pledge_unavailable' || error === 'receipt_unlinked'
-  );
+const LEDGER_SPECIFIC = [
+  'already_reversed',
+  'pledge_unavailable',
+  'receipt_unlinked',
+  'receipt_unavailable',
+  'changed_since_saved',
+] as const;
+
+export function isLedgerSpecific(error: LedgerError): error is (typeof LEDGER_SPECIFIC)[number] {
+  return (LEDGER_SPECIFIC as readonly LedgerError[]).includes(error);
 }

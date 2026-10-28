@@ -23,15 +23,19 @@ export type LedgerError =
   | 'already_reversed'
   | 'pledge_unavailable'
   | 'receipt_unlinked'
+  | 'receipt_unavailable'
+  | 'changed_since_saved'
   | 'unknown';
 
 export type LedgerResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: LedgerError; fieldErrors?: Record<string, string> };
 
-// WHY: 'idempotency_mismatch' (clé réutilisée pour une autre saisie, signe d'un bug d'écran) reste
-// volontairement hors table : fromRepo la journalise et renvoie 'unknown'.
 const CODES: Record<string, LedgerError> = {
+  // WHY: clé rejouée pour une saisie modifiée (souvent un formulaire corrigé après un échec) :
+  // l'écran demande de repartir d'un formulaire vide. fromRepo la journalise aussi, car elle peut
+  // signaler un bug d'écran.
+  idempotency_mismatch: 'changed_since_saved',
   '42501': 'forbidden',
   '28000': 'unauthenticated',
   '23514': 'validation',
@@ -46,7 +50,9 @@ const CODES: Record<string, LedgerError> = {
 
 function fromRepo(error: { code: string }, scope: string): { ok: false; error: LedgerError } {
   const mapped = CODES[error.code];
-  if (!mapped) console.error(`[budget/ledger] ${scope} failed`, { code: error.code });
+  if (!mapped || error.code === 'idempotency_mismatch') {
+    console.error(`[budget/ledger] ${scope} failed`, { code: error.code });
+  }
   return { ok: false, error: mapped ?? 'unknown' };
 }
 
@@ -128,6 +134,11 @@ export async function recordReceipt(raw: unknown) {
   );
 }
 
+// WHY: reçu invisible, déjà rattaché ailleurs ou dépense ayant déjà un reçu : renvoyer le
+// formulaire n'y changera rien. Les autres échecs (TL006 : photo pas encore au stockage) peuvent
+// réussir au renvoi.
+const ATTACH_FINAL = new Set(['no_rows', '23505']);
+
 /**
  * Dépense (trésorier et plus) ; `partyName` est le fournisseur. Un reçu préparé est rattaché
  * après l'enregistrement.
@@ -160,7 +171,10 @@ export async function recordExpense(raw: unknown): Promise<LedgerResult<{ id: st
   const linked = await attachReceipt(d.dossierId, d.receiptId, res.data.id);
   if (linked.error) {
     console.error('[budget/ledger] attachReceipt failed', { code: linked.error.code });
-    return { ok: false, error: 'receipt_unlinked' };
+    return {
+      ok: false,
+      error: ATTACH_FINAL.has(linked.error.code) ? 'receipt_unavailable' : 'receipt_unlinked',
+    };
   }
   return res;
 }
