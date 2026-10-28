@@ -76,13 +76,10 @@ Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Histori
 - `revoke_trigger_function_execute`, version enregistrée `20261027094508` ;
 - `ai_usage` (lot 1, PR 4), version enregistrée `20261027151057` ;
 - `ledger` (lot 2, PR 2), version enregistrée `20261027190919` ;
-- `budget_lines` (lot 2, PR 3), version enregistrée `20261028001104`.
+- `budget_lines` (lot 2, PR 3), version enregistrée `20261028001104` ;
+- `receipts` (lot 2, PR 4), version enregistrée `20261028095748`.
 
-**Pas encore en production :**
-
-- `receipts` (lot 2, PR 4) : à appliquer avant de déployer le web de la PR.
-
-Toutes les migrations du dépôt jusqu'à `budget_lines` sont donc en production. Après `ledger`, vérifié : RLS active sur
+Toutes les migrations du dépôt sont donc en production. Après `ledger`, vérifié : RLS active sur
 `ledger_entry` et `dossier_finance`, aucun droit pour `anon`, `authenticated` limité à
 `select`/`insert` sur `ledger_entry` et `select`/`insert`/`update` sur `dossier_finance`, fonctions
 de trigger non exécutables, `ledger_totals` exécutable par `authenticated` seulement.
