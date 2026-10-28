@@ -1745,6 +1745,7 @@
         "line": "Poste",
         "note": "Note",
         "reverses": "Ligne annulée",
+        "pledge": "Promesse liée",
         "id": "Identifiant",
         "createdAt": "Enregistrée le"
       }

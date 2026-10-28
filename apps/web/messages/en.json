@@ -1745,6 +1745,7 @@
         "line": "Budget line",
         "note": "Note",
         "reverses": "Reversed line",
+        "pledge": "Linked pledge",
         "id": "Identifier",
         "createdAt": "Recorded at"
       }

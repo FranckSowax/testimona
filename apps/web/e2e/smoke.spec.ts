@@ -137,3 +137,13 @@ test.describe('Receipts', () => {
     expect(res.status()).toBe(401);
   });
 });
+
+test.describe('Ledger export', () => {
+  test('the ledger export requires a session', async ({ request }) => {
+    const res = await request.get(
+      '/api/dossiers/00000000-0000-4000-8000-000000000000/ledger-export',
+      { maxRedirects: 0 },
+    );
+    expect(res.status()).toBe(401);
+  });
+});
