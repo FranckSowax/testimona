@@ -1,8 +1,7 @@
 import 'server-only';
 import type { z } from 'zod';
-import { isStepOpen } from '@/journey/registry';
-import { getDossier } from '@/modules/dossier/repo';
 import { fieldErrors } from '@/modules/dossier/service';
+import { budgetGate } from '../gate';
 import * as repo from './repo';
 import type { NewEntry } from './repo';
 import {
@@ -39,6 +38,8 @@ const CODES: Record<string, LedgerError> = {
   TL001: 'validation',
   TL002: 'pledge_unavailable',
   TL003: 'validation',
+  // WHY: poste d'un autre dossier ; un poste d'un autre type de ligne donne 23514.
+  TL004: 'validation',
 };
 
 function fromRepo(error: { code: string }, scope: string): { ok: false; error: LedgerError } {
@@ -55,16 +56,8 @@ function invalid(error: z.ZodError): {
   return { ok: false, error: 'validation', fieldErrors: fieldErrors(error.issues) };
 }
 
-/** Le registre n'existe que pour un dossier lisible ouvert au budget (porte « décès »). */
-async function checkDossier(dossierId: string): Promise<LedgerError | null> {
-  const dossier = await getDossier(dossierId);
-  // WHY: un dossier sans étape budget n'a pas de registre : on le traite comme absent.
-  if (!dossier || !isStepOpen(dossier.entryPoint, 'attendance')) return 'not_found';
-  return null;
-}
-
 async function write(entry: NewEntry, scope: string): Promise<LedgerResult<{ id: string }>> {
-  const blocked = await checkDossier(entry.dossierId);
+  const blocked = await budgetGate(entry.dossierId);
   if (blocked) return { ok: false, error: blocked };
   const res = await repo.insertEntry(entry);
   if (res.error) {
@@ -99,6 +92,7 @@ export async function recordPledge(raw: unknown, userId: string) {
       partyName,
       memberId: userId,
       pledgeId: null,
+      budgetLineId: null,
       note,
       occurredOn,
       reversesId: null,
@@ -122,6 +116,7 @@ export async function recordReceipt(raw: unknown) {
       partyName: d.partyName,
       memberId: d.memberId,
       pledgeId: d.pledgeId,
+      budgetLineId: null,
       note: d.note,
       occurredOn: d.occurredOn,
       reversesId: null,
@@ -145,6 +140,7 @@ export async function recordExpense(raw: unknown) {
       partyName: d.partyName,
       memberId: null,
       pledgeId: null,
+      budgetLineId: d.budgetLineId,
       note: d.note,
       occurredOn: d.occurredOn,
       reversesId: null,
@@ -173,6 +169,7 @@ export async function reverseEntry(raw: unknown) {
       partyName: '-',
       memberId: null,
       pledgeId: null,
+      budgetLineId: null,
       note: '',
       occurredOn: ledgerToday(),
       reversesId: entryId,
@@ -188,7 +185,7 @@ export async function setVisibility(
 ): Promise<LedgerResult<{ visibility: Visibility }>> {
   const input = VisibilitySchema.safeParse(raw);
   if (!input.success) return invalid(input.error);
-  const blocked = await checkDossier(input.data.dossierId);
+  const blocked = await budgetGate(input.data.dossierId);
   if (blocked) return { ok: false, error: blocked };
   const res = await repo.setVisibility(input.data.dossierId, input.data.visibility);
   if (res.error) return fromRepo(res.error, 'setVisibility');

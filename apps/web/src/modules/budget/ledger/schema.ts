@@ -113,8 +113,11 @@ export const ReceiptSchema = PledgeSchema.extend({
   pledgeId: optionalId,
 });
 
-/** Saisie d'une dépense payée. */
-export const ExpenseSchema = PledgeSchema.extend({ method: z.enum(ENTRY_METHODS) });
+/** Saisie d'une dépense payée, éventuellement rattachée à un poste du budget. */
+export const ExpenseSchema = PledgeSchema.extend({
+  method: z.enum(ENTRY_METHODS),
+  budgetLineId: optionalId,
+});
 
 /** Demande d'annulation d'une ligne du registre. */
 export const ReversalSchema = z.object({ dossierId: uuid, idempotencyKey: uuid, entryId: uuid });

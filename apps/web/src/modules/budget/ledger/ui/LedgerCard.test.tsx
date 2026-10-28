@@ -26,10 +26,29 @@ const totals = { received: 250_000, pledgedOpen: 0, spent: 0 };
 describe('LedgerCard', () => {
   it('shows received and budget amounts', async () => {
     const { container } = render(
-      await LedgerCard({ dossierId: 'abc', locale: 'fr', budget: 1_000_000, totals }),
+      await LedgerCard({
+        dossierId: 'abc',
+        locale: 'fr',
+        budget: { amount: 1_000_000, source: 'envisaged' },
+        totals,
+      }),
     );
     expect(plain(container.querySelector('p')?.textContent ?? '')).toBe(
       '250 000 FCFA reçus sur un budget envisagé de 1 000 000 FCFA.',
+    );
+  });
+
+  it('shows a retained budget', async () => {
+    const { container } = render(
+      await LedgerCard({
+        dossierId: 'abc',
+        locale: 'fr',
+        budget: { amount: 3_100_000, source: 'retained' },
+        totals,
+      }),
+    );
+    expect(plain(container.querySelector('p')?.textContent ?? '')).toBe(
+      '250 000 FCFA reçus sur un budget retenu de 3 100 000 FCFA.',
     );
   });
 
@@ -44,7 +63,12 @@ describe('LedgerCard', () => {
 
   it('shows a neutral text, not 0 FCFA, when totals are unreadable', async () => {
     const { container } = render(
-      await LedgerCard({ dossierId: 'abc', locale: 'fr', budget: 5_000, totals: null }),
+      await LedgerCard({
+        dossierId: 'abc',
+        locale: 'fr',
+        budget: { amount: 5_000, source: 'retained' },
+        totals: null,
+      }),
     );
     const text = plain(container.querySelector('p')?.textContent ?? '');
     expect(text).toBe(messages.ledger.card.unavailable);

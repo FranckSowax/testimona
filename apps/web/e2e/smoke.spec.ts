@@ -54,6 +54,11 @@ test.describe('Public pages', () => {
     await expect(page).toHaveURL(/\/login\?next=.*cotisations/);
   });
 
+  test('Budget lines page requires sign-in', async ({ page }) => {
+    await page.goto('/dossier/44444444-4444-4444-8444-444444444444/cotisations/postes');
+    await expect(page).toHaveURL(/\/login\?next=.*postes/);
+  });
+
   test('Login page — V2 form on mesh background', async ({ page }) => {
     await page.goto('/login');
     await expect(page.getByRole('heading', { name: /Connexion|Login/i })).toBeVisible();

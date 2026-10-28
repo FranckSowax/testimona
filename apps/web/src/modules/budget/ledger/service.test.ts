@@ -88,7 +88,28 @@ describe('recordReceipt et recordExpense', () => {
     );
     await recordExpense({ ...base, partyName: 'Traiteur', method: 'cash' });
     expect(ledgerRepo.insertEntry).toHaveBeenLastCalledWith(
-      expect.objectContaining({ kind: 'expense', partyName: 'Traiteur', memberId: null }),
+      expect.objectContaining({
+        kind: 'expense',
+        partyName: 'Traiteur',
+        memberId: null,
+        budgetLineId: null,
+      }),
+    );
+  });
+
+  it('transmet le poste d’une dépense, jamais celui d’une autre ligne', async () => {
+    const line = '77777777-7777-4777-8777-777777777777';
+    await recordExpense({ ...base, method: 'cash', budgetLineId: line });
+    expect(ledgerRepo.insertEntry).toHaveBeenLastCalledWith(
+      expect.objectContaining({ kind: 'expense', budgetLineId: line }),
+    );
+    await recordReceipt({ ...base, method: 'cash', budgetLineId: line });
+    expect(ledgerRepo.insertEntry).toHaveBeenLastCalledWith(
+      expect.objectContaining({ kind: 'receipt', budgetLineId: null }),
+    );
+    await recordPledge({ ...base, budgetLineId: line }, USER);
+    expect(ledgerRepo.insertEntry).toHaveBeenLastCalledWith(
+      expect.objectContaining({ kind: 'pledge', budgetLineId: null }),
     );
   });
 
@@ -105,6 +126,13 @@ describe('recordReceipt et recordExpense', () => {
     expect(await recordReceipt({ ...base, method: 'cash', memberId: USER })).toMatchObject({
       error: 'validation',
     });
+    // Poste d'un autre dossier (TL004) ou d'un autre type de ligne (23514).
+    for (const code of ['TL004', '23514']) {
+      fail(code);
+      expect(await recordExpense({ ...base, method: 'cash', budgetLineId: KEY })).toMatchObject({
+        error: 'validation',
+      });
+    }
   });
 
   it('ne prend pas une unicité violée hors annulation pour une double annulation', async () => {

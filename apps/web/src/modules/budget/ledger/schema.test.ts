@@ -82,6 +82,20 @@ describe('schémas du registre', () => {
     expect(ExpenseSchema.parse({ ...base, method: 'airtel_money' }).method).toBe('airtel_money');
   });
 
+  it('rattache une dépense à un poste ou à aucun', () => {
+    const line = '77777777-7777-4777-8777-777777777777';
+    expect(ExpenseSchema.parse({ ...base, method: 'cash', budgetLineId: '' }).budgetLineId).toBe(
+      null,
+    );
+    expect(ExpenseSchema.parse({ ...base, method: 'cash' }).budgetLineId).toBe(null);
+    expect(ExpenseSchema.parse({ ...base, method: 'cash', budgetLineId: line }).budgetLineId).toBe(
+      line,
+    );
+    expect(ExpenseSchema.safeParse({ ...base, method: 'cash', budgetLineId: 'x' }).success).toBe(
+      false,
+    );
+  });
+
   it('transforme un membre ou une promesse vide en null', () => {
     const parsed = ReceiptSchema.parse({ ...base, method: 'cash', memberId: '', pledgeId: '' });
     expect(parsed).toMatchObject({ memberId: null, pledgeId: null });

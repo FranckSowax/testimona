@@ -31,6 +31,7 @@ async function done(
   if (!res.ok) return { error: res.error, fieldErrors: res.fieldErrors };
   const locale = await getLocale();
   revalidatePath(localizedPath(`/dossier/${dossierId}/cotisations`, locale));
+  revalidatePath(localizedPath(`/dossier/${dossierId}/cotisations/postes`, locale));
   revalidatePath(localizedPath(`/dossier/${dossierId}`, locale));
   return { ok: true };
 }
@@ -56,7 +57,11 @@ export async function saveEntryAction(
             pledgeId: field(formData, 'pledgeId'),
           })
         : kind === 'expense'
-          ? await service.recordExpense({ ...base, method })
+          ? await service.recordExpense({
+              ...base,
+              method,
+              budgetLineId: field(formData, 'budgetLineId'),
+            })
           : ({ ok: false, error: 'validation' } as const);
   return done(base.dossierId, res);
 }

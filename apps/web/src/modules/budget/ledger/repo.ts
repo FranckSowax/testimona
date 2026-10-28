@@ -5,7 +5,7 @@ import type { LedgerEntry, LedgerTotals } from './model';
 import type { EntryKind, EntryMethod, Visibility } from './schema';
 
 const COLUMNS =
-  'id, kind, amount, method, party_name, member_id, pledge_id, note, occurred_on, reverses_id, reverses_kind, created_at';
+  'id, kind, amount, method, party_name, member_id, pledge_id, budget_line_id, note, occurred_on, reverses_id, reverses_kind, created_at';
 
 interface EntryRow {
   id: string;
@@ -15,6 +15,7 @@ interface EntryRow {
   party_name: string;
   member_id: string | null;
   pledge_id: string | null;
+  budget_line_id: string | null;
   note: string;
   occurred_on: string;
   reverses_id: string | null;
@@ -31,6 +32,7 @@ export interface NewEntry {
   partyName: string;
   memberId: string | null;
   pledgeId: string | null;
+  budgetLineId: string | null;
   note: string;
   occurredOn: string;
   reversesId: string | null;
@@ -45,6 +47,7 @@ const toEntry = (r: EntryRow): LedgerEntry => ({
   partyName: r.party_name,
   memberId: r.member_id,
   pledgeId: r.pledge_id,
+  budgetLineId: r.budget_line_id,
   note: r.note,
   occurredOn: r.occurred_on,
   reversesId: r.reverses_id,
@@ -95,6 +98,7 @@ export async function insertEntry(
       party_name: entry.partyName,
       member_id: entry.memberId,
       pledge_id: entry.pledgeId,
+      budget_line_id: entry.budgetLineId,
       note: entry.note,
       occurred_on: entry.occurredOn,
       reverses_id: entry.reversesId,

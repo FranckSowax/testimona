@@ -64,10 +64,27 @@ describe('saveEntryAction', () => {
     );
   });
 
+  it('transmet le poste choisi pour une dépense', async () => {
+    const data = entry('expense');
+    data.set('method', 'cash');
+    data.set('budgetLineId', 'line-1');
+    await saveEntryAction(null, data);
+    expect(service.recordExpense).toHaveBeenCalledWith(
+      expect.objectContaining({ method: 'cash', budgetLineId: 'line-1' }),
+    );
+    await saveEntryAction(null, entry('expense'));
+    expect(service.recordExpense).toHaveBeenLastCalledWith(
+      expect.objectContaining({ budgetLineId: '' }),
+    );
+  });
+
   it('revalide la page Cotisations et le tableau de bord après succès', async () => {
     await saveEntryAction(null, entry('expense'));
     expect(cache.revalidatePath).toHaveBeenCalledWith(
       localizedPath(`/dossier/${DOSSIER}/cotisations`, 'en'),
+    );
+    expect(cache.revalidatePath).toHaveBeenCalledWith(
+      localizedPath(`/dossier/${DOSSIER}/cotisations/postes`, 'en'),
     );
     expect(cache.revalidatePath).toHaveBeenCalledWith(localizedPath(`/dossier/${DOSSIER}`, 'en'));
   });

@@ -18,6 +18,7 @@ const entry = (over: Partial<LedgerEntry>): LedgerEntry => ({
   partyName: 'Oncle Paul',
   memberId: null,
   pledgeId: null,
+  budgetLineId: null,
   note: '',
   occurredOn: '2026-10-20',
   reversesId: null,

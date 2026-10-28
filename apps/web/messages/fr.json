@@ -1484,6 +1484,7 @@
     },
     "summary": {
       "budget": "Budget envisagé",
+      "budgetRetained": "Budget retenu",
       "budgetNone": "Budget non choisi",
       "received": "Reçu",
       "pledgedOpen": "Promis, non versé",
@@ -1510,6 +1511,7 @@
       "reversed": "annulée",
       "fulfilled": "versée",
       "partlyPaid": "Déjà versé : {paid}",
+      "line": "Poste : {line}",
       "reversalOf": "Annulation — {kind}",
       "reverse": "Annuler cette ligne",
       "confirmReverse": "Confirmer l'annulation",
@@ -1526,6 +1528,8 @@
       "supplier": "Prestataire",
       "amount": "Montant (FCFA)",
       "method": "Moyen de paiement",
+      "budgetLine": "Poste du budget",
+      "budgetLineNone": "Aucun poste",
       "member": "Membre du dossier",
       "memberNone": "Autre personne (non inscrite)",
       "memberUnnamed": "Membre sans nom affiché",
@@ -1557,9 +1561,77 @@
     "card": {
       "title": "Cotisations",
       "summary": "{received} reçus sur un budget envisagé de {budget}.",
+      "summaryRetained": "{received} reçus sur un budget retenu de {budget}.",
       "summaryNoBudget": "{received} reçus. Aucun budget n'est encore choisi.",
       "unavailable": "Les montants sont momentanément indisponibles.",
       "open": "Voir les cotisations"
+    }
+  },
+  "lines": {
+    "page": {
+      "title": "Postes du budget",
+      "intro": "Les postes reprennent l'estimation de la page Budget. Le trésorier peut les ajuster, en ajouter et retenir un scénario.",
+      "estimateNote": "Montants de départ : estimations à vérifier auprès des prestataires.",
+      "empty": "Aucun poste pour l'instant. Un trésorier peut les créer à partir de l'estimation.",
+      "emptyManager": "Créez les postes à partir de l'estimation de la page Budget, puis ajustez-les.",
+      "create": "Créer les postes",
+      "created": "Postes créés.",
+      "recompute": "Recalculer selon l'affluence",
+      "recomputeHint": "Met à jour les postes que personne n'a modifiés, d'après les réponses sur l'affluence.",
+      "recomputed": "Postes recalculés."
+    },
+    "tabs": {
+      "label": "Sections des cotisations",
+      "entries": "Mouvements",
+      "lines": "Postes"
+    },
+    "scenario": {
+      "title": "Scénario retenu",
+      "hint": "Le scénario retenu devient le budget de référence de la famille.",
+      "none": "Aucun scénario retenu",
+      "option": "{level} : {total}",
+      "current": "Scénario retenu : {level}",
+      "save": "Enregistrer le scénario",
+      "saved": "Scénario enregistré."
+    },
+    "table": {
+      "caption": "Postes du budget, montants en FCFA",
+      "line": "Poste",
+      "spent": "Dépensé",
+      "unassigned": "Dépenses sans poste",
+      "total": "Total",
+      "edited": "modifié",
+      "retained": "retenu"
+    },
+    "form": {
+      "editTitle": "Modifier « {label} »",
+      "addTitle": "Ajouter un poste",
+      "label": "Nom du poste",
+      "sober": "Sobre (FCFA)",
+      "intermediate": "Intermédiaire (FCFA)",
+      "full": "Complet (FCFA)",
+      "save": "Enregistrer",
+      "saved": "Poste enregistré.",
+      "add": "Ajouter le poste",
+      "added": "Poste ajouté.",
+      "deleteShort": "Supprimer",
+      "delete": "Supprimer le poste : {label}",
+      "deleteWarning": "Le poste sera retiré du budget. Cette suppression est définitive.",
+      "confirmDelete": "Confirmer la suppression",
+      "confirmDeleteLabel": "Confirmer la suppression du poste : {label}",
+      "deleting": "Suppression…",
+      "deleted": "Poste supprimé.",
+      "keep": "Garder"
+    },
+    "errors": {
+      "line_in_use": "Ce poste porte ou a porté des dépenses : il ne peut pas être supprimé.",
+      "no_attendance": "Renseignez d'abord l'affluence pour estimer les postes.",
+      "too_many_lines": "Un dossier compte au plus 100 postes.",
+      "invalidNumber": "Entrez un montant entier, en chiffres.",
+      "outOfRange": "Entrez un montant entre 0 et 100 000 000 FCFA.",
+      "required": "Ce champ est obligatoire.",
+      "tooLong": "Ce texte est trop long.",
+      "invalidCharacter": "Ce texte contient un caractère non accepté."
     }
   }
 }

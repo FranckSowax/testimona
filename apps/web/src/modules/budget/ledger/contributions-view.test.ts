@@ -11,6 +11,7 @@ const entry = (over: Partial<LedgerEntry>): LedgerEntry => ({
   partyName: 'Oncle Paul',
   memberId: null,
   pledgeId: null,
+  budgetLineId: null,
   note: '',
   occurredOn: '2026-10-20',
   reversesId: null,
@@ -31,7 +32,12 @@ const members = [
   { userId: 'u2', displayName: null },
 ];
 
-const view = (role: DossierRole | null) => contributionsView({ role, views, members });
+const lines = [
+  { id: 'l1', label: 'Traiteur' },
+  { id: 'l2', label: 'Transport' },
+];
+
+const view = (role: DossierRole | null) => contributionsView({ role, views, members, lines });
 
 describe('contributionsView', () => {
   it.each<[DossierRole | null, boolean, boolean, boolean]>([
@@ -47,14 +53,14 @@ describe('contributionsView', () => {
   });
 
   it.each<DossierRole | null>([null, 'viewer', 'contributor'])(
-    "n'envoie ni membres ni promesses au rôle %s",
+    "n'envoie ni membres, ni promesses, ni postes au rôle %s",
     (role) => {
-      expect(view(role)).toMatchObject({ memberOptions: [], pledgeOptions: [] });
+      expect(view(role)).toMatchObject({ memberOptions: [], pledgeOptions: [], lineOptions: [] });
     },
   );
 
   it.each<DossierRole>(['treasurer', 'coordinator', 'owner'])(
-    'propose au rôle %s les membres et les promesses ouvertes avec leur reste',
+    'propose au rôle %s les membres, les promesses ouvertes avec leur reste et les postes',
     (role) => {
       const result = view(role);
       expect(result.memberOptions).toEqual([
@@ -62,6 +68,7 @@ describe('contributionsView', () => {
         { id: 'u2', name: null },
       ]);
       expect(result.pledgeOptions).toEqual([{ id: 'p1', label: 'Tante Marie', amount: 6_000 }]);
+      expect(result.lineOptions).toEqual(lines);
     },
   );
 });

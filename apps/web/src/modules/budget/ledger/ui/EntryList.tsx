@@ -8,10 +8,12 @@ interface Props {
   locale: string;
   views: readonly EntryView[];
   canManage: boolean;
+  /** Libellé de chaque poste du budget, par identifiant. */
+  lineLabels: ReadonlyMap<string, string>;
 }
 
 /** Mouvements visibles ; une annulation apparaît comme une ligne, rien ne disparaît. */
-export async function EntryList({ dossierId, locale, views, canManage }: Props) {
+export async function EntryList({ dossierId, locale, views, canManage, lineLabels }: Props) {
   const t = await getTranslations('ledger');
   const date = new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'fr-FR', {
     dateStyle: 'medium',
@@ -28,6 +30,8 @@ export async function EntryList({ dossierId, locale, views, canManage }: Props) 
             : t(`kind.${v.kind}`);
         const day = date.format(new Date(`${v.occurredOn}T00:00:00Z`));
         const struck = v.reversed ? 'line-through' : '';
+        const lineLabel =
+          v.kind === 'expense' && v.budgetLineId ? lineLabels.get(v.budgetLineId) : undefined;
         return (
           <li key={v.id} className="space-y-1 px-5 py-4">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
@@ -39,6 +43,9 @@ export async function EntryList({ dossierId, locale, views, canManage }: Props) 
                     {' '}
                     · {t(`method.${v.method}`)}
                   </span>
+                )}
+                {lineLabel && (
+                  <span className="font-normal"> · {t('entry.line', { line: lineLabel })}</span>
                 )}
               </p>
               <p className={`font-semibold tabular-nums ${struck}`}>

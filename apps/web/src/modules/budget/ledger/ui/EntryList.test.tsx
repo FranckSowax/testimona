@@ -22,6 +22,7 @@ const pledge: EntryView = {
   partyName: 'Awa Diallo',
   memberId: null,
   pledgeId: null,
+  budgetLineId: null,
   note: '',
   occurredOn: '2026-10-20',
   reversesId: null,
@@ -53,10 +54,13 @@ afterEach(cleanup);
 /** Espaces insécables (format fr-FR) ramenés à des espaces simples. */
 const plain = (text: string | null) => (text ?? '').replace(/[  ]/g, ' ');
 
+const LINE = '66666666-6666-4666-8666-666666666666';
+const lineLabels = new Map([[LINE, 'Traiteur']]);
+
 async function renderList(views: EntryView[], canManage = false) {
   render(
     <NextIntlClientProvider locale="fr" messages={messages}>
-      {await EntryList({ dossierId: DOSSIER, locale: 'fr', views, canManage })}
+      {await EntryList({ dossierId: DOSSIER, locale: 'fr', views, canManage, lineLabels })}
     </NextIntlClientProvider>,
   );
   return screen.getAllByRole('listitem').map((li) => plain(li.textContent));
@@ -97,8 +101,24 @@ describe('EntryList', () => {
     expect(screen.queryByRole('button')).toBeNull();
   });
 
+  it('shows the budget line of an attached expense, when its label is known', async () => {
+    const expense: EntryView = {
+      ...receipt,
+      kind: 'expense',
+      partyName: 'Traiteur Mba',
+      method: 'cash',
+      budgetLineId: LINE,
+    };
+    const unknown = { ...expense, id: pledge.id, budgetLineId: receipt.id };
+    const [attached, other] = await renderList([expense, unknown]);
+    expect(attached).toContain('Traiteur Mba · Dépense · Espèces · Poste : Traiteur');
+    expect(other).not.toContain('Poste :');
+  });
+
   it('says so when there is no entry', async () => {
-    render(await EntryList({ dossierId: DOSSIER, locale: 'fr', views: [], canManage: true }));
+    render(
+      await EntryList({ dossierId: DOSSIER, locale: 'fr', views: [], canManage: true, lineLabels }),
+    );
     expect(screen.getByText("Aucune ligne pour l'instant.")).toBeTruthy();
   });
 });
