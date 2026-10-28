@@ -76,6 +76,27 @@ describe('readReceiptPrefill', () => {
     expect(ai.readReceipt).not.toHaveBeenCalled();
   });
 
+  it('refuse si l’état de clôture ne se lit pas, sans lire la photo', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    closingRepo.getClosure.mockResolvedValueOnce({
+      data: null,
+      error: { code: 'boom', message: 'x' },
+    });
+    expect(await readReceiptPrefill(input)).toMatchObject({ ok: false });
+    expect(repo.downloadReceipt).not.toHaveBeenCalled();
+    expect(ai.readReceipt).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it.each([
+    ['un rôle insuffisant', () => dossierRepo.getMyRole.mockResolvedValueOnce('contributor')],
+    ['un dossier hors budget', () => gate.budgetGate.mockResolvedValueOnce('not_found')],
+  ])('ne lit pas la clôture pour %s', async (_case, arrange) => {
+    arrange();
+    expect(await readReceiptPrefill(input)).toMatchObject({ ok: false });
+    expect(closingRepo.getClosure).not.toHaveBeenCalled();
+  });
+
   it('préremplit la dépense et propose le poste de la clé lue', async () => {
     expect(await readReceiptPrefill(input)).toEqual({
       ok: true,

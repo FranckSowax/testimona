@@ -102,4 +102,33 @@ describe('dossier clôturé', () => {
       error: 'closed',
     });
   });
+
+  it.each([
+    [
+      'saveLine',
+      repo.updateLine,
+      () => saveLine({ dossierId: DOSSIER, lineId: LINE, label: 'X', ...amounts }),
+    ],
+    ['deleteLine', repo.deleteLine, () => deleteLine({ dossierId: DOSSIER, lineId: LINE })],
+    ['recomputeLines', repo.updateRecomputed, () => recomputeLines({ dossierId: DOSSIER })],
+  ])('nomme le refus de la base (TL009) pour %s', async (_name, write, call) => {
+    dossierRepo.getMyRole.mockResolvedValue('treasurer');
+    // WHY: un poste de la grille non modifié, pour que le recalcul ait une ligne à écrire.
+    repo.listLines.mockResolvedValue({
+      data: [
+        {
+          id: LINE,
+          gridKey: 'coffin',
+          label: 'Cercueil',
+          amounts: { sober: 1, intermediate: 1, full: 1 },
+          edited: false,
+          position: 1,
+        },
+      ],
+      error: null,
+    });
+    write.mockResolvedValueOnce({ data: null, error: { code: 'TL009', message: 'ledger closed' } });
+    expect(await call()).toEqual({ ok: false, error: 'closed' });
+    expect(write).toHaveBeenCalledTimes(1);
+  });
 });

@@ -83,15 +83,18 @@ function fromRepo(error: { code: string }, scope: string): { ok: false; error: R
  * Porte des reçus : dossier ouvert au budget, rôle trésorier ou plus, cotisations non clôturées.
  * WHY: la lecture consomme le quota d'IA (ouvert dès le contributeur) ; on la réserve à qui
  * saisit les dépenses. Un dossier clôturé n'accepte plus de reçu : refuser avant de préparer un
- * envoi ou de lire une photo évite une ligne inutile et un appel d'IA décompté. Si la lecture de
- * la clôture échoue, la base tranche (TL009). La RLS reste le garde-fou de la base.
+ * envoi ou de lire une photo évite une ligne inutile et un appel d'IA décompté. Si l'état de
+ * clôture ne se lit pas, on refuse : laisser passer consommerait le quota d'IA sur un dossier
+ * peut-être clôturé, que la base (TL009) ne protège pas puisque la lecture n'écrit rien. La RLS
+ * reste le garde-fou de la base.
  */
 async function managerGate(dossierId: string): Promise<ReceiptsError | null> {
   const blocked = await budgetGate(dossierId);
   if (blocked) return blocked;
   if (!hasRole(await getMyRole(dossierId), 'treasurer')) return 'forbidden';
   const closure = await getClosure(dossierId);
-  return closure.data?.closedAt ? 'closed' : null;
+  if (closure.error) return fromRepo(closure.error, 'getClosure').error;
+  return closure.data.closedAt ? 'closed' : null;
 }
 
 /**
