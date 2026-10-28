@@ -175,6 +175,17 @@ describe('listExportRows', () => {
     expect(res.data?.map((r) => r.id)).toEqual(['d', 'b', 'c', 'a']);
   });
 
+  it('ne rend qu’une occurrence d’une ligne répétée par un décalage de page', async () => {
+    const page = Array.from({ length: 999 }, (_, i) => dbRow(`e${i}`));
+    results.push(
+      { data: [...page, dbRow('x')], error: null },
+      { data: [dbRow('x'), dbRow('y')], error: null },
+    );
+    const res = await listExportRows(DOSSIER);
+    expect(res.data).toHaveLength(1001);
+    expect(res.data?.filter((r) => r.id === 'x')).toHaveLength(1);
+  });
+
   it('rend une liste vide pour un registre vide ou une réponse nulle', async () => {
     results.push({ data: [], error: null }, { data: null, error: null });
     expect(await listExportRows(DOSSIER)).toEqual({ data: [], error: null });
@@ -182,8 +193,11 @@ describe('listExportRows', () => {
   });
 
   it('accepte un registre d’exactement 50 000 lignes', async () => {
-    const page = Array.from({ length: 1000 }, (_, i) => dbRow(`e${i}`));
-    for (let i = 0; i < EXPORT_MAX_ROWS / 1000; i += 1) results.push({ data: page, error: null });
+    // WHY: ids distincts par page, le dédoublonnage par id les ramènerait sinon à 1 000 lignes.
+    for (let p = 0; p < EXPORT_MAX_ROWS / 1000; p += 1) {
+      const page = Array.from({ length: 1000 }, (_, i) => dbRow(`e${p}-${i}`));
+      results.push({ data: page, error: null });
+    }
     results.push({ data: [], error: null });
     const res = await listExportRows(DOSSIER);
     expect(res.data).toHaveLength(EXPORT_MAX_ROWS);
@@ -191,8 +205,11 @@ describe('listExportRows', () => {
   });
 
   it('refuse un registre trop grand plutôt que de le tronquer', async () => {
-    const page = Array.from({ length: 1000 }, (_, i) => dbRow(`e${i}`));
-    for (let i = 0; i < EXPORT_MAX_ROWS / 1000; i += 1) results.push({ data: page, error: null });
+    // WHY: ids distincts par page, le dédoublonnage par id les ramènerait sinon à 1 000 lignes.
+    for (let p = 0; p < EXPORT_MAX_ROWS / 1000; p += 1) {
+      const page = Array.from({ length: 1000 }, (_, i) => dbRow(`e${p}-${i}`));
+      results.push({ data: page, error: null });
+    }
     results.push({ data: [dbRow('extra')], error: null });
     expect(await listExportRows(DOSSIER)).toEqual({
       data: null,

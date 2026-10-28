@@ -92,9 +92,10 @@ export async function reopenLedger(dossierId: string): Promise<RepoResult<true>>
 /**
  * Toutes les lignes du registre visibles (RLS), triées par date, par pages.
  * WHY: lu avec le client de l'utilisateur ; seul un trésorier (ou plus) voit tout, et le service
- * de l'export l'exige. Le registre est en ajout seul et le trigger impose `created_at = now()` :
- * paginer sur (`created_at`, `id`) garantit qu'une ligne ajoutée pendant l'export arrive à la fin,
- * sans doublon ni décalage de page. L'ordre de sortie (`occurred_on` d'abord) est refait en mémoire.
+ * de l'export l'exige. La pagination se fait sur (`created_at`, `id`), l'ordre de sortie
+ * (`occurred_on` d'abord) est refait en mémoire. Une ligne commise pendant l'export peut décaler
+ * une page, `now()` étant l'heure de début de transaction ; le dédoublonnage par id garantit
+ * chaque ligne une seule fois.
  */
 export async function listExportRows(dossierId: string): Promise<RepoResult<ExportRow[]>> {
   const db = await getSupabaseServer();
@@ -119,7 +120,9 @@ export async function listExportRows(dossierId: string): Promise<RepoResult<Expo
     }
     if (!data || data.length < PAGE) break;
   }
-  return { data: rows.sort(byOccurrence), error: null };
+  // WHY: une page décalée peut répéter une ligne ; `rows.length` (plafond) reste plus strict.
+  const unique = [...new Map(rows.map((r) => [r.id, r])).values()];
+  return { data: unique.sort(byOccurrence), error: null };
 }
 
 const cmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
