@@ -27,5 +27,7 @@ export interface ExportRow {
   note: string;
   occurredOn: string;
   reversesId: string | null;
+  /** Promesse à laquelle se rattache ce versement, ou null. */
+  pledgeId: string | null;
   createdAt: string;
 }

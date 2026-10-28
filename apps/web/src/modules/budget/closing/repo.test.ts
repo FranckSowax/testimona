@@ -51,6 +51,7 @@ const dbRow = (id: string) => ({
   note: '',
   occurred_on: '2026-10-20',
   reverses_id: null,
+  pledge_id: null,
   created_at: '2026-10-20T10:00:00Z',
 });
 
@@ -67,6 +68,8 @@ describe('getClosure', () => {
       error: null,
     });
     expect(callsOf('from')[0]!.args).toEqual(['dossier_finance']);
+    expect(callsOf('select')[0]!.args).toEqual(['closed_at']);
+    expect(callsOf('eq')[0]!.args).toEqual(['dossier_id', DOSSIER]);
     results.push({ data: null, error: null });
     expect(await getClosure(DOSSIER)).toEqual({ data: { closedAt: null }, error: null });
   });
@@ -110,6 +113,16 @@ describe('closeLedger et reopenLedger', () => {
   });
 });
 
+describe('closeLedger, réponse inattendue', () => {
+  it('refuse une réponse qui n’est pas une date', async () => {
+    results.push({ data: null, error: null });
+    expect(await closeLedger(DOSSIER)).toEqual({
+      data: null,
+      error: { code: 'unknown', message: 'closing error' },
+    });
+  });
+});
+
 describe('listExportRows', () => {
   it('lit les lignes par pages de 1 000 et les convertit', async () => {
     const page = Array.from({ length: 1000 }, (_, i) => dbRow(`e${i}`));
@@ -126,17 +139,61 @@ describe('listExportRows', () => {
       note: '',
       occurredOn: '2026-10-20',
       reversesId: null,
+      pledgeId: null,
       createdAt: '2026-10-20T10:00:00Z',
     });
     expect(callsOf('range').map((c) => c.args)).toEqual([
       [0, 999],
       [1000, 1999],
     ]);
+    expect(callsOf('from')[0]!.args).toEqual(['ledger_entry']);
+    expect(callsOf('eq')[0]!.args).toEqual(['dossier_id', DOSSIER]);
+    expect(callsOf('order').map((c) => c.args)).toEqual([
+      ['created_at', { ascending: true }],
+      ['id', { ascending: true }],
+      ['created_at', { ascending: true }],
+      ['id', { ascending: true }],
+    ]);
+  });
+
+  it('trie la sortie par date d’opération, puis création, puis id', async () => {
+    const mk = (id: string, occurred_on: string, created_at: string) => ({
+      ...dbRow(id),
+      occurred_on,
+      created_at,
+    });
+    results.push({
+      data: [
+        mk('a', '2026-10-22', '2026-10-20T10:00:00Z'),
+        mk('c', '2026-10-21', '2026-10-21T10:00:00Z'),
+        mk('b', '2026-10-21', '2026-10-21T10:00:00Z'),
+        mk('d', '2026-10-21', '2026-10-20T09:00:00Z'),
+      ],
+      error: null,
+    });
+    const res = await listExportRows(DOSSIER);
+    expect(res.data?.map((r) => r.id)).toEqual(['d', 'b', 'c', 'a']);
+  });
+
+  it('rend une liste vide pour un registre vide ou une réponse nulle', async () => {
+    results.push({ data: [], error: null }, { data: null, error: null });
+    expect(await listExportRows(DOSSIER)).toEqual({ data: [], error: null });
+    expect(await listExportRows(DOSSIER)).toEqual({ data: [], error: null });
+  });
+
+  it('accepte un registre d’exactement 50 000 lignes', async () => {
+    const page = Array.from({ length: 1000 }, (_, i) => dbRow(`e${i}`));
+    for (let i = 0; i < EXPORT_MAX_ROWS / 1000; i += 1) results.push({ data: page, error: null });
+    results.push({ data: [], error: null });
+    const res = await listExportRows(DOSSIER);
+    expect(res.data).toHaveLength(EXPORT_MAX_ROWS);
+    expect(callsOf('range')).toHaveLength(51);
   });
 
   it('refuse un registre trop grand plutôt que de le tronquer', async () => {
     const page = Array.from({ length: 1000 }, (_, i) => dbRow(`e${i}`));
     for (let i = 0; i < EXPORT_MAX_ROWS / 1000; i += 1) results.push({ data: page, error: null });
+    results.push({ data: [dbRow('extra')], error: null });
     expect(await listExportRows(DOSSIER)).toEqual({
       data: null,
       error: { code: 'too_large', message: 'ledger too large to export' },

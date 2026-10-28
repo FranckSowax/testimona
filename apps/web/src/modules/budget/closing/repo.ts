@@ -15,7 +15,7 @@ const PAGE = 1000;
 export const EXPORT_MAX_ROWS = 50_000;
 
 const EXPORT_COLUMNS =
-  'id, kind, amount, method, party_name, budget_line_id, note, occurred_on, reverses_id, created_at';
+  'id, kind, amount, method, party_name, budget_line_id, note, occurred_on, reverses_id, pledge_id, created_at';
 
 interface ExportDbRow {
   id: string;
@@ -27,6 +27,7 @@ interface ExportDbRow {
   note: string;
   occurred_on: string;
   reverses_id: string | null;
+  pledge_id: string | null;
   created_at: string;
 }
 
@@ -40,6 +41,7 @@ const toRow = (r: ExportDbRow): ExportRow => ({
   note: r.note,
   occurredOn: r.occurred_on,
   reversesId: r.reverses_id,
+  pledgeId: r.pledge_id,
   createdAt: r.created_at,
 });
 
@@ -75,7 +77,8 @@ export async function closeLedger(dossierId: string): Promise<RepoResult<string>
   const db = await getSupabaseServer();
   const { data, error } = await db.rpc('close_ledger', { p_dossier_id: dossierId });
   if (error) return fail(error);
-  return { data: String(data), error: null };
+  if (typeof data !== 'string') return fail({ code: 'unknown', message: 'closing error' });
+  return { data, error: null };
 }
 
 /** Rouvre les cotisations (propriétaire seul, vérifié par la base). */
@@ -87,9 +90,11 @@ export async function reopenLedger(dossierId: string): Promise<RepoResult<true>>
 }
 
 /**
- * Toutes les lignes du registre visibles (RLS), des plus anciennes aux plus récentes, par pages.
+ * Toutes les lignes du registre visibles (RLS), triées par date, par pages.
  * WHY: lu avec le client de l'utilisateur ; seul un trésorier (ou plus) voit tout, et le service
- * de l'export l'exige.
+ * de l'export l'exige. Le registre est en ajout seul et le trigger impose `created_at = now()` :
+ * paginer sur (`created_at`, `id`) garantit qu'une ligne ajoutée pendant l'export arrive à la fin,
+ * sans doublon ni décalage de page. L'ordre de sortie (`occurred_on` d'abord) est refait en mémoire.
  */
 export async function listExportRows(dossierId: string): Promise<RepoResult<ExportRow[]>> {
   const db = await getSupabaseServer();
@@ -99,7 +104,6 @@ export async function listExportRows(dossierId: string): Promise<RepoResult<Expo
       .from('ledger_entry')
       .select(EXPORT_COLUMNS)
       .eq('dossier_id', dossierId)
-      .order('occurred_on', { ascending: true })
       .order('created_at', { ascending: true })
       .order('id', { ascending: true })
       .range(from, from + PAGE - 1)
@@ -109,9 +113,15 @@ export async function listExportRows(dossierId: string): Promise<RepoResult<Expo
       return fail(error);
     }
     rows.push(...(data ?? []).map(toRow));
-    if (!data || data.length < PAGE) return { data: rows, error: null };
-    if (rows.length >= EXPORT_MAX_ROWS) {
+    // WHY: refus seulement au-delà du plafond ; un registre d'exactement 50 000 lignes passe.
+    if (rows.length > EXPORT_MAX_ROWS) {
       return { data: null, error: { code: 'too_large', message: 'ledger too large to export' } };
     }
+    if (!data || data.length < PAGE) break;
   }
+  return { data: rows.sort(byOccurrence), error: null };
 }
+
+const cmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+const byOccurrence = (a: ExportRow, b: ExportRow) =>
+  cmp(a.occurredOn, b.occurredOn) || cmp(a.createdAt, b.createdAt) || cmp(a.id, b.id);
