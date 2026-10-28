@@ -1,7 +1,7 @@
 import 'server-only';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import type { RepoResult } from '@/modules/dossier/repo';
-import { RECEIPT_BUCKET, type ReceiptType } from './schema';
+import { RECEIPT_BUCKET, RECEIPT_MAX_BYTES, type ReceiptType } from './schema';
 
 /** Durée de vie d'un lien de lecture signé, en secondes (5 minutes). */
 export const READ_URL_TTL_SECONDS = 300;
@@ -49,6 +49,19 @@ const storageFail = (error: { message?: string }) => ({
   error: { code: 'storage', message: error.message || 'storage error' },
 });
 
+/**
+ * Vrai quand le stockage signale un objet absent (reçu préparé dont la photo n'a jamais été
+ * envoyée). WHY: l'API répond 400 avec `statusCode` « 404 » (ou un code « not found »).
+ */
+function isMissingObject(error: { status?: number; statusCode?: string }): boolean {
+  return (
+    error.status === 404 ||
+    error.statusCode === '404' ||
+    error.statusCode === 'not_found' ||
+    error.statusCode === 'NoSuchKey'
+  );
+}
+
 const NO_ROWS = { data: null, error: { code: 'no_rows', message: 'no row matched' } };
 
 /**
@@ -78,10 +91,8 @@ export async function getReceipt(receiptId: string): Promise<RepoResult<Receipt 
     .select(COLUMNS)
     .eq('id', receiptId)
     .maybeSingle<ReceiptRow>();
-  if (error) {
-    console.error('[budget/receipts] getReceipt impossible', { code: error.code });
-    return fail(error);
-  }
+  // WHY: pas de journal ici : le service journalise déjà les codes non traduits (fromRepo).
+  if (error) return fail(error);
   return { data: data ? toReceipt(data) : null, error: null };
 }
 
@@ -142,6 +153,10 @@ export async function downloadReceipt(path: string): Promise<RepoResult<Uint8Arr
   const db = await getSupabaseServer();
   const { data, error } = await db.storage.from(RECEIPT_BUCKET).download(path);
   if (error) return storageFail(error);
+  // WHY: le bucket borne déjà la taille ; on ne charge pas en mémoire un objet qui la dépasse.
+  if (data.size > RECEIPT_MAX_BYTES) {
+    return { data: null, error: { code: 'receipt_too_large', message: 'receipt too large' } };
+  }
   return { data: new Uint8Array(await data.arrayBuffer()), error: null };
 }
 
@@ -151,6 +166,9 @@ export async function signedReadUrl(path: string): Promise<RepoResult<string>> {
   const { data, error } = await db.storage
     .from(RECEIPT_BUCKET)
     .createSignedUrl(path, READ_URL_TTL_SECONDS);
+  if (error && isMissingObject(error)) {
+    return { data: null, error: { code: 'object_missing', message: 'object not found' } };
+  }
   if (error) return storageFail(error);
   return { data: data.signedUrl, error: null };
 }

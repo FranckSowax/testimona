@@ -53,6 +53,10 @@ const CODES: Record<string, ReceiptsError> = {
   // WHY: limite de 200 reçus par dossier (trigger de receipt).
   TL007: 'too_many_receipts',
   no_rows: 'not_found',
+  // WHY: reçu préparé dont la photo n'a jamais été envoyée (stockage).
+  object_missing: 'not_found',
+  // WHY: objet au-delà de 5 Mo, refusé par le dépôt avant lecture des octets.
+  receipt_too_large: 'receipt_size',
 };
 
 /**
@@ -143,6 +147,7 @@ export async function readReceiptPrefill(
     repo.downloadReceipt(receipt.data.storagePath),
     listLines(dossierId),
   ]);
+  if (file.error?.code === 'receipt_too_large') return { ok: false, error: 'receipt_size' };
   if (file.error || lines.error) {
     console.error('[budget/receipts] read inputs unavailable', {
       file: file.error?.code ?? null,

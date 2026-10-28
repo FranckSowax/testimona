@@ -93,6 +93,17 @@ describe('readReceiptPrefill', () => {
     expect(repo.downloadReceipt).not.toHaveBeenCalled();
   });
 
+  it('traduit une erreur de lecture du reçu', async () => {
+    repo.getReceipt.mockResolvedValueOnce({ data: null, error: { code: '42501', message: 'x' } });
+    expect(await readReceiptPrefill(input)).toEqual({ ok: false, error: 'forbidden' });
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    repo.getReceipt.mockResolvedValueOnce({ data: null, error: { code: 'XX000', message: 'x' } });
+    expect(await readReceiptPrefill(input)).toEqual({ ok: false, error: 'unknown' });
+    expect(spy).toHaveBeenCalledWith('[budget/receipts] getReceipt failed', { code: 'XX000' });
+    spy.mockRestore();
+    expect(repo.downloadReceipt).not.toHaveBeenCalled();
+  });
+
   it('refuse un reçu absent, d’un autre dossier ou déjà joint', async () => {
     repo.getReceipt.mockResolvedValueOnce({ data: null, error: null });
     expect(await readReceiptPrefill(input)).toEqual({ ok: false, error: 'not_found' });
@@ -123,6 +134,16 @@ describe('readReceiptPrefill', () => {
       error: null,
     });
     expect(await readReceiptPrefill(input)).toEqual({ ok: false, error: 'receipt_type' });
+    repo.downloadReceipt.mockResolvedValueOnce({
+      data: null,
+      error: { code: 'receipt_too_large', message: 'x' },
+    });
+    expect(await readReceiptPrefill(input)).toEqual({ ok: false, error: 'receipt_size' });
+    linesRepo.listLines.mockResolvedValueOnce({
+      data: null,
+      error: { code: 'XX000', message: 'x' },
+    });
+    expect(await readReceiptPrefill(input)).toEqual({ ok: false, error: 'failed' });
     expect(ai.readReceipt).not.toHaveBeenCalled();
     spy.mockRestore();
   });

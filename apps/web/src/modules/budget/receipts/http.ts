@@ -16,7 +16,12 @@ export async function receiptRedirect(receiptId: string): Promise<Response> {
   if (!(await getCurrentUser())) return new Response(null, { status: 401, headers: NO_STORE });
   const res = await openReceipt({ receiptId });
   if (!res.ok) {
-    const status = res.error === 'not_found' || res.error === 'forbidden' ? 404 : 502;
+    const status =
+      res.error === 'unauthenticated'
+        ? 401
+        : res.error === 'not_found' || res.error === 'forbidden'
+          ? 404
+          : 502;
     return new Response(null, { status, headers: NO_STORE });
   }
   return new Response(null, {

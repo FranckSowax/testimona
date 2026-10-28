@@ -43,4 +43,9 @@ describe('receiptRedirect', () => {
     service.openReceipt.mockResolvedValueOnce({ ok: false, error: 'unknown' });
     expect((await receiptRedirect(RECEIPT)).status).toBe(502);
   });
+
+  it('répond 401 quand la session expire pendant la lecture', async () => {
+    service.openReceipt.mockResolvedValueOnce({ ok: false, error: 'unauthenticated' });
+    expect((await receiptRedirect(RECEIPT)).status).toBe(401);
+  });
 });

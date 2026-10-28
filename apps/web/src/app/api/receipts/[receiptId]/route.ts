@@ -1,5 +1,6 @@
 import { receiptRedirect } from '@/modules/budget/receipts/http';
 
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 /** « Voir le reçu » : session exigée, lien signé de 5 minutes. */

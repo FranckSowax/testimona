@@ -43,6 +43,7 @@ const {
   listReceiptsByEntry,
   signedReadUrl,
 } = await import('./repo');
+const { RECEIPT_MAX_BYTES } = await import('./schema');
 
 const DOSSIER = '44444444-4444-4444-8444-444444444444';
 const RECEIPT = '77777777-7777-4777-8777-777777777777';
@@ -88,6 +89,8 @@ describe('dépôt des reçus', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     results.push({ data: null, error: { code: '42501', message: 'denied' } });
     expect((await getReceipt(RECEIPT)).error?.code).toBe('42501');
+    // WHY: le service journalise déjà le code (fromRepo) ; pas de doublon ici.
+    expect(spy).not.toHaveBeenCalled();
     spy.mockRestore();
   });
 
@@ -148,9 +151,26 @@ describe('dépôt des reçus', () => {
     expect((await downloadReceipt(PATH)).data).toEqual(new Uint8Array([1, 2, 3]));
   });
 
+  it('refuse une photo trop lourde sans lire ses octets', async () => {
+    const arrayBuffer = vi.fn();
+    results.push({ data: { size: RECEIPT_MAX_BYTES + 1, arrayBuffer }, error: null });
+    expect((await downloadReceipt(PATH)).error?.code).toBe('receipt_too_large');
+    expect(arrayBuffer).not.toHaveBeenCalled();
+  });
+
   it('crée un lien de lecture de 5 minutes', async () => {
     results.push({ data: { signedUrl: 'https://signed' }, error: null });
     expect(await signedReadUrl(PATH)).toEqual({ data: 'https://signed', error: null });
     expect(argsOf('createSignedUrl')).toEqual([[PATH, 300]]);
+  });
+
+  it('distingue une photo jamais envoyée d’un stockage en échec', async () => {
+    results.push({
+      data: null,
+      error: { message: 'Object not found', status: 400, statusCode: '404' },
+    });
+    expect((await signedReadUrl(PATH)).error?.code).toBe('object_missing');
+    results.push({ data: null, error: { message: 'boom', status: 500, statusCode: '500' } });
+    expect((await signedReadUrl(PATH)).error?.code).toBe('storage');
   });
 });

@@ -116,4 +116,25 @@ describe('openReceipt', () => {
     expect(await openReceipt({ receiptId: RECEIPT })).toEqual({ ok: false, error: 'not_found' });
     expect(repo.signedReadUrl).not.toHaveBeenCalled();
   });
+
+  it('traduit les erreurs du reçu et du lien signé', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    repo.getReceipt.mockResolvedValueOnce({ data: null, error: { code: '42501', message: 'x' } });
+    expect(await openReceipt({ receiptId: RECEIPT })).toEqual({ ok: false, error: 'forbidden' });
+    repo.getReceipt.mockResolvedValueOnce({ data: null, error: { code: 'XX000', message: 'x' } });
+    expect(await openReceipt({ receiptId: RECEIPT })).toEqual({ ok: false, error: 'unknown' });
+    // WHY: un reçu préparé dont la photo n'a jamais été envoyée est absent, pas une panne.
+    repo.signedReadUrl.mockResolvedValueOnce({
+      data: null,
+      error: { code: 'object_missing', message: 'x' },
+    });
+    expect(await openReceipt({ receiptId: RECEIPT })).toEqual({ ok: false, error: 'not_found' });
+    repo.signedReadUrl.mockResolvedValueOnce({
+      data: null,
+      error: { code: 'storage', message: 'x' },
+    });
+    expect(await openReceipt({ receiptId: RECEIPT })).toEqual({ ok: false, error: 'unknown' });
+    expect(spy).toHaveBeenCalledWith('[budget/receipts] signedReadUrl failed', { code: 'storage' });
+    spy.mockRestore();
+  });
 });
