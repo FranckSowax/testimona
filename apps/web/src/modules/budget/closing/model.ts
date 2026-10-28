@@ -67,7 +67,8 @@ export function receivedContributions(views: readonly EntryView[]): EntryView[] 
 
 /**
  * La personne voit-elle les montants de tous les cotisants ?
- * WHY: même règle que la RLS du registre ; sert seulement au titre de la liste.
+ * WHY: même règle que la RLS du registre (politique `ledger_entry_select`, migration
+ * `20261027000600_ledger.sql`) ; sert seulement au titre de la liste.
  */
 export function seesAllAmounts(role: DossierRole | null, visibility: Visibility): boolean {
   if (role === null) return false;
@@ -79,10 +80,15 @@ export function seesAllAmounts(role: DossierRole | null, visibility: Visibility)
  *
  * @example
  * formatClosedOn('2026-10-28T09:00:00Z', 'fr'); // « 28 octobre 2026 »
+ * formatClosedOn('pas une date', 'fr'); // « »
  */
 export function formatClosedOn(iso: string, locale: string): string {
+  const date = new Date(iso);
+  // WHY: `Intl.DateTimeFormat#format` lève sur une date invalide ; un texte vide vaut mieux
+  // qu'un écran de bilan en erreur.
+  if (Number.isNaN(date.getTime())) return '';
   return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'fr-FR', {
     dateStyle: 'long',
     timeZone: LEDGER_TIME_ZONE,
-  }).format(new Date(iso));
+  }).format(date);
 }

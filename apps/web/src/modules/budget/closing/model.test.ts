@@ -94,6 +94,33 @@ describe('summaryText', () => {
   });
 });
 
+describe('summaryText (cas limites)', () => {
+  it('écrit un solde négatif tel quel', () => {
+    const text = summaryText(
+      {
+        name: null,
+        budget: null,
+        totals: { received: 10, pledgedOpen: 0, spent: 40 },
+        closedOn: null,
+      },
+      translate(en, 'en'),
+      money,
+    );
+    expect(text).toContain('Available: -30 F');
+  });
+
+  it('dit la clôture sans budget', () => {
+    const text = summaryText(
+      { name: 'Jean Ndong', budget: null, totals, closedOn: '28 octobre 2026' },
+      translate(fr, 'fr'),
+      money,
+    );
+    expect(text).not.toContain('Budget');
+    expect(text).not.toContain('Reste à réunir');
+    expect(text).toContain('Cotisations clôturées le 28 octobre 2026.');
+  });
+});
+
 describe('receivedContributions', () => {
   it('garde les cotisations reçues actives, sans promesses, dépenses ni annulations', () => {
     const views = entryViews([
@@ -102,6 +129,16 @@ describe('receivedContributions', () => {
       entry({ id: 'v1', kind: 'reversal', reversesId: 'r2', reversesKind: 'receipt' }),
       entry({ id: 'p1', kind: 'pledge', method: null }),
       entry({ id: 'x1', kind: 'expense' }),
+    ]);
+    expect(receivedContributions(views).map((v) => v.id)).toEqual(['r1']);
+  });
+});
+
+describe('receivedContributions (cas limites)', () => {
+  it('garde un versement lié à une promesse', () => {
+    const views = entryViews([
+      entry({ id: 'p1', kind: 'pledge', method: null, amount: 20_000 }),
+      entry({ id: 'r1', pledgeId: 'p1', amount: 5_000 }),
     ]);
     expect(receivedContributions(views).map((v) => v.id)).toEqual(['r1']);
   });
@@ -124,5 +161,10 @@ describe('formatClosedOn', () => {
     expect(formatClosedOn('2026-10-27T23:30:00Z', 'fr')).toMatch(/^28\s.+\s2026$/);
     expect(formatClosedOn('2026-10-27T23:30:00Z', 'en')).toMatch(/^28\s.+\s2026$/);
     expect(formatClosedOn('2026-10-27T22:30:00Z', 'fr')).toMatch(/^27\s.+\s2026$/);
+  });
+
+  it('renvoie une chaîne vide pour une date invalide', () => {
+    expect(formatClosedOn('pas une date', 'fr')).toBe('');
+    expect(formatClosedOn('', 'en')).toBe('');
   });
 });
