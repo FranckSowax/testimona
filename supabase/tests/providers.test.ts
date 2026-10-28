@@ -123,8 +123,8 @@ describe('provider', () => {
   it('fige id et created_at à la modification et met updated_at à jour', async () => {
     const id = await f.insertProvider({ name: 'Sono Glass' });
     const read = () =>
-      f.db.query<{ id: string; created_at: Date; updated_at: Date }>(
-        'select id, created_at, updated_at from provider where name = $1',
+      f.db.query<{ id: string; created_at: string; updated_at: string }>(
+        'select id, created_at::text, updated_at::text from provider where name = $1',
         ['Sono Glass'],
       );
     const before = (await read()).rows[0]!;
@@ -138,8 +138,13 @@ describe('provider', () => {
     );
     const after = (await read()).rows[0]!;
     expect(after.id).toBe(id);
-    expect(after.created_at).toEqual(before.created_at);
-    expect(after.updated_at.getTime()).toBeGreaterThan(before.updated_at.getTime());
+    expect(after.created_at).toBe(before.created_at);
+    // WHY: comparaison en SQL, à la microseconde ; une Date JS n'a que la milliseconde.
+    const { rows } = await f.db.query<{ moved: boolean }>(
+      'select $1::timestamptz > $2::timestamptz as moved',
+      [after.updated_at, before.updated_at],
+    );
+    expect(rows[0]!.moved).toBe(true);
   });
 
   it('impose les dates du serveur à l’insertion', async () => {

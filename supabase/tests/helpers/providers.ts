@@ -1,6 +1,8 @@
 import type { PGlite } from '@electric-sql/pglite';
 import { asAdmin, asUser, createTestDb, createUser } from './db';
 
+export const DENIED = { code: '42501' };
+
 /**
  * Banc commun des tests de prestataires : une base migrée, un administrateur, un dossier avec un
  * membre de chaque rôle utile, un non-membre et un raccourci pour créer un prestataire.
@@ -12,9 +14,6 @@ import { asAdmin, asUser, createTestDb, createUser } from './db';
  *   const f = await createProviderFixture();
  *   const id = await f.insertProvider({ whatsapp: '+24177123456', verified_at: new Date() });
  */
-
-export const DENIED = { code: '42501' };
-
 export async function createProviderFixture() {
   const db: PGlite = await createTestDb();
   const admin = await createUser(db, 'admin@test.local');
