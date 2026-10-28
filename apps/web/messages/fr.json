@@ -1679,6 +1679,7 @@
       "receivedTitleAll": "Cotisations reçues",
       "receivedTitleOwn": "Vos cotisations reçues",
       "receivedEmpty": "Aucune cotisation reçue à afficher.",
+      "receivedTruncated": "Liste limitée aux {limit} derniers mouvements ; les totaux restent complets.",
       "exportTitle": "Garder une copie du registre",
       "exportHint": "Toutes les lignes du registre, annulations comprises, dans un fichier CSV à ouvrir avec un tableur.",
       "export": "Télécharger le registre (CSV)"

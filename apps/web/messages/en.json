@@ -1679,6 +1679,7 @@
       "receivedTitleAll": "Contributions received",
       "receivedTitleOwn": "Your contributions received",
       "receivedEmpty": "No contributions received to show.",
+      "receivedTruncated": "List limited to the last {limit} entries; the totals remain complete.",
       "exportTitle": "Keep a copy of the ledger",
       "exportHint": "Every ledger line, reversals included, in a CSV file to open with a spreadsheet.",
       "export": "Download the ledger (CSV)"

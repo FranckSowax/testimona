@@ -41,6 +41,7 @@ async function run(
   const dossierId = field(formData, 'dossierId');
   for (const path of [
     `/dossier/${dossierId}/cotisations/postes`,
+    `/dossier/${dossierId}/cotisations/bilan`,
     `/dossier/${dossierId}/cotisations`,
     `/dossier/${dossierId}`,
   ]) {

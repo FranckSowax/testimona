@@ -74,16 +74,17 @@ describe('actions des postes', () => {
     expect(cache.revalidatePath).not.toHaveBeenCalled();
   });
 
-  it('revalident les trois pages localisées après succès', async () => {
+  it('revalident les quatre pages localisées après succès', async () => {
     expect(await saveLineAction(null, lineForm())).toEqual({ ok: true });
     for (const path of [
       `/dossier/${DOSSIER}/cotisations/postes`,
+      `/dossier/${DOSSIER}/cotisations/bilan`,
       `/dossier/${DOSSIER}/cotisations`,
       `/dossier/${DOSSIER}`,
     ]) {
       expect(cache.revalidatePath).toHaveBeenCalledWith(localizedPath(path, 'en'));
     }
-    expect(cache.revalidatePath).toHaveBeenCalledTimes(3);
+    expect(cache.revalidatePath).toHaveBeenCalledTimes(4);
   });
 
   it('rendent l’erreur du service sans revalider', async () => {

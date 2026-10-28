@@ -19,7 +19,12 @@ import { SpentTable } from '@/modules/budget/closing/ui/SpentTable';
 import { formatXaf } from '@/modules/budget/format';
 import { canManageLedger } from '@/modules/budget/ledger/contributions-view';
 import { entryViews } from '@/modules/budget/ledger/model';
-import { getTotals, getVisibility, listEntries } from '@/modules/budget/ledger/repo';
+import {
+  getTotals,
+  getVisibility,
+  LEDGER_LIST_LIMIT,
+  listEntries,
+} from '@/modules/budget/ledger/repo';
 import { LedgerSummary } from '@/modules/budget/ledger/ui/LedgerSummary';
 import { lineViews, referenceBudget, UNASSIGNED_KEY } from '@/modules/budget/lines/model';
 import { getScenario, listLines, spentByLine } from '@/modules/budget/lines/repo';
@@ -138,6 +143,13 @@ export default async function ContributionsSummaryPage({
           {seesAllAmounts(role, visibility.data) ? t('receivedTitleAll') : t('receivedTitleOwn')}
         </h2>
         <ReceivedList locale={locale} views={receivedContributions(entryViews(entries.data))} />
+        {/* WHY: `listEntries` s'arrête à LEDGER_LIST_LIMIT lignes ; les totaux, eux, viennent
+            de `ledger_totals` et couvrent tout le registre. */}
+        {entries.data.length >= LEDGER_LIST_LIMIT && (
+          <p className="text-foreground text-sm">
+            {t('receivedTruncated', { limit: LEDGER_LIST_LIMIT })}
+          </p>
+        )}
       </section>
 
       <ShareSummary text={text} />

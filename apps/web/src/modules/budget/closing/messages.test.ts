@@ -37,6 +37,7 @@ const PATHS = [
     'receivedTitleAll',
     'receivedTitleOwn',
     'receivedEmpty',
+    'receivedTruncated',
     'exportTitle',
     'exportHint',
     'export',
@@ -139,6 +140,7 @@ describe('parité FR/EN de la clôture', () => {
     ['closing.share.closed', ['date']],
     ['closing.notice.closed', ['date']],
     ['closing.card.closed', ['date']],
+    ['closing.page.receivedTruncated', ['limit']],
   ])('%s expose ses variables', (path, vars) => {
     expect(placeholders(get(fr, path))).toEqual(vars);
   });

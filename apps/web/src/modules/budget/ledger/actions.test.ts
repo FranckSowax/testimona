@@ -59,7 +59,7 @@ describe('saveEntryAction', () => {
     expect(await saveEntryAction(null, entry('expense'))).toEqual({
       error: 'receipt_unavailable',
     });
-    expect(cache.revalidatePath).toHaveBeenCalledTimes(3);
+    expect(cache.revalidatePath).toHaveBeenCalledTimes(4);
   });
 
   it('refuse une annulation ou un type inconnu sans appeler le service', async () => {
@@ -107,6 +107,9 @@ describe('saveEntryAction', () => {
     );
     expect(cache.revalidatePath).toHaveBeenCalledWith(
       localizedPath(`/dossier/${DOSSIER}/cotisations/postes`, 'en'),
+    );
+    expect(cache.revalidatePath).toHaveBeenCalledWith(
+      localizedPath(`/dossier/${DOSSIER}/cotisations/bilan`, 'en'),
     );
     expect(cache.revalidatePath).toHaveBeenCalledWith(localizedPath(`/dossier/${DOSSIER}`, 'en'));
   });

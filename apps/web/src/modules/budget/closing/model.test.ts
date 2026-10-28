@@ -163,8 +163,19 @@ describe('formatClosedOn', () => {
     expect(formatClosedOn('2026-10-27T22:30:00Z', 'fr')).toMatch(/^27\s.+\s2026$/);
   });
 
-  it('renvoie une chaîne vide pour une date invalide', () => {
-    expect(formatClosedOn('pas une date', 'fr')).toBe('');
-    expect(formatClosedOn('', 'en')).toBe('');
+  it('se replie sur les dix premiers caractères pour une date invalide', () => {
+    expect(formatClosedOn('pas une date', 'fr')).toBe('pas une da');
+    expect(formatClosedOn('2026-13-45 nope', 'en')).toBe('2026-13-45');
+  });
+
+  it('garde le texte partagé « clôturé » comme l’écran malgré une date invalide', () => {
+    const closedOn = formatClosedOn('pas une date', 'fr');
+    const text = summaryText(
+      { name: null, budget: null, totals, closedOn },
+      translate(fr, 'fr'),
+      money,
+    );
+    expect(text).toContain('pas une da');
+    expect(text).not.toContain(translate(fr, 'fr')('provisional'));
   });
 });

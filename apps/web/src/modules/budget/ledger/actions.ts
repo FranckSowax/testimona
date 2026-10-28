@@ -39,6 +39,7 @@ async function done(
   const locale = await getLocale();
   revalidatePath(localizedPath(`/dossier/${dossierId}/cotisations`, locale));
   revalidatePath(localizedPath(`/dossier/${dossierId}/cotisations/postes`, locale));
+  revalidatePath(localizedPath(`/dossier/${dossierId}/cotisations/bilan`, locale));
   revalidatePath(localizedPath(`/dossier/${dossierId}`, locale));
   return res.ok ? { ok: true } : { error: res.error };
 }

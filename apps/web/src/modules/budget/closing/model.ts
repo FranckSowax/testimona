@@ -80,13 +80,14 @@ export function seesAllAmounts(role: DossierRole | null, visibility: Visibility)
  *
  * @example
  * formatClosedOn('2026-10-28T09:00:00Z', 'fr'); // « 28 octobre 2026 »
- * formatClosedOn('pas une date', 'fr'); // « »
+ * formatClosedOn('pas une date', 'fr'); // « pas une da »
  */
 export function formatClosedOn(iso: string, locale: string): string {
   const date = new Date(iso);
-  // WHY: `Intl.DateTimeFormat#format` lève sur une date invalide ; un texte vide vaut mieux
-  // qu'un écran de bilan en erreur.
-  if (Number.isNaN(date.getTime())) return '';
+  // WHY: `Intl.DateTimeFormat#format` lève sur une date invalide. On renvoie le début brut de
+  // la valeur plutôt qu'un texte vide : `summaryText` et la carte du tableau de bord testent
+  // `closedOn`, et un texte vide les ferait dire « provisoire » alors que l'écran dit « clôturé ».
+  if (Number.isNaN(date.getTime())) return iso.slice(0, 10);
   return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'fr-FR', {
     dateStyle: 'long',
     timeZone: LEDGER_TIME_ZONE,
