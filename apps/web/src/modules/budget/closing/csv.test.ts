@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CSV_COLUMNS, ledgerCsv, type CsvLabels } from './csv';
+import { CSV_COLUMNS, ledgerCsv, type CsvColumn, type CsvLabels } from './csv';
 import type { ExportRow } from './schema';
 
 const labels: CsvLabels = {
@@ -36,6 +36,27 @@ const row = (over: Partial<ExportRow>): ExportRow => ({
 });
 
 const lines = (csv: string) => csv.replace(/^﻿/, '').split('\r\n');
+
+// WHY: le `Record` fait échouer le typecheck si un champ est ajouté à `ExportRow` sans colonne.
+const COLUMN_OF: Record<keyof ExportRow, CsvColumn> = {
+  occurredOn: 'date',
+  kind: 'kind',
+  amount: 'amount',
+  method: 'method',
+  partyName: 'party',
+  budgetLineId: 'line',
+  note: 'note',
+  reversesId: 'reverses',
+  pledgeId: 'pledge',
+  id: 'id',
+  createdAt: 'createdAt',
+};
+
+describe('colonnes de l’export', () => {
+  it('chaque champ de ExportRow a sa colonne, et chaque colonne son champ', () => {
+    expect(Object.values(COLUMN_OF).sort()).toEqual([...CSV_COLUMNS].sort());
+  });
+});
 
 describe('ledgerCsv', () => {
   it('commence par le BOM et l’en-tête, sépare par « ; » et termine par CRLF', () => {

@@ -49,7 +49,7 @@ describe('summaryText', () => {
     );
     expect(text).toBe(
       [
-        'Cotisations pour Jean Ndong',
+        'Bilan des cotisations pour Jean Ndong',
         '',
         'Budget retenu : 3100000 F',
         'Reçu : 250000 F',
