@@ -169,7 +169,8 @@ export async function readReceiptPrefill(
 
 /**
  * Lien de lecture signé (5 minutes) de la photo d'un reçu visible de l'utilisateur.
- * WHY: un identifiant invalide et un reçu invisible donnent tous deux `not_found`.
+ * WHY: un identifiant invalide, un reçu invisible et un dossier dont l'étape budget est fermée
+ * donnent tous `not_found`.
  */
 export async function openReceipt(raw: unknown): Promise<ReceiptsResult<string>> {
   const input = ReceiptIdSchema.safeParse(raw);
@@ -177,6 +178,9 @@ export async function openReceipt(raw: unknown): Promise<ReceiptsResult<string>>
   const receipt = await repo.getReceipt(input.data.receiptId);
   if (receipt.error) return fromRepo(receipt.error, 'openReceipt');
   if (!receipt.data) return { ok: false, error: 'not_found' };
+  // WHY: comme le registre, le reçu n'est servi que si l'étape budget du dossier est ouverte.
+  const blocked = await budgetGate(receipt.data.dossierId);
+  if (blocked) return { ok: false, error: blocked };
   const url = await repo.signedReadUrl(receipt.data.storagePath);
   if (url.error) return fromRepo(url.error, 'signedReadUrl');
   return { ok: true, data: url.data };

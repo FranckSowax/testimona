@@ -153,6 +153,20 @@ describe('parité FR/EN du registre', () => {
     expect(placeholders(get(en, path))).toEqual(vars);
   });
 
+  it.each([
+    [fr, '(nouvel onglet)'],
+    [en, '(new tab)'],
+  ])(
+    'le libellé du lien du reçu reprend le texte visible et annonce le nouvel onglet',
+    (m, tab) => {
+      // WHY: le nom accessible commence par le texte visible (WCAG 2.5.3) et dit que le lien
+      // s'ouvre dans un nouvel onglet.
+      const label = get(m, 'ledger.entry.receiptLabel') as string;
+      expect(label.startsWith(get(m, 'ledger.entry.receipt') as string)).toBe(true);
+      expect(label.endsWith(tab)).toBe(true);
+    },
+  );
+
   it("chaque message de validation du schéma a un texte d'erreur", () => {
     for (const key of Object.values(SCHEMA_MESSAGES)) {
       expect(isFilled(get(fr, `ledger.errors.${key}`))).toBe(true);

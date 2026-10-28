@@ -1520,7 +1520,7 @@
       "reverseWarning": "This reversal cannot be undone.",
       "reversing": "Reversing…",
       "receipt": "View the receipt",
-      "receiptLabel": "View the receipt: {entry}"
+      "receiptLabel": "View the receipt: {entry} (new tab)"
     },
     "form": {
       "pledgeTitle": "I make a pledge",
@@ -1555,7 +1555,7 @@
       "pledge_unavailable": "This pledge is no longer open: it was reversed or is already fully paid.",
       "receipt_unlinked": "The expense is saved, but the receipt could not be attached.",
       "receipt_unavailable": "This receipt can no longer be attached: the expense is saved without it.",
-      "changed_since_saved": "This entry has changed since it was first saved. Reload the page to start again from an empty form.",
+      "changed_since_saved": "This entry has changed since it was first saved: start again from an empty form.",
       "invalidNumber": "Enter a whole amount, in digits.",
       "outOfRange": "Enter an amount between 1 and 100,000,000 FCFA.",
       "invalidDate": "Enter a valid date, today or earlier.",

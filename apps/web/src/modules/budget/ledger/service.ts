@@ -134,10 +134,10 @@ export async function recordReceipt(raw: unknown) {
   );
 }
 
-// WHY: reçu invisible, déjà rattaché ailleurs ou dépense ayant déjà un reçu : renvoyer le
-// formulaire n'y changera rien. Les autres échecs (TL006 : photo pas encore au stockage) peuvent
-// réussir au renvoi.
-const ATTACH_FINAL = new Set(['no_rows', '23505']);
+// WHY: reçu invisible, déjà rattaché ailleurs ou ligne invalide (TL008), dépense ayant déjà un
+// reçu (23505) : renvoyer le formulaire n'y changera rien. Les autres échecs (TL006 : photo pas
+// encore au stockage) peuvent réussir au renvoi.
+const ATTACH_FINAL = new Set(['no_rows', '23505', 'TL008']);
 
 /**
  * Dépense (trésorier et plus) ; `partyName` est le fournisseur. Un reçu préparé est rattaché

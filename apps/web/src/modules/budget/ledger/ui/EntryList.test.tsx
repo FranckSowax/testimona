@@ -150,7 +150,7 @@ describe('EntryList', () => {
     expect(links[0]!.getAttribute('target')).toBe('_blank');
     expect(links[0]!.getAttribute('rel')).toBe('noopener noreferrer');
     expect(plain(links[0]!.getAttribute('aria-label'))).toBe(
-      'Voir le reçu : Mba, Dépense, 20 000 FCFA, 20 oct. 2026',
+      'Voir le reçu : Mba, Dépense, 20 000 FCFA, 20 oct. 2026 (nouvel onglet)',
     );
   });
 });

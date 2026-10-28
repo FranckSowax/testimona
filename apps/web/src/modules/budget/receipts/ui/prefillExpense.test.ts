@@ -40,6 +40,16 @@ describe('prefillExpense', () => {
     expect(value(el, 'budgetLineId')).toBe('');
   });
 
+  it('remplace la date du jour proposée par défaut, mais pas une date modifiée', () => {
+    const el = form({ occurredOn: '2026-10-28' });
+    prefillExpense(el, prefill);
+    expect(value(el, 'occurredOn')).toBe('2026-10-20');
+    const edited = form({ occurredOn: '2026-10-28' });
+    (edited.elements.namedItem('occurredOn') as HTMLInputElement).value = '2026-10-25';
+    prefillExpense(edited, prefill);
+    expect(value(edited, 'occurredOn')).toBe('2026-10-25');
+  });
+
   it('laisse vide un champ non lu et tolère un formulaire absent', () => {
     const el = form();
     prefillExpense(el, { amount: null, occurredOn: null, partyName: null, budgetLineId: null });

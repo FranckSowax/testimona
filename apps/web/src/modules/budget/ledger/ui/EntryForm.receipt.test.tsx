@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import messages from '../../../../../messages/fr.json';
 import { formatXaf } from '../../format';
+import { ledgerToday } from '../schema';
 import { EntryForm } from './EntryForm';
 
 const saveEntryAction = vi.fn();
@@ -131,7 +132,7 @@ describe('EntryForm et le reçu', () => {
     expect(isDisabled(field(form.amount))).toBe(true);
     expect(isDisabled(button('attach'))).toBe(true);
     expect(button(form.submit)).toBeNull();
-    expect(document.activeElement).toBe(retry);
+    await waitFor(() => expect(document.activeElement).toBe(retry));
     const frozenId = screen.getByText(unlinked.frozen).getAttribute('id');
     expect(frozenId).toBeTruthy();
     expect(retry.getAttribute('aria-describedby')).toBe(frozenId);
@@ -151,6 +152,29 @@ describe('EntryForm et le reçu', () => {
     expect(hidden(container, 'idempotencyKey')).not.toBe(key);
   });
 
+  it('fige la date du jour : un nouvel essai après minuit renvoie la date de la saisie', async () => {
+    // WHY: Africa/Libreville est en UTC+1 ; 22 h 59 UTC est 23 h 59 à Libreville.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date('2026-10-28T22:59:00Z'));
+      saveEntryAction.mockResolvedValueOnce({ error: 'receipt_unlinked' });
+      const { container } = renderForm();
+      expect(field(form.date).value).toBe('2026-10-28');
+      await submitExpense(container);
+      expect((saveEntryAction.mock.calls[0]![1] as FormData).get('occurredOn')).toBe('2026-10-28');
+      vi.setSystemTime(new Date('2026-10-28T23:01:00Z'));
+      saveEntryAction.mockResolvedValueOnce({ ok: true });
+      fireEvent.click(await screen.findByRole('button', { name: unlinked.retry }));
+      await waitFor(() => expect(saveEntryAction).toHaveBeenCalledTimes(2));
+      expect((saveEntryAction.mock.calls[1]![1] as FormData).get('occurredOn')).toBe('2026-10-28');
+      // La remise à zéro propose la date du nouveau jour.
+      await waitFor(() => expect(field(form.date).value).toBe('2026-10-29'));
+      expect(field(form.date).getAttribute('max')).toBe('2026-10-29');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('continue sans le reçu : formulaire vide, nouvelle clé, message retiré', async () => {
     saveEntryAction.mockResolvedValueOnce({ error: 'receipt_unlinked' });
     const { container } = renderForm();
@@ -159,11 +183,12 @@ describe('EntryForm et le reçu', () => {
     await waitFor(() => expect(isDisabled(field(form.amount))).toBe(false));
     expect(field(form.amount).value).toBe('');
     expect(field(form.supplier).value).toBe('');
+    expect(field(form.date).value).toBe(ledgerToday());
     expect(hidden(container, 'receiptId')).toBe('');
     expect(hidden(container, 'idempotencyKey')).not.toBe(key);
     expect(screen.queryByRole('alert')).toBeNull();
     expect(button(unlinked.retry)).toBeNull();
-    expect(document.activeElement).toBe(field(form.supplier));
+    await waitFor(() => expect(document.activeElement).toBe(field(form.supplier)));
     expect(button(form.submit)).toBeTruthy();
   });
 
@@ -182,7 +207,7 @@ describe('EntryForm et le reçu', () => {
       expect(button(unlinked.retry)).toBeNull();
       expect(button(form.submit)).toBeNull();
       expect(isDisabled(field(form.amount))).toBe(true);
-      expect(document.activeElement).toBe(next);
+      await waitFor(() => expect(document.activeElement).toBe(next));
       fireEvent.click(next);
       await waitFor(() => expect(field(form.amount).value).toBe(''));
       expect(hidden(container, 'idempotencyKey')).not.toBe(key);

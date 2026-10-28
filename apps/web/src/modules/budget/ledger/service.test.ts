@@ -238,7 +238,7 @@ describe('recordExpense et le reçu', () => {
 
   it('signale un reçu qui ne pourra plus être joint', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    for (const code of ['no_rows', '23505']) {
+    for (const code of ['no_rows', '23505', 'TL008']) {
       receiptsRepo.attachReceipt.mockResolvedValueOnce({
         data: null,
         error: { code, message: 'x' },

@@ -148,8 +148,8 @@ describe('receipt : rattachement', () => {
     expect((await f.attach(f.treasurer, receipt.id, expense)).rows).toHaveLength(1);
     await expect(
       f.attach(f.treasurer, receipt.id, await f.addEntry(f.treasurer)),
-    ).rejects.toMatchObject({ code: 'TL006' });
-    await expect(f.attach(f.treasurer, receipt.id, null)).rejects.toMatchObject({ code: 'TL006' });
+    ).rejects.toMatchObject({ code: 'TL008' });
+    await expect(f.attach(f.treasurer, receipt.id, null)).rejects.toMatchObject({ code: 'TL008' });
   });
 
   it('refuse le rattachement d’un reçu dont la photo n’a pas été envoyée', async () => {
@@ -174,10 +174,10 @@ describe('receipt : rattachement', () => {
     const receipt = await f.prepareWithPhoto(f.treasurer);
     await expect(
       f.attach(f.treasurer, receipt.id, await f.addEntry(f.treasurer, 'receipt')),
-    ).rejects.toMatchObject({ code: 'TL006' });
+    ).rejects.toMatchObject({ code: 'TL008' });
     await expect(
       f.attach(f.treasurer, receipt.id, await f.addEntry(f.stranger, 'expense', f.otherDossierId)),
-    ).rejects.toMatchObject({ code: 'TL006' });
+    ).rejects.toMatchObject({ code: 'TL008' });
   });
 
   it('garde un seul reçu par dépense', async () => {

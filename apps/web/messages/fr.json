@@ -1520,7 +1520,7 @@
       "reverseWarning": "Cette annulation est définitive.",
       "reversing": "Annulation…",
       "receipt": "Voir le reçu",
-      "receiptLabel": "Voir le reçu : {entry}"
+      "receiptLabel": "Voir le reçu : {entry} (nouvel onglet)"
     },
     "form": {
       "pledgeTitle": "Je fais une promesse de cotisation",
@@ -1555,7 +1555,7 @@
       "pledge_unavailable": "Cette promesse n'est plus ouverte : elle a été annulée ou elle est déjà entièrement versée.",
       "receipt_unlinked": "La dépense est enregistrée, mais le reçu n'a pas pu être joint.",
       "receipt_unavailable": "Ce reçu ne peut plus être joint : la dépense est enregistrée sans lui.",
-      "changed_since_saved": "Cette saisie a changé depuis un premier enregistrement. Rechargez la page pour repartir d'un formulaire vide.",
+      "changed_since_saved": "Cette saisie a changé depuis un premier enregistrement : repartez d'un formulaire vide.",
       "invalidNumber": "Entrez un montant entier, en chiffres.",
       "outOfRange": "Entrez un montant entre 1 et 100 000 000 FCFA.",
       "invalidDate": "Entrez une date valide, au plus tard aujourd'hui.",

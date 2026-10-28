@@ -81,6 +81,8 @@ export function EntryForm({
 
   const clearForm = useCallback(() => {
     formRef.current?.reset();
+    // WHY: après la remise à zéro, la date par défaut redevient celle du jour (minuit passé).
+    setToday(ledgerToday());
     prefilledName.current = '';
     setPledgeId('');
     setReceiptId('');
@@ -258,7 +260,14 @@ export function EntryForm({
               </p>
             ),
           )}
-        {input('occurredOn', t('form.date'), { type: 'date', max: today })}
+        {/* WHY: la dépense porte la date du jour dès le montage ; un « Réessayer » après minuit
+            renvoie donc la même date au lieu d'une date vide que le serveur prendrait au jour
+            suivant (changed_since_saved). */}
+        {input('occurredOn', t('form.date'), {
+          type: 'date',
+          max: today,
+          defaultValue: kind === 'expense' ? today : undefined,
+        })}
         {input('note', t('form.note'), { maxLength: 500, autoComplete: 'off' })}
       </fieldset>
       <EntryFormActions

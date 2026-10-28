@@ -1,9 +1,6 @@
 /** Plus grand côté, en pixels, d'une photo de reçu envoyée après réduction. */
 export const SHRINK_MAX_SIDE = 1600;
 
-/** Au-delà de ce poids (3 Mio), la photo est réencodée avant l'envoi. */
-export const SHRINK_MAX_BYTES = 3 * 1024 * 1024;
-
 const JPEG_QUALITY = 0.85;
 
 /** Dimensions visées par la réduction. */
@@ -27,18 +24,18 @@ export interface ShrinkEnv {
 }
 
 /**
- * Dimensions visées, ou null quand la photo part telle quelle.
+ * Dimensions visées : 1600 px au plus pour le plus grand côté, sans jamais agrandir ; null quand
+ * les dimensions sont illisibles (la photo part alors telle quelle).
  * WHY: une photo de téléphone (4000 px, 4 à 8 Mo) dépasse souvent la limite de lecture de l'IA
- * (`RECEIPT_AI_MAX_BYTES`, 3,5 Mio) ; 1600 px suffisent pour lire un reçu. Une photo trop
- * lourde mais déjà petite est seulement réencodée en JPEG.
+ * (`RECEIPT_AI_MAX_BYTES`, 3,5 Mio) ; 1600 px suffisent pour lire un reçu. Une photo déjà petite
+ * garde ses dimensions mais est quand même réencodée (voir `shrinkImage`).
  *
  * @example
- * shrinkTarget(4_000_000, 4000, 3000); // { width: 1600, height: 1200 }
+ * shrinkTarget(4000, 3000); // { width: 1600, height: 1200 }
  */
-export function shrinkTarget(size: number, width: number, height: number): ShrinkTarget | null {
+export function shrinkTarget(width: number, height: number): ShrinkTarget | null {
   const side = Math.max(width, height);
   if (!(side > 0)) return null;
-  if (side <= SHRINK_MAX_SIDE && size <= SHRINK_MAX_BYTES) return null;
   const scale = Math.min(1, SHRINK_MAX_SIDE / side);
   return {
     width: Math.max(1, Math.round(width * scale)),
@@ -107,11 +104,14 @@ const BROWSER: ShrinkEnv = { decode: decodeInBrowser, encode: encodeInBrowser };
 const jpegName = (name: string) => `${name.replace(/\.[^./]*$/, '') || 'receipt'}.jpg`;
 
 /**
- * Réduit une photo de reçu dans le navigateur avant l'envoi : JPEG (qualité 0,85), 1600 px au
- * plus, quand elle dépasse 1600 px ou 3 Mio.
- * WHY: rester sous la limite de lecture de l'IA et alléger l'envoi sur un réseau mobile lent.
- * Tout échec (navigateur, format non décodable) renvoie l'original : le serveur le refusera
- * proprement s'il dépasse 5 Mo ou n'est pas une image permise.
+ * Réencode toujours une photo de reçu dans le navigateur avant l'envoi : JPEG (qualité 0,85),
+ * 1600 px au plus.
+ * WHY: le réencodage par canvas retire les métadonnées de la photo (EXIF, dont la position GPS
+ * où elle a été prise), même quand elle est déjà petite et légère : le reçu est visible des
+ * membres du dossier, sa position ne doit pas l'être. Il garde aussi la photo sous la limite de
+ * lecture de l'IA et allège l'envoi sur un réseau mobile lent. L'original n'est envoyé que si le
+ * réencodage échoue (navigateur, format non décodable) : le serveur le refusera proprement s'il
+ * dépasse 5 Mo ou n'est pas une image permise.
  *
  * @example
  * const toSend = await shrinkImage(file);
@@ -120,13 +120,12 @@ export async function shrinkImage(file: File, env: ShrinkEnv = BROWSER): Promise
   let image: DecodedImage | null = null;
   try {
     image = await env.decode(file);
-    const target = shrinkTarget(file.size, image.width, image.height);
+    const target = shrinkTarget(image.width, image.height);
     if (!target) return file;
     const blob = await env.encode(image, target);
-    // WHY: un encodage raté, d'un autre type ou plus lourd que l'original n'apporte rien.
-    if (!blob || blob.type !== 'image/jpeg' || blob.size === 0 || blob.size >= file.size) {
-      return file;
-    }
+    // WHY: seul un encodage raté (absent, vide ou d'un autre type) fait garder l'original ; un
+    // JPEG un peu plus lourd que l'original est préféré, car il est sans métadonnées.
+    if (!blob || blob.type !== 'image/jpeg' || blob.size === 0) return file;
     return new File([blob], jpegName(file.name), { type: 'image/jpeg' });
   } catch {
     return file;

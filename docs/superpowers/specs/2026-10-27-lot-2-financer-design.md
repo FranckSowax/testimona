@@ -182,8 +182,10 @@ Bucket `receipts` privé, 5 Mo, JPEG, PNG et WebP.
 
 - Un reçu par dépense (`entry_id` unique, `on delete no action`). `entry_id` est la seule colonne
   modifiable (droit de colonne et trigger) : une seule fois, vers une dépense du même dossier
-  (`TL006`), et seulement une fois la photo présente au stockage (version courante, non archivée ;
-  `TL006` sinon). Le même rattachement rejoué est sans effet. Aucune suppression dans ce lot.
+  (`TL008` sinon : déjà rattaché à une autre dépense, détachement, ligne qui n'est pas une dépense
+  du dossier ; refus définitif), et seulement une fois la photo présente au stockage (version
+  courante, non archivée ; `TL006` sinon, refus provisoire qui peut réussir plus tard). Le même
+  rattachement rejoué est sans effet. Aucune suppression dans ce lot.
 - `storage_path` est imposé par le trigger (`<dossier_id>/<id>.<ext>`), unique, et vérifié par une
   contrainte check ; `created_by` et `created_at` sont imposés (`auth.uid()`, `now()`).
 - Limite `TL007` : au plus 200 reçus par dossier, en comptant les rattachés et les non rattachés de
@@ -196,7 +198,7 @@ Bucket `receipts` privé, 5 Mo, JPEG, PNG et WebP.
   comme les dépenses, visibles de tous quel que soit le réglage ; un reçu non rattaché n'est lisible
   que par trésorier et plus. Lien de lecture signé de 5 minutes, créé à la demande par la route
   `/api/receipts/[receiptId]` : 303 vers le lien (`no-store`, `Referrer-Policy: no-referrer`), 401
-  sans session, 404 si le reçu est absent ou interdit.
+  sans session, 404 si le reçu est absent ou interdit, ou si l'étape budget du dossier est fermée.
 - Un dossier sans registre peut être supprimé : ses reçus non rattachés partent avec lui, les objets
   restent au stockage (nettoyage hors lot 2).
 
@@ -227,21 +229,28 @@ annulation s'affiche avec sa ligne d'origine ; aucune ligne ne disparaît.
 
 ### Reçu
 
-Photo (réduite dans le navigateur : 1600 px, JPEG) → lien d'envoi signé préparé par le serveur →
+Photo (toujours réencodée dans le navigateur en JPEG, 1600 px au plus, même déjà petite : le
+réencodage par canvas retire les métadonnées EXIF, dont la position GPS ; l'original n'est envoyé
+que si le réencodage échoue) → lien d'envoi signé préparé par le serveur →
 envoi direct au stockage → `readReceipt` → formulaire de dépense prérempli (montant, date,
 fournisseur, poste proposé) → le trésorier corrige et enregistre. Sans IA (clé absente, quota
 atteint, échec, photo trop lourde pour l'IA), le formulaire reste vide avec la photo jointe.
 
-- Lecture IA réservée au trésorier et plus. Le préremplissage ne remplace jamais un champ déjà saisi.
+- Lecture IA réservée au trésorier et plus. Le préremplissage ne remplace jamais un champ déjà saisi
+  (la date du jour proposée par défaut ne compte pas comme une saisie).
 - Rattachement après l'enregistrement : la dépense est d'abord enregistrée, puis le reçu rattaché.
   - `receipt_unlinked` : la dépense reste enregistrée, le rattachement a échoué (provisoire). Les
     champs sont figés ; « Réessayer de joindre le reçu » rejoue la même clé d'idempotence (le dépôt
     renvoie la dépense existante) ; « Continuer sans le reçu » abandonne la photo.
-  - `receipt_unavailable` : échec définitif (photo absente, reçu déjà rattaché ou invalide) ; la
-    dépense reste, le reçu ne se joint plus.
+  - `receipt_unavailable` : échec définitif (reçu invisible, déjà rattaché ailleurs ou ligne
+    invalide — `TL008` —, dépense ayant déjà un reçu) ; la dépense reste, le reçu ne se joint plus.
+    Une photo pas encore au stockage (`TL006`) donne `receipt_unlinked`.
   - `changed_since_saved` : renvoi dont la saisie a changé depuis l'enregistrement ; la comparaison
-    du double envoi porte sur tous les champs de la dépense, pas seulement la clé.
-- « Voir le reçu » sur chaque dépense qui en a un (ouvre `/api/receipts/[receiptId]`).
+    du double envoi porte sur tous les champs de la dépense, pas seulement la clé. La date de la
+    dépense est préremplie avec la date du jour (Africa/Libreville) au montage du formulaire et à
+    chaque remise à zéro : un nouvel essai après minuit renvoie la même date.
+- « Voir le reçu » sur chaque dépense qui en a un (ouvre `/api/receipts/[receiptId]` dans un nouvel
+  onglet, annoncé dans le nom accessible du lien).
 
 ## 3. Code et IA
 
@@ -285,7 +294,8 @@ atteint, échec, photo trop lourde pour l'IA), le formulaire reste vide avec la 
   (`too_large_to_read`) : photo jointe, saisie manuelle possible.
 - Rattachement du reçu après l'enregistrement : `receipt_unlinked` (provisoire, réessai ou abandon),
   `receipt_unavailable` (définitif), `changed_since_saved` (saisie modifiée depuis l'enregistrement).
-- Limite de reçus (`TL007`) et rattachement refusé (`TL006`) : message explicite, dépense conservée.
+- Limite de reçus (`TL007`) et rattachement refusé (`TL006` provisoire, `TL008` définitif) : message
+  explicite, dépense conservée.
 - Journalisation : codes et contexte, jamais de montant nominatif ni de contenu de reçu.
 
 ### Tests

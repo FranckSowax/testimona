@@ -13,7 +13,8 @@
 --    reçu non rattaché, tout membre pour un reçu rattaché (comme les dépenses) ;
 --  - un reçu par dépense ; seule la colonne entry_id se modifie, une seule fois ;
 --    aucune suppression au lot 2 ;
---  - un reçu ne se rattache qu'une fois sa photo envoyée au stockage ;
+--  - un reçu ne se rattache qu'une fois sa photo envoyée au stockage (TL006,
+--    retentable) ; les autres refus de rattachement sont définitifs (TL008) ;
 --  - au plus 200 reçus par dossier (TL007), pour borner le stockage d'un dossier :
 --    rattachés, plus non rattachés de moins de 24 heures ;
 --  - aucune écriture par service-role : tout passe par le client utilisateur et la
@@ -97,7 +98,9 @@ create trigger receipt_before_insert
   for each row execute function public.receipt_before_insert();
 
 -- WHY: tout est figé sauf entry_id ; un rattachement va vers une dépense du même dossier et
--- ne change plus ensuite (le même rattachement rejoué est sans effet). Security definer pour lire
+-- ne change plus ensuite (le même rattachement rejoué est sans effet). Deux codes pour que
+-- l'application sache s'il faut réessayer : TL006 (photo pas encore au stockage) peut réussir
+-- plus tard, TL008 (déjà rattaché ailleurs, détachement, ligne invalide) est définitif. Security definer pour lire
 -- storage.objects quelle que soit la RLS du stockage ; search_path vide contre le détournement.
 create function public.receipt_before_update()
 returns trigger
@@ -114,7 +117,7 @@ begin
   new.created_by := old.created_by;
   new.created_at := old.created_at;
   if old.entry_id is not null and new.entry_id is distinct from old.entry_id then
-    raise exception 'receipt already attached' using errcode = 'TL006';
+    raise exception 'receipt already attached' using errcode = 'TL008';
   end if;
   -- WHY: une dépense annulée (ligne « reversal ») reste une dépense : le rattachement est
   -- accepté, car la photo justifie la ligne d'origine.
@@ -122,7 +125,7 @@ begin
     select 1 from public.ledger_entry e
      where e.id = new.entry_id and e.dossier_id = new.dossier_id and e.kind = 'expense'
   ) then
-    raise exception 'invalid receipt link' using errcode = 'TL006';
+    raise exception 'invalid receipt link' using errcode = 'TL008';
   end if;
   -- WHY: le lien d'envoi signé de Supabase reste valide 2 heures et la policy d'envoi n'est pas
   -- réévaluée au moment de l'envoi : on exige donc la photo au stockage avant le rattachement,

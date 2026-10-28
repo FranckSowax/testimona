@@ -117,6 +117,13 @@ describe('openReceipt', () => {
     expect(repo.signedReadUrl).not.toHaveBeenCalled();
   });
 
+  it('ne sert pas le reçu quand l’étape budget du dossier est fermée', async () => {
+    gate.budgetGate.mockResolvedValueOnce('not_found');
+    expect(await openReceipt({ receiptId: RECEIPT })).toEqual({ ok: false, error: 'not_found' });
+    expect(gate.budgetGate).toHaveBeenCalledWith(DOSSIER);
+    expect(repo.signedReadUrl).not.toHaveBeenCalled();
+  });
+
   it('traduit les erreurs du reçu et du lien signé', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     repo.getReceipt.mockResolvedValueOnce({ data: null, error: { code: '42501', message: 'x' } });
