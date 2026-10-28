@@ -10,6 +10,12 @@ const saveEntryAction = vi.fn();
 vi.mock('../actions', () => ({
   saveEntryAction: (...args: unknown[]) => saveEntryAction(...args),
 }));
+// WHY: EntryForm importe ReceiptCapture, qui importe les actions des reçus ; leur service
+// importe `server-only`.
+vi.mock('../../receipts/actions', () => ({
+  prepareReceiptUploadAction: vi.fn(),
+  readReceiptAction: vi.fn(),
+}));
 
 // WHY: la vraie clé est créée au montage ; on peut la forcer à '' pour voir l'envoi bloqué.
 const keyOverride = vi.hoisted(() => ({ value: null as string | null }));
@@ -144,7 +150,9 @@ describe('EntryForm', () => {
     // WHY: React 19 vide un `<form action>` même en erreur ; la saisie doit rester.
     expect(name.value).toBe('Awa Diallo');
     expect(amount.value).toBe('20 000 F');
-    expect(document.activeElement).toBe(amount);
+    // WHY: le focus est donné dans un effet, qui peut passer après l'apparition des alertes
+    // (machine chargée) : on l'attend au lieu de le supposer déjà fait.
+    await waitFor(() => expect(document.activeElement).toBe(amount));
     const error = document.getElementById(amount.getAttribute('aria-describedby') ?? '');
     expect(error?.textContent).toBe(messages.ledger.errors.invalidNumber);
     const note = screen.getByLabelText(messages.ledger.form.note);

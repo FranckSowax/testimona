@@ -1518,7 +1518,9 @@
       "keep": "Keep",
       "reverseLabel": "Reverse this entry: {entry}",
       "reverseWarning": "This reversal cannot be undone.",
-      "reversing": "Reversing…"
+      "reversing": "Reversing…",
+      "receipt": "View the receipt",
+      "receiptLabel": "View the receipt: {entry} (new tab)"
     },
     "form": {
       "pledgeTitle": "I make a pledge",
@@ -1551,6 +1553,9 @@
     "errors": {
       "already_reversed": "This entry has already been reversed.",
       "pledge_unavailable": "This pledge is no longer open: it was reversed or is already fully paid.",
+      "receipt_unlinked": "The expense is saved, but the receipt could not be attached.",
+      "receipt_unavailable": "This receipt can no longer be attached: the expense is saved without it.",
+      "changed_since_saved": "This entry has changed since it was first saved: start again from an empty form.",
       "invalidNumber": "Enter a whole amount, in digits.",
       "outOfRange": "Enter an amount between 1 and 100,000,000 FCFA.",
       "invalidDate": "Enter a valid date, today or earlier.",
@@ -1632,6 +1637,33 @@
       "required": "This field is required.",
       "tooLong": "This text is too long.",
       "invalidCharacter": "This text contains a character that is not accepted."
+    }
+  },
+  "receipts": {
+    "capture": {
+      "label": "Receipt photo (optional)",
+      "hint": "JPEG, PNG or WebP, max 5 MB. Our AI reads the photo to prefill the expense: check every field before saving.",
+      "uploading": "Sending the photo…",
+      "reading": "Reading the receipt…",
+      "read": "The receipt has been read: check the prefilled fields before saving."
+    },
+    "manual": {
+      "unavailable": "Photo attached. Automatic reading is not available: fill in the expense by hand.",
+      "quota": "Photo attached. Today's AI reading limit has been reached: fill in the expense by hand.",
+      "failed": "Photo attached. The receipt could not be read: fill in the expense by hand.",
+      "too_large_to_read": "Photo attached, but too large to be read automatically: fill in the expense by hand."
+    },
+    "errors": {
+      "receipt_type": "Choose a JPEG, PNG or WebP photo.",
+      "receipt_size": "This photo is larger than 5 MB. Choose a lighter one.",
+      "too_many_receipts": "This dossier has reached its limit of 200 receipts.",
+      "upload_failed": "The photo could not be sent. Try again, or save the expense without a photo."
+    },
+    "unlinked": {
+      "retry": "Try attaching the receipt again",
+      "continue": "Continue without the receipt",
+      "next": "Continue",
+      "frozen": "The expense is saved. Its fields can no longer be changed here."
     }
   }
 }

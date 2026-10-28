@@ -80,6 +80,40 @@ export async function listEntries(dossierId: string): Promise<RepoResult<LedgerE
   return { data: (data ?? []).map(toEntry), error: null };
 }
 
+const REPLAY_COLUMNS =
+  'id, kind, amount, method, party_name, budget_line_id, note, occurred_on, reverses_id';
+
+interface ReplayRow {
+  id: string;
+  kind: EntryKind;
+  amount: number | string;
+  method: EntryMethod | null;
+  party_name: string;
+  budget_line_id: string | null;
+  note: string;
+  occurred_on: string;
+  reverses_id: string | null;
+}
+
+/**
+ * La ligne relue après un double envoi est-elle la même saisie ?
+ * WHY: une clé réutilisée par erreur pour une autre saisie ne doit pas faire disparaître cette
+ * saisie en silence. Une annulation reçoit de la base le montant, le nom, le moyen et le poste de
+ * la ligne visée, et sa date est le jour de l'envoi : on ne compare alors que la ligne visée.
+ */
+function sameEntry(row: ReplayRow, entry: NewEntry): boolean {
+  if (row.kind !== entry.kind) return false;
+  if (entry.kind === 'reversal') return row.reverses_id === entry.reversesId;
+  return (
+    Number(row.amount) === entry.amount &&
+    row.party_name === entry.partyName &&
+    row.occurred_on === entry.occurredOn &&
+    row.budget_line_id === entry.budgetLineId &&
+    row.method === entry.method &&
+    row.note === entry.note
+  );
+}
+
 /**
  * Insère une ligne. Un second envoi avec la même clé d'idempotence renvoie la ligne existante
  * (`duplicate: true`) plutôt qu'une erreur.
@@ -110,25 +144,17 @@ export async function insertEntry(
   if (error.code === '23505') {
     const existing = await db
       .from('ledger_entry')
-      .select('id, kind, amount, reverses_id')
+      .select(REPLAY_COLUMNS)
       .eq('dossier_id', entry.dossierId)
       .eq('idempotency_key', entry.idempotencyKey)
-      .maybeSingle<{ id: string; kind: EntryKind; amount: number; reverses_id: string | null }>();
+      .maybeSingle<ReplayRow>();
     if (existing.error) {
       console.error('[budget/ledger] insertEntry : relecture du double envoi impossible', {
         code: existing.error.code,
       });
     }
     if (existing.data) {
-      // WHY: une clé réutilisée par erreur pour une autre saisie ne doit pas faire disparaître
-      // cette saisie en silence. Une annulation porte le montant de la ligne visée : on compare
-      // alors le type et la ligne visée, pas le montant.
-      const same =
-        existing.data.kind === entry.kind &&
-        (entry.kind === 'reversal'
-          ? existing.data.reverses_id === entry.reversesId
-          : Number(existing.data.amount) === entry.amount);
-      if (!same) {
+      if (!sameEntry(existing.data, entry)) {
         return {
           data: null,
           error: { code: 'idempotency_mismatch', message: 'idempotency key reused' },

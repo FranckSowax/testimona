@@ -52,6 +52,18 @@ const entry: NewEntry = {
   idempotencyKey: KEY,
 };
 const duplicate = { data: null, error: { code: '23505', message: 'duplicate key' } };
+// Ligne relue après un double envoi, identique à `entry`.
+const stored = {
+  id: 'e0',
+  kind: 'receipt',
+  amount: 50_000,
+  method: 'cash',
+  party_name: 'Oncle Paul',
+  budget_line_id: null,
+  note: '',
+  occurred_on: '2026-10-20',
+  reverses_id: null,
+};
 
 beforeEach(() => {
   results.length = 0;
@@ -71,14 +83,49 @@ describe('insertEntry', () => {
   });
 
   it('renvoie la ligne existante pour un double envoi identique', async () => {
-    results.push(duplicate, { data: { id: 'e0', kind: 'receipt', amount: 50_000 }, error: null });
+    results.push(duplicate, { data: stored, error: null });
     expect(await insertEntry(entry)).toEqual({ data: { id: 'e0', duplicate: true }, error: null });
+    // WHY: une promesse n'a ni moyen ni poste (null des deux côtés) ; un montant bigint peut
+    // revenir en texte.
+    const pledge = { ...entry, kind: 'pledge' as const, method: null };
+    results.push(duplicate, {
+      data: { ...stored, kind: 'pledge', method: null, amount: '50000' },
+      error: null,
+    });
+    expect(await insertEntry(pledge)).toEqual({ data: { id: 'e0', duplicate: true }, error: null });
+  });
+
+  it('signale un double envoi dont un champ de la saisie a changé', async () => {
+    const changes = [
+      { party_name: 'Tante Rose' },
+      { occurred_on: '2026-10-21' },
+      { budget_line_id: '77777777-7777-4777-8777-777777777777' },
+      { method: 'airtel_money' },
+      { note: 'acompte' },
+    ];
+    for (const change of changes) {
+      results.push(duplicate, { data: { ...stored, ...change }, error: null });
+      expect(await insertEntry(entry)).toMatchObject({
+        data: null,
+        error: { code: 'idempotency_mismatch' },
+      });
+    }
   });
 
   it('compare la ligne visée et non le montant pour une annulation', async () => {
     const reversal = { ...entry, kind: 'reversal' as const, amount: 1, reversesId: 'target' };
     results.push(duplicate, {
-      data: { id: 'e0', kind: 'reversal', amount: 7_000, reverses_id: 'target' },
+      // WHY: la base recopie montant, nom et moyen de la ligne visée ; la date est celle du
+      // premier envoi. Seule la ligne visée compte.
+      data: {
+        ...stored,
+        kind: 'reversal',
+        amount: 7_000,
+        party_name: 'Awa',
+        method: null,
+        occurred_on: '2026-10-01',
+        reverses_id: 'target',
+      },
       error: null,
     });
     expect(await insertEntry(reversal)).toEqual({
@@ -96,12 +143,12 @@ describe('insertEntry', () => {
   });
 
   it('signale une clé réutilisée pour une autre saisie', async () => {
-    results.push(duplicate, { data: { id: 'e0', kind: 'receipt', amount: 1_000 }, error: null });
+    results.push(duplicate, { data: { ...stored, amount: 1_000 }, error: null });
     expect(await insertEntry(entry)).toMatchObject({
       data: null,
       error: { code: 'idempotency_mismatch' },
     });
-    results.push(duplicate, { data: { id: 'e0', kind: 'expense', amount: 50_000 }, error: null });
+    results.push(duplicate, { data: { ...stored, kind: 'expense' }, error: null });
     expect(await insertEntry(entry)).toMatchObject({ error: { code: 'idempotency_mismatch' } });
   });
 

@@ -1,6 +1,6 @@
 import 'server-only';
 
-/** Modèle utilisé pour améliorer les brouillons (identifiant OpenRouter de Claude Opus 5.5). */
+/** Modèle des brouillons et de la lecture des reçus (identifiant OpenRouter de Claude Opus 5.5, qui lit les images). */
 export const AI_MODEL = 'anthropic/claude-opus-5.5';
 
 /** Appels à l'IA par dossier et par jour (la base borne aussi cette valeur). */

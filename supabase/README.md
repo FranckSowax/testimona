@@ -27,6 +27,7 @@ supabase/
 | `20261027000500_ai_usage.sql`                                | Lot 1 : compteur d'appels à l'IA par dossier et par jour                                       |
 | `20261027000600_ledger.sql`                                  | Lot 2 : registre des cotisations et des dépenses, visibilité, totaux                           |
 | `20261027000700_budget_lines.sql`                            | Lot 2 : postes du budget, scénario retenu, dépenses par poste                                  |
+| `20261028000100_receipts.sql`                                | Lot 2 : reçus des dépenses, bucket privé `receipts`                                            |
 
 Les horodatages des migrations historiques sont **synthétiques** : ils ne servent qu'à fixer l'ordre.
 
@@ -75,7 +76,8 @@ Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Histori
 - `revoke_trigger_function_execute`, version enregistrée `20261027094508` ;
 - `ai_usage` (lot 1, PR 4), version enregistrée `20261027151057` ;
 - `ledger` (lot 2, PR 2), version enregistrée `20261027190919` ;
-- `budget_lines` (lot 2, PR 3), version enregistrée `20261028001104`.
+- `budget_lines` (lot 2, PR 3), version enregistrée `20261028001104` ;
+- `receipts` (lot 2, PR 4), version enregistrée `20261028095748`.
 
 Toutes les migrations du dépôt sont donc en production. Après `ledger`, vérifié : RLS active sur
 `ledger_entry` et `dossier_finance`, aucun droit pour `anon`, `authenticated` limité à
@@ -88,7 +90,13 @@ pour `anon`, `authenticated` limité à `select`/`insert`/`update`/`delete` ; co
 rattachée) et `dossier_finance.scenario` ; fonctions de trigger non exécutables ;
 `set_budget_scenario` et `ledger_spent_by_line` exécutables par `authenticated` seulement.
 
-`get_advisors` (sécurité), revérifié le 2026-10-28 après `budget_lines` : sur le dossier, seules
+Après `receipts`, vérifié : RLS active sur `receipt` avec ses trois policies, aucun droit pour
+`anon`, `authenticated` limité à `select`/`insert` et `update (entry_id)` ; bucket `receipts` privé
+(5 Mo ; JPEG, PNG, WebP) avec les seules policies `receipts_insert` et `receipts_select` ; fonctions
+de trigger non exécutables. Les policies déjà présentes sur `storage.objects` sont toutes filtrées
+par bucket ; `postgres` a BYPASSRLS (la fonction de rattachement lit `storage.objects`).
+
+`get_advisors` (sécurité), revérifié le 2026-10-28 après `receipts` (aucune alerte nouvelle) : sur le dossier, seules
 `is_dossier_member`, `accept_dossier_invitation`, `consume_ai_quota`, `ledger_totals` et
 `set_budget_scenario` sont signalées comme security definer exécutables par `authenticated` (0029),
 c'est voulu (appelées par les policies, l'acceptation d'une invitation, le quota d'IA, les totaux du

@@ -40,6 +40,28 @@ beforeEach(() => {
 });
 
 describe('saveEntryAction', () => {
+  it('passe le reçu d’une dépense et revalide une dépense gardée sans son reçu', async () => {
+    service.recordExpense.mockResolvedValueOnce({ ok: false, error: 'receipt_unlinked' });
+    const data = entry('expense');
+    data.set('method', 'cash');
+    data.set('receiptId', 'receipt-1');
+    expect(await saveEntryAction(null, data)).toEqual({ error: 'receipt_unlinked' });
+    expect(service.recordExpense).toHaveBeenCalledWith(
+      expect.objectContaining({ receiptId: 'receipt-1' }),
+    );
+    expect(cache.revalidatePath).toHaveBeenCalledWith(
+      localizedPath(`/dossier/${DOSSIER}/cotisations`, 'en'),
+    );
+  });
+
+  it('revalide aussi une dépense gardée avec un reçu qui ne peut plus être joint', async () => {
+    service.recordExpense.mockResolvedValueOnce({ ok: false, error: 'receipt_unavailable' });
+    expect(await saveEntryAction(null, entry('expense'))).toEqual({
+      error: 'receipt_unavailable',
+    });
+    expect(cache.revalidatePath).toHaveBeenCalledTimes(3);
+  });
+
   it('refuse une annulation ou un type inconnu sans appeler le service', async () => {
     for (const kind of ['reversal', 'other', '']) {
       expect(await saveEntryAction(null, entry(kind))).toEqual({ error: 'validation' });

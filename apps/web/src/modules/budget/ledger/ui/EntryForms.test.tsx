@@ -6,6 +6,12 @@ import messages from '../../../../../messages/fr.json';
 import { EntryForms } from './EntryForms';
 
 vi.mock('../actions', () => ({ saveEntryAction: vi.fn() }));
+// WHY: EntryForm importe ReceiptCapture, qui importe les actions des reçus ; leur service
+// importe `server-only`.
+vi.mock('../../receipts/actions', () => ({
+  prepareReceiptUploadAction: vi.fn(),
+  readReceiptAction: vi.fn(),
+}));
 
 const DOSSIER = '11111111-1111-4111-8111-111111111111';
 const t = messages.ledger.form;
@@ -42,6 +48,11 @@ describe('EntryForms', () => {
     expect(screen.getAllByRole('button', { name: t.submit, hidden: true })).toHaveLength(3);
     // Le choix du poste n'apparaît que dans le formulaire de dépense.
     expect(screen.getAllByLabelText(t.budgetLine)).toHaveLength(1);
+  });
+
+  it('offers a receipt photo on the expense form only', () => {
+    renderForms(true, true);
+    expect(screen.getAllByLabelText(messages.receipts.capture.label)).toHaveLength(1);
   });
 
   it('offers nothing to a viewer', () => {

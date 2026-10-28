@@ -19,6 +19,14 @@ const base = {
 };
 
 describe('schémas du registre', () => {
+  it('lit le reçu facultatif d’une dépense', () => {
+    const expense = { ...base, method: 'cash' };
+    expect(ExpenseSchema.parse({ ...expense, receiptId: '' }).receiptId).toBeNull();
+    expect(ExpenseSchema.parse(expense).receiptId).toBeNull();
+    expect(ExpenseSchema.parse({ ...expense, receiptId: KEY }).receiptId).toBe(KEY);
+    expect(ExpenseSchema.safeParse({ ...expense, receiptId: 'x' }).success).toBe(false);
+  });
+
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-10-27T23:30:00Z'));

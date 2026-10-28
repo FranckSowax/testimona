@@ -43,6 +43,8 @@ const PATHS = [
     'reverseLabel',
     'reverseWarning',
     'reversing',
+    'receipt',
+    'receiptLabel',
   ].map((k) => `ledger.entry.${k}`),
   ...[
     'pledgeTitle',
@@ -69,6 +71,9 @@ const PATHS = [
   ...[
     'already_reversed',
     'pledge_unavailable',
+    'receipt_unlinked',
+    'receipt_unavailable',
+    'changed_since_saved',
     'invalidNumber',
     'outOfRange',
     'invalidDate',
@@ -139,6 +144,7 @@ describe('parité FR/EN du registre', () => {
     ['ledger.entry.reversalOf', ['kind']],
     ['ledger.entry.line', ['line']],
     ['ledger.entry.reverseLabel', ['entry']],
+    ['ledger.entry.receiptLabel', ['entry']],
     ['ledger.card.summary', ['budget', 'received']],
     ['ledger.card.summaryRetained', ['budget', 'received']],
     ['ledger.card.summaryNoBudget', ['received']],
@@ -146,6 +152,20 @@ describe('parité FR/EN du registre', () => {
     expect(placeholders(get(fr, path))).toEqual(vars);
     expect(placeholders(get(en, path))).toEqual(vars);
   });
+
+  it.each([
+    [fr, '(nouvel onglet)'],
+    [en, '(new tab)'],
+  ])(
+    'le libellé du lien du reçu reprend le texte visible et annonce le nouvel onglet',
+    (m, tab) => {
+      // WHY: le nom accessible commence par le texte visible (WCAG 2.5.3) et dit que le lien
+      // s'ouvre dans un nouvel onglet.
+      const label = get(m, 'ledger.entry.receiptLabel') as string;
+      expect(label.startsWith(get(m, 'ledger.entry.receipt') as string)).toBe(true);
+      expect(label.endsWith(tab)).toBe(true);
+    },
+  );
 
   it("chaque message de validation du schéma a un texte d'erreur", () => {
     for (const key of Object.values(SCHEMA_MESSAGES)) {
