@@ -27,6 +27,7 @@ supabase/
 | `20261027000500_ai_usage.sql`                                | Lot 1 : compteur d'appels à l'IA par dossier et par jour                                       |
 | `20261027000600_ledger.sql`                                  | Lot 2 : registre des cotisations et des dépenses, visibilité, totaux                           |
 | `20261027000700_budget_lines.sql`                            | Lot 2 : postes du budget, scénario retenu, dépenses par poste                                  |
+| `20261028000100_receipts.sql`                                | Lot 2 : reçus des dépenses, bucket privé `receipts`                                            |
 
 Les horodatages des migrations historiques sont **synthétiques** : ils ne servent qu'à fixer l'ordre.
 
@@ -77,7 +78,11 @@ Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Histori
 - `ledger` (lot 2, PR 2), version enregistrée `20261027190919` ;
 - `budget_lines` (lot 2, PR 3), version enregistrée `20261028001104`.
 
-Toutes les migrations du dépôt sont donc en production. Après `ledger`, vérifié : RLS active sur
+**Pas encore en production :**
+
+- `receipts` (lot 2, PR 4) : à appliquer avant de déployer le web de la PR.
+
+Toutes les migrations du dépôt jusqu'à `budget_lines` sont donc en production. Après `ledger`, vérifié : RLS active sur
 `ledger_entry` et `dossier_finance`, aucun droit pour `anon`, `authenticated` limité à
 `select`/`insert` sur `ledger_entry` et `select`/`insert`/`update` sur `dossier_finance`, fonctions
 de trigger non exécutables, `ledger_totals` exécutable par `authenticated` seulement.
