@@ -85,6 +85,7 @@ export function EntryForm({
     setPledgeId('');
     setReceiptId('');
     setCaptureKey((k) => k + 1);
+    lastData.current = null;
     renew();
   }, [renew]);
 

@@ -1553,7 +1553,7 @@
     "errors": {
       "already_reversed": "Cette ligne a déjà été annulée.",
       "pledge_unavailable": "Cette promesse n'est plus ouverte : elle a été annulée ou elle est déjà entièrement versée.",
-      "receipt_unlinked": "La dépense est enregistrée, mais la photo du reçu n'a pas pu être jointe. Enregistrez de nouveau pour réessayer.",
+      "receipt_unlinked": "La dépense est enregistrée, mais le reçu n'a pas pu être joint.",
       "receipt_unavailable": "Ce reçu ne peut plus être joint : la dépense est enregistrée sans lui.",
       "changed_since_saved": "Cette saisie a changé depuis un premier enregistrement. Rechargez la page pour repartir d'un formulaire vide.",
       "invalidNumber": "Entrez un montant entier, en chiffres.",
@@ -1642,7 +1642,7 @@
   "receipts": {
     "capture": {
       "label": "Photo du reçu (facultative)",
-      "hint": "JPEG, PNG ou WebP, 5 Mo au plus. L'IA lit la photo pour préremplir la dépense : vérifiez chaque champ avant d'enregistrer.",
+      "hint": "JPEG, PNG ou WebP, 5 Mo maximum. L'IA lit la photo pour préremplir la dépense : vérifiez chaque champ avant d'enregistrer.",
       "uploading": "Envoi de la photo…",
       "reading": "Lecture du reçu…",
       "read": "Reçu lu : vérifiez les champs préremplis avant d'enregistrer."
@@ -1662,6 +1662,7 @@
     "unlinked": {
       "retry": "Réessayer de joindre le reçu",
       "continue": "Continuer sans le reçu",
+      "next": "Continuer",
       "frozen": "La dépense est enregistrée. Ses champs ne peuvent plus être modifiés ici."
     }
   }

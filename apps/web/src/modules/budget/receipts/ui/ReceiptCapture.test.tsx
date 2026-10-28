@@ -31,7 +31,11 @@ const onRead = vi.fn();
 const onBusyChange = vi.fn();
 
 function renderCapture(disabled = false) {
-  render(
+  return renderWith(disabled).input;
+}
+
+function renderWith(disabled = false) {
+  const view = render(
     <NextIntlClientProvider locale="fr" messages={messages}>
       <ReceiptCapture
         dossierId={DOSSIER}
@@ -42,7 +46,14 @@ function renderCapture(disabled = false) {
       />
     </NextIntlClientProvider>,
   );
-  return screen.getByLabelText(text.capture.label) as HTMLInputElement;
+  return { ...view, input: screen.getByLabelText(text.capture.label) as HTMLInputElement };
+}
+
+/** Promesse résolue à la main, pour observer un état intermédiaire. */
+function deferred<T>() {
+  let resolve: (value: T) => void = () => {};
+  const promise = new Promise<T>((r) => (resolve = r));
+  return { promise, resolve };
 }
 
 const choose = (input: HTMLElement, file: File) =>
@@ -115,13 +126,15 @@ describe('ReceiptCapture', () => {
     const input = renderCapture();
     choose(input, jpeg());
     await waitFor(() => expect(read).toHaveBeenCalled());
-    expect(input.disabled).toBe(true);
+    // WHY: `aria-disabled` et non `disabled` : le champ garde le focus pendant l'envoi.
+    expect(input.disabled).toBe(false);
+    expect(input.getAttribute('aria-disabled')).toBe('true');
     expect(onBusyChange).toHaveBeenLastCalledWith(true);
     expect(screen.getByRole('status').textContent).toBe(text.capture.reading);
     choose(input, jpeg());
     expect(prepare).toHaveBeenCalledTimes(1);
     finishRead({ ok: true, data: prefill });
-    await waitFor(() => expect(input.disabled).toBe(false));
+    await waitFor(() => expect(input.getAttribute('aria-disabled')).toBeNull());
     expect(onBusyChange).toHaveBeenLastCalledWith(false);
     expect(read).toHaveBeenCalledTimes(1);
   });
@@ -172,5 +185,59 @@ describe('ReceiptCapture', () => {
       expect(screen.getByRole('alert').textContent).toBe(text.errors.too_many_receipts),
     );
     expect(upload).not.toHaveBeenCalled();
+  });
+
+  it('relance l’envoi quand la même photo est choisie de nouveau après un échec', async () => {
+    upload.mockResolvedValueOnce({ data: null, error: { message: 'x' } });
+    const input = renderCapture();
+    const photo = jpeg();
+    choose(input, photo);
+    await waitFor(() =>
+      expect(screen.getByRole('alert').textContent).toBe(text.errors.upload_failed),
+    );
+    expect(input.value).toBe('');
+    choose(input, photo);
+    await waitFor(() => expect(onAttach).toHaveBeenLastCalledWith(RECEIPT));
+    expect(upload).toHaveBeenCalledTimes(2);
+  });
+
+  it('affiche upload_failed quand la préparation lève', async () => {
+    prepare.mockRejectedValueOnce(new Error('network'));
+    choose(renderCapture(), jpeg());
+    await waitFor(() =>
+      expect(screen.getByRole('alert').textContent).toBe(text.errors.upload_failed),
+    );
+    expect(upload).not.toHaveBeenCalled();
+    expect(onAttach).not.toHaveBeenCalledWith(RECEIPT);
+  });
+
+  it('démonté pendant l’envoi, ne lit rien, ne joint rien et libère le formulaire', async () => {
+    const pending = deferred<unknown>();
+    prepare.mockReturnValueOnce(pending.promise);
+    const { input, unmount } = renderWith();
+    choose(input, jpeg());
+    await waitFor(() => expect(prepare).toHaveBeenCalled());
+    expect(onBusyChange).toHaveBeenLastCalledWith(true);
+    unmount();
+    expect(onBusyChange).toHaveBeenLastCalledWith(false);
+    pending.resolve({ ok: true, data: { receiptId: RECEIPT, path: PATH, token: 'tok' } });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(upload).not.toHaveBeenCalled();
+    expect(read).not.toHaveBeenCalled();
+    expect(onAttach).not.toHaveBeenCalledWith(RECEIPT);
+    expect(onRead).not.toHaveBeenCalled();
+  });
+
+  it('démonté pendant la réduction, ne prépare rien', async () => {
+    const pending = deferred<File>();
+    shrink.mockReturnValueOnce(pending.promise);
+    const { input, unmount } = renderWith();
+    const photo = jpeg();
+    choose(input, photo);
+    await waitFor(() => expect(shrink).toHaveBeenCalled());
+    unmount();
+    pending.resolve(photo);
+    await new Promise((r) => setTimeout(r, 0));
+    expect(prepare).not.toHaveBeenCalled();
   });
 });

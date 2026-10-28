@@ -56,18 +56,34 @@ export function ReceiptCapture({
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
   // WHY: verrou synchrone ; deux choix rapprochés ne lancent jamais deux lectures (quota).
   const busyRef = useRef(false);
+  // WHY: démonté en cours d'envoi (formulaire remis à zéro), le composant ne prépare plus rien,
+  // ne consomme pas le quota de lecture et ne touche plus au formulaire.
+  const alive = useRef(true);
+  const notifyBusy = useRef(onBusyChange);
   const id = useId();
   const hintId = `${id}-hint`;
   const busy = status.kind === 'busy';
   const fail = (error: CaptureError) =>
     setStatus({ kind: 'error', text: receiptErrorText(error, tRoot) });
 
+  useEffect(() => {
+    notifyBusy.current = onBusyChange;
+  }, [onBusyChange]);
   useEffect(() => onBusyChange?.(busy), [busy, onBusyChange]);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      // WHY: sans cela, le formulaire resterait bloqué par une photo qui n'existe plus.
+      if (busyRef.current) notifyBusy.current?.(false);
+    };
+  }, []);
 
   const handleFile = async (file: File) => {
     if (!isReceiptType(file.type)) return fail('receipt_type');
     setStatus({ kind: 'busy', text: t('uploading') });
     const photo = await shrinkImage(file);
+    if (!alive.current) return;
     if (!isReceiptType(photo.type)) return fail('receipt_type');
     if (photo.size < 1 || photo.size > RECEIPT_MAX_BYTES) return fail('receipt_size');
     const prepared = await prepareReceiptUploadAction({
@@ -75,12 +91,14 @@ export function ReceiptCapture({
       mimeType: photo.type,
       sizeBytes: photo.size,
     });
+    if (!alive.current) return;
     if (!prepared.ok) return fail(prepared.error);
     const { error } = await getSupabaseBrowser()
       .storage.from(RECEIPT_BUCKET)
       .uploadToSignedUrl(prepared.data.path, prepared.data.token, photo, {
         contentType: photo.type,
       });
+    if (!alive.current) return;
     if (error) return fail('upload_failed');
     onAttach(prepared.data.receiptId);
     setStatus({ kind: 'busy', text: t('reading') });
@@ -88,6 +106,7 @@ export function ReceiptCapture({
       // WHY: la photo est envoyée et jointe ; une lecture qui lève laisse la saisie manuelle.
       () => ({ ok: false, error: 'failed' }) as const,
     );
+    if (!alive.current) return;
     if (read.ok) {
       onRead(read.data);
       return setStatus({ kind: 'info', text: t('read') });
@@ -102,14 +121,18 @@ export function ReceiptCapture({
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (busyRef.current) return;
     const file = e.target.files?.[0];
+    // WHY: vidé pour que la même photo, choisie de nouveau après un échec, relance l'envoi.
+    e.target.value = '';
+    if (busyRef.current) return;
     onAttach(null);
     if (!file) return setStatus({ kind: 'idle' });
     busyRef.current = true;
     handleFile(file)
       // WHY: une action serveur ou le réseau peuvent lever ; la saisie manuelle reste possible.
-      .catch(() => fail('upload_failed'))
+      .catch(() => {
+        if (alive.current) fail('upload_failed');
+      })
       .finally(() => {
         busyRef.current = false;
       });
@@ -124,11 +147,17 @@ export function ReceiptCapture({
         id={id}
         type="file"
         accept={RECEIPT_TYPES.join(',')}
-        disabled={disabled || busy}
+        // WHY: `aria-disabled` plutôt que `disabled` pendant l'envoi : le champ garde le focus ;
+        // `busyRef` écarte déjà un second choix.
+        disabled={disabled}
+        aria-disabled={busy || undefined}
         aria-describedby={hintId}
         aria-busy={busy || undefined}
+        onClick={(e) => {
+          if (busyRef.current) e.preventDefault();
+        }}
         onChange={onChange}
-        className="text-foreground block w-full text-sm disabled:opacity-60"
+        className="text-foreground block w-full text-sm disabled:opacity-60 aria-disabled:opacity-60"
       />
       <p id={hintId} className="text-foreground text-sm">
         {t('hint')}

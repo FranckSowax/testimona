@@ -38,6 +38,8 @@ const RECEIPTS_ERROR_PATHS: Record<ReceiptsError, string> = {
   too_many_receipts: 'receipts.errors.too_many_receipts',
 };
 
+// WHY : `upload_failed` est un code du navigateur (envoi au stockage en échec), pas du service ;
+// il n'entre donc pas dans ces `Record`, et son texte est vérifié par la liste PATHS.
 const READ_ERROR_PATHS: Record<ReadError, string> = {
   ...RECEIPTS_ERROR_PATHS,
   unavailable: 'receipts.manual.unavailable',
@@ -52,7 +54,7 @@ const PATHS = [
   ...['receipt_type', 'receipt_size', 'too_many_receipts', 'upload_failed'].map(
     (k) => `receipts.errors.${k}`,
   ),
-  ...['retry', 'continue', 'frozen'].map((k) => `receipts.unlinked.${k}`),
+  ...['retry', 'continue', 'next', 'frozen'].map((k) => `receipts.unlinked.${k}`),
 ];
 
 describe.each([

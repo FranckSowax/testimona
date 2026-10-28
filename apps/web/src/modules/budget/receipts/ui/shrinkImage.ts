@@ -48,7 +48,8 @@ export function shrinkTarget(size: number, width: number, height: number): Shrin
 
 async function decodeInBrowser(file: File): Promise<DecodedImage> {
   if (typeof createImageBitmap === 'function') {
-    const bitmap = await createImageBitmap(file);
+    // WHY: redresse une photo de téléphone selon son orientation EXIF.
+    const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
     return {
       width: bitmap.width,
       height: bitmap.height,
@@ -87,7 +88,18 @@ function encodeInBrowser(image: DecodedImage, target: ShrinkTarget): Promise<Blo
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, target.width, target.height);
   ctx.drawImage(image.source, 0, 0, target.width, target.height);
-  return new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY));
+  return new Promise((resolve) =>
+    canvas.toBlob(
+      (blob) => {
+        // WHY: libère tout de suite la mémoire du canvas (téléphones modestes).
+        canvas.width = 0;
+        canvas.height = 0;
+        resolve(blob);
+      },
+      'image/jpeg',
+      JPEG_QUALITY,
+    ),
+  );
 }
 
 const BROWSER: ShrinkEnv = { decode: decodeInBrowser, encode: encodeInBrowser };

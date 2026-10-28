@@ -132,6 +132,10 @@ describe('EntryForm et le reçu', () => {
     expect(isDisabled(button('attach'))).toBe(true);
     expect(button(form.submit)).toBeNull();
     expect(document.activeElement).toBe(retry);
+    const frozenId = screen.getByText(unlinked.frozen).getAttribute('id');
+    expect(frozenId).toBeTruthy();
+    expect(retry.getAttribute('aria-describedby')).toBe(frozenId);
+    expect(button(unlinked.continue)?.getAttribute('aria-describedby')).toBe(frozenId);
 
     saveEntryAction.mockResolvedValueOnce({ ok: true });
     fireEvent.click(retry);
@@ -164,12 +168,16 @@ describe('EntryForm et le reçu', () => {
   });
 
   it.each(['receipt_unavailable', 'changed_since_saved'] as const)(
-    'après %s, ne propose que de continuer sans le reçu',
+    'après %s, ne propose que de continuer',
     async (error) => {
       saveEntryAction.mockResolvedValueOnce({ error });
       const { container } = renderForm();
       const key = await submitExpense(container);
-      const next = await screen.findByRole('button', { name: unlinked.continue });
+      const next = await screen.findByRole('button', { name: unlinked.next });
+      expect(button(unlinked.continue)).toBeNull();
+      expect(next.getAttribute('aria-describedby')).toBe(
+        screen.getByText(unlinked.frozen).getAttribute('id'),
+      );
       expect(screen.getByRole('alert').textContent).toBe(messages.ledger.errors[error]);
       expect(button(unlinked.retry)).toBeNull();
       expect(button(form.submit)).toBeNull();
@@ -181,4 +189,19 @@ describe('EntryForm et le reçu', () => {
       expect(screen.queryByRole('alert')).toBeNull();
     },
   );
+
+  it('garde le verrou quand le nouvel essai échoue autrement', async () => {
+    saveEntryAction.mockResolvedValueOnce({ error: 'receipt_unlinked' });
+    const { container } = renderForm();
+    const key = await submitExpense(container);
+    saveEntryAction.mockResolvedValueOnce({ error: 'unknown' });
+    fireEvent.click(await screen.findByRole('button', { name: unlinked.retry }));
+    await waitFor(() =>
+      expect(screen.getByRole('alert').textContent).toBe(messages.dossier.errors.unknown),
+    );
+    expect(button(unlinked.retry)).toBeTruthy();
+    expect(button(form.submit)).toBeNull();
+    expect(isDisabled(field(form.amount))).toBe(true);
+    expect(hidden(container, 'idempotencyKey')).toBe(key);
+  });
 });
