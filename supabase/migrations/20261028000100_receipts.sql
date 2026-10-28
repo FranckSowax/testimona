@@ -13,7 +13,11 @@
 --    reçu non rattaché, tout membre pour un reçu rattaché (comme les dépenses) ;
 --  - un reçu par dépense ; seule la colonne entry_id se modifie, une seule fois ;
 --    aucune suppression au lot 2 ;
---  - au plus 200 reçus par dossier (TL007), pour borner le stockage d'un dossier.
+--  - un reçu ne se rattache qu'une fois sa photo envoyée au stockage ;
+--  - au plus 200 reçus par dossier (TL007), pour borner le stockage d'un dossier :
+--    rattachés, plus non rattachés de moins de 24 heures ;
+--  - aucune écriture par service-role : tout passe par le client utilisateur et la
+--    RLS, comme pour le registre.
 -- ============================================================================
 
 create table public.receipt (
@@ -39,7 +43,9 @@ create table public.receipt (
   )
 );
 
-create index receipt_dossier_idx on public.receipt (dossier_id, created_at desc);
+-- WHY: « include (entry_id) » pour que le comptage de la limite (rattachés ou récents) se lise
+-- dans l'index seul.
+create index receipt_dossier_idx on public.receipt (dossier_id, created_at desc) include (entry_id);
 create index receipt_created_by_idx on public.receipt (created_by);
 
 -- WHY: security definer pour compter les reçus du dossier quelle que soit la RLS du lecteur ;
@@ -59,7 +65,14 @@ begin
   -- WHY: deux préparations concurrentes compteraient chacune 199 reçus ; le verrou sur la ligne
   -- du dossier les sérialise (« for no key update » ne bloque pas les clés étrangères).
   perform 1 from public.dossier d where d.id = new.dossier_id for no key update;
-  if (select count(*) from public.receipt r where r.dossier_id = new.dossier_id) >= 200 then
+  -- WHY: les préparations abandonnées (photo jamais envoyée ou dépense jamais enregistrée) ne
+  -- doivent pas épuiser la limite, puisqu'aucune suppression n'est possible : on ne compte que les
+  -- reçus rattachés et les non rattachés de moins de 24 heures.
+  if (
+    select count(*) from public.receipt r
+     where r.dossier_id = new.dossier_id
+       and (r.entry_id is not null or r.created_at > now() - interval '24 hours')
+  ) >= 200 then
     raise exception 'too many receipts' using errcode = 'TL007';
   end if;
   new.entry_id := null;
@@ -84,10 +97,12 @@ create trigger receipt_before_insert
   for each row execute function public.receipt_before_insert();
 
 -- WHY: tout est figé sauf entry_id ; un rattachement va vers une dépense du même dossier et
--- ne change plus ensuite (le même rattachement rejoué est sans effet).
+-- ne change plus ensuite (le même rattachement rejoué est sans effet). Security definer pour lire
+-- storage.objects quelle que soit la RLS du stockage ; search_path vide contre le détournement.
 create function public.receipt_before_update()
 returns trigger
 language plpgsql
+security definer
 set search_path = ''
 as $$
 begin
@@ -101,11 +116,22 @@ begin
   if old.entry_id is not null and new.entry_id is distinct from old.entry_id then
     raise exception 'receipt already attached' using errcode = 'TL006';
   end if;
+  -- WHY: une dépense annulée (ligne « reversal ») reste une dépense : le rattachement est
+  -- accepté, car la photo justifie la ligne d'origine.
   if old.entry_id is null and new.entry_id is not null and not exists (
     select 1 from public.ledger_entry e
      where e.id = new.entry_id and e.dossier_id = new.dossier_id and e.kind = 'expense'
   ) then
     raise exception 'invalid receipt link' using errcode = 'TL006';
+  end if;
+  -- WHY: le lien d'envoi signé de Supabase reste valide 2 heures et la policy d'envoi n'est pas
+  -- réévaluée au moment de l'envoi : on exige donc la photo au stockage avant le rattachement,
+  -- pour qu'aucune photo n'arrive sur le chemin d'un reçu déjà rattaché.
+  if old.entry_id is null and new.entry_id is not null and not exists (
+    select 1 from storage.objects o
+     where o.bucket_id = 'receipts' and o.name = old.storage_path
+  ) then
+    raise exception 'receipt photo missing' using errcode = 'TL006';
   end if;
   return new;
 end;
@@ -151,7 +177,9 @@ on conflict (id) do update
       allowed_mime_types = excluded.allowed_mime_types;
 
 -- WHY: l'envoi n'est permis que sur le chemin d'un reçu préparé et non rattaché du dossier,
--- par un trésorier : aucun chemin libre, aucun remplacement d'une photo déjà jointe.
+-- par un trésorier : aucun chemin libre, aucun remplacement d'une photo déjà jointe. Le type et
+-- la taille réels de l'objet sont bornés par le bucket (file_size_limit, allowed_mime_types) et
+-- vérifiés côté serveur par la signature des octets avant la lecture par l'IA.
 drop policy if exists receipts_insert on storage.objects;
 create policy receipts_insert on storage.objects
   for insert to authenticated

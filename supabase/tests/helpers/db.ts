@@ -62,6 +62,8 @@ const SUPABASE_STUBS = `
     created_at timestamptz default now(),
     updated_at timestamptz default now()
   );
+  -- WHY: comme Supabase (index bucketid_objname) : un chemin n'existe qu'une fois par bucket.
+  create unique index on storage.objects (bucket_id, name);
   alter table storage.objects enable row level security;
   create function storage.foldername(name text) returns text[] language sql immutable as $$
     select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1]
