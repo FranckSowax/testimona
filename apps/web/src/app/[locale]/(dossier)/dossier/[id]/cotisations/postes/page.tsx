@@ -5,6 +5,9 @@ import { z } from 'zod';
 import { Link } from '@/i18n/navigation';
 import { LEVELS, type Level } from '@/journey/options';
 import { isStepOpen } from '@/journey/registry';
+import { formatClosedOn } from '@/modules/budget/closing/model';
+import { getClosure } from '@/modules/budget/closing/repo';
+import { ClosedNotice } from '@/modules/budget/closing/ui/ClosedNotice';
 import { formatXaf } from '@/modules/budget/format';
 import { canManageLedger } from '@/modules/budget/ledger/contributions-view';
 import { lineViews, scenarioTotals, UNASSIGNED_KEY } from '@/modules/budget/lines/model';
@@ -35,18 +38,25 @@ export default async function BudgetLinesPage({
   const [dossier, role] = await Promise.all([getDossier(id), getMyRole(id)]);
   if (!dossier || !isStepOpen(dossier.entryPoint, 'attendance')) notFound();
 
-  const [t, tLevel, tPage, lines, scenario, spent] = await Promise.all([
+  const [t, tLevel, tPage, lines, scenario, spent, closure] = await Promise.all([
     getTranslations('lines'),
     getTranslations('budget.level'),
     getTranslations('ledger.page'),
     listLines(id),
     getScenario(id),
     spentByLine(id),
+    getClosure(id),
   ]);
-  // WHY: des postes ou des dépenses faux seraient pires qu'un écran d'erreur ; error.tsx prend le relais.
-  if (lines.error || scenario.error || spent.error) throw new Error('budget lines unreadable');
+  // WHY: des postes ou des dépenses faux seraient pires qu'un écran d'erreur, et une clôture
+  // illisible pourrait proposer des modifications refusées ; error.tsx prend le relais.
+  if (lines.error || scenario.error || spent.error || closure.error) {
+    throw new Error('budget lines unreadable');
+  }
+  const closedAt = closure.data.closedAt;
 
-  const canManage = canManageLedger(role);
+  // WHY: une fois les cotisations clôturées, les postes et le scénario se lisent seulement ; le
+  // scénario retenu s'affiche alors en lecture, comme pour un contributeur.
+  const canManage = canManageLedger(role) && !closedAt;
   const views = lineViews(lines.data, spent.data);
   const totals = scenarioTotals(lines.data);
   const formatted = Object.fromEntries(
@@ -81,6 +91,10 @@ export default async function BudgetLinesPage({
       </header>
 
       <LedgerTabs dossierId={id} current="lines" />
+
+      {closedAt && (
+        <ClosedNotice dossierId={id} closedOn={formatClosedOn(closedAt, locale)} showSummaryLink />
+      )}
 
       {!canManage && hasLines && scenario.data && (
         <p className="text-foreground font-semibold">
