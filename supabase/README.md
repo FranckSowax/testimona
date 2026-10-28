@@ -29,6 +29,7 @@ supabase/
 | `20261027000700_budget_lines.sql`                            | Lot 2 : postes du budget, scénario retenu, dépenses par poste                                  |
 | `20261028000100_receipts.sql`                                | Lot 2 : reçus des dépenses, bucket privé `receipts`                                            |
 | `20261028000200_closing.sql`                                 | Lot 2 : clôture des cotisations, journal, écritures refusées une fois clôturé                  |
+| `20261028000300_providers.sql`                               | Lot 3 : prestataires, catégories, demandes de devis, `search_path` de `is_admin()`             |
 
 Les horodatages des migrations historiques sont **synthétiques** : ils ne servent qu'à fixer l'ordre.
 
