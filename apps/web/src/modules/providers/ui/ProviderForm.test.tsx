@@ -27,10 +27,12 @@ const PROVIDER: Provider = {
   active: true,
 };
 
-const renderForm = (provider?: Provider) =>
+const VERIFIED_ON = 'Vérifié le 1 oct. 2026';
+
+const renderForm = (provider?: Provider, verifiedOnLabel?: string) =>
   render(
     <NextIntlClientProvider locale="fr" messages={messages}>
-      <ProviderForm provider={provider} />
+      <ProviderForm provider={provider} verifiedOnLabel={verifiedOnLabel} />
     </NextIntlClientProvider>,
   );
 
@@ -87,9 +89,21 @@ describe('ProviderForm', () => {
     expect(screen.getByLabelText(VERIFIED)).toHaveProperty('checked', false);
   });
 
-  it('affiche la date de vérification existante', () => {
-    renderForm(PROVIDER);
-    expect(screen.getByText(/Vérifié le .*2026/)).toBeTruthy();
+  it('affiche la date fournie tant que la case Vérifié est cochée', () => {
+    renderForm(PROVIDER, VERIFIED_ON);
+    expect(screen.getByText(VERIFIED_ON)).toBeTruthy();
+    fireEvent.click(screen.getByLabelText(VERIFIED));
+    expect(screen.queryByText(VERIFIED_ON)).toBeNull();
+    fireEvent.click(screen.getByLabelText(VERIFIED));
+    expect(screen.getByText(VERIFIED_ON)).toBeTruthy();
+  });
+
+  it('masque la date après une bascule de la case Exemple', () => {
+    renderForm(PROVIDER, VERIFIED_ON);
+    fireEvent.click(screen.getByLabelText("Prestataire d'exemple"));
+    fireEvent.click(screen.getByLabelText("Prestataire d'exemple"));
+    fireEvent.click(screen.getByLabelText(VERIFIED));
+    expect(screen.queryByText(VERIFIED_ON)).toBeNull();
   });
 
   it('affiche une erreur globale pour une clé sans champ', async () => {

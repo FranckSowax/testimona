@@ -2,7 +2,7 @@
 
 import { startTransition, useActionState, useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { buttonClasses } from '@/components/ui/Button';
 import { createProviderAction, type ProviderFormState, updateProviderAction } from '../actions';
 import { PROVIDER_CATEGORIES } from '../categories';
@@ -47,16 +47,25 @@ const RENDERED_FIELDS = [
  * envoyé, et la base refuse de toute façon un exemple contactable.
  *
  * @example
- * <ProviderForm provider={provider} />
+ * <ProviderForm provider={provider} verifiedOnLabel="Vérifié le 1 oct. 2026" />
+ *
+ * `verifiedOnLabel` est formaté côté serveur : un formatage ici donnerait un fuseau différent
+ * entre le rendu serveur et le navigateur (erreur d'hydratation).
  */
-export function ProviderForm({ provider }: { provider?: Provider }) {
+export function ProviderForm({
+  provider,
+  verifiedOnLabel,
+}: {
+  provider?: Provider;
+  verifiedOnLabel?: string;
+}) {
   const t = useTranslations('providers');
   const tErrors = useTranslations('dossier.errors');
   const [state, formAction, pending] = useActionState<ProviderFormState | null, FormData>(
     provider ? updateProviderAction : createProviderAction,
     null,
   );
-  const format = useFormatter();
+  const [verifiedChecked, setVerifiedChecked] = useState(provider?.verifiedAt != null);
   const [example, setExample] = useState(provider?.isExample ?? false);
   // WHY: dès que « Exemple » a été basculé, numéro et vérification repartent vides : l'équipe les
   // ressaisit explicitement, une valeur tapée avant ne doit ni réapparaître ni être renvoyée.
@@ -208,6 +217,7 @@ export function ProviderForm({ provider }: { provider?: Provider }) {
         controlled: true,
         onChange: (value) => {
           setExample(value);
+          setVerifiedChecked(false);
           setContactReset(true);
         },
       })}
@@ -223,12 +233,9 @@ export function ProviderForm({ provider }: { provider?: Provider }) {
       })}
       {checkbox('verified', keepContact && provider?.verifiedAt != null, {
         disabled: example,
-        hint:
-          keepContact && provider?.verifiedAt
-            ? t('admin.verifiedOn', {
-                date: format.dateTime(new Date(provider.verifiedAt), { dateStyle: 'medium' }),
-              })
-            : undefined,
+        onChange: setVerifiedChecked,
+        // WHY: la date n'a de sens que si la vérification d'origine est conservée et cochée.
+        hint: keepContact && verifiedChecked ? verifiedOnLabel : undefined,
       })}
       {checkbox('active', provider?.active ?? true)}
       {globalError && (

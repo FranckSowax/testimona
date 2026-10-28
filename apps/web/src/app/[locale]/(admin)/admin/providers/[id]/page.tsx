@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getFormatter, getTranslations } from 'next-intl/server';
 import { AdminShell } from '@/components/admin/AdminShell';
 import { Link } from '@/i18n/navigation';
 import { getProvider } from '@/modules/providers/service';
@@ -13,12 +13,18 @@ export const metadata: Metadata = {
 
 export default async function AdminProviderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [t, tErrors, res] = await Promise.all([
+  const [t, tErrors, format, res] = await Promise.all([
     getTranslations('providers.admin'),
     getTranslations('dossier.errors'),
+    getFormatter(),
     getProvider(id),
   ]);
   if (!res.ok && res.error === 'not_found') notFound();
+  // WHY: la date est formatée ici (serveur) pour éviter un écart de fuseau à l'hydratation.
+  const verifiedAt = res.ok ? res.data.verifiedAt : null;
+  const verifiedOnLabel = verifiedAt
+    ? t('verifiedOn', { date: format.dateTime(new Date(verifiedAt), { dateStyle: 'medium' }) })
+    : undefined;
   return (
     <AdminShell title={t('edit')}>
       <p className="mb-6">
@@ -27,7 +33,7 @@ export default async function AdminProviderPage({ params }: { params: Promise<{ 
         </Link>
       </p>
       {res.ok ? (
-        <ProviderForm provider={res.data} />
+        <ProviderForm provider={res.data} verifiedOnLabel={verifiedOnLabel} />
       ) : (
         <p role="alert" className="text-destructive">
           {tErrors(res.error)}
