@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { asRole, asUser } from './helpers/db';
+import { asRole, asUser, createUser } from './helpers/db';
 import {
   createReceiptFixture,
   DENIED,
@@ -207,5 +207,19 @@ describe('receipt : rattachement', () => {
         f.db.query('delete from receipt where id = $1', [receipt.id]),
       ),
     ).rejects.toMatchObject(DENIED);
+  });
+});
+
+describe('receipt : auteur', () => {
+  it('efface l’auteur quand son compte est supprimé', async () => {
+    const leaver = await createUser(f.db, 'leaver@test.local');
+    await f.addMember(leaver, 'treasurer');
+    const receipt = await f.prepare(leaver);
+    await f.db.query('delete from auth.users where id = $1', [leaver]);
+    const { rows } = await f.db.query<{ created_by: string | null }>(
+      'select created_by from receipt where id = $1',
+      [receipt.id],
+    );
+    expect(rows[0]!.created_by).toBeNull();
   });
 });

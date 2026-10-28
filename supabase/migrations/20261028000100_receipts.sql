@@ -114,7 +114,9 @@ begin
   new.storage_path := old.storage_path;
   new.mime_type := old.mime_type;
   new.size_bytes := old.size_bytes;
-  new.created_by := old.created_by;
+  -- WHY: l'auteur est figé, sauf quand « on delete set null » l'efface à la suppression de son
+  -- compte : le recopier laisserait un identifiant orphelin.
+  new.created_by := case when new.created_by is null then null else old.created_by end;
   new.created_at := old.created_at;
   if old.entry_id is not null and new.entry_id is distinct from old.entry_id then
     raise exception 'receipt already attached' using errcode = 'TL008';
