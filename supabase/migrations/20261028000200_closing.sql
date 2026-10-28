@@ -78,6 +78,10 @@ begin
   -- update ») de close_ledger et reopen_ledger : une écriture en cours finit avant la clôture, et
   -- une écriture qui suit la clôture la voit (nouvelle lecture après l'attente). Les écritures
   -- entre elles ne se bloquent pas (verrous partagés compatibles).
+  -- WHY: cette garantie suppose le niveau READ COMMITTED (celui de PostgREST par défaut) : après
+  -- l'attente du verrou, la lecture de dossier_finance qui suit voit la clôture validée. Effet de
+  -- bord accepté : le « for share » attend aussi la fin d'un UPDATE de la ligne dossier (rare et
+  -- bref, par exemple un renommage), effet négligeable.
   perform 1 from public.dossier d where d.id = p_dossier_id for share;
   -- WHY: dossier introuvable : suppression en cascade en cours (la ligne du dossier n'est déjà
   -- plus visible), rien à protéger. Une insertion vers un dossier absent est refusée ailleurs
@@ -125,7 +129,10 @@ begin
   if v_closed_at is not null then
     return v_closed_at;
   end if;
-  v_closed_at := now();
+  -- WHY: clock_timestamp() plutôt que now() : now() est l'heure du début de la transaction,
+  -- antérieure à l'attente du verrou ; une écriture validée pendant cette attente serait datée
+  -- après la clôture. L'heure prise après le verrou suit toute écriture déjà acceptée.
+  v_closed_at := clock_timestamp();
   insert into public.dossier_finance (dossier_id, closed_at, closed_by)
   values (p_dossier_id, v_closed_at, auth.uid())
   on conflict (dossier_id) do update
@@ -453,7 +460,9 @@ begin
   new.storage_path := old.storage_path;
   new.mime_type := old.mime_type;
   new.size_bytes := old.size_bytes;
-  new.created_by := old.created_by;
+  -- WHY: l'auteur est figé, sauf le passage à null que fait « on delete set null » quand son
+  -- compte est supprimé ; le figer aussi dans ce cas laisserait un identifiant orphelin.
+  new.created_by := case when new.created_by is null then null else old.created_by end;
   new.created_at := old.created_at;
   if old.entry_id is not null and new.entry_id is distinct from old.entry_id then
     raise exception 'receipt already attached' using errcode = 'TL008';
