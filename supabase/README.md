@@ -93,7 +93,13 @@ pour `anon`, `authenticated` limité à `select`/`insert`/`update`/`delete` ; co
 rattachée) et `dossier_finance.scenario` ; fonctions de trigger non exécutables ;
 `set_budget_scenario` et `ledger_spent_by_line` exécutables par `authenticated` seulement.
 
-`get_advisors` (sécurité), revérifié le 2026-10-28 après `budget_lines` : sur le dossier, seules
+Après `receipts`, vérifié : RLS active sur `receipt` avec ses trois policies, aucun droit pour
+`anon`, `authenticated` limité à `select`/`insert` et `update (entry_id)` ; bucket `receipts` privé
+(5 Mo ; JPEG, PNG, WebP) avec les seules policies `receipts_insert` et `receipts_select` ; fonctions
+de trigger non exécutables. Les policies déjà présentes sur `storage.objects` sont toutes filtrées
+par bucket ; `postgres` a BYPASSRLS (la fonction de rattachement lit `storage.objects`).
+
+`get_advisors` (sécurité), revérifié le 2026-10-28 après `receipts` (aucune alerte nouvelle) : sur le dossier, seules
 `is_dossier_member`, `accept_dossier_invitation`, `consume_ai_quota`, `ledger_totals` et
 `set_budget_scenario` sont signalées comme security definer exécutables par `authenticated` (0029),
 c'est voulu (appelées par les policies, l'acceptation d'une invitation, le quota d'IA, les totaux du
