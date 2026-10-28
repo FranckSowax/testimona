@@ -129,7 +129,8 @@ export async function createUser(db: PGlite, email: string): Promise<string> {
 /**
  * Exécute `fn` avec les droits d'un rôle Supabase, comme le ferait PostgREST
  * avec le JWT de la requête. `userId` absent = visiteur anonyme ; `extraClaims`
- * s'ajoute au JWT (par exemple `app_metadata`).
+ * s'ajoute au JWT (par exemple `app_metadata`) mais ne remplace jamais `sub` ni `role`, et
+ * il est ignoré pour un visiteur anonyme.
  */
 export async function asRole<T>(
   db: PGlite,
@@ -138,7 +139,7 @@ export async function asRole<T>(
   fn: () => Promise<T>,
   extraClaims: Record<string, unknown> = {},
 ): Promise<T> {
-  const claims = JSON.stringify(userId ? { sub: userId, role, ...extraClaims } : { role });
+  const claims = JSON.stringify(userId ? { ...extraClaims, sub: userId, role } : { role });
   await db.query("select set_config('request.jwt.claim.sub', $1, false)", [userId ?? '']);
   await db.query("select set_config('request.jwt.claims', $1, false)", [claims]);
   await db.exec(`set role ${role}`);

@@ -83,16 +83,41 @@ create trigger provider_before_update
   before update on public.provider
   for each row execute function public.provider_before_update();
 
+-- WHY: à l'insertion, les dates sont celles du serveur, jamais celles du client.
+create function public.provider_before_insert()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  new.created_at := now();
+  new.updated_at := now();
+  return new;
+end;
+$$;
+
+revoke execute on function public.provider_before_insert() from public, anon, authenticated;
+
+create trigger provider_before_insert
+  before insert on public.provider
+  for each row execute function public.provider_before_insert();
+
 alter table public.provider enable row level security;
 revoke all on public.provider from anon, authenticated;
 grant select, insert, update on public.provider to authenticated;
 
+-- WHY: les numéros WhatsApp sont professionnels ; tout utilisateur connecté peut lire les
+-- prestataires actifs, choix assumé. Seul un administrateur voit les inactifs.
+-- WHY: `(select public.is_admin())` est évalué une fois par requête (initplan). La clause
+-- `set search_path` empêche l'inlining de is_admin() : les anciennes policies l'appellent
+-- désormais par ligne, coût faible car le corps ne fait que lire le JWT.
 create policy provider_select on public.provider
-  for select to authenticated using (active or public.is_admin());
+  for select to authenticated using (active or (select public.is_admin()));
 create policy provider_insert on public.provider
-  for insert to authenticated with check (public.is_admin());
+  for insert to authenticated with check ((select public.is_admin()));
 create policy provider_update on public.provider
-  for update to authenticated using (public.is_admin()) with check (public.is_admin());
+  for update to authenticated
+  using ((select public.is_admin())) with check ((select public.is_admin()));
 
 -- WHY: prestataires fictifs du pilote, sans numéro ni vérification (contrainte ci-dessus).
 insert into public.provider (category_key, name, city, district, price_note, is_example) values
@@ -139,7 +164,8 @@ begin
   end if;
   if not exists (
     select 1 from public.provider p
-    where p.id = new.provider_id and p.active and not p.is_example and p.whatsapp is not null
+    where p.id = new.provider_id and p.active and not p.is_example
+      and p.whatsapp is not null and p.verified_at is not null
   ) then
     raise exception 'provider not reachable' using errcode = 'TL010';
   end if;
