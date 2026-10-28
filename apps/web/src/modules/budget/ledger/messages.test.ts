@@ -43,6 +43,8 @@ const PATHS = [
     'reverseLabel',
     'reverseWarning',
     'reversing',
+    'receipt',
+    'receiptLabel',
   ].map((k) => `ledger.entry.${k}`),
   ...[
     'pledgeTitle',
@@ -142,6 +144,7 @@ describe('parité FR/EN du registre', () => {
     ['ledger.entry.reversalOf', ['kind']],
     ['ledger.entry.line', ['line']],
     ['ledger.entry.reverseLabel', ['entry']],
+    ['ledger.entry.receiptLabel', ['entry']],
     ['ledger.card.summary', ['budget', 'received']],
     ['ledger.card.summaryRetained', ['budget', 'received']],
     ['ledger.card.summaryNoBudget', ['received']],

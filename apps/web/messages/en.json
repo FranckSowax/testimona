@@ -1518,7 +1518,9 @@
       "keep": "Keep",
       "reverseLabel": "Reverse this entry: {entry}",
       "reverseWarning": "This reversal cannot be undone.",
-      "reversing": "Reversing…"
+      "reversing": "Reversing…",
+      "receipt": "View the receipt",
+      "receiptLabel": "View the receipt: {entry}"
     },
     "form": {
       "pledgeTitle": "I make a pledge",
@@ -1635,6 +1637,32 @@
       "required": "This field is required.",
       "tooLong": "This text is too long.",
       "invalidCharacter": "This text contains a character that is not accepted."
+    }
+  },
+  "receipts": {
+    "capture": {
+      "label": "Receipt photo (optional)",
+      "hint": "JPEG, PNG or WebP, 5 MB at most. AI reads the photo to prefill the expense: check every field before saving.",
+      "uploading": "Sending the photo…",
+      "reading": "Reading the receipt…",
+      "read": "Receipt read: check the prefilled fields before saving."
+    },
+    "manual": {
+      "unavailable": "Photo attached. Automatic reading is not available: fill in the expense by hand.",
+      "quota": "Photo attached. Today's AI reading limit has been reached: fill in the expense by hand.",
+      "failed": "Photo attached. The receipt could not be read: fill in the expense by hand.",
+      "too_large_to_read": "Photo attached, but too large to be read automatically: fill in the expense by hand."
+    },
+    "errors": {
+      "receipt_type": "Choose a JPEG, PNG or WebP photo.",
+      "receipt_size": "This photo is larger than 5 MB. Choose a lighter one.",
+      "too_many_receipts": "This dossier has reached its limit of 200 receipts.",
+      "upload_failed": "The photo could not be sent. Try again, or save the expense without a photo."
+    },
+    "unlinked": {
+      "retry": "Try attaching the receipt again",
+      "continue": "Continue without the receipt",
+      "frozen": "The expense is saved. Its fields can no longer be changed here."
     }
   }
 }

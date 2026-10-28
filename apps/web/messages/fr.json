@@ -1518,7 +1518,9 @@
       "keep": "Garder",
       "reverseLabel": "Annuler cette ligne : {entry}",
       "reverseWarning": "Cette annulation est définitive.",
-      "reversing": "Annulation…"
+      "reversing": "Annulation…",
+      "receipt": "Voir le reçu",
+      "receiptLabel": "Voir le reçu : {entry}"
     },
     "form": {
       "pledgeTitle": "Je fais une promesse de cotisation",
@@ -1635,6 +1637,32 @@
       "required": "Ce champ est obligatoire.",
       "tooLong": "Ce texte est trop long.",
       "invalidCharacter": "Ce texte contient un caractère non accepté."
+    }
+  },
+  "receipts": {
+    "capture": {
+      "label": "Photo du reçu (facultative)",
+      "hint": "JPEG, PNG ou WebP, 5 Mo au plus. L'IA lit la photo pour préremplir la dépense : vérifiez chaque champ avant d'enregistrer.",
+      "uploading": "Envoi de la photo…",
+      "reading": "Lecture du reçu…",
+      "read": "Reçu lu : vérifiez les champs préremplis avant d'enregistrer."
+    },
+    "manual": {
+      "unavailable": "Photo jointe. La lecture automatique n'est pas disponible : remplissez la dépense à la main.",
+      "quota": "Photo jointe. La limite de lectures par l'IA est atteinte pour aujourd'hui : remplissez la dépense à la main.",
+      "failed": "Photo jointe. Le reçu n'a pas pu être lu : remplissez la dépense à la main.",
+      "too_large_to_read": "Photo jointe, mais trop lourde pour être lue automatiquement : remplissez la dépense à la main."
+    },
+    "errors": {
+      "receipt_type": "Choisissez une photo JPEG, PNG ou WebP.",
+      "receipt_size": "Cette photo dépasse 5 Mo. Choisissez une photo plus légère.",
+      "too_many_receipts": "Ce dossier a atteint la limite de 200 reçus.",
+      "upload_failed": "La photo n'a pas pu être envoyée. Réessayez, ou enregistrez la dépense sans photo."
+    },
+    "unlinked": {
+      "retry": "Réessayer de joindre le reçu",
+      "continue": "Continuer sans le reçu",
+      "frozen": "La dépense est enregistrée. Ses champs ne peuvent plus être modifiés ici."
     }
   }
 }
