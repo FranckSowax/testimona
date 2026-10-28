@@ -52,7 +52,7 @@ describe('chaîne de migrations', () => {
         and (
           p.proname like 'dossier%'
           or p.proname like 'budget_line%'
-          or p.proname like 'ledger_entry%'
+          or p.proname like 'ledger%'
           or p.proname like 'receipt%'
           or p.proname in ('person_before_update', 'journey_answer_before_write')
         )
@@ -60,5 +60,25 @@ describe('chaîne de migrations', () => {
       order by 1, 2
     `);
     expect(rows).toEqual([]);
+  });
+  it('garde le contrôle de clôture hors de portée de l’API et ouvre les deux fonctions aux connectés', async () => {
+    const { rows } = await db.query<{ fn: string; role: string; allowed: boolean }>(`
+      select p.proname as fn, r.role,
+             has_function_privilege(r.role, p.oid, 'execute') as allowed
+      from pg_proc p
+      join pg_namespace n on n.oid = p.pronamespace
+      cross join (values ('anon'), ('authenticated')) as r(role)
+      where n.nspname = 'public'
+        and p.proname in ('ledger_assert_open', 'close_ledger', 'reopen_ledger')
+      order by 1, 2
+    `);
+    expect(rows).toEqual([
+      { fn: 'close_ledger', role: 'anon', allowed: false },
+      { fn: 'close_ledger', role: 'authenticated', allowed: true },
+      { fn: 'ledger_assert_open', role: 'anon', allowed: false },
+      { fn: 'ledger_assert_open', role: 'authenticated', allowed: false },
+      { fn: 'reopen_ledger', role: 'anon', allowed: false },
+      { fn: 'reopen_ledger', role: 'authenticated', allowed: true },
+    ]);
   });
 });

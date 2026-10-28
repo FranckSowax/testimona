@@ -152,11 +152,18 @@ describe('set_budget_scenario', () => {
     ).rejects.toMatchObject(DENIED);
   });
 
-  it('interdit au trésorier de modifier directement dossier_finance', async () => {
-    const result = await asUser(db, treasurer, () =>
-      db.query(`update dossier_finance set scenario = 'sober' where dossier_id = $1`, [dossierId]),
-    );
-    expect(result.affectedRows ?? 0).toBe(0);
+  it('interdit de modifier directement le scénario dans dossier_finance', async () => {
+    // WHY: depuis la PR 5, seuls dossier_id et amounts_visibility sont modifiables directement
+    // (droits de colonne) : le scénario passe par set_budget_scenario, même pour le propriétaire.
+    for (const user of [treasurer, owner]) {
+      await expect(
+        asUser(db, user, () =>
+          db.query(`update dossier_finance set scenario = 'sober' where dossier_id = $1`, [
+            dossierId,
+          ]),
+        ),
+      ).rejects.toMatchObject(DENIED);
+    }
   });
 });
 
