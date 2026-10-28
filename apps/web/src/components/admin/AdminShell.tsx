@@ -32,6 +32,7 @@ export async function AdminShell({
                 donations: t('donations'),
                 reports: t('reports'),
                 ads: t('ads'),
+                providers: t('providers'),
                 clips: 'Clips',
                 credits: 'Crédits',
                 settings: t('settings'),

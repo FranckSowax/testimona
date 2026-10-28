@@ -883,6 +883,7 @@
       "donations": "Donations",
       "reports": "Reports",
       "ads": "Ads",
+      "providers": "Providers",
       "settings": "Settings"
     },
     "overview": {
@@ -1755,6 +1756,63 @@
     },
     "errors": {
       "too_large": "The ledger is too large to export in one go."
+    }
+  },
+  "providers": {
+    "category": {
+      "funeralHome": "Funeral home",
+      "tentsChairs": "Tents and chairs",
+      "sound": "Sound system",
+      "lighting": "Lighting",
+      "catering": "Catering",
+      "drinks": "Drinks",
+      "printing": "Printer"
+    },
+    "admin": {
+      "title": "Providers",
+      "new": "New provider",
+      "edit": "Edit provider",
+      "filterCity": "City",
+      "filterCategory": "Category",
+      "allCategories": "All categories",
+      "filter": "Filter",
+      "empty": "No provider matches these filters.",
+      "name": "Name",
+      "category": "Category",
+      "place": "City and district",
+      "whatsapp": "WhatsApp",
+      "status": "Status",
+      "example": "Example",
+      "verifiedOn": "Verified on {date}",
+      "unverified": "Not verified",
+      "inactive": "Hidden",
+      "editLink": "Edit",
+      "back": "Back to the list"
+    },
+    "form": {
+      "category": "Category",
+      "name": "Name",
+      "city": "City",
+      "district": "District",
+      "whatsapp": "WhatsApp number",
+      "whatsappHint": "International format, for example +241 77 12 34 56.",
+      "priceNote": "Indicative price",
+      "priceNoteHint": "Free text, 200 characters at most. It is never used in a calculation.",
+      "isExample": "Example provider",
+      "isExampleHint": "An example has no number and no verification: no family can contact it.",
+      "verified": "Verified by the Testimona team",
+      "active": "Visible to families",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Provider saved."
+    },
+    "errors": {
+      "required": "This field is required.",
+      "tooLong": "This text is too long.",
+      "invalidCharacter": "This text contains a character that is not allowed.",
+      "invalidPhone": "Enter the number in international format, for example +241 77 12 34 56.",
+      "exampleWithContact": "An example provider cannot have a number or a verification.",
+      "verifiedWithoutNumber": "A verified provider must have a WhatsApp number."
     }
   }
 }

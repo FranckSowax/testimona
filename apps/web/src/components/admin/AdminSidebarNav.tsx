@@ -49,6 +49,11 @@ const ITEMS: NavItem[] = [
     iconPath: 'M3 11l18-5v12L3 13v-2zm0 0v2m6 9l-3-9M14 7v10',
   },
   {
+    href: '/admin/providers',
+    labelKey: 'providers',
+    iconPath: 'M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6',
+  },
+  {
     href: '/admin/clips',
     labelKey: 'clips',
     iconPath:
@@ -75,6 +80,7 @@ export interface Labels {
   donations: string;
   reports: string;
   ads: string;
+  providers: string;
   clips: string;
   credits: string;
   settings: string;

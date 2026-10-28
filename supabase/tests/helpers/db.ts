@@ -128,15 +128,18 @@ export async function createUser(db: PGlite, email: string): Promise<string> {
 
 /**
  * Exécute `fn` avec les droits d'un rôle Supabase, comme le ferait PostgREST
- * avec le JWT de la requête. `userId` absent = visiteur anonyme.
+ * avec le JWT de la requête. `userId` absent = visiteur anonyme ; `extraClaims`
+ * s'ajoute au JWT (par exemple `app_metadata`) mais ne remplace jamais `sub` ni `role`, et
+ * il est ignoré pour un visiteur anonyme.
  */
 export async function asRole<T>(
   db: PGlite,
   role: 'anon' | 'authenticated',
   userId: string | null,
   fn: () => Promise<T>,
+  extraClaims: Record<string, unknown> = {},
 ): Promise<T> {
-  const claims = JSON.stringify(userId ? { sub: userId, role } : { role });
+  const claims = JSON.stringify(userId ? { ...extraClaims, sub: userId, role } : { role });
   await db.query("select set_config('request.jwt.claim.sub', $1, false)", [userId ?? '']);
   await db.query("select set_config('request.jwt.claims', $1, false)", [claims]);
   await db.exec(`set role ${role}`);
@@ -152,4 +155,12 @@ export async function asRole<T>(
 /** Raccourci : exécute `fn` en tant qu'utilisateur connecté. */
 export function asUser<T>(db: PGlite, userId: string, fn: () => Promise<T>): Promise<T> {
   return asRole(db, 'authenticated', userId, fn);
+}
+
+/**
+ * Exécute `fn` en tant qu'administrateur de la plateforme : `app_metadata.role = 'Admin'`,
+ * comme le lit `is_admin()`.
+ */
+export function asAdmin<T>(db: PGlite, userId: string, fn: () => Promise<T>): Promise<T> {
+  return asRole(db, 'authenticated', userId, fn, { app_metadata: { role: 'Admin' } });
 }

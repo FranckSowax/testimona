@@ -1,7 +1,6 @@
-// Généré depuis la base de production Supabase (projet « Testimona app ») le 2026-10-27.
+// Généré depuis la base de production Supabase (projet « Testimona app ») le 2026-10-28.
 // Ne pas modifier à la main : relancer `pnpm --filter @testimona/supabase db:types`
 // (ou l'outil generate_typescript_types du MCP Supabase) après chaque migration.
-
 export type Json =
   | string
   | number
@@ -63,6 +62,32 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_usage: {
+        Row: {
+          count: number
+          day: string
+          dossier_id: string
+        }
+        Insert: {
+          count?: number
+          day: string
+          dossier_id: string
+        }
+        Update: {
+          count?: number
+          day?: string
+          dossier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "dossier"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Biography: {
         Row: {
           createdAt: string
@@ -112,6 +137,56 @@ export type Database = {
             columns: ["memorialId"]
             isOneToOne: false
             referencedRelation: "Memorial"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_line: {
+        Row: {
+          amount_full: number
+          amount_intermediate: number
+          amount_sober: number
+          created_at: string
+          dossier_id: string
+          edited: boolean
+          grid_key: string | null
+          id: string
+          label: string
+          position: number
+          updated_at: string
+        }
+        Insert: {
+          amount_full?: number
+          amount_intermediate?: number
+          amount_sober?: number
+          created_at?: string
+          dossier_id: string
+          edited?: boolean
+          grid_key?: string | null
+          id?: string
+          label: string
+          position?: number
+          updated_at?: string
+        }
+        Update: {
+          amount_full?: number
+          amount_intermediate?: number
+          amount_sober?: number
+          created_at?: string
+          dossier_id?: string
+          edited?: boolean
+          grid_key?: string | null
+          id?: string
+          label?: string
+          position?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_line_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "dossier"
             referencedColumns: ["id"]
           },
         ]
@@ -240,6 +315,153 @@ export type Database = {
           },
         ]
       }
+      dossier: {
+        Row: {
+          city: string
+          country_code: string
+          created_at: string
+          created_by: string
+          entry_point: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          city: string
+          country_code: string
+          created_at?: string
+          created_by?: string
+          entry_point: string
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          city?: string
+          country_code?: string
+          created_at?: string
+          created_by?: string
+          entry_point?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dossier_finance: {
+        Row: {
+          amounts_visibility: string
+          closed_at: string | null
+          closed_by: string | null
+          dossier_id: string
+          scenario: string | null
+          updated_at: string
+        }
+        Insert: {
+          amounts_visibility?: string
+          closed_at?: string | null
+          closed_by?: string | null
+          dossier_id: string
+          scenario?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amounts_visibility?: string
+          closed_at?: string | null
+          closed_by?: string | null
+          dossier_id?: string
+          scenario?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dossier_finance_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: true
+            referencedRelation: "dossier"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dossier_invitation: {
+        Row: {
+          created_at: string
+          created_by: string
+          dossier_id: string
+          email: string | null
+          expires_at: string
+          id: string
+          role: Database["public"]["Enums"]["dossier_role"]
+          token_hash: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          dossier_id: string
+          email?: string | null
+          expires_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["dossier_role"]
+          token_hash: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          dossier_id?: string
+          email?: string | null
+          expires_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["dossier_role"]
+          token_hash?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dossier_invitation_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "dossier"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dossier_member: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          dossier_id: string
+          role: Database["public"]["Enums"]["dossier_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          dossier_id: string
+          role: Database["public"]["Enums"]["dossier_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          dossier_id?: string
+          role?: Database["public"]["Enums"]["dossier_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dossier_member_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "dossier"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Funeral: {
         Row: {
           createdAt: string
@@ -321,6 +543,156 @@ export type Database = {
             columns: ["funeralId"]
             isOneToOne: false
             referencedRelation: "Funeral"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journey_answer: {
+        Row: {
+          answered_by: string | null
+          dossier_id: string
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          answered_by?: string | null
+          dossier_id: string
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          answered_by?: string | null
+          dossier_id?: string
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_answer_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "dossier"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ledger_closure_event: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          dossier_id: string
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          dossier_id: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          dossier_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_closure_event_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "dossier"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ledger_entry: {
+        Row: {
+          amount: number
+          budget_line_id: string | null
+          created_at: string
+          created_by: string | null
+          dossier_id: string
+          id: string
+          idempotency_key: string
+          kind: string
+          member_id: string | null
+          method: string | null
+          note: string
+          occurred_on: string
+          party_name: string
+          pledge_id: string | null
+          reverses_id: string | null
+          reverses_kind: string | null
+        }
+        Insert: {
+          amount: number
+          budget_line_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          dossier_id: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          member_id?: string | null
+          method?: string | null
+          note?: string
+          occurred_on?: string
+          party_name: string
+          pledge_id?: string | null
+          reverses_id?: string | null
+          reverses_kind?: string | null
+        }
+        Update: {
+          amount?: number
+          budget_line_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          dossier_id?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          member_id?: string | null
+          method?: string | null
+          note?: string
+          occurred_on?: string
+          party_name?: string
+          pledge_id?: string | null
+          reverses_id?: string | null
+          reverses_kind?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entry_budget_line_id_fkey"
+            columns: ["budget_line_id"]
+            isOneToOne: false
+            referencedRelation: "budget_line"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entry_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "dossier"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entry_pledge_id_fkey"
+            columns: ["pledge_id"]
+            isOneToOne: false
+            referencedRelation: "ledger_entry"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entry_reverses_id_fkey"
+            columns: ["reverses_id"]
+            isOneToOne: true
+            referencedRelation: "ledger_entry"
             referencedColumns: ["id"]
           },
         ]
@@ -736,6 +1108,53 @@ export type Database = {
           },
         ]
       }
+      person: {
+        Row: {
+          birth_date: string | null
+          created_at: string
+          death_city: string | null
+          death_country_code: string | null
+          death_date: string | null
+          dossier_id: string
+          first_name: string
+          last_name: string
+          nickname: string | null
+          updated_at: string
+        }
+        Insert: {
+          birth_date?: string | null
+          created_at?: string
+          death_city?: string | null
+          death_country_code?: string | null
+          death_date?: string | null
+          dossier_id: string
+          first_name: string
+          last_name: string
+          nickname?: string | null
+          updated_at?: string
+        }
+        Update: {
+          birth_date?: string | null
+          created_at?: string
+          death_city?: string | null
+          death_country_code?: string | null
+          death_date?: string | null
+          dossier_id?: string
+          first_name?: string
+          last_name?: string
+          nickname?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "person_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: true
+            referencedRelation: "dossier"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Photo: {
         Row: {
           caption: string | null
@@ -887,6 +1306,167 @@ export type Database = {
             columns: ["photoId"]
             isOneToOne: false
             referencedRelation: "Photo"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider: {
+        Row: {
+          active: boolean
+          category_key: string
+          city: string
+          created_at: string
+          district: string | null
+          id: string
+          is_example: boolean
+          name: string
+          price_note: string | null
+          updated_at: string
+          verified_at: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          active?: boolean
+          category_key: string
+          city: string
+          created_at?: string
+          district?: string | null
+          id?: string
+          is_example?: boolean
+          name: string
+          price_note?: string | null
+          updated_at?: string
+          verified_at?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          active?: boolean
+          category_key?: string
+          city?: string
+          created_at?: string
+          district?: string | null
+          id?: string
+          is_example?: boolean
+          name?: string
+          price_note?: string | null
+          updated_at?: string
+          verified_at?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_category_key_fkey"
+            columns: ["category_key"]
+            isOneToOne: false
+            referencedRelation: "provider_category"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
+      provider_category: {
+        Row: {
+          key: string
+          position: number
+        }
+        Insert: {
+          key: string
+          position: number
+        }
+        Update: {
+          key?: string
+          position?: number
+        }
+        Relationships: []
+      }
+      quote_request: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          dossier_id: string
+          id: string
+          message: string
+          provider_id: string
+          step_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          dossier_id: string
+          id?: string
+          message: string
+          provider_id: string
+          step_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          dossier_id?: string
+          id?: string
+          message?: string
+          provider_id?: string
+          step_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_request_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "dossier"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_request_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      receipt: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          dossier_id: string
+          entry_id: string | null
+          id: string
+          mime_type: string
+          size_bytes: number
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          dossier_id: string
+          entry_id?: string | null
+          id?: string
+          mime_type: string
+          size_bytes: number
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          dossier_id?: string
+          entry_id?: string | null
+          id?: string
+          mime_type?: string
+          size_bytes?: number
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receipt_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "dossier"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receipt_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: true
+            referencedRelation: "ledger_entry"
             referencedColumns: ["id"]
           },
         ]
@@ -1172,10 +1752,64 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_dossier_invitation: { Args: { p_token: string }; Returns: string }
+      close_ledger: { Args: { p_dossier_id: string }; Returns: string }
+      consume_ai_quota: {
+        Args: { p_daily_limit?: number; p_dossier_id: string }
+        Returns: boolean
+      }
+      create_dossier_with_person: {
+        Args: {
+          p_city: string
+          p_country_code: string
+          p_entry_point: string
+          p_first_name: string
+          p_last_name: string
+          p_relationship: string
+        }
+        Returns: string
+      }
+      dossier_role_rank: {
+        Args: { p_role: Database["public"]["Enums"]["dossier_role"] }
+        Returns: number
+      }
       is_admin: { Args: never; Returns: boolean }
+      is_dossier_member: {
+        Args: {
+          p_dossier_id: string
+          p_min_role?: Database["public"]["Enums"]["dossier_role"]
+        }
+        Returns: boolean
+      }
+      ledger_assert_open: { Args: { p_dossier_id: string }; Returns: undefined }
+      ledger_spent_by_line: {
+        Args: { p_dossier_id: string }
+        Returns: {
+          budget_line_id: string
+          spent: number
+        }[]
+      }
+      ledger_totals: {
+        Args: { p_dossier_id: string }
+        Returns: {
+          pledged_open: number
+          received: number
+          spent: number
+        }[]
+      }
+      reopen_ledger: { Args: { p_dossier_id: string }; Returns: undefined }
+      set_budget_scenario: {
+        Args: { p_dossier_id: string; p_scenario: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      dossier_role:
+        | "owner"
+        | "coordinator"
+        | "treasurer"
+        | "contributor"
+        | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1302,6 +1936,14 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      dossier_role: [
+        "owner",
+        "coordinator",
+        "treasurer",
+        "contributor",
+        "viewer",
+      ],
+    },
   },
 } as const

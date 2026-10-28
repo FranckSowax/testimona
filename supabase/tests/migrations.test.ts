@@ -54,6 +54,8 @@ describe('chaîne de migrations', () => {
           or p.proname like 'budget_line%'
           or p.proname like 'ledger%'
           or p.proname like 'receipt%'
+          or p.proname like 'provider%'
+          or p.proname like 'quote_request%'
           or p.proname in ('person_before_update', 'journey_answer_before_write')
         )
         and has_function_privilege(r.role, p.oid, 'execute')
