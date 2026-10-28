@@ -1,12 +1,12 @@
 'use client';
 
-import { startTransition, useActionState, useEffect, useId, useRef, useState } from 'react';
-import type { ChangeEvent, FormEvent, InputHTMLAttributes, ReactNode } from 'react';
+import { startTransition, useActionState, useEffect, useRef, useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { buttonClasses } from '@/components/ui/Button';
 import { saveEntryAction, type LedgerFormState } from '../actions';
 import { ENTRY_METHODS, ledgerToday } from '../schema';
-import { FIELD_MESSAGES, isLedgerSpecific } from './ledgerError';
+import { FIELD, useEntryFields } from './useEntryFields';
 import { useIdempotencyKey } from './useIdempotencyKey';
 
 /** Membre proposé pour rattacher une cotisation reçue. */
@@ -37,10 +37,6 @@ interface Props {
   amountLabel: (amount: number) => string;
 }
 
-const FIELD =
-  'border-border bg-background text-foreground w-full rounded-xl border px-3 py-2 disabled:opacity-60';
-const LABEL = 'text-foreground text-sm';
-
 /**
  * Saisie d'une promesse, d'une cotisation reçue ou d'une dépense.
  *
@@ -56,7 +52,6 @@ export function EntryForm({
   amountLabel,
 }: Props) {
   const t = useTranslations('ledger');
-  const tErrors = useTranslations('dossier.errors');
   const locale = useLocale();
   const [state, formAction, pending] = useActionState<LedgerFormState | null, FormData>(
     saveEntryAction,
@@ -69,7 +64,6 @@ export function EntryForm({
   const formRef = useRef<HTMLFormElement>(null);
   // Dernier nom recopié d'une promesse, pour le remplacer tant que la personne n'y a pas touché.
   const prefilledName = useRef('');
-  const uid = useId();
 
   // WHY: calculée au montage, comme la clé, pour éviter un écart serveur/navigateur à minuit.
   useEffect(() => setToday(ledgerToday()), []);
@@ -130,53 +124,8 @@ export function EntryForm({
     ...(showLine ? ['budgetLineId'] : []),
   ];
 
-  const fieldError = (name: string): string | null => {
-    const message = state?.fieldErrors?.[name];
-    if (!message) return null;
-    const textKey = FIELD_MESSAGES[message];
-    return textKey ? t(textKey) : tErrors('validation');
-  };
-  const idOf = (name: string) => `${uid}-${name}`;
-  const errorIdOf = (name: string) => `${uid}-${name}-error`;
+  const { uid, a11y, wrap, input, generalError } = useEntryFields(state, shown);
   const memberHintId = `${uid}-memberId-hint`;
-  const a11y = (name: string, hintId?: string) => {
-    const error = fieldError(name);
-    const describedBy = [hintId, error ? errorIdOf(name) : undefined].filter(Boolean).join(' ');
-    return {
-      id: idOf(name),
-      name,
-      'aria-invalid': error ? true : undefined,
-      'aria-describedby': describedBy || undefined,
-    } as const;
-  };
-  const wrap = (name: string, label: string, control: ReactNode, hint?: ReactNode) => {
-    const error = fieldError(name);
-    return (
-      <div className="space-y-1">
-        <label htmlFor={idOf(name)} className={`block ${LABEL}`}>
-          {label}
-        </label>
-        {control}
-        {hint}
-        {error && (
-          <p id={errorIdOf(name)} role="alert" className="text-destructive text-sm">
-            {error}
-          </p>
-        )}
-      </div>
-    );
-  };
-  const input = (name: string, label: string, props: InputHTMLAttributes<HTMLInputElement>) =>
-    wrap(name, label, <input className={FIELD} {...a11y(name)} {...props} />);
-
-  // WHY: une erreur de champ caché (dossier, clé) n'a pas de place à côté d'un champ visible.
-  const hasShownFieldError = Object.keys(state?.fieldErrors ?? {}).some((n) => shown.includes(n));
-  const generalError =
-    state?.error && !hasShownFieldError
-      ? isLedgerSpecific(state.error)
-        ? t(`errors.${state.error}`)
-        : tErrors(state.error)
-      : null;
 
   return (
     <form
