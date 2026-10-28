@@ -39,13 +39,23 @@ describe('closeLedgerAction et reopenLedgerAction', () => {
         localizedPath(`/dossier/${DOSSIER}${page}`, 'en'),
       );
     }
+    cache.revalidatePath.mockClear();
     expect(await reopenLedgerAction(null, form())).toEqual({ ok: true });
     expect(service.reopenLedger).toHaveBeenCalledWith({ dossierId: DOSSIER });
+    expect(cache.revalidatePath).toHaveBeenCalledTimes(4);
+    for (const page of ['', '/cotisations', '/cotisations/postes', '/cotisations/bilan']) {
+      expect(cache.revalidatePath).toHaveBeenCalledWith(
+        localizedPath(`/dossier/${DOSSIER}${page}`, 'en'),
+      );
+    }
   });
 
   it('rendent l’erreur sans revalider', async () => {
     service.closeLedger.mockResolvedValueOnce({ ok: false, error: 'forbidden' });
     expect(await closeLedgerAction(null, form())).toEqual({ error: 'forbidden' });
+    expect(cache.revalidatePath).not.toHaveBeenCalled();
+    service.reopenLedger.mockResolvedValueOnce({ ok: false, error: 'forbidden' });
+    expect(await reopenLedgerAction(null, form())).toEqual({ error: 'forbidden' });
     expect(cache.revalidatePath).not.toHaveBeenCalled();
   });
 

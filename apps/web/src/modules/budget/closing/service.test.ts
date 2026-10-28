@@ -87,6 +87,27 @@ describe('reopenLedger', () => {
   });
 });
 
+describe('reopenLedger, cas limites', () => {
+  it('refuse un identifiant invalide et un dossier hors budget', async () => {
+    expect(await reopenLedger({ dossierId: 'x' })).toEqual({ ok: false, error: 'validation' });
+    gate.budgetGate.mockResolvedValueOnce('not_found');
+    expect(await reopenLedger({ dossierId: DOSSIER })).toEqual({ ok: false, error: 'not_found' });
+    expect(repo.reopenLedger).not.toHaveBeenCalled();
+  });
+});
+
+describe('traduction des codes de session', () => {
+  it('rend unauthenticated pour 28000 et PGRST301', async () => {
+    for (const code of ['28000', 'PGRST301']) {
+      repo.closeLedger.mockResolvedValueOnce({ data: null, error: { code, message: 'x' } });
+      expect(await closeLedger({ dossierId: DOSSIER })).toEqual({
+        ok: false,
+        error: 'unauthenticated',
+      });
+    }
+  });
+});
+
 describe('exportLedger', () => {
   it('rend les lignes et les libellés des postes pour un trésorier', async () => {
     expect(await exportLedger({ dossierId: DOSSIER })).toEqual({
@@ -114,6 +135,7 @@ describe('exportLedger', () => {
       error: { code: 'XX000', message: 'x' },
     });
     expect(await exportLedger({ dossierId: DOSSIER })).toEqual({ ok: false, error: 'unknown' });
+    expect(spy).toHaveBeenCalledWith('[budget/closing] listLines failed', { code: 'XX000' });
     spy.mockRestore();
   });
 });

@@ -34,7 +34,6 @@ const CODES: Record<string, ClosingError> = {
   '28000': 'unauthenticated',
   // WHY: JWT expiré signalé par PostgREST.
   PGRST301: 'unauthenticated',
-  '22P02': 'validation',
   // WHY: registre de plus de 50 000 lignes (dépôt) : refusé plutôt que tronqué.
   too_large: 'too_large',
 };
