@@ -25,6 +25,7 @@ export type LedgerError =
   | 'receipt_unlinked'
   | 'receipt_unavailable'
   | 'changed_since_saved'
+  | 'closed'
   | 'unknown';
 
 export type LedgerResult<T> =
@@ -46,6 +47,8 @@ const CODES: Record<string, LedgerError> = {
   TL003: 'validation',
   // WHY: poste d'un autre dossier ; un poste d'un autre type de ligne donne 23514.
   TL004: 'validation',
+  // WHY: dossier clôturé (ledger_assert_open) ; la base vérifie le rôle avant.
+  TL009: 'closed',
 };
 
 function fromRepo(error: { code: string }, scope: string): { ok: false; error: LedgerError } {
@@ -136,8 +139,11 @@ export async function recordReceipt(raw: unknown) {
 
 // WHY: reçu invisible, déjà rattaché ailleurs ou ligne invalide (TL008), dépense ayant déjà un
 // reçu (23505) : renvoyer le formulaire n'y changera rien. Les autres échecs (TL006 : photo pas
-// encore au stockage) peuvent réussir au renvoi.
-const ATTACH_FINAL = new Set(['no_rows', '23505', 'TL008']);
+// encore au stockage) peuvent réussir au renvoi. TL009 : dossier clôturé entre l'enregistrement
+// de la dépense et le rattachement ; le reçu ne pourra plus être joint tant qu'il est clôturé.
+// On répond `receipt_unavailable` plutôt que `closed` : son texte dit que la dépense est bien
+// enregistrée, alors que `closed` laisserait croire que rien ne l'a été.
+const ATTACH_FINAL = new Set(['no_rows', '23505', 'TL008', 'TL009']);
 
 /**
  * Dépense (trésorier et plus) ; `partyName` est le fournisseur. Un reçu préparé est rattaché

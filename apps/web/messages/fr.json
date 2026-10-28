@@ -1556,6 +1556,7 @@
       "receipt_unlinked": "La dépense est enregistrée, mais le reçu n'a pas pu être joint.",
       "receipt_unavailable": "Ce reçu ne peut plus être joint : la dépense est enregistrée sans lui.",
       "changed_since_saved": "Cette saisie a changé depuis un premier enregistrement : repartez d'un formulaire vide.",
+      "closed": "Les cotisations sont clôturées : plus aucune saisie n'est possible.",
       "invalidNumber": "Entrez un montant entier, en chiffres.",
       "outOfRange": "Entrez un montant entre 1 et 100 000 000 FCFA.",
       "invalidDate": "Entrez une date valide, au plus tard aujourd'hui.",
@@ -1632,6 +1633,7 @@
       "line_in_use": "Ce poste porte ou a porté des dépenses : il ne peut pas être supprimé.",
       "no_attendance": "Renseignez d'abord l'affluence pour estimer les postes.",
       "too_many_lines": "Un dossier compte au plus 100 postes.",
+      "closed": "Les cotisations sont clôturées : les postes et le scénario ne se modifient plus.",
       "invalidNumber": "Entrez un montant entier, en chiffres.",
       "outOfRange": "Entrez un montant entre 0 et 100 000 000 FCFA.",
       "required": "Ce champ est obligatoire.",
@@ -1657,7 +1659,8 @@
       "receipt_type": "Choisissez une photo JPEG, PNG ou WebP.",
       "receipt_size": "Cette photo dépasse 5 Mo. Choisissez une photo plus légère.",
       "too_many_receipts": "Ce dossier a atteint la limite de 200 reçus.",
-      "upload_failed": "La photo n'a pas pu être envoyée. Réessayez, ou enregistrez la dépense sans photo."
+      "upload_failed": "La photo n'a pas pu être envoyée. Réessayez, ou enregistrez la dépense sans photo.",
+      "closed": "Les cotisations sont clôturées : aucun reçu ne peut plus être ajouté."
     },
     "unlinked": {
       "retry": "Réessayer de joindre le reçu",

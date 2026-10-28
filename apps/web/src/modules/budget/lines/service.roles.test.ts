@@ -86,3 +86,20 @@ describe('rôle', () => {
     expect(dossierRepo.getMyRole).not.toHaveBeenCalled();
   });
 });
+
+describe('dossier clôturé', () => {
+  it('nomme le refus de la base (TL009) pour un poste et pour le scénario', async () => {
+    const closed = { data: null, error: { code: 'TL009', message: 'ledger closed' } };
+    dossierRepo.getMyRole.mockResolvedValue('treasurer');
+    repo.insertLine.mockResolvedValueOnce(closed);
+    expect(await addLine({ dossierId: DOSSIER, label: 'Fleurs', ...amounts })).toEqual({
+      ok: false,
+      error: 'closed',
+    });
+    repo.setScenario.mockResolvedValueOnce(closed);
+    expect(await chooseScenario({ dossierId: DOSSIER, scenario: 'sober' })).toEqual({
+      ok: false,
+      error: 'closed',
+    });
+  });
+});

@@ -59,6 +59,7 @@ const PATHS = [
     'line_in_use',
     'no_attendance',
     'too_many_lines',
+    'closed',
     'invalidNumber',
     'outOfRange',
     'required',
@@ -90,6 +91,7 @@ const ERROR_PATHS: Record<LinesError, string> = {
   line_in_use: 'lines.errors.line_in_use',
   no_attendance: 'lines.errors.no_attendance',
   too_many_lines: 'lines.errors.too_many_lines',
+  closed: 'lines.errors.closed',
 };
 
 // WHY : table message Zod -> clé de texte ; le test vérifie qu'elle couvre les messages réels.

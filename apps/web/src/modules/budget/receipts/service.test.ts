@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { repo, gate, dossierRepo, linesRepo, ai, aiConfig } = vi.hoisted(() => ({
+const { repo, gate, dossierRepo, linesRepo, ai, aiConfig, closingRepo } = vi.hoisted(() => ({
   repo: {
     insertReceipt: vi.fn(),
     createUploadUrl: vi.fn(),
@@ -13,11 +13,13 @@ const { repo, gate, dossierRepo, linesRepo, ai, aiConfig } = vi.hoisted(() => ({
   linesRepo: { listLines: vi.fn() },
   ai: { readReceipt: vi.fn() },
   aiConfig: { isAiEnabled: vi.fn() },
+  closingRepo: { getClosure: vi.fn() },
 }));
 
 vi.mock('server-only', () => ({}));
 vi.mock('./repo', () => repo);
 vi.mock('../gate', () => gate);
+vi.mock('../closing/repo', () => closingRepo);
 vi.mock('@/modules/dossier/repo', () => dossierRepo);
 vi.mock('../lines/repo', () => linesRepo);
 vi.mock('@/modules/ai/receipt', () => ai);
@@ -42,6 +44,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   gate.budgetGate.mockResolvedValue(null);
   dossierRepo.getMyRole.mockResolvedValue('treasurer');
+  closingRepo.getClosure.mockResolvedValue({ data: { closedAt: null }, error: null });
   repo.insertReceipt.mockResolvedValue({ data: receipt, error: null });
   repo.createUploadUrl.mockResolvedValue({ data: { path: PATH, token: 'tok' }, error: null });
   repo.getReceipt.mockResolvedValue({ data: receipt, error: null });
@@ -49,6 +52,21 @@ beforeEach(() => {
 });
 
 describe('prepareReceiptUpload', () => {
+  it('refuse un dossier clôturé sans préparer d’envoi', async () => {
+    closingRepo.getClosure.mockResolvedValueOnce({
+      data: { closedAt: '2026-10-28T09:00:00Z' },
+      error: null,
+    });
+    expect(await prepareReceiptUpload(input)).toEqual({ ok: false, error: 'closed' });
+    expect(repo.insertReceipt).not.toHaveBeenCalled();
+    repo.insertReceipt.mockResolvedValueOnce({
+      data: null,
+      error: { code: 'TL009', message: 'ledger closed' },
+    });
+    // WHY: clôture entre la lecture et l'écriture : la base tranche.
+    expect(await prepareReceiptUpload(input)).toEqual({ ok: false, error: 'closed' });
+  });
+
   it('prépare le reçu et son envoi signé', async () => {
     expect(await prepareReceiptUpload(input)).toEqual({
       ok: true,

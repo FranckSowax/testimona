@@ -26,6 +26,7 @@ export type LinesError =
   | 'line_in_use'
   | 'no_attendance'
   | 'too_many_lines'
+  | 'closed'
   | 'unknown';
 
 export type LinesResult<T> =
@@ -43,6 +44,8 @@ const CODES: Record<string, LinesError> = {
   '23514': 'validation',
   // WHY: limite de 100 postes atteinte entre la lecture et l'insertion (course).
   TL005: 'too_many_lines',
+  // WHY: dossier clôturé (postes, scénario) ; la base vérifie le rôle avant.
+  TL009: 'closed',
   '22P02': 'validation',
   '23503': 'line_in_use',
   no_rows: 'not_found',

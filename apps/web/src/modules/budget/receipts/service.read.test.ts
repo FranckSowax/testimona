@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // WHY: séparé de service.test.ts (limite de 300 lignes) ; mêmes doublures.
-const { repo, gate, dossierRepo, linesRepo, ai, aiConfig } = vi.hoisted(() => ({
+const { repo, gate, dossierRepo, linesRepo, ai, aiConfig, closingRepo } = vi.hoisted(() => ({
   repo: {
     insertReceipt: vi.fn(),
     createUploadUrl: vi.fn(),
@@ -14,11 +14,13 @@ const { repo, gate, dossierRepo, linesRepo, ai, aiConfig } = vi.hoisted(() => ({
   linesRepo: { listLines: vi.fn() },
   ai: { readReceipt: vi.fn() },
   aiConfig: { isAiEnabled: vi.fn() },
+  closingRepo: { getClosure: vi.fn() },
 }));
 
 vi.mock('server-only', () => ({}));
 vi.mock('./repo', () => repo);
 vi.mock('../gate', () => gate);
+vi.mock('../closing/repo', () => closingRepo);
 vi.mock('@/modules/dossier/repo', () => dossierRepo);
 vi.mock('../lines/repo', () => linesRepo);
 vi.mock('@/modules/ai/receipt', () => ai);
@@ -52,6 +54,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   gate.budgetGate.mockResolvedValue(null);
   dossierRepo.getMyRole.mockResolvedValue('treasurer');
+  closingRepo.getClosure.mockResolvedValue({ data: { closedAt: null }, error: null });
   aiConfig.isAiEnabled.mockReturnValue(true);
   repo.getReceipt.mockResolvedValue({ data: receipt, error: null });
   repo.downloadReceipt.mockResolvedValue({ data: JPEG, error: null });
@@ -63,6 +66,16 @@ beforeEach(() => {
 });
 
 describe('readReceiptPrefill', () => {
+  it('refuse un dossier clôturé sans lire la photo ni consommer le quota', async () => {
+    closingRepo.getClosure.mockResolvedValueOnce({
+      data: { closedAt: '2026-10-28T09:00:00Z' },
+      error: null,
+    });
+    expect(await readReceiptPrefill(input)).toEqual({ ok: false, error: 'closed' });
+    expect(repo.downloadReceipt).not.toHaveBeenCalled();
+    expect(ai.readReceipt).not.toHaveBeenCalled();
+  });
+
   it('préremplit la dépense et propose le poste de la clé lue', async () => {
     expect(await readReceiptPrefill(input)).toEqual({
       ok: true,

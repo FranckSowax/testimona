@@ -5,6 +5,7 @@ const LINES_SPECIFIC: ReadonlySet<LinesError> = new Set([
   'line_in_use',
   'no_attendance',
   'too_many_lines',
+  'closed',
 ]);
 
 /**

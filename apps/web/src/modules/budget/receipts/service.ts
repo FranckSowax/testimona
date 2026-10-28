@@ -4,6 +4,7 @@ import { readReceipt, type ReceiptReadError } from '@/modules/ai/receipt';
 import type { ReceiptProvider } from '@/modules/ai/receipt-provider';
 import { getMyRole } from '@/modules/dossier/repo';
 import { hasRole } from '@/modules/dossier/roles';
+import { getClosure } from '../closing/repo';
 import { budgetGate } from '../gate';
 import { listLines } from '../lines/repo';
 import * as repo from './repo';
@@ -24,6 +25,7 @@ export type ReceiptsError =
   | 'receipt_type'
   | 'receipt_size'
   | 'too_many_receipts'
+  | 'closed'
   | 'unknown';
 
 /**
@@ -52,6 +54,8 @@ const CODES: Record<string, ReceiptsError> = {
   '22P02': 'validation',
   // WHY: limite de 200 reçus par dossier (trigger de receipt).
   TL007: 'too_many_receipts',
+  // WHY: dossier clôturé entre la vérification du service et l'écriture.
+  TL009: 'closed',
   no_rows: 'not_found',
   // WHY: reçu préparé dont la photo n'a jamais été envoyée (stockage).
   object_missing: 'not_found',
@@ -76,14 +80,18 @@ function fromRepo(error: { code: string }, scope: string): { ok: false; error: R
 }
 
 /**
- * Porte des reçus : dossier ouvert au budget, puis rôle trésorier ou plus.
+ * Porte des reçus : dossier ouvert au budget, rôle trésorier ou plus, cotisations non clôturées.
  * WHY: la lecture consomme le quota d'IA (ouvert dès le contributeur) ; on la réserve à qui
- * saisit les dépenses. La RLS reste le garde-fou de la base.
+ * saisit les dépenses. Un dossier clôturé n'accepte plus de reçu : refuser avant de préparer un
+ * envoi ou de lire une photo évite une ligne inutile et un appel d'IA décompté. Si la lecture de
+ * la clôture échoue, la base tranche (TL009). La RLS reste le garde-fou de la base.
  */
 async function managerGate(dossierId: string): Promise<ReceiptsError | null> {
   const blocked = await budgetGate(dossierId);
   if (blocked) return blocked;
-  return hasRole(await getMyRole(dossierId), 'treasurer') ? null : 'forbidden';
+  if (!hasRole(await getMyRole(dossierId), 'treasurer')) return 'forbidden';
+  const closure = await getClosure(dossierId);
+  return closure.data?.closedAt ? 'closed' : null;
 }
 
 /**

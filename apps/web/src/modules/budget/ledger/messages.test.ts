@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import en from '../../../../messages/en.json';
 import fr from '../../../../messages/fr.json';
 import { ENTRY_KINDS, ENTRY_METHODS, VISIBILITIES } from './schema';
+import type { LedgerError } from './service';
+import { isLedgerSpecific } from './ui/ledgerError';
 
 const get = (messages: unknown, path: string): unknown =>
   path
@@ -74,6 +76,7 @@ const PATHS = [
     'receipt_unlinked',
     'receipt_unavailable',
     'changed_since_saved',
+    'closed',
     'invalidNumber',
     'outOfRange',
     'invalidDate',
@@ -172,5 +175,32 @@ describe('parité FR/EN du registre', () => {
       expect(isFilled(get(fr, `ledger.errors.${key}`))).toBe(true);
       expect(isFilled(get(en, `ledger.errors.${key}`))).toBe(true);
     }
+  });
+});
+
+// WHY : le `Record` fait échouer le typecheck si un code est ajouté à `LedgerError` sans texte.
+// Les codes propres au registre sont dans `ledger.errors`, les autres dans `dossier.errors`.
+const ERROR_PATHS: Record<LedgerError, string> = {
+  validation: 'dossier.errors.validation',
+  forbidden: 'dossier.errors.forbidden',
+  not_found: 'dossier.errors.not_found',
+  unauthenticated: 'dossier.errors.unauthenticated',
+  unknown: 'dossier.errors.unknown',
+  already_reversed: 'ledger.errors.already_reversed',
+  pledge_unavailable: 'ledger.errors.pledge_unavailable',
+  receipt_unlinked: 'ledger.errors.receipt_unlinked',
+  receipt_unavailable: 'ledger.errors.receipt_unavailable',
+  changed_since_saved: 'ledger.errors.changed_since_saved',
+  closed: 'ledger.errors.closed',
+};
+
+describe.each([
+  ['fr', fr],
+  ['en', en],
+])('erreurs du registre (%s)', (_locale, messages) => {
+  it.each(Object.entries(ERROR_PATHS))('le code %s a son texte', (code, path) => {
+    expect(isFilled(get(messages, path))).toBe(true);
+    // WHY: l'écran choisit l'espace par isLedgerSpecific ; il doit pointer vers le même texte.
+    expect(isLedgerSpecific(code as LedgerError)).toBe(path.startsWith('ledger.'));
   });
 });
