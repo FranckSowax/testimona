@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 
-const { openRouterReceiptProvider, RECEIPT_SYSTEM_PROMPT } = await import('./receipt-provider');
+const { HINTS, openRouterReceiptProvider, RECEIPT_SYSTEM_PROMPT } =
+  await import('./receipt-provider');
 const { GRID_KEYS } = await import('@/modules/budget/grid');
 
 const reply = (content: string) =>
@@ -42,5 +43,9 @@ describe('openRouterReceiptProvider', () => {
 
   it('cite chaque clé de la grille dans la consigne', () => {
     for (const key of GRID_KEYS) expect(RECEIPT_SYSTEM_PROMPT).toContain(key);
+  });
+
+  it('n’explique que des clés de la grille', () => {
+    for (const key of Object.keys(HINTS)) expect(GRID_KEYS).toContain(key);
   });
 });

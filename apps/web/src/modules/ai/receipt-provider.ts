@@ -1,12 +1,14 @@
 import 'server-only';
 import { GRID_KEYS } from '@/modules/budget/grid';
-import { AI_MODEL } from './config';
 import { completeChat, type ProviderDeps } from './provider';
+
+/** Types d'image qu'on accepte d'envoyer au modèle. */
+export const RECEIPT_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 
 /** Photo d'un reçu, vérifiée par le serveur (type d'après la signature des octets). */
 export interface ReceiptImage {
   bytes: Uint8Array;
-  mimeType: 'image/jpeg' | 'image/png' | 'image/webp';
+  mimeType: (typeof RECEIPT_MIME_TYPES)[number];
 }
 
 /** Lit un reçu et renvoie le texte brut de la réponse ; lève `AiProviderError` en cas d'échec. */
@@ -16,7 +18,7 @@ export type ReceiptProvider = (image: ReceiptImage) => Promise<string>;
 const MAX_TOKENS = 4_000;
 
 // WHY: quelques clés de la grille gagnent à être expliquées au modèle ; les autres sont parlantes.
-const HINTS: Readonly<Record<string, string>> = {
+export const HINTS: Readonly<Record<string, string>> = {
   mortuary: 'morgue, body conservation',
   burial: 'grave, cemetery',
   service: 'religious service',
@@ -61,10 +63,8 @@ export function openRouterReceiptProvider(
     completeChat(
       apiKey,
       {
-        model: AI_MODEL,
         max_tokens: MAX_TOKENS,
         reasoning: { effort: 'low', exclude: true },
-        provider: { data_collection: 'deny' },
         messages: [
           { role: 'system', content: RECEIPT_SYSTEM_PROMPT },
           {

@@ -17,9 +17,9 @@ export class AiProviderError extends Error {
 export type ImproveProvider = (prompt: ImprovePrompt) => Promise<string>;
 
 const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
-// WHY: une réécriture courte à effort bas répond en quelques secondes ; 45 s par essai, un seul
-// nouvel essai et un budget global de 60 s gardent l'écran réactif sans abandonner au premier
-// incident passager.
+// WHY: une réécriture courte ou la lecture d'une image de reçu, à effort bas, répond en quelques
+// secondes ; 45 s par essai, un seul nouvel essai et un budget global de 60 s gardent l'écran
+// réactif sans abandonner au premier incident passager.
 const TIMEOUT_MS = 45_000;
 const DEADLINE_MS = 60_000;
 const MAX_ATTEMPTS = 2;
@@ -28,6 +28,27 @@ const MAX_TOKENS = 16_000;
 const RETRYABLE = new Set([408, 429, 502, 503]);
 // WHY: au-delà, on respecte le fournisseur en ne réessayant pas plutôt que de bloquer l'écran.
 const MAX_RETRY_AFTER_MS = 2_000;
+
+/** Partie d'un message utilisateur : texte ou image (URL `data:` en base64). */
+export type ChatContentPart =
+  | { type: 'text'; text: string }
+  | { type: 'image_url'; image_url: { url: string } };
+
+/** Message envoyé au modèle. */
+export interface ChatMessage {
+  role: 'system' | 'user';
+  content: string | ChatContentPart[];
+}
+
+/**
+ * Corps d'une requête de complétion, sans le modèle ni la politique de données : `completeChat`
+ * les impose lui-même.
+ */
+export interface ChatPayload {
+  max_tokens: number;
+  reasoning?: { effort: 'low' | 'medium' | 'high'; exclude?: boolean };
+  messages: ChatMessage[];
+}
 
 /** Dépendances injectables (tests rapides et déterministes). */
 export interface ProviderDeps {
@@ -104,14 +125,15 @@ async function send(deps: Required<ProviderDeps>, apiKey: string, body: string):
 
 /**
  * Envoie une requête de complétion à OpenRouter et renvoie le texte de la réponse, nettoyé.
- * Lève `AiProviderError` en cas d'échec ; ne journalise jamais la requête ni la réponse.
+ * Impose le modèle `AI_MODEL` et `data_collection: 'deny'`. Lève `AiProviderError` en cas
+ * d'échec ; ne journalise jamais la requête ni la réponse.
  *
  * @example
- * const text = await completeChat(apiKey, { model: AI_MODEL, messages });
+ * const text = await completeChat(apiKey, { max_tokens: 1_000, messages });
  */
 export async function completeChat(
   apiKey: string,
-  payload: Record<string, unknown>,
+  payload: ChatPayload,
   deps: ProviderDeps = {},
 ): Promise<string> {
   const resolved: Required<ProviderDeps> = {
@@ -121,7 +143,10 @@ export async function completeChat(
   };
   let res: Response;
   try {
-    res = await send(resolved, apiKey, JSON.stringify(payload));
+    // WHY: le modèle et la politique de données viennent en dernier : aucun appelant ne peut les
+    // oublier ni les écraser, même par un objet construit hors du typage.
+    const body = { ...payload, model: AI_MODEL, provider: { data_collection: 'deny' } };
+    res = await send(resolved, apiKey, JSON.stringify(body));
   } catch (error) {
     // WHY: on journalise la nature de l'échec, jamais le prompt ni la réponse.
     console.error('[ai] provider error', {
@@ -178,10 +203,8 @@ export function openRouterProvider(apiKey: string, deps: ProviderDeps = {}): Imp
     completeChat(
       apiKey,
       {
-        model: AI_MODEL,
         max_tokens: MAX_TOKENS,
         reasoning: { effort: 'low', exclude: true },
-        provider: { data_collection: 'deny' },
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: user },

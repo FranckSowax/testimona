@@ -5,7 +5,8 @@ const { aiRepo } = vi.hoisted(() => ({ aiRepo: { consumeAiQuota: vi.fn() } }));
 vi.mock('server-only', () => ({}));
 vi.mock('./repo', () => aiRepo);
 
-const { parseReceiptReading, readReceipt } = await import('./receipt');
+const { parseReceiptReading, readReceipt, RECEIPT_AI_MAX_BYTES } = await import('./receipt');
+const { AMOUNT_MAX } = await import('@/modules/budget/scenarios');
 const { AiProviderError } = await import('./provider');
 
 const DOSSIER = '44444444-4444-4444-8444-444444444444';
@@ -55,6 +56,43 @@ describe('parseReceiptReading', () => {
     expect(read({ vendor: `A\u0000B  ${'x'.repeat(200)}` })?.vendor).toBe(`AB ${'x'.repeat(117)}`);
   });
 
+  it('accepte les bornes exactes : montant maximal et date de demain', () => {
+    const read = (fields: Record<string, unknown>) =>
+      parseReceiptReading(JSON.stringify({ ...READ, ...fields }));
+    expect(read({ amount: AMOUNT_MAX })?.amount).toBe(AMOUNT_MAX);
+    expect(read({ amount: 1 })?.amount).toBe(1);
+    expect(read({ amount: 0 })?.amount).toBeNull();
+    expect(read({ date: '2000-01-01' })?.date).toBe('2000-01-01');
+    expect(read({ date: '2026-10-29' })?.date).toBe('2026-10-29');
+    expect(read({ date: '2026-10-30' })?.date).toBeNull();
+    expect(read({ gridKey: null })).toEqual({ ...READ, gridKey: null });
+  });
+
+  it('ignore `__proto__` et les clés supplémentaires', () => {
+    const text = `{"__proto__": {"amount": 5}, "extra": 1, ${REPLY.slice(1)}`;
+    const reading = parseReceiptReading(text);
+    expect(reading).toEqual(READ);
+    expect(Object.keys(reading!)).toEqual(['amount', 'date', 'vendor', 'gridKey']);
+    expect(Object.getPrototypeOf(reading)).toBe(Object.prototype);
+    expect(parseReceiptReading('{"__proto__": {"amount": 5}}')).toBeNull();
+  });
+
+  it('nettoie le fournisseur : blancs, contrôles, bidi, largeur nulle, demi-paires', () => {
+    const vendor = (v: string) =>
+      parseReceiptReading(JSON.stringify({ ...READ, vendor: v }))?.vendor;
+    expect(vendor('Pompes\nfunèbres\t\r\nMba')).toBe('Pompes funèbres Mba');
+    expect(vendor('A\u0085B\u009FC')).toBe('ABC');
+    expect(vendor('\u202EMba\u202C \u2066x\u2069')).toBe('Mba x');
+    expect(vendor('M\u200Bb\u200Da\uFEFF')).toBe('Mba');
+    expect(vendor('Mba \uD83D x \uDE00')).toBe('Mba x');
+    expect(vendor('Mba 😀')).toBe('Mba 😀');
+    expect(vendor('\u200B\u202E')).toBeNull();
+  });
+
+  it('refuse deux objets JSON dans la réponse', () => {
+    expect(parseReceiptReading(`${REPLY}\n${REPLY}`)).toBeNull();
+  });
+
   it('refuse un texte sans JSON, un tableau ou une lecture vide', () => {
     expect(parseReceiptReading('Total 45 000')).toBeNull();
     expect(parseReceiptReading('[1, 2]')).toBeNull();
@@ -80,6 +118,28 @@ describe('readReceipt', () => {
       error: 'unavailable',
     });
     expect(aiRepo.consumeAiQuota).not.toHaveBeenCalled();
+  });
+
+  it('refuse un dossier ou une image invalide sans consommer le quota', async () => {
+    const run = (dossierId: string, img: unknown) =>
+      readReceipt({ dossierId, image: img as typeof image }, provider);
+    expect(await run('pas-un-uuid', image)).toEqual({ ok: false, error: 'validation' });
+    expect(await run(DOSSIER, { ...image, bytes: new Uint8Array(0) })).toEqual({
+      ok: false,
+      error: 'unsupported',
+    });
+    expect(await run(DOSSIER, { ...image, mimeType: 'image/gif' })).toEqual({
+      ok: false,
+      error: 'unsupported',
+    });
+    expect(
+      await run(DOSSIER, { ...image, bytes: new Uint8Array(RECEIPT_AI_MAX_BYTES + 1) }),
+    ).toEqual({ ok: false, error: 'too_large' });
+    expect(aiRepo.consumeAiQuota).not.toHaveBeenCalled();
+    expect(provider).not.toHaveBeenCalled();
+    const max = { ...image, bytes: new Uint8Array(RECEIPT_AI_MAX_BYTES) };
+    expect((await run(DOSSIER, max)).ok).toBe(true);
+    expect(provider).toHaveBeenCalledWith(max);
   });
 
   it('s’arrête au quota atteint ou refusé, sans appeler le fournisseur', async () => {

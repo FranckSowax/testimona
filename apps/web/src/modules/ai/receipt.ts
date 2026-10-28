@@ -7,6 +7,7 @@ import { AiProviderError } from './provider';
 import { takeAiQuota } from './quota';
 import {
   openRouterReceiptProvider,
+  RECEIPT_MIME_TYPES,
   type ReceiptImage,
   type ReceiptProvider,
 } from './receipt-provider';
@@ -20,7 +21,22 @@ export interface ReceiptReading {
   gridKey: string | null;
 }
 
-export type ReceiptReadResult = { ok: true; data: ReceiptReading } | { ok: false; error: AiError };
+/**
+ * Erreurs de la lecture d'un reçu : celles de l'IA, plus `too_large` (image au-delà de
+ * `RECEIPT_AI_MAX_BYTES`) et `unsupported` (image vide ou d'un type non permis).
+ */
+export type ReceiptReadError = AiError | 'too_large' | 'unsupported';
+
+export type ReceiptReadResult =
+  | { ok: true; data: ReceiptReading }
+  | { ok: false; error: ReceiptReadError };
+
+/**
+ * Taille maximale de l'image envoyée au modèle (3,5 Mio).
+ * WHY: l'image part en base64 (un tiers de plus) ; 3,5 Mio deviennent ~4,7 Mo, sous la limite de
+ * 5 Mo par image du modèle. Au-delà, on refuse avant de consommer le quota.
+ */
+export const RECEIPT_AI_MAX_BYTES = 3_670_016;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -36,14 +52,28 @@ function isReceiptDate(s: string): boolean {
   );
 }
 
-/** Fournisseur sans caractère de contrôle, espaces resserrés, 120 caractères au plus. */
+// WHY: contrôles C0/C1, marques bidirectionnelles (affichage trompeur), caractères de largeur
+// nulle et demi-paires de substitution isolées (texte invalide) n'ont rien à faire dans un nom.
+const INVISIBLE =
+  /[\u0000-\u001F\u007F-\u009F\u200B-\u200D\u202A-\u202E\u2066-\u2069\uFEFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
+
+/** Fournisseur sans caractère invisible, espaces resserrés, 120 caractères au plus. */
 function cleanVendor(s: string): string | null {
-  const text = [...s]
-    .filter((c) => c.charCodeAt(0) >= 32 && c.charCodeAt(0) !== 127)
-    .join('')
+  const text = s
+    .replace(/[\t\n\r\v\f]/g, ' ')
+    .replace(INVISIBLE, '')
     .replace(/\s+/g, ' ')
     .trim();
   return text ? [...text].slice(0, 120).join('') : null;
+}
+
+const DossierIdSchema = z.string().uuid();
+
+/** Erreur de l'image, ou null quand elle peut partir au modèle. */
+function imageError(image: ReceiptImage): ReceiptReadError | null {
+  if (!(RECEIPT_MIME_TYPES as readonly string[]).includes(image.mimeType)) return 'unsupported';
+  if (!(image.bytes instanceof Uint8Array) || image.bytes.length < 1) return 'unsupported';
+  return image.bytes.length > RECEIPT_AI_MAX_BYTES ? 'too_large' : null;
 }
 
 // WHY: chaque champ invalide devient null au lieu de rejeter toute la lecture : le résultat
@@ -84,7 +114,9 @@ export function parseReceiptReading(text: string): ReceiptReading | null {
 /**
  * Lit la photo d'un reçu pour préremplir une dépense. Consomme le quota d'IA du dossier (même
  * quota que les brouillons), puis envoie seulement l'image. Ne journalise ni la réponse ni le
- * contenu du reçu. L'appelant vérifie le dossier, le rôle et l'image.
+ * contenu du reçu. Refuse un dossier invalide (`validation`), une image vide ou d'un type non
+ * permis (`unsupported`) ou trop lourde (`too_large`) sans consommer le quota. L'appelant vérifie
+ * le dossier, le rôle et la signature des octets.
  *
  * @example
  * const res = await readReceipt({ dossierId, image: { bytes, mimeType: 'image/jpeg' } });
@@ -96,6 +128,12 @@ export async function readReceipt(
   const apiKey = process.env.OPENROUTER_API_KEY;
   // WHY: `apiKey` sert au typage (string) ; `isAiEnabled` reste la source de vérité du drapeau.
   if (!isAiEnabled() || !apiKey) return { ok: false, error: 'unavailable' };
+  if (!DossierIdSchema.safeParse(input.dossierId).success) {
+    return { ok: false, error: 'validation' };
+  }
+  // WHY: une image refusée ne coûte pas d'appel : on la vérifie avant de consommer le quota.
+  const invalidImage = imageError(input.image);
+  if (invalidImage) return { ok: false, error: invalidImage };
   const quotaError = await takeAiQuota(input.dossierId);
   if (quotaError) return { ok: false, error: quotaError };
   let text: string;
