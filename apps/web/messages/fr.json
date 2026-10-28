@@ -883,6 +883,7 @@
       "donations": "Dons",
       "reports": "Signalements",
       "ads": "Publicités",
+      "providers": "Prestataires",
       "settings": "Réglages"
     },
     "overview": {
@@ -1755,6 +1756,62 @@
     },
     "errors": {
       "too_large": "Le registre est trop volumineux pour être exporté en une seule fois."
+    }
+  },
+  "providers": {
+    "category": {
+      "funeralHome": "Pompes funèbres",
+      "tentsChairs": "Tentes et chaises",
+      "sound": "Sonorisation",
+      "lighting": "Éclairage",
+      "catering": "Traiteur",
+      "drinks": "Boissons",
+      "printing": "Imprimeur"
+    },
+    "admin": {
+      "title": "Prestataires",
+      "new": "Nouveau prestataire",
+      "edit": "Modifier le prestataire",
+      "filterCity": "Ville",
+      "filterCategory": "Catégorie",
+      "allCategories": "Toutes les catégories",
+      "filter": "Filtrer",
+      "empty": "Aucun prestataire pour ces critères.",
+      "name": "Nom",
+      "category": "Catégorie",
+      "place": "Ville et quartier",
+      "whatsapp": "WhatsApp",
+      "status": "Statut",
+      "example": "Exemple",
+      "verifiedOn": "Vérifié le {date}",
+      "unverified": "Non vérifié",
+      "inactive": "Masqué",
+      "editLink": "Modifier",
+      "back": "Retour à la liste"
+    },
+    "form": {
+      "category": "Catégorie",
+      "name": "Nom",
+      "city": "Ville",
+      "district": "Quartier",
+      "whatsapp": "Numéro WhatsApp",
+      "whatsappHint": "Format international, par exemple +241 77 12 34 56.",
+      "priceNote": "Prix indicatif",
+      "priceNoteHint": "Texte libre, 200 caractères au plus. Il n'entre dans aucun calcul.",
+      "isExample": "Prestataire d'exemple",
+      "isExampleHint": "Un exemple n'a ni numéro ni vérification : aucune famille ne peut le contacter.",
+      "verified": "Vérifié par l'équipe Testimona",
+      "active": "Visible des familles",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "saved": "Prestataire enregistré."
+    },
+    "errors": {
+      "required": "Ce champ est obligatoire.",
+      "tooLong": "Ce texte est trop long.",
+      "invalidCharacter": "Ce texte contient un caractère non autorisé.",
+      "invalidPhone": "Saisissez le numéro au format international, par exemple +241 77 12 34 56.",
+      "exampleWithContact": "Un prestataire d'exemple ne peut avoir ni numéro ni vérification."
     }
   }
 }
