@@ -8,8 +8,8 @@ import { isAiEnabled } from './config';
 import { AI_ANSWER_KEYS, aiFacts } from './facts';
 import { buildImprovePrompt } from './prompt';
 import { AiProviderError, openRouterProvider, type ImproveProvider } from './provider';
-import { consumeAiQuota } from './repo';
-import type { AiError, AiResult } from './types';
+import { takeAiQuota } from './quota';
+import type { AiResult } from './types';
 
 const InputSchema = z.object({
   dossierId: z.string().uuid(),
@@ -17,13 +17,6 @@ const InputSchema = z.object({
   locale: z.enum(['fr', 'en']),
   text: z.string(),
 });
-
-const QUOTA_ERRORS: Record<string, AiError> = {
-  '42501': 'forbidden',
-  '28000': 'unauthenticated',
-  // WHY: JWT expiré signalé par PostgREST.
-  PGRST301: 'unauthenticated',
-};
 
 /**
  * Améliore le brouillon d'une étape avec l'IA, sans l'enregistrer.
@@ -59,13 +52,8 @@ export async function improveDraft(raw: unknown, provider?: ImproveProvider): Pr
   ]);
   if (person.error || answers.error) return { ok: false, error: 'failed' };
 
-  const quota = await consumeAiQuota(dossierId);
-  if (quota.error) {
-    const mapped = QUOTA_ERRORS[quota.error.code];
-    if (!mapped) console.error('[ai] consumeAiQuota failed', { code: quota.error.code });
-    return { ok: false, error: mapped ?? 'failed' };
-  }
-  if (!quota.data) return { ok: false, error: 'quota' };
+  const quotaError = await takeAiQuota(dossierId);
+  if (quotaError) return { ok: false, error: quotaError };
 
   // WHY: sans fiche (lecture réussie mais aucune ligne), le titre du dossier tient lieu de nom,
   // comme sur la page brouillon.

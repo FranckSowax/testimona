@@ -103,6 +103,69 @@ async function send(deps: Required<ProviderDeps>, apiKey: string, body: string):
 }
 
 /**
+ * Envoie une requête de complétion à OpenRouter et renvoie le texte de la réponse, nettoyé.
+ * Lève `AiProviderError` en cas d'échec ; ne journalise jamais la requête ni la réponse.
+ *
+ * @example
+ * const text = await completeChat(apiKey, { model: AI_MODEL, messages });
+ */
+export async function completeChat(
+  apiKey: string,
+  payload: Record<string, unknown>,
+  deps: ProviderDeps = {},
+): Promise<string> {
+  const resolved: Required<ProviderDeps> = {
+    fetchImpl: deps.fetchImpl ?? fetch,
+    sleep: deps.sleep ?? defaultSleep,
+    now: deps.now ?? Date.now,
+  };
+  let res: Response;
+  try {
+    res = await send(resolved, apiKey, JSON.stringify(payload));
+  } catch (error) {
+    // WHY: on journalise la nature de l'échec, jamais le prompt ni la réponse.
+    console.error('[ai] provider error', {
+      name: error instanceof Error ? error.name : 'unknown',
+    });
+    throw new AiProviderError('api');
+  }
+  if (!res.ok) {
+    await res.body?.cancel().catch(() => {});
+    console.error('[ai] provider error', { status: res.status });
+    throw new AiProviderError('api');
+  }
+
+  let body: unknown;
+  try {
+    body = await res.json();
+  } catch (error) {
+    console.error('[ai] provider error', {
+      read: error instanceof Error ? error.name : 'unknown',
+    });
+    throw new AiProviderError('api');
+  }
+  const parsed = ResponseSchema.safeParse(body);
+  if (!parsed.success) {
+    console.error('[ai] provider error', { shape: 'unexpected' });
+    throw new AiProviderError('api');
+  }
+  const choice = parsed.data.choices[0]!;
+  if (choice.error) {
+    console.error('[ai] provider error', { choiceError: true });
+    throw new AiProviderError('api');
+  }
+  if (choice.finish_reason === 'error') {
+    console.error('[ai] provider error', { finish: 'error' });
+    throw new AiProviderError('api');
+  }
+  if (choice.finish_reason === 'content_filter') throw new AiProviderError('refusal');
+  if (choice.finish_reason === 'length') throw new AiProviderError('truncated');
+  const text = choice.message?.content?.trim() ?? '';
+  if (!text) throw new AiProviderError('empty');
+  return text;
+}
+
+/**
  * Fournisseur OpenRouter (serveur seulement), modèle Claude Opus 5.5.
  * WHY: `data_collection: 'deny'` écarte les fournisseurs qui entraînent leurs modèles sur les
  * requêtes : les textes des familles ne doivent servir qu'à leur réponse.
@@ -111,66 +174,19 @@ async function send(deps: Required<ProviderDeps>, apiKey: string, body: string):
  * const text = await openRouterProvider(apiKey)(buildImprovePrompt(args));
  */
 export function openRouterProvider(apiKey: string, deps: ProviderDeps = {}): ImproveProvider {
-  const resolved: Required<ProviderDeps> = {
-    fetchImpl: deps.fetchImpl ?? fetch,
-    sleep: deps.sleep ?? defaultSleep,
-    now: deps.now ?? Date.now,
-  };
-  return async ({ system, user }) => {
-    const body = JSON.stringify({
-      model: AI_MODEL,
-      max_tokens: MAX_TOKENS,
-      reasoning: { effort: 'low', exclude: true },
-      provider: { data_collection: 'deny' },
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: user },
-      ],
-    });
-
-    let res: Response;
-    try {
-      res = await send(resolved, apiKey, body);
-    } catch (error) {
-      // WHY: on journalise la nature de l'échec, jamais le prompt ni la réponse.
-      console.error('[ai] provider error', {
-        name: error instanceof Error ? error.name : 'unknown',
-      });
-      throw new AiProviderError('api');
-    }
-    if (!res.ok) {
-      await res.body?.cancel().catch(() => {});
-      console.error('[ai] provider error', { status: res.status });
-      throw new AiProviderError('api');
-    }
-
-    let payload: unknown;
-    try {
-      payload = await res.json();
-    } catch (error) {
-      console.error('[ai] provider error', {
-        read: error instanceof Error ? error.name : 'unknown',
-      });
-      throw new AiProviderError('api');
-    }
-    const parsed = ResponseSchema.safeParse(payload);
-    if (!parsed.success) {
-      console.error('[ai] provider error', { shape: 'unexpected' });
-      throw new AiProviderError('api');
-    }
-    const choice = parsed.data.choices[0]!;
-    if (choice.error) {
-      console.error('[ai] provider error', { choiceError: true });
-      throw new AiProviderError('api');
-    }
-    if (choice.finish_reason === 'error') {
-      console.error('[ai] provider error', { finish: 'error' });
-      throw new AiProviderError('api');
-    }
-    if (choice.finish_reason === 'content_filter') throw new AiProviderError('refusal');
-    if (choice.finish_reason === 'length') throw new AiProviderError('truncated');
-    const text = choice.message?.content?.trim() ?? '';
-    if (!text) throw new AiProviderError('empty');
-    return text;
-  };
+  return ({ system, user }) =>
+    completeChat(
+      apiKey,
+      {
+        model: AI_MODEL,
+        max_tokens: MAX_TOKENS,
+        reasoning: { effort: 'low', exclude: true },
+        provider: { data_collection: 'deny' },
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: user },
+        ],
+      },
+      deps,
+    );
 }
