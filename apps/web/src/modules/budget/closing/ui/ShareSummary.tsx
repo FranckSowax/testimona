@@ -32,6 +32,8 @@ export function ShareSummary({ text }: Props) {
   }, []);
 
   const copy = async () => {
+    // WHY: vider d'abord le statut, pour qu'une deuxième copie soit annoncée de nouveau.
+    setStatus('');
     try {
       if (!navigator.clipboard?.writeText) throw new Error('clipboard unavailable');
       await navigator.clipboard.writeText(text);
@@ -47,8 +49,11 @@ export function ShareSummary({ text }: Props) {
   const share = async () => {
     try {
       await navigator.share({ text });
-    } catch {
-      // WHY: fermer la feuille de partage lève une erreur (AbortError) : rien à signaler.
+    } catch (err) {
+      // WHY: fermer la feuille de partage lève une AbortError : rien à signaler. Toute autre
+      // erreur (partage refusé, données non prises en charge) se replie sur la copie.
+      if ((err as { name?: unknown } | null)?.name === 'AbortError') return;
+      await copy();
     }
   };
 

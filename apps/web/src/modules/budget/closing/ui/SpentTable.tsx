@@ -18,6 +18,7 @@ interface Props {
  */
 export async function SpentTable({ locale, labelledBy, lines, unassignedSpent }: Props) {
   const t = await getTranslations('closing.spent');
+  const tPage = await getTranslations('closing.page');
   const rows = [
     ...lines.filter((l) => l.spent > 0).map((l) => ({ key: l.id, label: l.label, spent: l.spent })),
     ...(unassignedSpent > 0
@@ -28,6 +29,9 @@ export async function SpentTable({ locale, labelledBy, lines, unassignedSpent }:
   const total = rows.reduce((sum, r) => sum + r.spent, 0);
   return (
     <table aria-labelledby={labelledBy} className="w-full text-sm">
+      {/* WHY: une légende propre au tableau, utile hors du titre de section (tables d'un lecteur
+          d'écran). Texte réutilisé : le titre de la section. */}
+      <caption className="sr-only">{tPage('spentTitle')}</caption>
       <thead>
         <tr className="border-border border-b">
           <th scope="col" className="text-foreground py-2 text-left">

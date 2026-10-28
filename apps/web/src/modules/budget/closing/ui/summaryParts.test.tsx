@@ -67,6 +67,7 @@ describe('SpentTable', () => {
       'Dépenses sans poste20 000 FCFA',
       'Total320 000 FCFA',
     ]);
+    expect(document.querySelector('caption')?.textContent).toBe(messages.closing.page.spentTitle);
   });
 
   it('dit qu’il n’y a aucune dépense', async () => {
@@ -86,6 +87,13 @@ describe('ReceivedList', () => {
   it('dit qu’il n’y a rien à afficher', async () => {
     render(await ReceivedList({ locale: 'fr', views: [] }));
     expect(screen.getByText(messages.closing.page.receivedEmpty)).toBeTruthy();
+  });
+
+  it('formate le montant et la date en anglais', async () => {
+    render(await ReceivedList({ locale: 'en', views: entryViews([entry({})]) }));
+    expect(plain(screen.getByRole('listitem').textContent)).toBe(
+      'Tante MarieFCFA 10,000 · 20 Oct 2026',
+    );
   });
 });
 

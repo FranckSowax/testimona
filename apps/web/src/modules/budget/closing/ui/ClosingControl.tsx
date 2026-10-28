@@ -13,7 +13,7 @@ import type { FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { buttonClasses } from '@/components/ui/Button';
 import { closeLedgerAction, reopenLedgerAction } from '../actions';
-import type { ClosingFormState } from '../service';
+import type { ClosingError, ClosingFormState } from '../service';
 import { closingErrorText } from './closingError';
 
 interface Props {
@@ -31,6 +31,9 @@ function useClosingForm(action: Action, onDone: () => void) {
     action,
     null,
   );
+  // WHY: numéro d'envoi, utilisé comme `key` de l'alerte : une même erreur renvoyée deux fois
+  // remonte un nouveau nœud et se fait réannoncer par les lecteurs d'écran.
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     if (state?.ok) onDone();
   }, [state, onDone]);
@@ -40,17 +43,35 @@ function useClosingForm(action: Action, onDone: () => void) {
     e.preventDefault();
     if (pending) return;
     const data = new FormData(e.currentTarget);
+    setAttempt((n) => n + 1);
     startTransition(() => formAction(data));
   };
-  return { state, pending, onSubmit };
+  // WHY: l'ancienne erreur disparaît pendant un nouvel envoi, pour ne pas la croire actuelle.
+  const error = pending ? undefined : state?.error;
+  return { error, attempt, pending, onSubmit };
+}
+
+/** Erreur d'une action de clôture, annoncée à chaque nouvel envoi. */
+function ClosingAlert({ error, attempt }: { error: ClosingError | undefined; attempt: number }) {
+  const tAll = useTranslations();
+  if (!error) return null;
+  return (
+    <p key={attempt} role="alert" className="text-destructive text-sm">
+      {closingErrorText(error, (key) => tAll(key))}
+    </p>
+  );
+}
+
+interface FormProps {
+  dossierId: string;
+  onDone: () => void;
 }
 
 /** Clôture en deux temps (clôturer, puis confirmer), avec l'avertissement. */
-function CloseForm({ dossierId, onDone }: { dossierId: string; onDone: () => void }) {
+function CloseForm({ dossierId, onDone, onStart }: FormProps & { onStart: () => void }) {
   const t = useTranslations('closing.control');
-  const tAll = useTranslations();
   const [confirming, setConfirming] = useState(false);
-  const { state, pending, onSubmit } = useClosingForm(closeLedgerAction, onDone);
+  const { error, attempt, pending, onSubmit } = useClosingForm(closeLedgerAction, onDone);
   const openRef = useRef<HTMLButtonElement>(null);
   const keepRef = useRef<HTMLButtonElement>(null);
   const returnFocus = useRef(false);
@@ -72,7 +93,10 @@ function CloseForm({ dossierId, onDone }: { dossierId: string; onDone: () => voi
       <button
         ref={openRef}
         type="button"
-        onClick={() => setConfirming(true)}
+        onClick={() => {
+          onStart();
+          setConfirming(true);
+        }}
         className={buttonClasses({ variant: 'secondary', size: 'md' })}
       >
         {t('close')}
@@ -91,36 +115,43 @@ function CloseForm({ dossierId, onDone }: { dossierId: string; onDone: () => voi
           disabled={pending}
           aria-busy={pending || undefined}
           aria-describedby={warningId}
-          className="bg-destructive text-destructive-foreground rounded-full px-4 py-1.5 text-sm font-semibold disabled:opacity-60"
+          className={buttonClasses({
+            variant: 'destructive',
+            size: 'md',
+            className: 'disabled:cursor-not-allowed disabled:opacity-60',
+          })}
         >
           {pending ? t('closing') : t('confirmClose')}
         </button>
         <button
           ref={keepRef}
           type="button"
+          disabled={pending}
           onClick={() => {
+            // WHY: renoncer pendant l'envoi n'annulerait rien : la clôture partirait quand même.
+            if (pending) return;
             returnFocus.current = true;
             setConfirming(false);
           }}
-          className={buttonClasses({ variant: 'secondary', styleVariant: 'outline', size: 'md' })}
+          className={buttonClasses({
+            variant: 'secondary',
+            styleVariant: 'outline',
+            size: 'md',
+            className: 'disabled:cursor-not-allowed disabled:opacity-60',
+          })}
         >
           {t('keepOpen')}
         </button>
       </div>
-      {state?.error && (
-        <p role="alert" className="text-destructive text-sm">
-          {closingErrorText(state.error, (key) => tAll(key))}
-        </p>
-      )}
+      <ClosingAlert error={error} attempt={attempt} />
     </form>
   );
 }
 
 /** Réouverture par le propriétaire. */
-function ReopenForm({ dossierId, onDone }: { dossierId: string; onDone: () => void }) {
+function ReopenForm({ dossierId, onDone }: FormProps) {
   const t = useTranslations('closing.control');
-  const tAll = useTranslations();
-  const { state, pending, onSubmit } = useClosingForm(reopenLedgerAction, onDone);
+  const { error, attempt, pending, onSubmit } = useClosingForm(reopenLedgerAction, onDone);
   return (
     <form onSubmit={onSubmit} className="space-y-2">
       <input type="hidden" name="dossierId" value={dossierId} />
@@ -137,11 +168,7 @@ function ReopenForm({ dossierId, onDone }: { dossierId: string; onDone: () => vo
       >
         {pending ? t('reopening') : t('reopen')}
       </button>
-      {state?.error && (
-        <p role="alert" className="text-destructive text-sm">
-          {closingErrorText(state.error, (key) => tAll(key))}
-        </p>
-      )}
+      <ClosingAlert error={error} attempt={attempt} />
     </form>
   );
 }
@@ -149,7 +176,8 @@ function ReopenForm({ dossierId, onDone }: { dossierId: string; onDone: () => vo
 /**
  * Clôture (trésorier et plus) et réouverture (propriétaire) des cotisations.
  * WHY: la zone d'annonce vit ici, hors des formulaires : après la clôture, la page revalidée
- * remplace le formulaire de clôture, et l'annonce doit survivre à ce remplacement.
+ * remplace le formulaire de clôture, et l'annonce doit survivre à ce remplacement. Pour la même
+ * raison, le focus va sur le titre, qui reste en place quand le formulaire disparaît.
  *
  * @example
  * <ClosingControl dossierId={id} closed={false} canReopen={role === 'owner'} />
@@ -157,15 +185,28 @@ function ReopenForm({ dossierId, onDone }: { dossierId: string; onDone: () => vo
 export function ClosingControl({ dossierId, closed, canReopen }: Props) {
   const t = useTranslations('closing.control');
   const titleId = useId();
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const [announcement, setAnnouncement] = useState('');
-  const onClosed = useCallback(() => setAnnouncement(t('closed')), [t]);
-  const onReopened = useCallback(() => setAnnouncement(t('reopened')), [t]);
+  const onClosed = useCallback(() => {
+    setAnnouncement(t('closed'));
+    titleRef.current?.focus();
+  }, [t]);
+  const onReopened = useCallback(() => {
+    setAnnouncement(t('reopened'));
+    titleRef.current?.focus();
+  }, [t]);
+  const onStart = useCallback(() => setAnnouncement(''), []);
   return (
     <section aria-labelledby={titleId} className="border-border space-y-3 rounded-2xl border p-4">
-      <h2 id={titleId} className="font-display text-foreground text-lg font-semibold">
+      <h2
+        ref={titleRef}
+        id={titleId}
+        tabIndex={-1}
+        className="font-display text-foreground text-lg font-semibold"
+      >
         {t('title')}
       </h2>
-      {!closed && <CloseForm dossierId={dossierId} onDone={onClosed} />}
+      {!closed && <CloseForm dossierId={dossierId} onDone={onClosed} onStart={onStart} />}
       {closed && canReopen && <ReopenForm dossierId={dossierId} onDone={onReopened} />}
       {closed && !canReopen && <p className="text-foreground text-sm">{t('reopenOwnerOnly')}</p>}
       <p role="status" className="text-foreground text-sm">
