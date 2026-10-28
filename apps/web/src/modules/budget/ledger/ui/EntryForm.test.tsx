@@ -10,6 +10,12 @@ const saveEntryAction = vi.fn();
 vi.mock('../actions', () => ({
   saveEntryAction: (...args: unknown[]) => saveEntryAction(...args),
 }));
+// WHY: EntryForm importe ReceiptCapture, qui importe les actions des reçus ; leur service
+// importe `server-only`.
+vi.mock('../../receipts/actions', () => ({
+  prepareReceiptUploadAction: vi.fn(),
+  readReceiptAction: vi.fn(),
+}));
 
 // WHY: la vraie clé est créée au montage ; on peut la forcer à '' pour voir l'envoi bloqué.
 const keyOverride = vi.hoisted(() => ({ value: null as string | null }));

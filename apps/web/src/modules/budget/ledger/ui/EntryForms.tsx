@@ -65,6 +65,7 @@ export function EntryForms({
             dossierId={dossierId}
             kind="expense"
             lines={lines}
+            withReceipt
             amountLabel={amountLabel}
           />,
         )}
