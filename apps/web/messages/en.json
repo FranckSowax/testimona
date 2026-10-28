@@ -1580,6 +1580,7 @@
       "estimateNote": "Starting amounts: estimates to check with providers.",
       "empty": "No lines yet. A treasurer can create them from the estimate.",
       "emptyManager": "Create the lines from the estimate on the Budget page, then adjust them.",
+      "emptyClosed": "No budget line was created before closing.",
       "create": "Create the lines",
       "created": "Lines created.",
       "recompute": "Recalculate from attendance",
@@ -1722,7 +1723,7 @@
       "closing": "Closing…",
       "closed": "Contributions closed.",
       "reopen": "Reopen contributions",
-      "reopenHint": "Entries become possible again. Reopening is recorded in the dossier log.",
+      "reopenHint": "Entries become possible again.",
       "reopening": "Reopening…",
       "reopened": "Contributions reopened.",
       "reopenOwnerOnly": "Only the dossier owner can reopen contributions."

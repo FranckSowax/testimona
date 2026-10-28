@@ -22,6 +22,7 @@ const PATHS = [
     'estimateNote',
     'empty',
     'emptyManager',
+    'emptyClosed',
     'create',
     'created',
     'recompute',

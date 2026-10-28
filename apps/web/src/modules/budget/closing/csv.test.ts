@@ -70,6 +70,16 @@ describe('ledgerCsv', () => {
     );
   });
 
+  it('sépare par une virgule quand on la demande (export anglais)', () => {
+    const csv = ledgerCsv([row({})], new Map([['l1', 'Cercueil']]), labels, ',');
+    expect(lines(csv)[0]).toBe(
+      '"DATE","KIND","AMOUNT","METHOD","PARTY","LINE","NOTE","REVERSES","REVERSESKIND","PLEDGE","ID","CREATEDAT"',
+    );
+    expect(lines(csv)[1]).toBe(
+      '"2026-10-20","Dépense","25000","Espèces","Pompes funèbres","Cercueil","","","","","e1","2026-10-20T11:00:00+01:00"',
+    );
+  });
+
   it('écrit chaque ligne avec ses libellés, son poste et la ligne annulée', () => {
     const csv = ledgerCsv(
       [

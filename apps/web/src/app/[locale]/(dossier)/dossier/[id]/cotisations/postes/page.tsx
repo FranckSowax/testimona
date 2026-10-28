@@ -79,7 +79,7 @@ export default async function BudgetLinesPage({
       tabIndex={canManage ? -1 : undefined}
       className="text-foreground"
     >
-      {canManage ? t('page.emptyManager') : t('page.empty')}
+      {closedAt ? t('page.emptyClosed') : canManage ? t('page.emptyManager') : t('page.empty')}
     </p>
   );
   return (

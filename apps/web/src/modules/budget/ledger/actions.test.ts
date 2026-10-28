@@ -62,6 +62,15 @@ describe('saveEntryAction', () => {
     expect(cache.revalidatePath).toHaveBeenCalledTimes(4);
   });
 
+  it('revalide les pages quand le dossier a été clôturé entre-temps (formulaire périmé)', async () => {
+    service.recordPledge.mockResolvedValueOnce({ ok: false, error: 'closed' });
+    expect(await saveEntryAction(null, entry('pledge'))).toEqual({ error: 'closed' });
+    expect(cache.revalidatePath).toHaveBeenCalledTimes(4);
+    expect(cache.revalidatePath).toHaveBeenCalledWith(
+      localizedPath(`/dossier/${DOSSIER}/cotisations`, 'en'),
+    );
+  });
+
   it('refuse une annulation ou un type inconnu sans appeler le service', async () => {
     for (const kind of ['reversal', 'other', '']) {
       expect(await saveEntryAction(null, entry(kind))).toEqual({ error: 'validation' });

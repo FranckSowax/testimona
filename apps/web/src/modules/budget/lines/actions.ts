@@ -37,7 +37,9 @@ async function run(
   if (!(await getCurrentUser())) return { error: 'unauthenticated' };
   const locale = await getLocale();
   const res = await handler(locale);
-  if (!res.ok) return { error: res.error, fieldErrors: res.fieldErrors };
+  // WHY: « closed » : formulaire périmé (dossier clôturé entre-temps) ; on revalide pour faire
+  // apparaître l'avis de clôture.
+  if (!res.ok && res.error !== 'closed') return { error: res.error, fieldErrors: res.fieldErrors };
   const dossierId = field(formData, 'dossierId');
   for (const path of [
     `/dossier/${dossierId}/cotisations/postes`,
@@ -47,7 +49,7 @@ async function run(
   ]) {
     revalidatePath(localizedPath(path, locale));
   }
-  return { ok: true };
+  return res.ok ? { ok: true } : { error: res.error };
 }
 
 /** Crée les postes de la grille. */

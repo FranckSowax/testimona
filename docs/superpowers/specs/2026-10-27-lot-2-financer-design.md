@@ -266,10 +266,12 @@ disparaît.
   WhatsApp (nouvel onglet).
 - Export CSV : route `/api/dossiers/[dossierId]/ledger-export` (trésorier et plus, client de
   l'utilisateur, `no-store`), 401 sans session, 404 si absent, interdit ou invalide, 413 au-delà de
-  50 000 lignes (refusé plutôt que tronqué). Toutes les lignes, annulations comprises ; colonnes : date,
+  50 000 lignes (refusé plutôt que tronqué). Les échecs 413 et 5xx renvoient un corps
+  `text/plain; charset=utf-8` avec le message traduit (`closing.errors.too_large`, `dossier.errors.unknown`),
+  pour qu'un fichier enregistré par erreur ne reste pas vide ; 401 et 404 restent sans corps. Toutes les lignes, annulations comprises ; colonnes : date,
   type, montant (toujours positif), moyen, nom, poste, note, ligne annulée et son type, promesse liée,
-  identifiant, enregistrement (horodatage à l'heure de Libreville, décalage écrit). Séparateur `;`,
-  BOM UTF-8, cellules commençant par `=`, `+`, `-`, `@` (pleine chasse comprise), une tabulation ou un
+  identifiant, enregistrement (horodatage à l'heure de Libreville, décalage écrit). Séparateur `;` pour
+  l'export français et `,` pour l'export anglais (`lang=en`), BOM UTF-8, cellules commençant par `=`, `+`, `-`, `@` (pleine chasse comprise), une tabulation ou un
   retour chariot préfixées d'une apostrophe (injection de formules). Lecture paginée par
   (`created_at`, `id`) puis dédoublonnée par identifiant, triée par date de la ligne.
 

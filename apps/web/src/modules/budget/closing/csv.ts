@@ -25,9 +25,10 @@ export interface CsvLabels {
   method: Record<EntryMethod, string>;
 }
 
-// WHY: « ; » est le séparateur attendu par les tableurs réglés en français ; le BOM fait lire
-// l'UTF-8 (accents) à Excel.
-const SEPARATOR = ';';
+// WHY: « ; » est le séparateur attendu par les tableurs réglés en français (la virgule y est la
+// décimale), « , » celui des tableurs réglés en anglais ; le BOM fait lire l'UTF-8 (accents) à
+// Excel.
+export type CsvSeparator = ';' | ',';
 const BOM = '﻿';
 
 // WHY: une cellule qui commence par =, +, -, @ (y compris en pleine chasse, et après des espaces
@@ -65,7 +66,7 @@ function cell(value: string): string {
 
 /**
  * Registre complet au format CSV : une ligne par mouvement, annulations comprises, montants
- * entiers en XAF.
+ * entiers en XAF. Séparateur « ; » par défaut (français), « , » pour l'export anglais.
  *
  * @example
  * ledgerCsv(rows, new Map([[lineId, 'Cercueil']]), labels); // '﻿"Date";"Type";…\r\n…'
@@ -74,8 +75,9 @@ export function ledgerCsv(
   rows: readonly ExportRow[],
   lineLabels: ReadonlyMap<string, string>,
   labels: CsvLabels,
+  separator: CsvSeparator = ';',
 ): string {
-  const header = CSV_COLUMNS.map((column) => cell(labels.columns[column])).join(SEPARATOR);
+  const header = CSV_COLUMNS.map((column) => cell(labels.columns[column])).join(separator);
   const body = rows.map((r) =>
     [
       r.occurredOn,
@@ -92,7 +94,7 @@ export function ledgerCsv(
       librevilleIso(r.createdAt),
     ]
       .map(cell)
-      .join(SEPARATOR),
+      .join(separator),
   );
   return `${BOM}${[header, ...body].join('\r\n')}\r\n`;
 }

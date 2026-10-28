@@ -1580,6 +1580,7 @@
       "estimateNote": "Montants de départ : estimations à vérifier auprès des prestataires.",
       "empty": "Aucun poste pour l'instant. Un trésorier peut les créer à partir de l'estimation.",
       "emptyManager": "Créez les postes à partir de l'estimation de la page Budget, puis ajustez-les.",
+      "emptyClosed": "Aucun poste n'a été créé avant la clôture.",
       "create": "Créer les postes",
       "created": "Postes créés.",
       "recompute": "Recalculer selon l'affluence",
@@ -1722,7 +1723,7 @@
       "closing": "Clôture…",
       "closed": "Cotisations clôturées.",
       "reopen": "Rouvrir les cotisations",
-      "reopenHint": "Les saisies redeviennent possibles. La réouverture est notée dans le journal du dossier.",
+      "reopenHint": "Les saisies redeviennent possibles.",
       "reopening": "Réouverture…",
       "reopened": "Cotisations rouvertes.",
       "reopenOwnerOnly": "Seul le propriétaire du dossier peut rouvrir les cotisations."
