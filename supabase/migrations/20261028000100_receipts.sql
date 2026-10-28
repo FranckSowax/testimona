@@ -126,10 +126,11 @@ begin
   end if;
   -- WHY: le lien d'envoi signé de Supabase reste valide 2 heures et la policy d'envoi n'est pas
   -- réévaluée au moment de l'envoi : on exige donc la photo au stockage avant le rattachement,
-  -- pour qu'aucune photo n'arrive sur le chemin d'un reçu déjà rattaché.
+  -- pour qu'aucune photo n'arrive sur le chemin d'un reçu déjà rattaché. Le stockage de production
+  -- est versionné : seule la version courante (non archivée) compte.
   if old.entry_id is null and new.entry_id is not null and not exists (
     select 1 from storage.objects o
-     where o.bucket_id = 'receipts' and o.name = old.storage_path
+     where o.bucket_id = 'receipts' and o.name = old.storage_path and o.archived_at is null
   ) then
     raise exception 'receipt photo missing' using errcode = 'TL006';
   end if;

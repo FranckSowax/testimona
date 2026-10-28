@@ -59,6 +59,7 @@ const SUPABASE_STUBS = `
     name text,
     owner uuid,
     metadata jsonb,
+    archived_at timestamptz,
     created_at timestamptz default now(),
     updated_at timestamptz default now()
   );

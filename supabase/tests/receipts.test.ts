@@ -159,6 +159,17 @@ describe('receipt : rattachement', () => {
     ).rejects.toMatchObject({ code: 'TL006' });
   });
 
+  it('refuse le rattachement quand la seule version de la photo est archivée', async () => {
+    const receipt = await f.prepareWithPhoto(f.treasurer);
+    await f.db.query(
+      `update storage.objects set archived_at = now() where bucket_id = 'receipts' and name = $1`,
+      [receipt.storage_path],
+    );
+    await expect(
+      f.attach(f.treasurer, receipt.id, await f.addEntry(f.treasurer)),
+    ).rejects.toMatchObject({ code: 'TL006' });
+  });
+
   it('refuse une ligne qui n’est pas une dépense ou une dépense d’un autre dossier', async () => {
     const receipt = await f.prepareWithPhoto(f.treasurer);
     await expect(
