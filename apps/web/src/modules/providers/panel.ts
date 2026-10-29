@@ -13,10 +13,12 @@ export interface PanelGroup {
 
 const isVerified = (p: Provider) => !p.isExample && p.verifiedAt !== null;
 
-// WHY: la ville est saisie librement (« libreville », « Lambarene ») ; on compare sans casse ni
-// accents plutôt qu'avec un motif `ilike`, dont les jokers PostgREST ne s'échappent pas.
+// WHY: la ville est saisie librement (« libreville », « Lambarene », « Port Gentil ») ; on
+// compare sans casse ni accents, en ramenant tirets et suites d'espaces à une seule espace, plutôt
+// qu'avec un motif `ilike`, dont les jokers PostgREST ne s'échappent pas.
+const normalizeCity = (s: string) => s.trim().replace(/[\s\-‐-―]+/g, ' ');
 const sameCity = (a: string, b: string) =>
-  a.trim().localeCompare(b.trim(), 'fr', { sensitivity: 'base' }) === 0;
+  normalizeCity(a).localeCompare(normalizeCity(b), 'fr', { sensitivity: 'base' }) === 0;
 
 /**
  * Ville de recherche de l'encadré : ville du décès, sinon Libreville.
@@ -53,7 +55,9 @@ export function panelGroups(
       )
       .sort(
         (a, b) =>
-          Number(isVerified(b)) - Number(isVerified(a)) || a.name.localeCompare(b.name, 'fr'),
+          Number(isVerified(b)) - Number(isVerified(a)) ||
+          a.name.localeCompare(b.name, 'fr') ||
+          a.id.localeCompare(b.id),
       )
       .slice(0, perCategory);
     return list.length > 0 ? [{ category, providers: list }] : [];

@@ -144,6 +144,7 @@ describe('listPanelProviders', () => {
         { method: 'from', args: ['provider'] },
         { method: 'in', args: ['category_key', ['tentsChairs', 'sound']] },
         { method: 'eq', args: ['active', true] },
+        { method: 'limit', args: [200] },
         { method: 'or', args: ['is_example.eq.true,verified_at.not.is.null'] },
       ]),
     );
