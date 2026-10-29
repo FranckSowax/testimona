@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { AMOUNT_MAX } from '@/modules/budget/scenarios';
 import { estimateFor, ESTIMATE_KEYS, hasEstimate, wakeGuestsOf } from './quantities';
+import { allSteps } from './registry';
 
 const ATTENDANCE = {
   'attendance.close': 40,
@@ -213,5 +214,14 @@ describe('wakeGuestsOf', () => {
     const base = { low: 0, nights: 1, answered: true, nightsAssumed: false };
     expect(wakeGuestsOf({ ...base, high: 4 })).toBe(2);
     expect(wakeGuestsOf({ ...base, high: 5 })).toBe(3);
+  });
+});
+
+describe('registre', () => {
+  it('donne une estimation à chaque étape à synthèse propre', () => {
+    const missing = allSteps()
+      .filter((step) => step.summary === 'step' && !hasEstimate(step.id))
+      .map((step) => step.id);
+    expect(missing).toEqual([]);
   });
 });

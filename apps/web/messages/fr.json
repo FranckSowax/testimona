@@ -1207,6 +1207,14 @@
       "budget": {
         "title": "Le budget",
         "description": "Le niveau de cérémonie envisagé, parmi trois budgets estimés."
+      },
+      "vigil-setup": {
+        "title": "L'installation de la veillée",
+        "description": "Le lieu, l'abri, les sièges, le son et la lumière, avec les quantités à prévoir."
+      },
+      "vigil-catering": {
+        "title": "La restauration de la veillée",
+        "description": "Ce que vous servez chaque soir et le jour des obsèques, avec les quantités à prévoir."
       }
     },
     "q": {
@@ -1350,6 +1358,63 @@
             "intermediate": "Intermédiaire",
             "full": "Complet"
           }
+        }
+      },
+      "vigil": {
+        "place": {
+          "title": "Où se tiendra la veillée ?",
+          "hint": "La ville et le pays suffisent ; le quartier se précisera avec les prestataires."
+        },
+        "placeType": {
+          "title": "Quel type de lieu ?",
+          "hint": "Cela aide à prévoir l'abri et les sièges.",
+          "options": {
+            "familyHome": "La maison familiale",
+            "rentedHall": "Une salle louée",
+            "neighbourhood": "Un espace du quartier"
+          }
+        },
+        "shelter": {
+          "title": "Où les invités seront-ils abrités ?",
+          "hint": "Une tente de 5 × 10 m accueille environ 50 personnes assises.",
+          "options": { "tents": "Sous des tentes", "hall": "Dans une salle" }
+        },
+        "seating": {
+          "title": "Quels sièges prévoir ?",
+          "hint": "Les bancs prennent moins de place ; les chaises conviennent mieux aux aînés.",
+          "options": { "chairs": "Des chaises", "benches": "Des bancs", "mixed": "Un peu des deux" }
+        },
+        "sound": {
+          "title": "Faut-il une sonorisation ?",
+          "hint": "Pour les chants, les prières et les prises de parole.",
+          "options": { "yes": "Oui", "no": "Non" }
+        },
+        "lighting": {
+          "title": "Faut-il un éclairage ?",
+          "hint": "La veillée dure souvent toute la nuit.",
+          "options": { "yes": "Oui", "no": "Non" }
+        }
+      },
+      "catering": {
+        "served": {
+          "title": "Que servez-vous chaque soir de veillée ?",
+          "hint": "Les quantités suivent le nombre de personnes attendues.",
+          "options": { "nothing": "Rien", "snack": "Une collation", "meal": "Un repas" }
+        },
+        "cook": {
+          "title": "Qui prépare les repas ?",
+          "hint": "Une cuisine familiale revient en général moins cher qu'un traiteur.",
+          "options": { "family": "La famille", "caterer": "Un traiteur" }
+        },
+        "drinks": {
+          "title": "Quelles boissons servez-vous ?",
+          "hint": "L'eau est toujours comptée en plus.",
+          "options": { "soft": "Sans alcool", "alcohol": "Avec alcool" }
+        },
+        "funeralMeal": {
+          "title": "Un repas est-il servi le jour des obsèques ?",
+          "hint": "Pour toutes les personnes attendues ce jour-là.",
+          "options": { "yes": "Oui", "no": "Non" }
         }
       }
     },
