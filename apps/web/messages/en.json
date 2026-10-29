@@ -1931,7 +1931,7 @@
       },
       "request": "Request a quote",
       "messageLabel": "Message sent to {name}",
-      "messageHint": "Read and edit the message if needed. It does not contain the name of the deceased.",
+      "messageHint": "Read and edit the message if needed. The prepared message does not contain the name of the deceased.",
       "open": "Open WhatsApp",
       "opening": "Saving…",
       "cancel": "Cancel",

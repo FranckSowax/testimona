@@ -1931,7 +1931,7 @@
       },
       "request": "Demander un devis",
       "messageLabel": "Message envoyé à {name}",
-      "messageHint": "Relisez et modifiez le message si besoin. Il ne contient pas le nom du défunt.",
+      "messageHint": "Relisez et modifiez le message si besoin. Le message préparé ne contient pas le nom du défunt.",
       "open": "Ouvrir WhatsApp",
       "opening": "Enregistrement…",
       "cancel": "Annuler",

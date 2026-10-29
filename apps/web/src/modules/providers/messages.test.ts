@@ -34,6 +34,23 @@ const QUOTE_PARAMS: Record<string, string[]> = {
   closing: [],
 };
 
+// WHY: paramètres ICU attendus pour chaque texte de l'interface de demande de devis.
+const QUOTE_UI_PARAMS: Record<string, string[]> = {
+  request: [],
+  messageLabel: ['{name}'],
+  messageHint: [],
+  open: [],
+  opening: [],
+  cancel: [],
+  opened: [],
+  link: ['{name}'],
+  'history.title': [],
+  'history.item': ['{date}', '{provider}'],
+  'history.by': ['{author}'],
+  'history.unknownAuthor': [],
+  'errors.unreachable': [],
+};
+
 const PATHS = [
   'admin.nav.providers',
   ...PROVIDER_CATEGORIES.map((k) => `providers.category.${k}`),
@@ -86,6 +103,7 @@ const PATHS = [
   ...Object.keys(ERRORS).map((k) => `dossier.errors.${k}`),
   ...['title', 'intro', 'verified', 'example', 'exampleNotice'].map((k) => `providers.panel.${k}`),
   ...Object.keys(QUOTE_PARAMS).map((k) => `providers.quote.message.${k}`),
+  ...Object.keys(QUOTE_UI_PARAMS).map((k) => `providers.quote.${k}`),
 ];
 
 describe('textes des prestataires', () => {
@@ -106,6 +124,16 @@ describe('textes des prestataires', () => {
     for (const messages of [fr, en]) {
       for (const [key, params] of Object.entries(QUOTE_PARAMS)) {
         const text = String(get(messages, `providers.quote.message.${key}`));
+        const found = text.match(/\{[^}]+\}/g) ?? [];
+        expect(found.sort()).toEqual([...params].sort());
+      }
+    }
+  });
+
+  it("gardent les paramètres des textes de l'interface de devis", () => {
+    for (const messages of [fr, en]) {
+      for (const [key, params] of Object.entries(QUOTE_UI_PARAMS)) {
+        const text = String(get(messages, `providers.quote.${key}`));
         const found = text.match(/\{[^}]+\}/g) ?? [];
         expect(found.sort()).toEqual([...params].sort());
       }

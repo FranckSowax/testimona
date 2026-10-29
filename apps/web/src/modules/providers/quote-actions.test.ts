@@ -43,6 +43,22 @@ describe('requestQuoteAction', () => {
     );
   });
 
+  it('revalide aussi quand le prestataire est injoignable après la trace', async () => {
+    mocks.getCurrentUser.mockResolvedValue({ id: 'u1' });
+    mocks.requestQuote.mockResolvedValue({ ok: false, error: 'unreachable' });
+    expect(await requestQuoteAction(null, form(fields))).toEqual({ error: 'unreachable' });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith(
+      localizedPath(`/dossier/${DOSSIER}/etape/vigil-setup/synthese`, 'fr'),
+    );
+  });
+
+  it('ne revalide pas pour une erreur sans trace', async () => {
+    mocks.getCurrentUser.mockResolvedValue({ id: 'u1' });
+    mocks.requestQuote.mockResolvedValue({ ok: false, error: 'forbidden' });
+    expect(await requestQuoteAction(null, form(fields))).toEqual({ error: 'forbidden' });
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
   it('renvoie l’erreur du service', async () => {
     mocks.getCurrentUser.mockResolvedValue({ id: 'u1' });
     mocks.requestQuote.mockResolvedValue({ ok: false, error: 'unreachable' });
