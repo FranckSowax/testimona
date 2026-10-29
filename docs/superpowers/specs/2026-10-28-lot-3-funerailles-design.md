@@ -84,16 +84,16 @@ Données de départ : une dizaine de prestataires d'exemple à Libreville, répa
 
 Trace d'une demande de devis, en ajout seul.
 
-| Colonne         | Type                                                                   |
-| --------------- | ---------------------------------------------------------------------- |
-| `id`            | uuid, clé primaire                                                     |
-| `dossier_id`    | uuid, FK `dossier` (cascade)                                           |
-| `provider_id`   | uuid, FK `provider` (`on delete no action`)                            |
-| `provider_name` | text not null, `default ''`, nom du prestataire à la demande, imposé   |
-| `step_id`       | text (`vigil-setup`, `vigil-catering`, `ceremony-program`)             |
-| `message`       | text, 1 à 2 000 caractères                                             |
-| `created_by`    | uuid, FK `auth.users` (`on delete set null`), imposé                   |
-| `created_at`    | timestamptz, imposé                                                    |
+| Colonne         | Type                                                                 |
+| --------------- | -------------------------------------------------------------------- |
+| `id`            | uuid, clé primaire                                                   |
+| `dossier_id`    | uuid, FK `dossier` (cascade)                                         |
+| `provider_id`   | uuid, FK `provider` (`on delete no action`)                          |
+| `provider_name` | text not null, `default ''`, nom du prestataire à la demande, imposé |
+| `step_id`       | text (`vigil-setup`, `vigil-catering`, `ceremony-program`)           |
+| `message`       | text, 1 à 2 000 caractères                                           |
+| `created_by`    | uuid, FK `auth.users` (`on delete set null`), imposé                 |
+| `created_at`    | timestamptz, imposé                                                  |
 
 Insertion : coordinateur et plus. Un trigger vérifie d'abord le rôle (42501), puis refuse
 (TL010) un prestataire d'exemple, inactif, non vérifié, sans numéro ou inexistant. `created_by` et `created_at` sont imposés par trigger. Lecture : membres du dossier.

@@ -5,12 +5,7 @@ import { QUOTE_MESSAGE_MAX, quoteHref } from './quote-message';
 import { insertQuoteRequest, listQuoteRequests, QUOTE_STEPS, type QuoteStep } from './quotes/repo';
 import { getProvider } from './repo';
 
-export type QuoteError =
-  | 'validation'
-  | 'forbidden'
-  | 'unreachable'
-  | 'unauthenticated'
-  | 'unknown';
+export type QuoteError = 'validation' | 'forbidden' | 'unreachable' | 'unauthenticated' | 'unknown';
 
 export type QuoteResult<T> = { ok: true; data: T } | { ok: false; error: QuoteError };
 
