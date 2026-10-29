@@ -1928,6 +1928,23 @@
         "place": "Lieu : {place}",
         "quantities": "Besoins estimés :",
         "closing": "Pouvez-vous nous envoyer un devis ? Merci."
+      },
+      "request": "Demander un devis",
+      "messageLabel": "Message envoyé à {name}",
+      "messageHint": "Relisez et modifiez le message si besoin. Il ne contient pas le nom du défunt.",
+      "open": "Ouvrir WhatsApp",
+      "opening": "Enregistrement…",
+      "cancel": "Annuler",
+      "opened": "Demande enregistrée. Si WhatsApp ne s'est pas ouvert, utilisez ce lien :",
+      "link": "Écrire à {name} sur WhatsApp",
+      "history": {
+        "title": "Devis demandés",
+        "item": "{provider}, le {date}",
+        "by": "par {author}",
+        "unknownAuthor": "par un membre du dossier"
+      },
+      "errors": {
+        "unreachable": "Ce prestataire ne peut plus être contacté. Choisissez-en un autre."
       }
     }
   }
