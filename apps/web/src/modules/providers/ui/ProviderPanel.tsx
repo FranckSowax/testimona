@@ -1,15 +1,34 @@
 import { useTranslations } from 'next-intl';
 import type { PanelGroup } from '../panel';
+import type { QuoteStep } from '../quotes/repo';
+import { QuoteRequestForm } from './QuoteRequestForm';
+
+/** Demande de devis possible sur l'encadré : null sans le rôle coordinateur. */
+export interface PanelQuote {
+  dossierId: string;
+  stepId: QuoteStep;
+  /** Message préparé par prestataire contactable (id → message). */
+  messages: Readonly<Record<string, string>>;
+}
 
 /**
  * Encadré prestataires d'une synthèse d'étape : une carte par prestataire (nom, quartier, prix
  * indicatif, badge « Vérifié » ou « Exemple »). Rien sans prestataire.
- * WHY: pas de numéro ici ; le contact passera par la demande de devis tracée (PR 3).
+ * WHY: le numéro n'est jamais affiché ; seul un coordinateur peut demander un devis à un
+ * prestataire vérifié, par une demande tracée qui donne le lien WhatsApp.
  *
  * @example
- * <ProviderPanel city="Libreville" groups={groups} />
+ * <ProviderPanel city="Libreville" groups={groups} quote={quote} />
  */
-export function ProviderPanel({ city, groups }: { city: string; groups: readonly PanelGroup[] }) {
+export function ProviderPanel({
+  city,
+  groups,
+  quote,
+}: {
+  city: string;
+  groups: readonly PanelGroup[];
+  quote: PanelQuote | null;
+}) {
   const t = useTranslations('providers');
   if (groups.length === 0) return null;
   return (
@@ -52,6 +71,17 @@ export function ProviderPanel({ city, groups }: { city: string; groups: readonly
                 )}
                 {provider.isExample && (
                   <p className="text-muted-foreground text-sm">{t('panel.exampleNotice')}</p>
+                )}
+                {/* WHY: le serveur ne prépare un message que pour un prestataire vérifié, non
+                    exemple et avec numéro ; une carte sans message n'a pas de bouton. */}
+                {quote?.messages[provider.id] && (
+                  <QuoteRequestForm
+                    dossierId={quote.dossierId}
+                    providerId={provider.id}
+                    providerName={provider.name}
+                    stepId={quote.stepId}
+                    message={quote.messages[provider.id]!}
+                  />
                 )}
               </li>
             ))}

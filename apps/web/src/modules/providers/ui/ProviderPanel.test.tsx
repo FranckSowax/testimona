@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import messages from '../../../../messages/fr.json';
 import type { PanelGroup } from '../panel';
 import { ProviderPanel } from './ProviderPanel';
+
+vi.mock('../quote-actions', () => ({ requestQuoteAction: vi.fn() }));
 
 const groups: PanelGroup[] = [
   {
@@ -41,7 +43,7 @@ const groups: PanelGroup[] = [
 function renderPanel(g: PanelGroup[]) {
   return render(
     <NextIntlClientProvider locale="fr" messages={messages}>
-      <ProviderPanel city="Libreville" groups={g} />
+      <ProviderPanel city="Libreville" groups={g} quote={null} />
     </NextIntlClientProvider>,
   );
 }
@@ -70,5 +72,31 @@ describe('ProviderPanel', () => {
   it("n'affiche pas le numéro WhatsApp", () => {
     renderPanel(groups);
     expect(screen.queryByText(/\+241/)).toBeNull();
+  });
+
+  it('propose un devis pour un prestataire vérifié seulement, avec le message préparé', () => {
+    render(
+      <NextIntlClientProvider locale="fr" messages={messages}>
+        <ProviderPanel
+          city="Libreville"
+          groups={groups}
+          quote={{
+            dossierId: '33333333-3333-4333-8333-333333333333',
+            stepId: 'vigil-setup',
+            messages: { '11111111-1111-4111-8111-111111111111': 'Bonjour Tentes Owendo,' },
+          }}
+        />
+      </NextIntlClientProvider>,
+    );
+    const [verified, example] = screen.getAllByRole('listitem') as HTMLElement[];
+    expect(within(verified!).getByRole('button', { name: 'Demander un devis' })).toBeTruthy();
+    expect(within(example!).queryByRole('button', { name: 'Demander un devis' })).toBeNull();
+    expect(screen.getAllByRole('button', { name: 'Demander un devis' })).toHaveLength(1);
+    expect(screen.queryByText(/\+241/)).toBeNull();
+  });
+
+  it('ne propose aucun devis sans droit de demande', () => {
+    renderPanel(groups);
+    expect(screen.queryByRole('button', { name: 'Demander un devis' })).toBeNull();
   });
 });
