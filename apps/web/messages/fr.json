@@ -1934,6 +1934,7 @@
       "messageHint": "Relisez et modifiez le message si besoin. Le message préparé ne contient pas le nom du défunt.",
       "open": "Ouvrir WhatsApp",
       "opening": "Enregistrement…",
+      "resend": "Renvoyer la demande",
       "cancel": "Annuler",
       "opened": "Demande enregistrée. Si WhatsApp ne s'est pas ouvert, utilisez ce lien :",
       "link": "Écrire à {name} sur WhatsApp",

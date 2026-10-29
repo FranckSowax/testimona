@@ -1934,6 +1934,7 @@
       "messageHint": "Read and edit the message if needed. The prepared message does not contain the name of the deceased.",
       "open": "Open WhatsApp",
       "opening": "Saving…",
+      "resend": "Send the request again",
       "cancel": "Cancel",
       "opened": "Request saved. If WhatsApp did not open, use this link:",
       "link": "Message {name} on WhatsApp",

@@ -41,6 +41,7 @@ const QUOTE_UI_PARAMS: Record<string, string[]> = {
   messageHint: [],
   open: [],
   opening: [],
+  resend: [],
   cancel: [],
   opened: [],
   link: ['{name}'],

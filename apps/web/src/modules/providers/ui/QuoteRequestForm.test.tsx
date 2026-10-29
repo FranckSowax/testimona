@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import messages from '../../../../messages/fr.json';
@@ -85,5 +85,75 @@ describe('QuoteRequestForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
     expect(screen.queryByRole('textbox')).toBeNull();
     expect(action).not.toHaveBeenCalled();
+  });
+
+  it('donne le focus au message à l’ouverture', () => {
+    renderForm();
+    fireEvent.click(screen.getByRole('button', { name: 'Demander un devis' }));
+    expect(document.activeElement).toBe(screen.getByRole('textbox'));
+  });
+
+  it('rend le focus au bouton « Demander un devis » après « Annuler »', () => {
+    renderForm();
+    fireEvent.click(screen.getByRole('button', { name: 'Demander un devis' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Demander un devis' }));
+  });
+
+  it('ne laisse pas le focus au bouton au premier rendu', () => {
+    renderForm();
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  it('bloque une double soumission avant le rendu suivant', async () => {
+    // WHY: une action qui se résout : sans garde synchrone, React mettrait le second envoi en
+    // file et l'exécuterait après le premier, d'où deux demandes tracées.
+    action.mockResolvedValue({ error: 'unreachable' });
+    renderForm();
+    fireEvent.click(screen.getByRole('button', { name: 'Demander un devis' }));
+    const form = screen.getByRole('textbox').closest('form')!;
+    await act(async () => {
+      fireEvent.submit(form);
+      fireEvent.submit(form);
+    });
+    await screen.findByRole('alert');
+    expect(action).toHaveBeenCalledTimes(1);
+  });
+
+  it('propose « Renvoyer la demande » après un succès', async () => {
+    action.mockResolvedValue({ ok: true, href: 'https://wa.me/24177123456?text=x' });
+    renderForm();
+    fireEvent.click(screen.getByRole('button', { name: 'Demander un devis' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ouvrir WhatsApp' }));
+    expect(await screen.findByRole('button', { name: 'Renvoyer la demande' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Ouvrir WhatsApp' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Renvoyer la demande' }));
+    await waitFor(() => expect(action).toHaveBeenCalledTimes(2));
+  });
+
+  it('relie l’erreur au champ du message', async () => {
+    action.mockResolvedValue({ error: 'unreachable' });
+    renderForm();
+    fireEvent.click(screen.getByRole('button', { name: 'Demander un devis' }));
+    const field = screen.getByRole('textbox');
+    expect(field.getAttribute('aria-invalid')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Ouvrir WhatsApp' }));
+    const alert = await screen.findByRole('alert');
+    expect(field.getAttribute('aria-invalid')).toBe('true');
+    expect(alert.id).not.toBe('');
+    expect(field.getAttribute('aria-describedby')?.split(' ')).toContain(alert.id);
+  });
+
+  it('efface lien et erreur périmés après « Annuler »', async () => {
+    action.mockResolvedValue({ error: 'unreachable' });
+    renderForm();
+    fireEvent.click(screen.getByRole('button', { name: 'Demander un devis' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ouvrir WhatsApp' }));
+    await screen.findByRole('alert');
+    fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Demander un devis' }));
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.queryByRole('link')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Ouvrir WhatsApp' })).toBeTruthy();
   });
 });
