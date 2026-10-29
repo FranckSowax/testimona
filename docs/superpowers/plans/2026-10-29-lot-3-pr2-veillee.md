@@ -29,29 +29,29 @@ Hors PR : message et trace de devis (PR 3), étape 3.4 (PR 4), documents (PR 5).
 
 ## Structure des fichiers
 
-| Fichier                                                                         | Rôle                                                       |
-| ------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| `apps/web/src/journey/types.ts`                                                 | `StepSummary` + `'step'`, champ `providers`                |
-| `apps/web/src/journey/define.ts`                                                | Contrôles de `providers`                                   |
-| `apps/web/src/journey/paths.ts` (nouveau)                                       | `summaryPath()`                                            |
-| `apps/web/src/modules/dossier/answers/redirect.ts`                              | `stepEndPath` passe par `summaryPath`                      |
-| `apps/web/src/modules/dossier/answers/actions.ts`                               | Revalide la synthèse de l'étape                            |
-| `apps/web/src/journey/ui/JourneyOverview.tsx`                                   | Lien « Voir la synthèse » par étape                        |
-| `apps/web/src/journey/options.ts`                                               | Options des questions 3.1 et 3.2                           |
-| `apps/web/src/journey/quantities.ts` (nouveau)                                  | Quantités et coûts estimés                                 |
-| `apps/web/src/journey/steps/3-1-vigil-setup.ts` (nouveau)                       | Étape 3.1                                                  |
-| `apps/web/src/journey/steps/3-2-vigil-catering.ts` (nouveau)                    | Étape 3.2                                                  |
-| `apps/web/src/journey/registry.ts`                                              | 3.1 et 3.2 après le budget                                 |
-| `apps/web/src/modules/providers/panel.ts` (nouveau)                             | Tri et regroupement de l'encadré, ville                    |
-| `apps/web/src/modules/providers/repo.ts`                                        | `listPanelProviders()`                                     |
-| `apps/web/src/modules/providers/service.ts`                                     | `providersForPanel()`                                      |
-| `apps/web/src/modules/providers/ui/ProviderPanel.tsx` (nouveau)                 | Encadré                                                    |
-| `apps/web/src/modules/dossier/repo.ts`                                          | `getDeathCity()`                                           |
-| `apps/web/src/modules/budget/lines/model.ts`                                    | `lineAdjustments()`                                        |
-| `apps/web/src/modules/budget/lines/ui/AdjustLineButton.tsx` (nouveau)           | Bouton d'ajustement                                        |
-| `apps/web/src/journey/ui/StepSynthesis.tsx` (nouveau)                           | Contenu de la synthèse                                     |
-| `apps/web/src/app/[locale]/(dossier)/dossier/[id]/etape/[stepId]/synthese/page.tsx` (nouveau) | Page de synthèse                             |
-| `apps/web/messages/fr.json`, `apps/web/messages/en.json`                        | Textes des étapes, de la synthèse et de l'encadré          |
+| Fichier                                                                                       | Rôle                                              |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `apps/web/src/journey/types.ts`                                                               | `StepSummary` + `'step'`, champ `providers`       |
+| `apps/web/src/journey/define.ts`                                                              | Contrôles de `providers`                          |
+| `apps/web/src/journey/paths.ts` (nouveau)                                                     | `summaryPath()`                                   |
+| `apps/web/src/modules/dossier/answers/redirect.ts`                                            | `stepEndPath` passe par `summaryPath`             |
+| `apps/web/src/modules/dossier/answers/actions.ts`                                             | Revalide la synthèse de l'étape                   |
+| `apps/web/src/journey/ui/JourneyOverview.tsx`                                                 | Lien « Voir la synthèse » par étape               |
+| `apps/web/src/journey/options.ts`                                                             | Options des questions 3.1 et 3.2                  |
+| `apps/web/src/journey/quantities.ts` (nouveau)                                                | Quantités et coûts estimés                        |
+| `apps/web/src/journey/steps/3-1-vigil-setup.ts` (nouveau)                                     | Étape 3.1                                         |
+| `apps/web/src/journey/steps/3-2-vigil-catering.ts` (nouveau)                                  | Étape 3.2                                         |
+| `apps/web/src/journey/registry.ts`                                                            | 3.1 et 3.2 après le budget                        |
+| `apps/web/src/modules/providers/panel.ts` (nouveau)                                           | Tri et regroupement de l'encadré, ville           |
+| `apps/web/src/modules/providers/repo.ts`                                                      | `listPanelProviders()`                            |
+| `apps/web/src/modules/providers/service.ts`                                                   | `providersForPanel()`                             |
+| `apps/web/src/modules/providers/ui/ProviderPanel.tsx` (nouveau)                               | Encadré                                           |
+| `apps/web/src/modules/dossier/repo.ts`                                                        | `getDeathCity()`                                  |
+| `apps/web/src/modules/budget/lines/model.ts`                                                  | `lineAdjustments()`                               |
+| `apps/web/src/modules/budget/lines/ui/AdjustLineButton.tsx` (nouveau)                         | Bouton d'ajustement                               |
+| `apps/web/src/journey/ui/StepSynthesis.tsx` (nouveau)                                         | Contenu de la synthèse                            |
+| `apps/web/src/app/[locale]/(dossier)/dossier/[id]/etape/[stepId]/synthese/page.tsx` (nouveau) | Page de synthèse                                  |
+| `apps/web/messages/fr.json`, `apps/web/messages/en.json`                                      | Textes des étapes, de la synthèse et de l'encadré |
 
 Toutes les commandes se lancent depuis la racine du dépôt (`/Users/user/Downloads/testimona`).
 
@@ -74,34 +74,32 @@ Toutes les commandes se lancent depuis la racine du dépôt (`/Users/user/Downlo
 Ajouter à la fin du `describe('defineStep', …)` de `apps/web/src/journey/define.test.ts` :
 
 ```ts
-  it('accepte des prestataires sur une étape à synthèse propre', () => {
-    const step = {
-      id: 'demo',
-      questions: [q.shortText('demo.one')],
-      summary: 'step' as const,
-      providers: ['tentsChairs', 'sound'] as const,
-    };
-    expect(defineStep(step)).toBe(step);
-  });
+it('accepte des prestataires sur une étape à synthèse propre', () => {
+  const step = {
+    id: 'demo',
+    questions: [q.shortText('demo.one')],
+    summary: 'step' as const,
+    providers: ['tentsChairs', 'sound'] as const,
+  };
+  expect(defineStep(step)).toBe(step);
+});
 
-  it('refuse des prestataires sans synthèse propre', () => {
-    expect(() =>
-      defineStep({ id: 'demo', questions: [], summary: 'budget', providers: ['sound'] }),
-    ).toThrow(/synthèse/);
-    expect(() => defineStep({ id: 'demo', questions: [], providers: ['sound'] })).toThrow(
-      /synthèse/,
-    );
-  });
+it('refuse des prestataires sans synthèse propre', () => {
+  expect(() =>
+    defineStep({ id: 'demo', questions: [], summary: 'budget', providers: ['sound'] }),
+  ).toThrow(/synthèse/);
+  expect(() => defineStep({ id: 'demo', questions: [], providers: ['sound'] })).toThrow(/synthèse/);
+});
 
-  it('refuse une liste de prestataires vide, en double ou inconnue', () => {
-    const base = { id: 'demo', questions: [], summary: 'step' as const };
-    expect(() => defineStep({ ...base, providers: [] })).toThrow(/prestataires/);
-    expect(() => defineStep({ ...base, providers: ['sound', 'sound'] })).toThrow(/prestataires/);
-    expect(() =>
-      // @ts-expect-error catégorie inconnue, refusée aussi à l'exécution
-      defineStep({ ...base, providers: ['florist'] }),
-    ).toThrow(/prestataires/);
-  });
+it('refuse une liste de prestataires vide, en double ou inconnue', () => {
+  const base = { id: 'demo', questions: [], summary: 'step' as const };
+  expect(() => defineStep({ ...base, providers: [] })).toThrow(/prestataires/);
+  expect(() => defineStep({ ...base, providers: ['sound', 'sound'] })).toThrow(/prestataires/);
+  expect(() =>
+    // @ts-expect-error catégorie inconnue, refusée aussi à l'exécution
+    defineStep({ ...base, providers: ['florist'] }),
+  ).toThrow(/prestataires/);
+});
 ```
 
 Créer `apps/web/src/journey/paths.test.ts` :
@@ -134,11 +132,11 @@ describe('summaryPath', () => {
 Dans `apps/web/src/modules/dossier/answers/redirect.test.ts`, dans `describe('stepEndPath', …)`, ajouter :
 
 ```ts
-  it("mène à la synthèse propre d'une étape", () => {
-    expect(stepEndPath(ID, { ...base, summary: 'step' })).toBe(
-      `/dossier/${ID}/etape/${base.id}/synthese`,
-    );
-  });
+it("mène à la synthèse propre d'une étape", () => {
+  expect(stepEndPath(ID, { ...base, summary: 'step' })).toBe(
+    `/dossier/${ID}/etape/${base.id}/synthese`,
+  );
+});
 ```
 
 (`base` et `ID` existent déjà dans ce fichier ; vérifier leur nom avant de coller.)
@@ -187,7 +185,7 @@ import { PROVIDER_CATEGORIES } from '@/modules/providers/categories';
 puis, dans `defineStep`, juste après le contrôle `if (step.draft && step.summary) { … }` :
 
 ```ts
-  if (step.providers) checkProviders(step);
+if (step.providers) checkProviders(step);
 ```
 
 et ajouter la fonction en fin de fichier :
@@ -258,18 +256,18 @@ import { summaryPath } from '@/journey/paths';
 et remplacer le bloc :
 
 ```ts
-  // WHY: la page de synthèse (budget) est calculée depuis les réponses : elle doit les refléter.
-  if (found?.step.summary) {
-    revalidatePath(localizedPath(`/dossier/${dossierId}/${found.step.summary}`, locale));
-  }
+// WHY: la page de synthèse (budget) est calculée depuis les réponses : elle doit les refléter.
+if (found?.step.summary) {
+  revalidatePath(localizedPath(`/dossier/${dossierId}/${found.step.summary}`, locale));
+}
 ```
 
 par :
 
 ```ts
-  // WHY: la page de synthèse est calculée depuis les réponses : elle doit les refléter.
-  const summary = found ? summaryPath(dossierId, found.step) : null;
-  if (summary) revalidatePath(localizedPath(summary, locale));
+// WHY: la page de synthèse est calculée depuis les réponses : elle doit les refléter.
+const summary = found ? summaryPath(dossierId, found.step) : null;
+if (summary) revalidatePath(localizedPath(summary, locale));
 ```
 
 Dans `apps/web/src/journey/ui/JourneyOverview.tsx`, importer `summaryPath` :
@@ -281,50 +279,51 @@ import { summaryPath } from '../paths';
 remplacer :
 
 ```tsx
-          // WHY: B.1 et B.2 mènent à la même page ; un seul lien « Voir le budget », sur la
-          // dernière étape qui porte cette synthèse.
-          const showSummary =
-            step.summary !== undefined &&
-            steps.findLastIndex((other) => other.summary === step.summary) === position;
+// WHY: B.1 et B.2 mènent à la même page ; un seul lien « Voir le budget », sur la
+// dernière étape qui porte cette synthèse.
+const showSummary =
+  step.summary !== undefined &&
+  steps.findLastIndex((other) => other.summary === step.summary) === position;
 ```
 
 par :
 
 ```tsx
-          // WHY: B.1 et B.2 mènent à la même page ; un seul lien « Voir le budget », sur la
-          // dernière étape qui porte cette synthèse. Une synthèse propre a son lien par étape.
-          const summaryHref = summaryPath(dossierId, step);
-          const showSummary =
-            summaryHref !== null &&
-            (step.summary === 'step' ||
-              steps.findLastIndex((other) => other.summary === step.summary) === position);
+// WHY: B.1 et B.2 mènent à la même page ; un seul lien « Voir le budget », sur la
+// dernière étape qui porte cette synthèse. Une synthèse propre a son lien par étape.
+const summaryHref = summaryPath(dossierId, step);
+const showSummary =
+  summaryHref !== null &&
+  (step.summary === 'step' ||
+    steps.findLastIndex((other) => other.summary === step.summary) === position);
 ```
 
 et le bloc du lien :
 
 ```tsx
-              {showSummary && step.summary && (
-                <Link
-                  href={`/dossier/${dossierId}/${step.summary}`}
-                  className="text-primary text-sm font-semibold hover:underline"
-                >
-                  {t(`dashboard.summary.${step.summary}`)}
-                </Link>
-              )}
+{
+  showSummary && step.summary && (
+    <Link
+      href={`/dossier/${dossierId}/${step.summary}`}
+      className="text-primary text-sm font-semibold hover:underline"
+    >
+      {t(`dashboard.summary.${step.summary}`)}
+    </Link>
+  );
+}
 ```
 
 par :
 
 ```tsx
-              {showSummary && summaryHref && step.summary && (
-                <Link
-                  href={summaryHref}
-                  className="text-primary text-sm font-semibold hover:underline"
-                >
-                  {t(`dashboard.summary.${step.summary}`)}
-                  {step.summary === 'step' && <span className="sr-only"> {title}</span>}
-                </Link>
-              )}
+{
+  showSummary && summaryHref && step.summary && (
+    <Link href={summaryHref} className="text-primary text-sm font-semibold hover:underline">
+      {t(`dashboard.summary.${step.summary}`)}
+      {step.summary === 'step' && <span className="sr-only"> {title}</span>}
+    </Link>
+  );
+}
 ```
 
 Ajouter le texte `journey.dashboard.summary.step` dans `apps/web/messages/fr.json` (« Voir la synthèse ») et `apps/web/messages/en.json` (« View the summary »), à côté de `summary.budget`.
@@ -811,45 +810,45 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 Dans `apps/web/src/journey/registry.test.ts`, remplacer la liste attendue de `stepsFor('death')` par :
 
 ```ts
-    expect(stepsFor('death').map((s) => s.id)).toEqual([
-      'broadcast-list',
-      'immediate-message',
-      'email-announcement',
-      'attendance',
-      'budget',
-      'vigil-setup',
-      'vigil-catering',
-      'biography',
-    ]);
+expect(stepsFor('death').map((s) => s.id)).toEqual([
+  'broadcast-list',
+  'immediate-message',
+  'email-announcement',
+  'attendance',
+  'budget',
+  'vigil-setup',
+  'vigil-catering',
+  'biography',
+]);
 ```
 
 (garder le reste du test tel quel) et ajouter un test :
 
 ```ts
-  it('pose les questions des étapes 3.1 et 3.2 avec leurs prestataires', () => {
-    expect(getStep('vigil-setup')?.questions.map((q) => [q.key, q.kind])).toEqual([
-      ['vigil.place', 'place'],
-      ['vigil.placeType', 'choice'],
-      ['vigil.shelter', 'choice'],
-      ['vigil.seating', 'choice'],
-      ['vigil.sound', 'choice'],
-      ['vigil.lighting', 'choice'],
-    ]);
-    expect(getStep('vigil-setup')).toMatchObject({
-      summary: 'step',
-      providers: ['tentsChairs', 'sound', 'lighting'],
-    });
-    expect(getStep('vigil-catering')?.questions.map((q) => [q.key, q.kind])).toEqual([
-      ['catering.served', 'choice'],
-      ['catering.cook', 'choice'],
-      ['catering.drinks', 'choice'],
-      ['catering.funeralMeal', 'choice'],
-    ]);
-    expect(getStep('vigil-catering')).toMatchObject({
-      summary: 'step',
-      providers: ['catering', 'drinks'],
-    });
+it('pose les questions des étapes 3.1 et 3.2 avec leurs prestataires', () => {
+  expect(getStep('vigil-setup')?.questions.map((q) => [q.key, q.kind])).toEqual([
+    ['vigil.place', 'place'],
+    ['vigil.placeType', 'choice'],
+    ['vigil.shelter', 'choice'],
+    ['vigil.seating', 'choice'],
+    ['vigil.sound', 'choice'],
+    ['vigil.lighting', 'choice'],
+  ]);
+  expect(getStep('vigil-setup')).toMatchObject({
+    summary: 'step',
+    providers: ['tentsChairs', 'sound', 'lighting'],
   });
+  expect(getStep('vigil-catering')?.questions.map((q) => [q.key, q.kind])).toEqual([
+    ['catering.served', 'choice'],
+    ['catering.cook', 'choice'],
+    ['catering.drinks', 'choice'],
+    ['catering.funeralMeal', 'choice'],
+  ]);
+  expect(getStep('vigil-catering')).toMatchObject({
+    summary: 'step',
+    providers: ['catering', 'drinks'],
+  });
+});
 ```
 
 Dans `apps/web/src/journey/quantities.test.ts`, ajouter `import { allSteps } from './registry';` en tête et ce bloc en fin de fichier :
