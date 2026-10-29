@@ -129,7 +129,8 @@ Elle ne bloque que l'ajustement d'un poste du budget (TL009, déjà en place sur
 
 Les étapes sont de courtes définitions dans `journey/steps/`, comme B.1. Le moteur gagne une seule
 capacité : une étape peut déclarer `providers: [catégories]`, et sa synthèse affiche alors
-l'encadré prestataires (section 3).
+l'encadré prestataires (section 3). La synthèse de 3.1 et 3.2 est une page propre à l'étape,
+`/dossier/<id>/etape/<étape>/synthese` (`summary: 'step'`).
 
 ### 3.1 Installation de la veillée (`vigil-setup`)
 
@@ -156,14 +157,18 @@ par tente, 1,5 litre d'eau par personne et par soir, etc.) sont des constantes n
 « estimation à vérifier » comme la grille du lot 2. Le coût estimé réutilise la grille
 (`lineAmount()`) au niveau choisi en B.2, sinon au niveau intermédiaire.
 
-Sans réponse à B.1, la synthèse affiche un lien vers B.1 au lieu de quantités nulles.
+Sans réponse à B.1, la synthèse affiche un lien vers B.1 au lieu de quantités nulles. Une question
+passée ou sans réponse n'ajoute ni quantité ni coût. L'éclairage n'a pas de coût (pas de poste dans
+la grille). L'eau est comptée par invité et par occasion. Quand l'affluence est répondue mais nulle,
+il n'y a ni quantité ni coût, pour ne jamais proposer de remettre un poste à zéro.
 
 ### Ajustement des postes du budget
 
 Pour un trésorier et plus, sous le coût estimé : « Mettre à jour le poste Tentes et chaises :
 240 000 XAF ». Correspondance par `grid_key` : 3.1 ajuste `tentsChairs` et `sound`, 3.2 ajuste
 `catering` et `drinks`. Le bouton appelle l'action existante de modification d'un poste ; le
-registre n'est pas touché. Il n'apparaît pas si le poste n'existe pas ou si les cotisations sont
+registre n'est pas touché. Ajuster un poste remplace ses trois montants et le marque modifié. Il
+n'apparaît pas si le poste n'existe pas ou si les cotisations sont
 clôturées.
 
 ### 3.4 Déroulé de la cérémonie (`ceremony-program`)
@@ -186,7 +191,8 @@ Synthèse : programme trié par heure, lien Maps par lieu (`lib/geo/maps`), pres
 
 Sur la synthèse des étapes qui déclarent des catégories. Une carte par prestataire : nom, quartier,
 `price_note`, badge « Vérifié » ou « Exemple ». Ordre : vérifiés de la ville, puis exemples ; cinq
-au plus par catégorie. Aucun prestataire : l'encadré n'apparaît pas. Pas de note, d'avis ni de carte
+au plus par catégorie. La ville de l'encadré est comparée en code, sans tenir compte de la casse,
+des accents ni des tirets. Aucun prestataire : l'encadré n'apparaît pas. Pas de note, d'avis ni de carte
 géographique.
 
 ### Demande de devis
