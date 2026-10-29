@@ -34,10 +34,9 @@ export default async function StepSynthesisPage({
   if (!dossier || !isStepOpen(dossier.entryPoint, step.id)) notFound();
 
   const keys = [...step.questions.map((question) => question.key), ...ESTIMATE_KEYS];
-  const [role, answers, closure, deathCity] = await Promise.all([
+  const [role, answers, deathCity] = await Promise.all([
     getMyRole(id),
     listAnswersResult(id, keys),
-    getClosure(id),
     getDeathCity(id),
   ]);
   // WHY: des quantités nulles sur une lecture en échec seraient trompeuses ; error.tsx prend le
@@ -47,11 +46,14 @@ export default async function StepSynthesisPage({
 
   // WHY: ajuster un poste est réservé au trésorier et refusé (TL009) une fois les cotisations
   // clôturées ; une clôture ou des postes illisibles masquent le bouton plutôt que de proposer
-  // une écriture refusée.
+  // une écriture refusée. La clôture n'est lue que pour un trésorier et s'il y a une estimation.
   let adjustments: LineAdjustment[] | null = null;
-  if (estimate && canManageLedger(role) && !closure.error && !closure.data.closedAt) {
-    const lines = await listLines(id);
-    adjustments = lines.error ? null : lineAdjustments(estimate.costs, lines.data);
+  if (estimate && canManageLedger(role)) {
+    const closure = await getClosure(id);
+    if (!closure.error && !closure.data.closedAt) {
+      const lines = await listLines(id);
+      adjustments = lines.error ? null : lineAdjustments(estimate.costs, lines.data);
+    }
   }
 
   const city = panelCity(deathCity);
