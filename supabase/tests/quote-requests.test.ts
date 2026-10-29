@@ -112,4 +112,37 @@ describe('quote_request', () => {
       asUser(f.db, f.owner, () => f.db.query('delete from quote_request')),
     ).rejects.toMatchObject(DENIED);
   });
+
+  it('fige le nom du prestataire, même falsifié', async () => {
+    const { rows } = await asUser(f.db, f.coordinator, () =>
+      f.db.query<{ provider_name: string }>(
+        `insert into quote_request (dossier_id, provider_id, step_id, message, provider_name)
+         values ($1, $2, 'vigil-setup', 'Bonjour.', 'Nom falsifié')
+         returning provider_name`,
+        [f.dossierId, verified],
+      ),
+    );
+    const { rows: names } = await f.db.query<{ name: string }>(
+      'select name from provider where id = $1',
+      [verified],
+    );
+    expect(rows[0]!.provider_name).toBe(names[0]!.name);
+  });
+
+  it('garde le nom lisible après la désactivation du prestataire', async () => {
+    const target = await f.insertProvider({
+      name: 'Sono à désactiver',
+      whatsapp: '+24177999999',
+      verified_at: new Date(),
+    });
+    await requestQuoteWithForgedAuthor(f.coordinator, target);
+    await f.db.query('update provider set active = false where id = $1', [target]);
+    const { rows } = await asUser(f.db, f.viewer, () =>
+      f.db.query<{ provider_name: string }>(
+        'select provider_name from quote_request where provider_id = $1',
+        [target],
+      ),
+    );
+    expect(rows.map((r) => r.provider_name)).toEqual(['Sono à désactiver']);
+  });
 });
