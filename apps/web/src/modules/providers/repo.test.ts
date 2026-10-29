@@ -13,7 +13,17 @@ vi.mock('@/lib/supabase/server', () => {
   const next = () => Promise.resolve(results.shift());
   const query = () => {
     const q: Record<string, unknown> = {};
-    for (const method of ['select', 'insert', 'update', 'eq', 'order', 'limit', 'returns']) {
+    for (const method of [
+      'select',
+      'insert',
+      'update',
+      'eq',
+      'in',
+      'or',
+      'order',
+      'limit',
+      'returns',
+    ]) {
       q[method] = (...args: unknown[]) => {
         calls.push({ method, args });
         return q;
@@ -34,7 +44,8 @@ vi.mock('@/lib/supabase/server', () => {
   return { getSupabaseServer: async () => db };
 });
 
-const { getProvider, insertProvider, listProviders, updateProvider } = await import('./repo');
+const { getProvider, insertProvider, listPanelProviders, listProviders, updateProvider } =
+  await import('./repo');
 
 const ID = '66666666-6666-4666-8666-666666666666';
 const row = {
@@ -118,6 +129,32 @@ describe('listProviders', () => {
       data: null,
       error: { code: 'unknown', message: 'providers error' },
     });
+    log.mockRestore();
+  });
+});
+
+describe('listPanelProviders', () => {
+  it("lit les prestataires actifs, vérifiés ou d'exemple, des catégories demandées", async () => {
+    results.push({ data: [row], error: null });
+    const res = await listPanelProviders(['tentsChairs', 'sound']);
+    expect(res.error).toBeNull();
+    expect(res.data?.[0]?.id).toBe(row.id);
+    expect(calls).toEqual(
+      expect.arrayContaining([
+        { method: 'from', args: ['provider'] },
+        { method: 'in', args: ['category_key', ['tentsChairs', 'sound']] },
+        { method: 'eq', args: ['active', true] },
+        { method: 'limit', args: [200] },
+        { method: 'or', args: ['is_example.eq.true,verified_at.not.is.null'] },
+      ]),
+    );
+  });
+
+  it('remonte une erreur de lecture', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    results.push({ data: null, error: { code: '42501', message: 'denied' } });
+    const res = await listPanelProviders(['sound']);
+    expect(res.error?.code).toBe('42501');
     log.mockRestore();
   });
 });

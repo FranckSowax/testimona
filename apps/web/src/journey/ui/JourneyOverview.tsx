@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { buttonClasses } from '@/components/ui/Button';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Link } from '@/i18n/navigation';
+import { summaryPath } from '../paths';
 import { nextQuestion, stepProgress, type Answers } from '../progress';
 import type { Step } from '../types';
 
@@ -67,10 +68,12 @@ export async function JourneyOverview({
       <ul className="border-border divide-border divide-y rounded-2xl border">
         {steps.map((step, position) => {
           // WHY: B.1 et B.2 mènent à la même page ; un seul lien « Voir le budget », sur la
-          // dernière étape qui porte cette synthèse.
+          // dernière étape qui porte cette synthèse. Une synthèse propre a son lien par étape.
+          const summaryHref = summaryPath(dossierId, step);
           const showSummary =
-            step.summary !== undefined &&
-            steps.findLastIndex((other) => other.summary === step.summary) === position;
+            summaryHref !== null &&
+            (step.summary === 'step' ||
+              steps.findLastIndex((other) => other.summary === step.summary) === position);
           const progress = stepProgress(step, answers);
           const title = t(`steps.${step.id}.title`);
           return (
@@ -100,12 +103,13 @@ export async function JourneyOverview({
                   {t('dashboard.viewDraft')} <span className="sr-only">{title}</span>
                 </Link>
               )}
-              {showSummary && step.summary && (
+              {showSummary && summaryHref && step.summary && (
                 <Link
-                  href={`/dossier/${dossierId}/${step.summary}`}
+                  href={summaryHref}
                   className="text-primary text-sm font-semibold hover:underline"
                 >
                   {t(`dashboard.summary.${step.summary}`)}
+                  {step.summary === 'step' && <span className="sr-only"> {title}</span>}
                 </Link>
               )}
               {progress.total > 0 && (

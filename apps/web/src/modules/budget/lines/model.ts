@@ -112,3 +112,37 @@ export function referenceBudget(
   const envisaged = envisagedTotal(answers);
   return envisaged === null ? null : { amount: envisaged, source: 'envisaged' };
 }
+
+/** Coût estimé d'un poste de la grille (même forme que `CostLine` du parcours). */
+export interface EstimatedCost {
+  gridKey: string;
+  amounts: Readonly<Record<Level, number>>;
+}
+
+/** Ajustement proposé d'un poste à partir d'une estimation d'étape. */
+export interface LineAdjustment {
+  gridKey: string;
+  line: BudgetLine;
+  amounts: Readonly<Record<Level, number>>;
+  /** Vrai si le poste a déjà ces montants. */
+  upToDate: boolean;
+}
+
+/**
+ * Ajustements possibles : un par coût estimé dont le poste de même `grid_key` existe.
+ * WHY: un poste supprimé ou jamais créé n'est pas recréé depuis une étape.
+ *
+ * @example
+ * lineAdjustments(estimate.costs, lines); // [{ gridKey: 'sound', line, amounts, upToDate: false }]
+ */
+export function lineAdjustments(
+  costs: readonly EstimatedCost[],
+  lines: readonly BudgetLine[],
+): LineAdjustment[] {
+  return costs.flatMap((cost) => {
+    const line = lines.find((candidate) => candidate.gridKey === cost.gridKey);
+    if (!line) return [];
+    const upToDate = LEVELS.every((level) => line.amounts[level] === cost.amounts[level]);
+    return [{ gridKey: cost.gridKey, line, amounts: { ...cost.amounts }, upToDate }];
+  });
+}

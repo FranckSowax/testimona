@@ -17,6 +17,8 @@ describe('registre du parcours', () => {
       'email-announcement',
       'attendance',
       'budget',
+      'vigil-setup',
+      'vigil-catering',
       'biography',
     ]);
     expect(stepsFor('prepare').map((s) => s.id)).toEqual(['biography']);
@@ -37,6 +39,31 @@ describe('registre du parcours', () => {
       'announce.practicalInfo',
       'announce.flowersOrDonations',
     ]);
+  });
+
+  it('pose les questions des étapes 3.1 et 3.2 avec leurs prestataires', () => {
+    expect(getStep('vigil-setup')?.questions.map((q) => [q.key, q.kind])).toEqual([
+      ['vigil.place', 'place'],
+      ['vigil.placeType', 'choice'],
+      ['vigil.shelter', 'choice'],
+      ['vigil.seating', 'choice'],
+      ['vigil.sound', 'choice'],
+      ['vigil.lighting', 'choice'],
+    ]);
+    expect(getStep('vigil-setup')).toMatchObject({
+      summary: 'step',
+      providers: ['tentsChairs', 'sound', 'lighting'],
+    });
+    expect(getStep('vigil-catering')?.questions.map((q) => [q.key, q.kind])).toEqual([
+      ['catering.served', 'choice'],
+      ['catering.cook', 'choice'],
+      ['catering.drinks', 'choice'],
+      ['catering.funeralMeal', 'choice'],
+    ]);
+    expect(getStep('vigil-catering')).toMatchObject({
+      summary: 'step',
+      providers: ['catering', 'drinks'],
+    });
   });
 
   it('associe un brouillon WhatsApp à 2.2 et un brouillon e-mail à 2.3', () => {

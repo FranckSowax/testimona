@@ -170,6 +170,18 @@ export async function getPerson(dossierId: string): Promise<PersonSummary | null
   return (await getPersonResult(dossierId)).data;
 }
 
+/** Ville du décès inscrite sur la fiche, ou null (absente, vide ou illisible). */
+export async function getDeathCity(dossierId: string): Promise<string | null> {
+  const db = await getSupabaseServer();
+  const { data, error } = await db
+    .from('person')
+    .select('death_city')
+    .eq('dossier_id', dossierId)
+    .maybeSingle<{ death_city: string | null }>();
+  logRead('getDeathCity', error);
+  return data?.death_city ?? null;
+}
+
 export async function listMembers(dossierId: string): Promise<MemberSummary[]> {
   const db = await getSupabaseServer();
   const { data, error } = await db

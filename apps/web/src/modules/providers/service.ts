@@ -2,6 +2,8 @@ import 'server-only';
 import { z } from 'zod';
 import { isPlatformAdmin } from '@/lib/auth/platform-admin';
 import { fieldErrors } from '@/modules/dossier/service';
+import type { ProviderCategory } from './categories';
+import { type PanelGroup, panelGroups } from './panel';
 import * as repo from './repo';
 import {
   type Provider,
@@ -105,4 +107,19 @@ export async function updateProvider(raw: unknown): Promise<ProvidersResult<true
     verifiedAt: verifiedAtFor(verified, current.data.verifiedAt),
   });
   return res.error ? fromRepo(res.error, 'updateProvider') : { ok: true, data: true };
+}
+
+/**
+ * Encadré prestataires d'une étape, pour tout utilisateur connecté (la RLS filtre).
+ *
+ * @example
+ * const res = await providersForPanel(['tentsChairs', 'sound'], 'Libreville');
+ */
+export async function providersForPanel(
+  categories: readonly ProviderCategory[],
+  city: string,
+): Promise<ProvidersResult<PanelGroup[]>> {
+  const res = await repo.listPanelProviders(categories);
+  if (res.error) return fromRepo(res.error, 'providersForPanel');
+  return { ok: true, data: panelGroups(res.data, categories, city) };
 }

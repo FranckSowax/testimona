@@ -1207,6 +1207,14 @@
       "budget": {
         "title": "Budget",
         "description": "The level of ceremony you have in mind, among three estimated budgets."
+      },
+      "vigil-setup": {
+        "title": "Setting up the wake",
+        "description": "The place, shelter, seating, sound and lighting, with the quantities to plan."
+      },
+      "vigil-catering": {
+        "title": "Food and drinks for the wake",
+        "description": "What you serve each night and on the day of the funeral, with the quantities to plan."
       }
     },
     "q": {
@@ -1351,6 +1359,63 @@
             "full": "Full"
           }
         }
+      },
+      "vigil": {
+        "place": {
+          "title": "Where will the wake be held?",
+          "hint": "The city and country are enough; the neighbourhood can be settled with the providers."
+        },
+        "placeType": {
+          "title": "What kind of place?",
+          "hint": "This helps plan the shelter and seating.",
+          "options": {
+            "familyHome": "The family home",
+            "rentedHall": "A rented hall",
+            "neighbourhood": "A space in the neighbourhood"
+          }
+        },
+        "shelter": {
+          "title": "Where will guests be sheltered?",
+          "hint": "A 5 × 10 m tent seats about 50 people.",
+          "options": { "tents": "Under tents", "hall": "In a hall" }
+        },
+        "seating": {
+          "title": "What seating should you plan?",
+          "hint": "Benches take less room; chairs suit older guests better.",
+          "options": { "chairs": "Chairs", "benches": "Benches", "mixed": "Some of each" }
+        },
+        "sound": {
+          "title": "Do you need a sound system?",
+          "hint": "For songs, prayers and speeches.",
+          "options": { "yes": "Yes", "no": "No" }
+        },
+        "lighting": {
+          "title": "Do you need lighting?",
+          "hint": "The wake often lasts all night.",
+          "options": { "yes": "Yes", "no": "No" }
+        }
+      },
+      "catering": {
+        "served": {
+          "title": "What do you serve each night of the wake?",
+          "hint": "Quantities follow the number of people expected.",
+          "options": { "nothing": "Nothing", "snack": "A snack", "meal": "A meal" }
+        },
+        "cook": {
+          "title": "Who prepares the food?",
+          "hint": "Family cooking usually costs less than a caterer.",
+          "options": { "family": "The family", "caterer": "A caterer" }
+        },
+        "drinks": {
+          "title": "What drinks do you serve?",
+          "hint": "Water is always counted on top.",
+          "options": { "soft": "Soft drinks only", "alcohol": "Including alcohol" }
+        },
+        "funeralMeal": {
+          "title": "Is a meal served on the day of the funeral?",
+          "hint": "For everyone expected that day.",
+          "options": { "yes": "Yes", "no": "No" }
+        }
       }
     },
     "fields": {
@@ -1389,7 +1454,40 @@
       "toComplete": "{count, plural, =1 {1 question to complete} other {# questions to complete}}",
       "viewDraft": "View the draft",
       "summary": {
-        "budget": "See the budget"
+        "budget": "See the budget",
+        "step": "View the summary"
+      }
+    },
+    "synthesis": {
+      "intro": "Worked out for at most {high, plural, =1 {1 person} other {# people}} and {nights, plural, =0 {no wake night} =1 {1 wake night} other {# wake nights}}.",
+      "nightsAssumed": "The length of the wake is not set: one night is assumed.",
+      "noAttendance": "First say how many people are expected: the quantities depend on it.",
+      "answerAttendance": "Answer the expected attendance",
+      "quantitiesTitle": "Quantities to plan",
+      "noQuantities": "Answer the questions of this step to see the quantities.",
+      "costTitle": "Estimated cost ({level})",
+      "costNote": "An estimate to check, based on the budget grid. Prices given by providers are not used in the calculation.",
+      "line": "Item",
+      "capped": "capped amount",
+      "cappedNote": "Amount capped at {max}.",
+      "adjustTitle": "Budget items",
+      "adjust": "Update the {line} item: {amount}",
+      "adjustHint": "The item's three scenarios take the amounts of this estimate; it will no longer be recalculated from attendance.",
+      "adjusted": "Item updated.",
+      "upToDate": "The {line} item already matches this estimate.",
+      "editAnswers": "Edit the answers",
+      "backToDossier": "Back to the dossier",
+      "quantity": {
+        "tents": "{count, plural, =1 {1 tent of 5 × 10 m} other {# tents of 5 × 10 m}}",
+        "chairs": "{count, plural, =1 {1 chair} other {# chairs}}",
+        "benchPlaces": "{count, plural, =1 {1 bench seat} other {# bench seats}}",
+        "lightSets": "{count, plural, =1 {1 lighting set} other {# lighting sets}}",
+        "soundSystems": "{count, plural, =1 {1 sound system} other {# sound systems}}",
+        "platesPerNight": "{count, plural, =1 {1 plate per wake night} other {# plates per wake night}}",
+        "funeralPlates": "{count, plural, =1 {1 plate on the day of the funeral} other {# plates on the day of the funeral}}",
+        "waterPacks": "{count, plural, =1 {1 pack of 9 litres of water} other {# packs of 9 litres of water}}",
+        "drinkBottles": "{count, plural, =1 {1 bottle of drink} other {# bottles of drink}}",
+        "iceKg": "{count} kg of ice"
       }
     },
     "draft": {
@@ -1813,6 +1911,13 @@
       "invalidPhone": "Enter the number in international format, for example +241 77 12 34 56.",
       "exampleWithContact": "An example provider cannot have a number or a verification.",
       "verifiedWithoutNumber": "A verified provider must have a WhatsApp number."
+    },
+    "panel": {
+      "title": "Providers in {city}",
+      "intro": "Example providers illustrate the service: they cannot be contacted.",
+      "verified": "Verified",
+      "example": "Example",
+      "exampleNotice": "Example provider, no contact available."
     }
   }
 }
