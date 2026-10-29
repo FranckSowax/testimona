@@ -29,7 +29,8 @@ interface Props {
  * « Demander un devis » : le message préparé s'affiche, la famille le relit, puis « Ouvrir
  * WhatsApp » trace la demande et ouvre `wa.me`. Le lien reste affiché si l'ouverture échoue.
  * WHY: le numéro n'est jamais une prop ; seul le lien renvoyé par l'action, après la trace,
- * le contient.
+ * le contient. Cette garantie vaut pour l'interface : la base laisse le numéro lisible aux
+ * utilisateurs connectés pour les prestataires vérifiés (suivi prévu : RPC `security definer`).
  *
  * @example
  * <QuoteRequestForm dossierId={id} providerId={p.id} providerName={p.name}

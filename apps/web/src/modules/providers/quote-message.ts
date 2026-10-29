@@ -61,8 +61,21 @@ export function quoteMessage(input: QuoteMessageInput, t: Translate): string {
     }
   }
   lines.push(t('providers.quote.message.closing'));
-  // WHY: découpe par points de code pour ne jamais couper une paire de substitution (emoji).
-  return Array.from(lines.join('\n')).slice(0, QUOTE_MESSAGE_MAX).join('');
+  return truncateUtf16(lines.join('\n'), QUOTE_MESSAGE_MAX);
+}
+
+// WHY: la limite se compte en unités UTF-16 (`.length`), comme `maxLength` du formulaire et
+// `.max` de Zod, donc plus stricte que les points de code de la base. On itère par points de code
+// pour ne jamais couper une paire de substitution (emoji).
+function truncateUtf16(text: string, max: number): string {
+  let length = 0;
+  let result = '';
+  for (const char of text) {
+    if (length + char.length > max) break;
+    length += char.length;
+    result += char;
+  }
+  return result;
 }
 
 /**

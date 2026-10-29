@@ -70,9 +70,9 @@ describe('quoteMessage', () => {
     expect(quoteMessage(base, t).length).toBeLessThanOrEqual(QUOTE_MESSAGE_MAX);
   });
 
-  it('tronque par points de code sans couper une paire de substitution', () => {
+  it('tronque en unités UTF-16 sans couper une paire de substitution', () => {
     const message = quoteMessage({ ...base, place: '😀'.repeat(2500) }, t);
-    expect(Array.from(message)).toHaveLength(QUOTE_MESSAGE_MAX);
+    expect(message.length).toBeLessThanOrEqual(QUOTE_MESSAGE_MAX);
     expect(message.isWellFormed()).toBe(true);
     expect(message.endsWith('😀')).toBe(true);
   });

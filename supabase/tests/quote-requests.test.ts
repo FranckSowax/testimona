@@ -199,4 +199,31 @@ describe('quote_request.provider_name : backfill', () => {
       await legacy.close();
     }
   });
+
+  it('refuse un nom vide quand le trigger est désactivé', async () => {
+    const db = await createTestDb();
+    try {
+      const user = await createUser(db, 'vide@test.local');
+      const dossier = await db.query<{ id: string }>(
+        `insert into dossier (created_by, title, country_code, city, entry_point)
+         values ($1, 'Dossier nom vide', 'GA', 'Libreville', 'death') returning id`,
+        [user],
+      );
+      const provider = await db.query<{ id: string }>(
+        `insert into provider (category_key, name, city) values ('tentsChairs', 'Tentes vides', 'Libreville')
+         returning id`,
+      );
+      // WHY: sans trigger, le défaut '' s'applique ; seule la contrainte peut alors refuser.
+      await db.query('alter table quote_request disable trigger quote_request_before_insert');
+      await expect(
+        db.query(
+          `insert into quote_request (dossier_id, provider_id, step_id, message)
+           values ($1, $2, 'vigil-setup', 'Bonjour.')`,
+          [dossier.rows[0]!.id, provider.rows[0]!.id],
+        ),
+      ).rejects.toThrow(/quote_request_provider_name_not_empty/);
+    } finally {
+      await db.close();
+    }
+  });
 });

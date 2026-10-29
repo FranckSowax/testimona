@@ -89,7 +89,7 @@ Trace d'une demande de devis, en ajout seul.
 | `id`            | uuid, clé primaire                                                     |
 | `dossier_id`    | uuid, FK `dossier` (cascade)                                           |
 | `provider_id`   | uuid, FK `provider` (`on delete no action`)                            |
-| `provider_name` | text, `default ''`, nom du prestataire au moment de la demande, imposé |
+| `provider_name` | text not null, `default ''`, nom du prestataire à la demande, imposé   |
 | `step_id`       | text (`vigil-setup`, `vigil-catering`, `ceremony-program`)             |
 | `message`       | text, 1 à 2 000 caractères                                             |
 | `created_by`    | uuid, FK `auth.users` (`on delete set null`), imposé                   |
@@ -212,7 +212,11 @@ personne décédée. La famille le relit et peut le modifier, puis « Ouvrir Wha
    contactable) ;
 2. le client ouvre `https://wa.me/<numéro sans +>?text=<message encodé>`.
 
-Le numéro n'est renvoyé au navigateur qu'après l'insertion de la demande, dans le lien `wa.me`.
+L'interface ne transmet le numéro WhatsApp au navigateur qu'après l'insertion de la trace, dans le
+lien `wa.me`. La base, elle, laisse ce numéro lisible à tout utilisateur connecté pour les
+prestataires vérifiés (choix de la PR 1, voir la section provider) : la garantie porte sur
+l'interface, pas sur la base. Fermer cette lecture, par une RPC `security definer` et le retrait de
+la colonne du `select`, est un suivi prévu.
 Si WhatsApp ne s'ouvre pas, le lien reste affiché pour être copié. Après un succès, le formulaire
 propose « Renvoyer la demande », qui trace une nouvelle demande.
 

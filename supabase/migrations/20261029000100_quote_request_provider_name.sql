@@ -12,6 +12,8 @@ from public.provider p
 where p.id = q.provider_id;
 
 alter table public.quote_request alter column provider_name set not null;
+alter table public.quote_request
+  add constraint quote_request_provider_name_not_empty check (provider_name <> '');
 
 create or replace function public.quote_request_before_insert()
 returns trigger
