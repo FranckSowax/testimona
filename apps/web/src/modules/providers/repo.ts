@@ -8,6 +8,8 @@ const COLUMNS =
   'id, category_key, name, city, district, whatsapp, price_note, is_example, verified_at, active';
 /** WHY: l'écran admin liste au plus 200 prestataires ; les filtres réduisent la liste. */
 const LIST_LIMIT = 200;
+/** WHY: le tri et la ville se font en code ; 200 lignes couvrent largement le pilote. */
+const PANEL_LIMIT = 200;
 
 interface ProviderRow {
   id: string;
@@ -72,6 +74,31 @@ export async function listProviders(filters: ProviderFilters): Promise<RepoResul
     .returns<ProviderRow[]>();
   if (error) {
     console.error('[providers] listProviders impossible', { code: error.code });
+    return fail(error);
+  }
+  return { data: (data ?? []).map(toProvider), error: null };
+}
+
+/**
+ * Prestataires des catégories d'un encadré : actifs, vérifiés ou d'exemple.
+ * WHY: un administrateur lit aussi les non-vérifiés (RLS) ; ce filtre donne à tous le même
+ * encadré.
+ */
+export async function listPanelProviders(
+  categories: readonly ProviderCategory[],
+): Promise<RepoResult<Provider[]>> {
+  const db = await getSupabaseServer();
+  const { data, error } = await db
+    .from('provider')
+    .select(COLUMNS)
+    .in('category_key', [...categories])
+    .eq('active', true)
+    .or('is_example.eq.true,verified_at.not.is.null')
+    .order('name')
+    .limit(PANEL_LIMIT)
+    .returns<ProviderRow[]>();
+  if (error) {
+    console.error('[providers] listPanelProviders impossible', { code: error.code });
     return fail(error);
   }
   return { data: (data ?? []).map(toProvider), error: null };
