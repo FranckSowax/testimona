@@ -1458,6 +1458,38 @@
         "step": "View the summary"
       }
     },
+    "synthesis": {
+      "intro": "Worked out for at most {high, plural, =1 {1 person} other {# people}} and {nights, plural, =0 {no wake night} =1 {1 wake night} other {# wake nights}}.",
+      "nightsAssumed": "The length of the wake is not set: one night is assumed.",
+      "noAttendance": "First say how many people are expected: the quantities depend on it.",
+      "answerAttendance": "Answer the expected attendance",
+      "quantitiesTitle": "Quantities to plan",
+      "noQuantities": "Answer the questions of this step to see the quantities.",
+      "costTitle": "Estimated cost ({level})",
+      "costNote": "An estimate to check, based on the budget grid. Prices given by providers are not used in the calculation.",
+      "line": "Item",
+      "capped": "capped amount",
+      "cappedNote": "Amount capped at {max}.",
+      "adjustTitle": "Budget items",
+      "adjust": "Update the {line} item: {amount}",
+      "adjustHint": "The item's three scenarios take the amounts of this estimate; it will no longer be recalculated from attendance.",
+      "adjusted": "Item updated.",
+      "upToDate": "The {line} item already matches this estimate.",
+      "editAnswers": "Edit the answers",
+      "backToDossier": "Back to the dossier",
+      "quantity": {
+        "tents": "{count, plural, =1 {1 tent of 5 × 10 m} other {# tents of 5 × 10 m}}",
+        "chairs": "{count, plural, =1 {1 chair} other {# chairs}}",
+        "benchPlaces": "{count, plural, =1 {1 bench seat} other {# bench seats}}",
+        "lightSets": "{count, plural, =1 {1 lighting set} other {# lighting sets}}",
+        "soundSystems": "{count, plural, =1 {1 sound system} other {# sound systems}}",
+        "platesPerNight": "{count, plural, =1 {1 plate per wake night} other {# plates per wake night}}",
+        "funeralPlates": "{count, plural, =1 {1 plate on the day of the funeral} other {# plates on the day of the funeral}}",
+        "waterPacks": "{count, plural, =1 {1 pack of 9 litres of water} other {# packs of 9 litres of water}}",
+        "drinkBottles": "{count, plural, =1 {1 bottle of drink} other {# bottles of drink}}",
+        "iceKg": "{count} kg of ice"
+      }
+    },
     "draft": {
       "title": {
         "whatsapp": "Your first message",
@@ -1879,6 +1911,13 @@
       "invalidPhone": "Enter the number in international format, for example +241 77 12 34 56.",
       "exampleWithContact": "An example provider cannot have a number or a verification.",
       "verifiedWithoutNumber": "A verified provider must have a WhatsApp number."
+    },
+    "panel": {
+      "title": "Providers in {city}",
+      "intro": "Example providers illustrate the service: they cannot be contacted.",
+      "verified": "Verified",
+      "example": "Example",
+      "exampleNotice": "Example provider, no contact available."
     }
   }
 }

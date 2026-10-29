@@ -1458,6 +1458,38 @@
         "step": "Voir la synthèse"
       }
     },
+    "synthesis": {
+      "intro": "Calculé pour {high, plural, =1 {1 personne} other {# personnes}} au plus et {nights, plural, =0 {aucune nuit de veillée} =1 {1 nuit de veillée} other {# nuits de veillée}}.",
+      "nightsAssumed": "La durée de la veillée n'est pas renseignée : une nuit est supposée.",
+      "noAttendance": "Indiquez d'abord combien de personnes sont attendues : les quantités en dépendent.",
+      "answerAttendance": "Répondre aux personnes attendues",
+      "quantitiesTitle": "Quantités à prévoir",
+      "noQuantities": "Répondez aux questions de l'étape pour voir les quantités.",
+      "costTitle": "Coût estimé ({level})",
+      "costNote": "Estimation à vérifier, d'après la grille du budget. Les prix indiqués par les prestataires n'entrent pas dans le calcul.",
+      "line": "Poste",
+      "capped": "montant plafonné",
+      "cappedNote": "Montant ramené à {max}.",
+      "adjustTitle": "Postes du budget",
+      "adjust": "Mettre à jour le poste {line} : {amount}",
+      "adjustHint": "Les trois scénarios du poste prennent les montants de cette estimation ; le poste ne sera plus recalculé selon l'affluence.",
+      "adjusted": "Poste mis à jour.",
+      "upToDate": "Le poste {line} correspond déjà à cette estimation.",
+      "editAnswers": "Modifier les réponses",
+      "backToDossier": "Retour au dossier",
+      "quantity": {
+        "tents": "{count, plural, =1 {1 tente de 5 × 10 m} other {# tentes de 5 × 10 m}}",
+        "chairs": "{count, plural, =1 {1 chaise} other {# chaises}}",
+        "benchPlaces": "{count, plural, =1 {1 place de banc} other {# places de banc}}",
+        "lightSets": "{count, plural, =1 {1 jeu de lumière} other {# jeux de lumière}}",
+        "soundSystems": "{count, plural, =1 {1 sonorisation} other {# sonorisations}}",
+        "platesPerNight": "{count, plural, =1 {1 assiette par soir de veillée} other {# assiettes par soir de veillée}}",
+        "funeralPlates": "{count, plural, =1 {1 assiette le jour des obsèques} other {# assiettes le jour des obsèques}}",
+        "waterPacks": "{count, plural, =1 {1 pack d'eau de 9 litres} other {# packs d'eau de 9 litres}}",
+        "drinkBottles": "{count, plural, =1 {1 bouteille de boisson} other {# bouteilles de boisson}}",
+        "iceKg": "{count} kg de glace"
+      }
+    },
     "draft": {
       "title": {
         "whatsapp": "Votre message immédiat",
@@ -1879,6 +1911,13 @@
       "invalidPhone": "Saisissez le numéro au format international, par exemple +241 77 12 34 56.",
       "exampleWithContact": "Un prestataire d'exemple ne peut avoir ni numéro ni vérification.",
       "verifiedWithoutNumber": "Un prestataire vérifié doit avoir un numéro WhatsApp."
+    },
+    "panel": {
+      "title": "Prestataires à {city}",
+      "intro": "Les prestataires d'exemple illustrent le service : ils ne peuvent pas être contactés.",
+      "verified": "Vérifié",
+      "example": "Exemple",
+      "exampleNotice": "Prestataire d'exemple, contact indisponible."
     }
   }
 }

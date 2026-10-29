@@ -73,6 +73,7 @@ const PATHS = [
     'verifiedWithoutNumber',
   ].map((k) => `providers.errors.${k}`),
   ...Object.keys(ERRORS).map((k) => `dossier.errors.${k}`),
+  ...['title', 'intro', 'verified', 'example', 'exampleNotice'].map((k) => `providers.panel.${k}`),
 ];
 
 describe('textes des prestataires', () => {

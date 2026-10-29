@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import en from '../../messages/en.json';
 import fr from '../../messages/fr.json';
+import type { QuantityKey } from './quantities';
 import { allSteps } from './registry';
 import type { Step } from './types';
 import { SPECIFIC_MESSAGES } from './ui/specific-error';
@@ -16,6 +17,20 @@ const get = (messages: unknown, path: string): unknown =>
 
 /** Un libellé vide compte comme manquant. */
 const isFilled = (value: unknown): boolean => typeof value === 'string' && value.trim() !== '';
+
+// WHY: Record typé : ajouter une quantité sans texte fait échouer la compilation.
+const QUANTITY_KEYS: Record<QuantityKey, true> = {
+  tents: true,
+  chairs: true,
+  benchPlaces: true,
+  lightSets: true,
+  soundSystems: true,
+  platesPerNight: true,
+  funeralPlates: true,
+  waterPacks: true,
+  drinkBottles: true,
+  iceKg: true,
+};
 
 /** Clés fixes lues par l'interface (`ui/`) : `journey.ui.*` et `journey.dashboard.*`. */
 const UI_PATHS = [
@@ -82,6 +97,27 @@ const UI_PATHS = [
     'ai.failed',
   ].map((key) => `journey.draft.${key}`),
   ...Object.values(SPECIFIC_MESSAGES).map((path) => `journey.${path}`),
+  ...[
+    'intro',
+    'nightsAssumed',
+    'noAttendance',
+    'answerAttendance',
+    'quantitiesTitle',
+    'noQuantities',
+    'costTitle',
+    'costNote',
+    'line',
+    'capped',
+    'cappedNote',
+    'adjustTitle',
+    'adjust',
+    'adjustHint',
+    'adjusted',
+    'upToDate',
+    'editAnswers',
+    'backToDossier',
+    ...Object.keys(QUANTITY_KEYS).map((key) => `quantity.${key}`),
+  ].map((key) => `journey.synthesis.${key}`),
 ];
 
 /** Chemins de clés d'un objet de messages (feuilles uniquement). */
