@@ -68,16 +68,18 @@ export default async function StepSynthesisPage({
   }
 
   const city = panelCity(deathCity);
-  let groups: PanelGroup[] = [];
-  if (step.providers) {
-    const res = await providersForPanel(step.providers, city);
-    // WHY: l'encadré est un complément ; s'il est illisible, la synthèse reste utile sans lui.
-    groups = res.ok ? res.data : [];
-  }
-
   const quoteStep = (QUOTE_STEPS as readonly string[]).includes(step.id)
     ? (step.id as QuoteStep)
     : null;
+
+  // WHY: l'encadré et l'historique sont des compléments ; illisibles, ils sont simplement
+  // masqués et la synthèse reste utile sans eux. Les deux lectures sont indépendantes.
+  const [panelRes, quotesRes] = await Promise.all([
+    step.providers ? providersForPanel(step.providers, city) : null,
+    quoteStep ? quotesForStep(id, quoteStep) : null,
+  ]);
+  const groups: PanelGroup[] = panelRes?.ok ? panelRes.data : [];
+  const quotes: QuoteHistoryItem[] = quotesRes?.ok ? quotesRes.data : [];
 
   // WHY: le bouton n'est proposé qu'à un coordinateur, comme la RLS ; les messages ne sont donc
   // construits que pour lui. Ils suivent la langue de l'interface. La date de la cérémonie
@@ -93,16 +95,12 @@ export default async function StepSynthesisPage({
         date: null,
         quantities: estimate?.quantities ?? [],
       },
+      // WHY: `quoteMessage` construit ses clés dynamiquement (`providers.category.${…}`,
+      // `journey.synthesis.quantity.${…}`) ; le `t` typé de next-intl n'accepte que des clés
+      // littérales. Les clés et leurs paramètres ICU sont vérifiés par `messages.test.ts`.
       (key, values) => t(key as never, values as never),
     );
     if (Object.keys(messages).length > 0) quote = { dossierId: id, stepId: quoteStep, messages };
-  }
-
-  // WHY: l'historique est un complément, comme l'encadré : illisible, il est simplement masqué.
-  let quotes: QuoteHistoryItem[] = [];
-  if (quoteStep) {
-    const res = await quotesForStep(id, quoteStep);
-    quotes = res.ok ? res.data : [];
   }
 
   return (
