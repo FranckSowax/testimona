@@ -36,9 +36,10 @@ export function AdjustLineButton({ dossierId, lineId, label, amounts, text }: Pr
     clearSaved();
     onSubmit(e);
   };
-  // WHY: l'action revalide les pages des cotisations, pas cette synthèse : on la relit.
+  // WHY: l'action revalide les pages des cotisations, pas cette synthèse : on la relit. Sur
+  // `closed` (cotisations clôturées entre-temps) aussi, pour que le bouton disparaisse.
   useEffect(() => {
-    if (state?.ok) router.refresh();
+    if (state?.ok || state?.error === 'closed') router.refresh();
   }, [state, router]);
   return (
     <form ref={formRef} onSubmit={submit} className="space-y-2">

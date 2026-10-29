@@ -65,8 +65,16 @@ describe('AdjustLineButton', () => {
     expect(screen.getByRole('status').textContent).toBe('');
   });
 
-  it('affiche une erreur des postes sans relire la page', async () => {
+  it('affiche l’erreur « clôturées » et relit la page pour retirer le bouton', async () => {
     saveLineAction.mockResolvedValue({ error: 'closed' });
+    renderButton();
+    fireEvent.click(screen.getByRole('button', { name: TEXT }));
+    expect(await screen.findByRole('alert')).toBeTruthy();
+    await waitFor(() => expect(refresh).toHaveBeenCalled());
+  });
+
+  it('affiche une autre erreur des postes sans relire la page', async () => {
+    saveLineAction.mockResolvedValue({ error: 'forbidden' });
     renderButton();
     fireEvent.click(screen.getByRole('button', { name: TEXT }));
     expect(await screen.findByRole('alert')).toBeTruthy();
