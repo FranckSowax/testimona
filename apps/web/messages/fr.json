@@ -1918,6 +1918,17 @@
       "verified": "Vérifié",
       "example": "Exemple",
       "exampleNotice": "Prestataire d'exemple, contact indisponible."
+    },
+    "quote": {
+      "message": {
+        "greeting": "Bonjour {name},",
+        "need": "Nous organisons des funérailles et souhaitons un devis pour : {category}.",
+        "date": "Date : {date}",
+        "dateUnknown": "à préciser",
+        "place": "Lieu : {place}",
+        "quantities": "Besoins estimés :",
+        "closing": "Pouvez-vous nous envoyer un devis ? Merci."
+      }
     }
   }
 }
