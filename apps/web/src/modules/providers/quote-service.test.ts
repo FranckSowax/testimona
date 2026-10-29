@@ -4,7 +4,7 @@ vi.mock('server-only', () => ({}));
 const quoteRepo = vi.hoisted(() => ({ insertQuoteRequest: vi.fn(), listQuoteRequests: vi.fn() }));
 const providerRepo = vi.hoisted(() => ({ getProvider: vi.fn() }));
 const dossierRepo = vi.hoisted(() => ({ listMembers: vi.fn() }));
-vi.mock('./quote-repo', async (orig) => ({ ...(await orig<object>()), ...quoteRepo }));
+vi.mock('./quotes/repo', async (orig) => ({ ...(await orig<object>()), ...quoteRepo }));
 vi.mock('./repo', () => providerRepo);
 vi.mock('@/modules/dossier/repo', () => dossierRepo);
 
@@ -23,9 +23,13 @@ describe('requestQuote', () => {
       data: { id: PROVIDER, whatsapp: '+24177123456' },
       error: null,
     });
-    const res = await requestQuote(input);
-    expect(res).toEqual({ ok: true, data: { href: 'https://wa.me/24177123456?text=Bonjour' } });
-    expect(quoteRepo.insertQuoteRequest).toHaveBeenCalledWith(input);
+    const withSpecials = { ...input, message: 'Bonjour & merci' };
+    const res = await requestQuote(withSpecials);
+    expect(res).toEqual({
+      ok: true,
+      data: { href: 'https://wa.me/24177123456?text=Bonjour%20%26%20merci' },
+    });
+    expect(quoteRepo.insertQuoteRequest).toHaveBeenCalledWith(withSpecials);
   });
 
   it.each([
@@ -46,7 +50,7 @@ describe('requestQuote', () => {
       { ...input, stepId: 'burial' },
       { ...input, providerId: 'nope' },
     ]) {
-      expect((await requestQuote(bad)).ok).toBe(false);
+      expect(await requestQuote(bad)).toEqual({ ok: false, error: 'validation' });
     }
     expect(quoteRepo.insertQuoteRequest).not.toHaveBeenCalled();
   });
@@ -58,6 +62,27 @@ describe('requestQuote', () => {
       error: { code: 'no_rows', message: '' },
     });
     expect(await requestQuote(input)).toEqual({ ok: false, error: 'unreachable' });
+  });
+
+  it('signale un prestataire relu sans numéro WhatsApp', async () => {
+    quoteRepo.insertQuoteRequest.mockResolvedValue({ data: { id: 'q1' }, error: null });
+    providerRepo.getProvider.mockResolvedValue({
+      data: { id: PROVIDER, whatsapp: null },
+      error: null,
+    });
+    expect(await requestQuote(input)).toEqual({ ok: false, error: 'unreachable' });
+  });
+
+  it('journalise une relecture en échec autre que no_rows', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    quoteRepo.insertQuoteRequest.mockResolvedValue({ data: { id: 'q1' }, error: null });
+    providerRepo.getProvider.mockResolvedValue({
+      data: null,
+      error: { code: 'XX000', message: '' },
+    });
+    expect(await requestQuote(input)).toEqual({ ok: false, error: 'unreachable' });
+    expect(spy).toHaveBeenCalledTimes(1);
+    spy.mockRestore();
   });
 });
 

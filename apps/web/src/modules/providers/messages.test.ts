@@ -23,6 +23,17 @@ const ERRORS: Record<ProvidersError, true> = {
   unknown: true,
 };
 
+// WHY: paramètres ICU attendus par `quoteMessage` pour chaque ligne du message de devis.
+const QUOTE_PARAMS: Record<string, string[]> = {
+  greeting: ['{name}'],
+  need: ['{category}'],
+  date: ['{date}'],
+  dateUnknown: [],
+  place: ['{place}'],
+  quantities: [],
+  closing: [],
+};
+
 const PATHS = [
   'admin.nav.providers',
   ...PROVIDER_CATEGORIES.map((k) => `providers.category.${k}`),
@@ -74,6 +85,7 @@ const PATHS = [
   ].map((k) => `providers.errors.${k}`),
   ...Object.keys(ERRORS).map((k) => `dossier.errors.${k}`),
   ...['title', 'intro', 'verified', 'example', 'exampleNotice'].map((k) => `providers.panel.${k}`),
+  ...Object.keys(QUOTE_PARAMS).map((k) => `providers.quote.message.${k}`),
 ];
 
 describe('textes des prestataires', () => {
@@ -87,6 +99,16 @@ describe('textes des prestataires', () => {
   it('gardent le paramètre de date de la vérification', () => {
     for (const messages of [fr, en]) {
       expect(get(messages, 'providers.admin.verifiedOn')).toContain('{date}');
+    }
+  });
+
+  it('gardent les paramètres du message de devis', () => {
+    for (const messages of [fr, en]) {
+      for (const [key, params] of Object.entries(QUOTE_PARAMS)) {
+        const text = String(get(messages, `providers.quote.message.${key}`));
+        const found = text.match(/\{[^}]+\}/g) ?? [];
+        expect(found.sort()).toEqual([...params].sort());
+      }
     }
   });
 });

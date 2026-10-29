@@ -61,7 +61,8 @@ export function quoteMessage(input: QuoteMessageInput, t: Translate): string {
     }
   }
   lines.push(t('providers.quote.message.closing'));
-  return lines.join('\n').slice(0, QUOTE_MESSAGE_MAX);
+  // WHY: découpe par points de code pour ne jamais couper une paire de substitution (emoji).
+  return Array.from(lines.join('\n')).slice(0, QUOTE_MESSAGE_MAX).join('');
 }
 
 /**
@@ -71,5 +72,5 @@ export function quoteMessage(input: QuoteMessageInput, t: Translate): string {
  * quoteHref('+24177123456', 'Bonjour'); // 'https://wa.me/24177123456?text=Bonjour'
  */
 export function quoteHref(whatsapp: string, message: string): string {
-  return `https://wa.me/${whatsapp.replace(/^\+/, '')}?text=${encodeURIComponent(message)}`;
+  return `https://wa.me/${whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
 }

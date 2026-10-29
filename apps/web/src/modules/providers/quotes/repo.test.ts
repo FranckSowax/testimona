@@ -44,7 +44,7 @@ vi.mock('@/lib/supabase/server', () => {
   return { getSupabaseServer: async () => db };
 });
 
-const { insertQuoteRequest, listQuoteRequests } = await import('./quote-repo');
+const { insertQuoteRequest, listQuoteRequests } = await import('./repo');
 
 const DOSSIER = '11111111-1111-4111-8111-111111111111';
 const PROVIDER = '22222222-2222-4222-8222-222222222222';

@@ -2,7 +2,7 @@ import 'server-only';
 import { z } from 'zod';
 import { listMembers } from '@/modules/dossier/repo';
 import { QUOTE_MESSAGE_MAX, quoteHref } from './quote-message';
-import { insertQuoteRequest, listQuoteRequests, QUOTE_STEPS, type QuoteStep } from './quote-repo';
+import { insertQuoteRequest, listQuoteRequests, QUOTE_STEPS, type QuoteStep } from './quotes/repo';
 import { getProvider } from './repo';
 
 export type QuoteError =
@@ -61,7 +61,13 @@ export async function requestQuote(raw: unknown): Promise<QuoteResult<{ href: st
   const provider = await getProvider(parsed.data.providerId);
   // WHY: le trigger vient de vérifier le prestataire ; s'il n'est plus lisible (désactivé dans
   // l'intervalle), la demande reste tracée mais aucun numéro n'est donné.
-  if (provider.error || !provider.data.whatsapp) return { ok: false, error: 'unreachable' };
+  if (provider.error) {
+    if (provider.error.code !== 'no_rows') {
+      console.error('[providers] requestQuote provider read failed', { code: provider.error.code });
+    }
+    return { ok: false, error: 'unreachable' };
+  }
+  if (!provider.data.whatsapp) return { ok: false, error: 'unreachable' };
   return { ok: true, data: { href: quoteHref(provider.data.whatsapp, parsed.data.message) } };
 }
 

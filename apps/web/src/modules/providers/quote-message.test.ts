@@ -69,9 +69,20 @@ describe('quoteMessage', () => {
   it('reste sous la limite de la base', () => {
     expect(quoteMessage(base, t).length).toBeLessThanOrEqual(QUOTE_MESSAGE_MAX);
   });
+
+  it('tronque par points de code sans couper une paire de substitution', () => {
+    const message = quoteMessage({ ...base, place: '😀'.repeat(2500) }, t);
+    expect(Array.from(message)).toHaveLength(QUOTE_MESSAGE_MAX);
+    expect(message.isWellFormed()).toBe(true);
+    expect(message.endsWith('😀')).toBe(true);
+  });
 });
 
 describe('quoteHref', () => {
+  it('ne garde que les chiffres du numéro', () => {
+    expect(quoteHref('+241 77-12.34.56', 'a')).toBe('https://wa.me/24177123456?text=a');
+  });
+
   it('retire le + et encode le message', () => {
     expect(quoteHref('+24177123456', 'Bonjour & merci')).toBe(
       'https://wa.me/24177123456?text=Bonjour%20%26%20merci',
