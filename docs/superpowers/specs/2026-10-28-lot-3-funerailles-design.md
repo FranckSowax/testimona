@@ -84,19 +84,22 @@ Données de départ : une dizaine de prestataires d'exemple à Libreville, répa
 
 Trace d'une demande de devis, en ajout seul.
 
-| Colonne       | Type                                                       |
-| ------------- | ---------------------------------------------------------- |
-| `id`          | uuid, clé primaire                                         |
-| `dossier_id`  | uuid, FK `dossier` (cascade)                               |
-| `provider_id` | uuid, FK `provider` (`on delete no action`)                |
-| `step_id`     | text (`vigil-setup`, `vigil-catering`, `ceremony-program`) |
-| `message`     | text, 1 à 2 000 caractères                                 |
-| `created_by`  | uuid, FK `auth.users` (`on delete set null`), imposé       |
-| `created_at`  | timestamptz, imposé                                        |
+| Colonne         | Type                                                                   |
+| --------------- | ---------------------------------------------------------------------- |
+| `id`            | uuid, clé primaire                                                     |
+| `dossier_id`    | uuid, FK `dossier` (cascade)                                           |
+| `provider_id`   | uuid, FK `provider` (`on delete no action`)                            |
+| `provider_name` | text, `default ''`, nom du prestataire au moment de la demande, imposé |
+| `step_id`       | text (`vigil-setup`, `vigil-catering`, `ceremony-program`)             |
+| `message`       | text, 1 à 2 000 caractères                                             |
+| `created_by`    | uuid, FK `auth.users` (`on delete set null`), imposé                   |
+| `created_at`    | timestamptz, imposé                                                    |
 
 Insertion : coordinateur et plus. Un trigger vérifie d'abord le rôle (42501), puis refuse
 (TL010) un prestataire d'exemple, inactif, non vérifié, sans numéro ou inexistant. `created_by` et `created_at` sont imposés par trigger. Lecture : membres du dossier.
 Ni modification ni suppression.
+
+Le trigger fige aussi `provider_name` ; un prestataire désactivé reste ainsi nommé dans l'historique, même caché par la RLS.
 
 ### `dossier_photo` et bucket `dossier-photos`
 
@@ -201,14 +204,17 @@ Bouton « Demander un devis » pour un coordinateur et plus, seulement pour un p
 avec un numéro. Un prestataire d'exemple affiche « Prestataire d'exemple, contact indisponible ».
 
 Le message est construit en code (`modules/providers/quote-message.ts`) : besoin de l'étape, date
-(3.4, sinon « à préciser »), lieu et quartier, quantités calculées. Il ne contient pas le nom de la
+(3.4, sinon « à préciser » ; toujours « à préciser » avant la PR 4), lieu (ville de la veillée,
+sinon du décès, sinon Libreville), quantités calculées. Il ne contient pas le nom de la
 personne décédée. La famille le relit et peut le modifier, puis « Ouvrir WhatsApp » :
 
 1. une action serveur insère la ligne `quote_request` (TL010 si le prestataire n'est plus
    contactable) ;
 2. le client ouvre `https://wa.me/<numéro sans +>?text=<message encodé>`.
 
-Si WhatsApp ne s'ouvre pas, le lien reste affiché pour être copié.
+Le numéro n'est renvoyé au navigateur qu'après l'insertion de la demande, dans le lien `wa.me`.
+Si WhatsApp ne s'ouvre pas, le lien reste affiché pour être copié. Après un succès, le formulaire
+propose « Renvoyer la demande », qui trace une nouvelle demande.
 
 La synthèse liste les « Devis demandés » de l'étape (prestataire, date, auteur), pour qu'un autre
 membre ne relance pas le même prestataire. Un prestataire désactivé reste nommé dans cet historique.
@@ -271,7 +277,7 @@ Cinq PR, chacune déployable seule, migration appliquée en production avant la 
    `is_admin()`, exemples), module `providers`, écran `/admin/providers`.
 2. **Veillée** : `quantities.ts`, étapes 3.1 et 3.2, capacité `providers` du moteur, encadré,
    ajustement des postes.
-3. **Devis** : message, action et trace, historique « Devis demandés ».
+3. **Devis** : migration `provider_name`, message, action et trace, historique « Devis demandés ».
 4. **Cérémonie** : étape 3.4, programme type, liens Maps.
 5. **Livret et affiche** : migration photo, étape 3.5, PDF et PNG.
 
