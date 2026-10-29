@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { AMOUNT_MAX, scenariosFor, attendanceFrom } from '../scenarios';
 import {
   gridRows,
+  lineAdjustments,
   lineViews,
   recomputeRows,
   referenceBudget,
@@ -153,5 +154,46 @@ describe('referenceBudget', () => {
     });
     expect(referenceBudget('full', [], answers)?.source).toBe('envisaged');
     expect(referenceBudget(null, [], { ...answers, 'budget.level': undefined })).toBeNull();
+  });
+});
+
+describe('lineAdjustments', () => {
+  const adjustLine = (
+    gridKey: string | null,
+    amounts = { sober: 1, intermediate: 2, full: 3 },
+  ) => ({
+    id: `id-${gridKey}`,
+    gridKey,
+    label: `Poste ${gridKey}`,
+    amounts,
+    edited: false,
+    position: 0,
+  });
+  const cost = (gridKey: string, amounts = { sober: 10, intermediate: 20, full: 30 }) => ({
+    gridKey,
+    amounts,
+    capped: false,
+  });
+
+  it('associe chaque coût estimé au poste de même clé', () => {
+    expect(
+      lineAdjustments([cost('sound')], [adjustLine('tentsChairs'), adjustLine('sound')]),
+    ).toEqual([
+      {
+        gridKey: 'sound',
+        line: adjustLine('sound'),
+        amounts: { sober: 10, intermediate: 20, full: 30 },
+        upToDate: false,
+      },
+    ]);
+  });
+
+  it('ignore un coût sans poste et signale un poste déjà à jour', () => {
+    const same = { sober: 10, intermediate: 20, full: 30 };
+    const res = lineAdjustments(
+      [cost('catering'), cost('drinks', same)],
+      [adjustLine('drinks', same)],
+    );
+    expect(res.map((a) => [a.gridKey, a.upToDate])).toEqual([['drinks', true]]);
   });
 });
