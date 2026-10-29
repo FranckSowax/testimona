@@ -178,11 +178,12 @@ describe('restauration de la veillée (3.2)', () => {
     const setup = estimateFor('vigil-setup', {
       ...zero,
       'vigil.shelter': 'tents',
-      'vigil.seating': 'mixed',
+      'vigil.seating': 'chairs',
       'vigil.lighting': 'yes',
       'vigil.sound': 'yes',
     });
     expect(setup?.quantities).toEqual([]);
+    expect(setup?.costs).toEqual([]);
     const catering = estimateFor('vigil-catering', {
       ...zero,
       'catering.served': 'meal',
@@ -190,6 +191,7 @@ describe('restauration de la veillée (3.2)', () => {
       'catering.funeralMeal': 'yes',
     });
     expect(catering?.quantities).toEqual([]);
+    expect(catering?.costs).toEqual([]);
   });
 
   it('plafonne un montant démesuré', () => {

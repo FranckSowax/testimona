@@ -211,9 +211,13 @@ export function estimateFor(stepId: string, answers: Answers): StepEstimate | nu
   const estimator = ESTIMATORS.get(stepId);
   const attendance = attendanceFrom(answers);
   if (!estimator || !attendance.answered) return null;
+  const { quantities, costs } = estimator(answers, attendance);
   return {
     attendance,
     level: chosenLevel(answers) ?? 'intermediate',
-    ...estimator(answers, attendance),
+    quantities,
+    // WHY: sans invité, aucun coût n'a de sens, et un bouton « Mettre à jour le poste … : 0 XAF »
+    // risquerait de remettre un poste du budget à zéro.
+    costs: attendance.high === 0 ? [] : costs,
   };
 }
