@@ -2,7 +2,9 @@
 -- WHY: la RLS cache un prestataire désactivé aux familles ; l'historique « Devis demandés » doit
 -- pourtant le nommer. Le trigger, security definer, lit le nom au moment de la demande.
 
-alter table public.quote_request add column provider_name text;
+-- WHY: le défaut '' garde la colonne facultative à l'insertion dans les types générés ; le trigger
+-- l'écrase toujours par le nom réel. Les lignes existantes sont remplies avant not null.
+alter table public.quote_request add column provider_name text default '';
 
 update public.quote_request q
 set provider_name = p.name
