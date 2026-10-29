@@ -5,7 +5,9 @@ import type { LineAdjustment } from '@/modules/budget/lines/model';
 import { AdjustLineButton } from '@/modules/budget/lines/ui/AdjustLineButton';
 import { AMOUNT_MAX } from '@/modules/budget/scenarios';
 import type { PanelGroup } from '@/modules/providers/panel';
-import { ProviderPanel } from '@/modules/providers/ui/ProviderPanel';
+import type { QuoteHistoryItem } from '@/modules/providers/quote-service';
+import { type PanelQuote, ProviderPanel } from '@/modules/providers/ui/ProviderPanel';
+import { QuoteHistory } from '@/modules/providers/ui/QuoteHistory';
 import type { StepEstimate } from '../quantities';
 
 interface Props {
@@ -17,7 +19,10 @@ interface Props {
   /** null si la personne ne peut pas ajuster les postes (rôle, clôture). */
   adjustments: readonly LineAdjustment[] | null;
   canAnswer: boolean;
-  panel: { city: string; groups: readonly PanelGroup[] };
+  /** `quote` vaut null sans le rôle coordinateur ou sans prestataire contactable. */
+  panel: { city: string; groups: readonly PanelGroup[]; quote: PanelQuote | null };
+  /** « Devis demandés » de l'étape ; vide sans demande ou si la lecture échoue. */
+  quotes: readonly QuoteHistoryItem[];
 }
 
 /**
@@ -25,7 +30,7 @@ interface Props {
  * postes pour un trésorier, puis encadré prestataires. Rien n'est enregistré sans clic.
  */
 export function StepSynthesis(props: Props) {
-  const { dossierId, locale, stepId, estimate, adjustments, canAnswer, panel } = props;
+  const { dossierId, locale, stepId, estimate, adjustments, canAnswer, panel, quotes } = props;
   const t = useTranslations('journey');
   const tBudget = useTranslations('budget');
   const money = (amount: number) => formatXaf(amount, locale);
@@ -159,7 +164,8 @@ export function StepSynthesis(props: Props) {
         </>
       )}
 
-      <ProviderPanel city={panel.city} groups={panel.groups} />
+      <ProviderPanel city={panel.city} groups={panel.groups} quote={panel.quote} />
+      <QuoteHistory items={quotes} locale={locale} />
 
       <div className="flex flex-wrap justify-between gap-3 text-sm">
         {canAnswer && (

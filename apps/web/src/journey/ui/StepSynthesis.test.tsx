@@ -9,6 +9,7 @@ import { StepSynthesis } from './StepSynthesis';
 
 vi.mock('@/modules/budget/lines/actions', () => ({ saveLineAction: vi.fn() }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
+vi.mock('@/modules/providers/quote-actions', () => ({ requestQuoteAction: vi.fn() }));
 
 const DOSSIER = '11111111-1111-4111-8111-111111111111';
 const estimate = estimateFor('vigil-setup', {
@@ -40,7 +41,8 @@ function renderSynthesis(props: Partial<ComponentProps<typeof StepSynthesis>> = 
         estimate={estimate}
         adjustments={null}
         canAnswer
-        panel={{ city: 'Libreville', groups: [] }}
+        panel={{ city: 'Libreville', groups: [], quote: null }}
+        quotes={[]}
         {...props}
       />
     </NextIntlClientProvider>,
@@ -104,5 +106,25 @@ describe('StepSynthesis', () => {
     renderSynthesis({ canAnswer: false });
     expect(screen.queryByRole('link', { name: 'Modifier les réponses' })).toBeNull();
     expect(screen.getByRole('link', { name: /Retour au dossier/ })).toBeTruthy();
+  });
+
+  it('liste les devis demandés pour l’étape', () => {
+    renderSynthesis({
+      quotes: [
+        {
+          id: 'q1',
+          providerName: 'Tentes Owendo',
+          author: 'Awa',
+          createdAt: '2026-10-29T10:00:00Z',
+        },
+      ],
+    });
+    expect(screen.getByRole('heading', { name: 'Devis demandés' })).toBeTruthy();
+    expect(screen.getByText(/Tentes Owendo, le 29 octobre 2026/)).toBeTruthy();
+  });
+
+  it('ne montre pas d’historique sans demande', () => {
+    renderSynthesis();
+    expect(screen.queryByRole('heading', { name: 'Devis demandés' })).toBeNull();
   });
 });
