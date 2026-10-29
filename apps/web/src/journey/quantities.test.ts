@@ -140,7 +140,55 @@ describe('restauration de la veillée (3.2)', () => {
       'catering.funeralMeal': 'no',
     });
     expect(estimate?.quantities).toEqual([{ key: 'waterPacks', count: 63 }]);
-    expect(cost(estimate, 'catering')).toEqual({ sober: 0, intermediate: 0, full: 0 });
+    expect(cost(estimate, 'catering')).toBeUndefined();
+  });
+
+  it('ignore les options inconnues', () => {
+    const setup = estimateFor('vigil-setup', { ...ATTENDANCE, 'vigil.seating': 'foo' });
+    expect(setup?.quantities).toEqual([]);
+    const estimate = estimateFor('vigil-catering', {
+      ...ATTENDANCE,
+      'catering.served': 'foo',
+      'catering.drinks': 'foo',
+    });
+    expect(estimate?.quantities).toEqual([{ key: 'waterPacks', count: 63 }]);
+    expect(estimate?.costs).toEqual([]);
+  });
+
+  it("ne sert pas d'assiettes par nuit sans nuit de veillée", () => {
+    const estimate = estimateFor('vigil-catering', {
+      ...ATTENDANCE,
+      'attendance.nights': 0,
+      'catering.served': 'meal',
+      'catering.funeralMeal': 'no',
+    });
+    expect(estimate?.quantities.some((q) => q.key === 'platesPerNight')).toBe(false);
+    expect(cost(estimate, 'catering')).toBeUndefined();
+  });
+
+  it("ne compte rien quand l'affluence répondue est nulle", () => {
+    const zero = {
+      'attendance.close': 0,
+      'attendance.extended': 0,
+      'attendance.friends': 0,
+      'attendance.community': 0,
+      'attendance.nights': 2,
+    };
+    const setup = estimateFor('vigil-setup', {
+      ...zero,
+      'vigil.shelter': 'tents',
+      'vigil.seating': 'mixed',
+      'vigil.lighting': 'yes',
+      'vigil.sound': 'yes',
+    });
+    expect(setup?.quantities).toEqual([]);
+    const catering = estimateFor('vigil-catering', {
+      ...zero,
+      'catering.served': 'meal',
+      'catering.drinks': 'soft',
+      'catering.funeralMeal': 'yes',
+    });
+    expect(catering?.quantities).toEqual([]);
   });
 
   it('plafonne un montant démesuré', () => {

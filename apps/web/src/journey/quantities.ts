@@ -11,7 +11,7 @@ import {
   NIGHTS_KEY,
   WAKE_ATTENDANCE_RATIO,
 } from '@/modules/budget/scenarios';
-import { LEVELS, type Level } from './options';
+import { COOKS, DRINKS, LEVELS, type Level, SEATINGS, SERVINGS, SHELTERS, YES_NO } from './options';
 import type { Answers } from './progress';
 
 // WHY: ces ratios sont des estimations à vérifier, comme la grille du lot 2 ; ils donnent un
@@ -77,10 +77,12 @@ type Estimator = (
 /** Clés lues en plus des réponses de l'étape : affluence, nuits et niveau. */
 export const ESTIMATE_KEYS: readonly string[] = [...ATTENDANCE_KEYS, NIGHTS_KEY, LEVEL_KEY];
 
-/** Réponse texte d'une question à choix, sinon null (absente, passée, invalide). */
-function choice(answers: Answers, key: string): string | null {
+/** Réponse d'une question à choix, sinon null (absente, passée, option inconnue). */
+function choice<T extends string>(answers: Answers, key: string, options: readonly T[]): T | null {
   const value = answers[key];
-  return typeof value === 'string' ? value : null;
+  return typeof value === 'string' && (options as readonly string[]).includes(value)
+    ? (value as T)
+    : null;
 }
 
 function gridItem(key: string): GridItem {
@@ -113,25 +115,29 @@ export function wakeGuestsOf(attendance: Attendance): number {
  */
 const vigilSetup: Estimator = (answers, attendance) => {
   const peak = attendance.high;
-  const shelter = choice(answers, 'vigil.shelter');
-  const seating = choice(answers, 'vigil.seating');
-  const sound = choice(answers, 'vigil.sound') === 'yes';
+  const shelter = choice(answers, 'vigil.shelter', SHELTERS);
+  const seating = choice(answers, 'vigil.seating', SEATINGS);
+  const sound = choice(answers, 'vigil.sound', YES_NO) === 'yes';
   const tents = Math.ceil(peak / SEATS_PER_TENT);
   const quantities: Quantity[] = [];
-  if (shelter === 'tents') quantities.push({ key: 'tents', count: tents });
-  if (seating === 'chairs') quantities.push({ key: 'chairs', count: peak });
-  if (seating === 'benches') quantities.push({ key: 'benchPlaces', count: peak });
-  if (seating === 'mixed') {
+  if (shelter === 'tents' && tents > 0) quantities.push({ key: 'tents', count: tents });
+  if (seating === 'chairs' && peak > 0) quantities.push({ key: 'chairs', count: peak });
+  if (seating === 'benches' && peak > 0) quantities.push({ key: 'benchPlaces', count: peak });
+  if (seating === 'mixed' && peak > 0) {
     const chairs = Math.ceil(peak / 2);
-    quantities.push({ key: 'chairs', count: chairs }, { key: 'benchPlaces', count: peak - chairs });
+    quantities.push({ key: 'chairs', count: chairs });
+    if (peak - chairs > 0) quantities.push({ key: 'benchPlaces', count: peak - chairs });
   }
-  if (choice(answers, 'vigil.lighting') === 'yes') {
+  // WHY: sans invité, il n'y a rien à éclairer ni à sonoriser.
+  if (choice(answers, 'vigil.lighting', YES_NO) === 'yes' && peak > 0) {
     const sets = shelter === 'tents' ? Math.max(1, tents * LIGHT_SETS_PER_TENT) : 1;
     quantities.push({ key: 'lightSets', count: sets });
   }
-  if (sound) quantities.push({ key: 'soundSystems', count: 1 });
+  if (sound && peak > 0) quantities.push({ key: 'soundSystems', count: 1 });
 
   const costs: CostLine[] = [];
+  // WHY: une salle (`hall`) garde le chiffrage du poste tentes et chaises, qui couvre alors la
+  // location de la salle et des sièges.
   if (shelter !== null || seating !== null) {
     const item = gridItem('tentsChairs');
     costs.push(costLine(item.key, (level) => lineAmount(item, level, attendance)));
@@ -145,10 +151,13 @@ const vigilSetup: Estimator = (answers, attendance) => {
 
 /** 3.2 : assiettes, eau, boissons et glace. */
 const vigilCatering: Estimator = (answers, attendance) => {
-  const served = choice(answers, 'catering.served');
-  const drinks = choice(answers, 'catering.drinks');
-  const funeralMeal = choice(answers, 'catering.funeralMeal') === 'yes';
-  const platesPerNight = served === 'snack' || served === 'meal' ? wakeGuestsOf(attendance) : 0;
+  const served = choice(answers, 'catering.served', SERVINGS);
+  const drinks = choice(answers, 'catering.drinks', DRINKS);
+  const funeralMeal = choice(answers, 'catering.funeralMeal', YES_NO) === 'yes';
+  const platesPerNight =
+    (served === 'snack' || served === 'meal') && attendance.nights > 0
+      ? wakeGuestsOf(attendance)
+      : 0;
   const funeralPlates = funeralMeal ? attendance.high : 0;
   const guests = guestOccasionsOf(attendance);
 
@@ -156,11 +165,9 @@ const vigilCatering: Estimator = (answers, attendance) => {
   if (platesPerNight > 0) quantities.push({ key: 'platesPerNight', count: platesPerNight });
   if (funeralPlates > 0) quantities.push({ key: 'funeralPlates', count: funeralPlates });
   // WHY: l'eau est servie à chaque occasion, même sans repas ni autre boisson.
-  quantities.push({
-    key: 'waterPacks',
-    count: Math.ceil((guests * WATER_LITRES_PER_GUEST) / WATER_PACK_LITRES),
-  });
-  if (drinks !== null) {
+  const waterPacks = Math.ceil((guests * WATER_LITRES_PER_GUEST) / WATER_PACK_LITRES);
+  if (waterPacks > 0) quantities.push({ key: 'waterPacks', count: waterPacks });
+  if (drinks !== null && guests > 0) {
     quantities.push(
       { key: 'drinkBottles', count: guests * DRINKS_PER_GUEST },
       { key: 'iceKg', count: Math.ceil(guests * ICE_KG_PER_GUEST) },
@@ -168,11 +175,12 @@ const vigilCatering: Estimator = (answers, attendance) => {
   }
 
   const costs: CostLine[] = [];
-  if (served !== null || funeralMeal) {
+  const servedRatio = served === 'snack' ? SNACK_COST_RATIO : 1;
+  const plates = platesPerNight * attendance.nights * servedRatio + funeralPlates;
+  if (plates > 0) {
     const item = gridItem('catering');
-    const servedRatio = served === 'snack' ? SNACK_COST_RATIO : 1;
-    const cookRatio = choice(answers, 'catering.cook') === 'family' ? FAMILY_COOKING_RATIO : 1;
-    const plates = platesPerNight * attendance.nights * servedRatio + funeralPlates;
+    const cookRatio =
+      choice(answers, 'catering.cook', COOKS) === 'family' ? FAMILY_COOKING_RATIO : 1;
     costs.push(costLine(item.key, (level) => item.cost[level] * plates * cookRatio));
   }
   if (drinks !== null) {
