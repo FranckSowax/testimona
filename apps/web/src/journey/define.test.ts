@@ -71,6 +71,35 @@ describe('defineStep', () => {
       }),
     ).toThrow(/brouillon/);
   });
+
+  it('accepte des prestataires sur une étape à synthèse propre', () => {
+    const step = {
+      id: 'demo',
+      questions: [q.shortText('demo.one')],
+      summary: 'step' as const,
+      providers: ['tentsChairs', 'sound'] as const,
+    };
+    expect(defineStep(step)).toBe(step);
+  });
+
+  it('refuse des prestataires sans synthèse propre', () => {
+    expect(() =>
+      defineStep({ id: 'demo', questions: [], summary: 'budget', providers: ['sound'] }),
+    ).toThrow(/synthèse/);
+    expect(() => defineStep({ id: 'demo', questions: [], providers: ['sound'] })).toThrow(
+      /synthèse/,
+    );
+  });
+
+  it('refuse une liste de prestataires vide, en double ou inconnue', () => {
+    const base = { id: 'demo', questions: [], summary: 'step' as const };
+    expect(() => defineStep({ ...base, providers: [] })).toThrow(/prestataires/);
+    expect(() => defineStep({ ...base, providers: ['sound', 'sound'] })).toThrow(/prestataires/);
+    expect(() =>
+      // @ts-expect-error catégorie inconnue, refusée aussi à l'exécution
+      defineStep({ ...base, providers: ['florist'] }),
+    ).toThrow(/prestataires/);
+  });
 });
 
 describe('q.number', () => {

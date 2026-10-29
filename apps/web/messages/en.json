@@ -1389,7 +1389,8 @@
       "toComplete": "{count, plural, =1 {1 question to complete} other {# questions to complete}}",
       "viewDraft": "View the draft",
       "summary": {
-        "budget": "See the budget"
+        "budget": "See the budget",
+        "step": "View the summary"
       }
     },
     "draft": {

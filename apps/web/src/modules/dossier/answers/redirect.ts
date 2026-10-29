@@ -1,17 +1,17 @@
+import { summaryPath } from '@/journey/paths';
 import { nextQuestionInStep, type Answers } from '@/journey/progress';
 import type { Step } from '@/journey/types';
 
 /**
  * Chemin (non localisé) qui conclut une étape : son brouillon (2.2, 2.3), sa page de synthèse
- * (B.1, B.2 → budget), sinon le tableau de bord du dossier.
+ * (B.1, B.2 → budget ; 3.1, 3.2 → synthèse de l'étape), sinon le tableau de bord du dossier.
  *
  * @example
  * stepEndPath(dossierId, attendanceStep); // '/dossier/<id>/budget'
  */
 export function stepEndPath(dossierId: string, step: Step): string {
   if (step.draft) return `/dossier/${dossierId}/etape/${step.id}/brouillon`;
-  if (step.summary) return `/dossier/${dossierId}/${step.summary}`;
-  return `/dossier/${dossierId}`;
+  return summaryPath(dossierId, step) ?? `/dossier/${dossierId}`;
 }
 
 /**

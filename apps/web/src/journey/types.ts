@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { ProviderCategory } from '@/modules/providers/categories';
 
 /** Motif des clés de réponse, identique à la contrainte SQL de `journey_answer.key`. */
 export const ANSWER_KEY_PATTERN = /^[a-z][a-zA-Z0-9]*(\.[a-z][a-zA-Z0-9]*)+$/;
@@ -40,8 +41,12 @@ export interface StepDraft {
   kind: DraftKind;
 }
 
-/** Page qui conclut une étape sans brouillon (segment sous `/dossier/<id>/`). */
-export type StepSummary = 'budget';
+/**
+ * Page qui conclut une étape sans brouillon :
+ * - `budget` : page partagée `/dossier/<id>/budget` (B.1, B.2) ;
+ * - `step` : synthèse propre à l'étape, `/dossier/<id>/etape/<stepId>/synthese` (3.1, 3.2).
+ */
+export type StepSummary = 'budget' | 'step';
 
 /** Une étape du parcours : `id` sert de segment d'URL (`/etape/<id>`). */
 export interface Step {
@@ -50,6 +55,8 @@ export interface Step {
   draft?: StepDraft;
   /** Page de synthèse affichée à la fin de l'étape ; exclusive de `draft`. */
   summary?: StepSummary;
+  /** Catégories de l'encadré prestataires de la synthèse ; exige `summary: 'step'`. */
+  providers?: readonly ProviderCategory[];
 }
 
 export interface PlaceValue {

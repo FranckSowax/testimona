@@ -57,6 +57,9 @@ describe('stepEndPath', () => {
       `/dossier/${ID}/etape/plain/brouillon`,
     );
     expect(stepEndPath(ID, { ...base, summary: 'budget' })).toBe(`/dossier/${ID}/budget`);
+    expect(stepEndPath(ID, { ...base, summary: 'step' })).toBe(
+      `/dossier/${ID}/etape/plain/synthese`,
+    );
     expect(stepEndPath(ID, base)).toBe(`/dossier/${ID}`);
   });
 

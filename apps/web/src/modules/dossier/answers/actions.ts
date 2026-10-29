@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getLocale } from 'next-intl/server';
+import { summaryPath } from '@/journey/paths';
 import { findQuestion } from '@/journey/registry';
 import { SKIPPED } from '@/journey/types';
 import { localizedPath } from '@/lib/auth/redirect-target';
@@ -47,10 +48,9 @@ export async function saveAnswerAction(
   const found = findQuestion(key);
   const locale = await getLocale();
   revalidatePath(localizedPath(`/dossier/${dossierId}`, locale));
-  // WHY: la page de synthèse (budget) est calculée depuis les réponses : elle doit les refléter.
-  if (found?.step.summary) {
-    revalidatePath(localizedPath(`/dossier/${dossierId}/${found.step.summary}`, locale));
-  }
+  // WHY: la page de synthèse est calculée depuis les réponses : elle doit les refléter.
+  const summary = found ? summaryPath(dossierId, found.step) : null;
+  if (summary) revalidatePath(localizedPath(summary, locale));
   let target = `/dossier/${dossierId}`;
   if (found) {
     // WHY: relire après l'écriture donne l'état réel (un « Passer » ignoré reste une réponse).

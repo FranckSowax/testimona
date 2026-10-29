@@ -1,3 +1,4 @@
+import { PROVIDER_CATEGORIES } from '@/modules/providers/categories';
 import {
   ANSWER_KEY_PATTERN,
   type ChoiceQuestion,
@@ -48,6 +49,7 @@ export function defineStep(step: Step): Step {
   if (step.draft && step.summary) {
     throw new Error(`Étape ${step.id} : brouillon et page de synthèse sont exclusifs`);
   }
+  if (step.providers) checkProviders(step);
   const seen = new Set<string>();
   for (const question of step.questions) {
     if (!ANSWER_KEY_PATTERN.test(question.key)) {
@@ -101,5 +103,20 @@ function checkQuestion(stepId: string, question: Question): void {
     if (field.kind === 'choice' && field.options.length === 0) {
       throw new Error(`Étape ${stepId} : options vides pour le champ « ${field.name} »`);
     }
+  }
+}
+
+function checkProviders(step: Step): void {
+  const providers = step.providers ?? [];
+  if (step.summary !== 'step') {
+    throw new Error(`Étape ${step.id} : des prestataires exigent une synthèse propre`);
+  }
+  const known = new Set<string>(PROVIDER_CATEGORIES);
+  if (
+    providers.length === 0 ||
+    new Set(providers).size !== providers.length ||
+    providers.some((category) => !known.has(category))
+  ) {
+    throw new Error(`Étape ${step.id} : liste de prestataires invalide`);
   }
 }
