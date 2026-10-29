@@ -55,6 +55,16 @@ describe('AdjustLineButton', () => {
     expect(refresh).toHaveBeenCalled();
   });
 
+  it('efface « Poste mis à jour. » quand un second envoi échoue', async () => {
+    saveLineAction.mockResolvedValueOnce({ ok: true }).mockResolvedValueOnce({ error: 'closed' });
+    renderButton();
+    fireEvent.click(screen.getByRole('button', { name: TEXT }));
+    await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Poste mis à jour.'));
+    fireEvent.click(screen.getByRole('button', { name: TEXT }));
+    expect(await screen.findByRole('alert')).toBeTruthy();
+    expect(screen.getByRole('status').textContent).toBe('');
+  });
+
   it('affiche une erreur des postes sans relire la page', async () => {
     saveLineAction.mockResolvedValue({ error: 'closed' });
     renderButton();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { buttonClasses } from '@/components/ui/Button';
@@ -30,13 +30,18 @@ export function AdjustLineButton({ dossierId, lineId, label, amounts, text }: Pr
   const t = useTranslations('journey.synthesis');
   const tRoot = useTranslations();
   const router = useRouter();
-  const { state, pending, saved, onSubmit, formRef } = useLinesForm(saveLineAction);
+  const { state, pending, saved, onSubmit, clearSaved, formRef } = useLinesForm(saveLineAction);
+  // WHY: le statut « mis à jour » d'un envoi précédent ne doit pas survivre à un nouvel envoi.
+  const submit = (e: FormEvent<HTMLFormElement>) => {
+    clearSaved();
+    onSubmit(e);
+  };
   // WHY: l'action revalide les pages des cotisations, pas cette synthèse : on la relit.
   useEffect(() => {
     if (state?.ok) router.refresh();
   }, [state, router]);
   return (
-    <form ref={formRef} onSubmit={onSubmit} className="space-y-2">
+    <form ref={formRef} onSubmit={submit} className="space-y-2">
       <input type="hidden" name="dossierId" value={dossierId} />
       <input type="hidden" name="lineId" value={lineId} />
       <input type="hidden" name="label" value={label} />
