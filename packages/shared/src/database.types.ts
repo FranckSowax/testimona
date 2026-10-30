@@ -1798,6 +1798,15 @@ export type Database = {
         }[]
       }
       reopen_ledger: { Args: { p_dossier_id: string }; Returns: undefined }
+      request_quote: {
+        Args: {
+          p_dossier_id: string
+          p_message: string
+          p_provider_id: string
+          p_step_id: string
+        }
+        Returns: string
+      }
       set_budget_scenario: {
         Args: { p_dossier_id: string; p_scenario: string }
         Returns: undefined
