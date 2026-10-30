@@ -14,7 +14,6 @@ const example = {
   name: 'Sono Owendo (exemple)',
   city: 'Libreville',
   district: 'Owendo',
-  whatsapp: null,
   priceNote: null,
   isExample: true,
   verifiedAt: null,

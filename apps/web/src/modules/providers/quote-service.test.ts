@@ -1,11 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('server-only', () => ({}));
-const quoteRepo = vi.hoisted(() => ({ insertQuoteRequest: vi.fn(), listQuoteRequests: vi.fn() }));
-const providerRepo = vi.hoisted(() => ({ getProvider: vi.fn() }));
+const quoteRepo = vi.hoisted(() => ({ requestQuoteRpc: vi.fn(), listQuoteRequests: vi.fn() }));
 const dossierRepo = vi.hoisted(() => ({ listMembers: vi.fn() }));
 vi.mock('./quotes/repo', async (orig) => ({ ...(await orig<object>()), ...quoteRepo }));
-vi.mock('./repo', () => providerRepo);
 vi.mock('@/modules/dossier/repo', () => dossierRepo);
 
 const { quotesForStep, requestQuote } = await import('./quote-service');
@@ -17,30 +15,39 @@ const input = { dossierId: DOSSIER, providerId: PROVIDER, stepId: 'vigil-setup',
 beforeEach(() => vi.resetAllMocks());
 
 describe('requestQuote', () => {
-  it('trace la demande puis renvoie le lien wa.me', async () => {
-    quoteRepo.insertQuoteRequest.mockResolvedValue({ data: { id: 'q1' }, error: null });
-    providerRepo.getProvider.mockResolvedValue({
-      data: { id: PROVIDER, whatsapp: '+24177123456' },
-      error: null,
-    });
+  it('trace la demande par la RPC puis renvoie le lien wa.me', async () => {
+    quoteRepo.requestQuoteRpc.mockResolvedValue({ data: { whatsapp: '+24177123456' }, error: null });
     const withSpecials = { ...input, message: 'Bonjour & merci' };
     const res = await requestQuote(withSpecials);
     expect(res).toEqual({
       ok: true,
       data: { href: 'https://wa.me/24177123456?text=Bonjour%20%26%20merci' },
     });
-    expect(quoteRepo.insertQuoteRequest).toHaveBeenCalledWith(withSpecials);
+    expect(quoteRepo.requestQuoteRpc).toHaveBeenCalledWith(withSpecials);
   });
 
   it.each([
     ['TL010', 'unreachable'],
     ['42501', 'forbidden'],
+    ['28000', 'unauthenticated'],
     ['23514', 'validation'],
     ['XX000', 'unknown'],
   ])('traduit %s en %s', async (code, error) => {
-    quoteRepo.insertQuoteRequest.mockResolvedValue({ data: null, error: { code, message: '' } });
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    quoteRepo.requestQuoteRpc.mockResolvedValue({ data: null, error: { code, message: '' } });
     expect(await requestQuote(input)).toEqual({ ok: false, error });
-    expect(providerRepo.getProvider).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it('journalise un code inconnu, comme une réponse sans numéro', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    quoteRepo.requestQuoteRpc.mockResolvedValue({
+      data: null,
+      error: { code: 'no_number', message: '' },
+    });
+    expect(await requestQuote(input)).toEqual({ ok: false, error: 'unknown' });
+    expect(spy).toHaveBeenCalledWith('[providers] requestQuote failed', { code: 'no_number' });
+    spy.mockRestore();
   });
 
   it('refuse un message vide ou trop long, une étape inconnue ou un identifiant invalide', async () => {
@@ -52,37 +59,7 @@ describe('requestQuote', () => {
     ]) {
       expect(await requestQuote(bad)).toEqual({ ok: false, error: 'validation' });
     }
-    expect(quoteRepo.insertQuoteRequest).not.toHaveBeenCalled();
-  });
-
-  it('signale un prestataire devenu illisible après la trace', async () => {
-    quoteRepo.insertQuoteRequest.mockResolvedValue({ data: { id: 'q1' }, error: null });
-    providerRepo.getProvider.mockResolvedValue({
-      data: null,
-      error: { code: 'no_rows', message: '' },
-    });
-    expect(await requestQuote(input)).toEqual({ ok: false, error: 'unreachable' });
-  });
-
-  it('signale un prestataire relu sans numéro WhatsApp', async () => {
-    quoteRepo.insertQuoteRequest.mockResolvedValue({ data: { id: 'q1' }, error: null });
-    providerRepo.getProvider.mockResolvedValue({
-      data: { id: PROVIDER, whatsapp: null },
-      error: null,
-    });
-    expect(await requestQuote(input)).toEqual({ ok: false, error: 'unreachable' });
-  });
-
-  it('journalise une relecture en échec autre que no_rows', async () => {
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    quoteRepo.insertQuoteRequest.mockResolvedValue({ data: { id: 'q1' }, error: null });
-    providerRepo.getProvider.mockResolvedValue({
-      data: null,
-      error: { code: 'XX000', message: '' },
-    });
-    expect(await requestQuote(input)).toEqual({ ok: false, error: 'unreachable' });
-    expect(spy).toHaveBeenCalledTimes(1);
-    spy.mockRestore();
+    expect(quoteRepo.requestQuoteRpc).not.toHaveBeenCalled();
   });
 });
 

@@ -40,11 +40,15 @@ vi.mock('@/lib/supabase/server', () => {
       calls.push({ method: 'from', args });
       return query();
     },
+    rpc: (...args: unknown[]) => {
+      calls.push({ method: 'rpc', args });
+      return next();
+    },
   };
   return { getSupabaseServer: async () => db };
 });
 
-const { insertQuoteRequest, listQuoteRequests } = await import('./repo');
+const { listQuoteRequests, requestQuoteRpc } = await import('./repo');
 
 const DOSSIER = '11111111-1111-4111-8111-111111111111';
 const PROVIDER = '22222222-2222-4222-8222-222222222222';
@@ -54,34 +58,44 @@ beforeEach(() => {
   calls.length = 0;
 });
 
-describe('insertQuoteRequest', () => {
-  it('insère la demande sans auteur ni date (imposés par la base)', async () => {
-    results.push({ data: { id: 'q1' }, error: null });
-    const res = await insertQuoteRequest({
-      dossierId: DOSSIER,
-      providerId: PROVIDER,
-      stepId: 'vigil-setup',
-      message: 'Bonjour',
+describe('requestQuoteRpc', () => {
+  const request = {
+    dossierId: DOSSIER,
+    providerId: PROVIDER,
+    stepId: 'vigil-setup' as const,
+    message: 'Bonjour',
+  };
+
+  it('appelle request_quote, sans auteur ni date (imposés par la base), et rend le numéro', async () => {
+    results.push({ data: '+24177123456', error: null });
+    expect(await requestQuoteRpc(request)).toEqual({
+      data: { whatsapp: '+24177123456' },
+      error: null,
     });
-    expect(res).toEqual({ data: { id: 'q1' }, error: null });
-    expect(calls).toContainEqual({ method: 'from', args: ['quote_request'] });
-    expect(calls).toContainEqual({
-      method: 'insert',
-      args: [
-        { dossier_id: DOSSIER, provider_id: PROVIDER, step_id: 'vigil-setup', message: 'Bonjour' },
-      ],
-    });
+    expect(calls).toEqual([
+      {
+        method: 'rpc',
+        args: [
+          'request_quote',
+          {
+            p_dossier_id: DOSSIER,
+            p_provider_id: PROVIDER,
+            p_step_id: 'vigil-setup',
+            p_message: 'Bonjour',
+          },
+        ],
+      },
+    ]);
   });
 
   it('remonte le code de la base', async () => {
     results.push({ data: null, error: { code: 'TL010', message: 'provider not reachable' } });
-    const res = await insertQuoteRequest({
-      dossierId: DOSSIER,
-      providerId: PROVIDER,
-      stepId: 'vigil-setup',
-      message: 'Bonjour',
-    });
-    expect(res.error?.code).toBe('TL010');
+    expect((await requestQuoteRpc(request)).error?.code).toBe('TL010');
+  });
+
+  it('signale une réponse sans numéro', async () => {
+    results.push({ data: null, error: null });
+    expect((await requestQuoteRpc(request)).error?.code).toBe('no_number');
   });
 });
 

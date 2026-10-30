@@ -22,8 +22,8 @@ export function quotePlace(placeAnswer: unknown, panelCity: string): string {
 }
 
 /**
- * Messages de devis par prestataire contactable de l'encadré (vérifié, non exemple, avec
- * numéro), indexés par identifiant. Le numéro n'entre jamais dans le message.
+ * Messages de devis par prestataire contactable de l'encadré (vérifié, non exemple), indexés
+ * par identifiant. Le numéro n'entre jamais dans le message.
  *
  * @example
  * quoteMessages(groups, { place: 'Libreville', date: null, quantities }, t);
@@ -36,9 +36,10 @@ export function quoteMessages(
   const messages: Record<string, string> = {};
   for (const group of groups) {
     for (const provider of group.providers) {
-      // WHY: mêmes conditions que le trigger `quote_request_before_insert` (TL010) : un bouton
-      // proposé à tort mènerait à une demande refusée.
-      if (provider.isExample || !provider.verifiedAt || !provider.whatsapp) continue;
+      // WHY: mêmes conditions que `request_quote` (TL010) : un bouton proposé à tort mènerait à
+      // une demande refusée. Le numéro n'est pas lu ici ; un prestataire vérifié en a toujours un
+      // (contrainte `provider_verified_has_number`).
+      if (provider.isExample || !provider.verifiedAt) continue;
       messages[provider.id] = quoteMessage(
         { providerName: provider.name, category: group.category, ...context },
         t,

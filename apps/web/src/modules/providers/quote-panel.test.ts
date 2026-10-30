@@ -8,7 +8,6 @@ const provider = (over: Partial<PanelGroup['providers'][number]>) => ({
   name: 'Tentes',
   city: 'Libreville',
   district: null,
-  whatsapp: '+24177123456',
   priceNote: null,
   isExample: false,
   verifiedAt: '2026-10-01T00:00:00Z',
@@ -26,9 +25,8 @@ describe('quoteMessages', () => {
         category: 'tentsChairs',
         providers: [
           provider({ id: 'ok' }),
-          provider({ id: 'example', isExample: true, whatsapp: null, verifiedAt: null }),
+          provider({ id: 'example', isExample: true, verifiedAt: null }),
           provider({ id: 'unverified', verifiedAt: null }),
-          provider({ id: 'noNumber', whatsapp: null }),
         ],
       },
     ];
@@ -36,12 +34,6 @@ describe('quoteMessages', () => {
     expect(Object.keys(messages)).toEqual(['ok']);
     expect(messages.ok).toContain('providers.quote.message.greeting');
     expect(messages.ok).toContain('Libreville');
-  });
-
-  it('ne met pas le numéro dans le message', () => {
-    const groups: PanelGroup[] = [{ category: 'sound', providers: [provider({ id: 'ok' })] }];
-    const messages = quoteMessages(groups, { place: 'Libreville', date: null, quantities: [] }, t);
-    expect(messages.ok).not.toContain('77123456');
   });
 
   it('ne renvoie rien sans prestataire contactable', () => {

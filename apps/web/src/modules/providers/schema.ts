@@ -100,3 +100,6 @@ export interface Provider {
   verifiedAt: string | null;
   active: boolean;
 }
+
+/** Prestataire de l'encadré des familles : sans numéro, qui ne sort que par `request_quote`. */
+export type PanelProvider = Omit<Provider, 'whatsapp'>;

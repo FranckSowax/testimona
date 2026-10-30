@@ -1,5 +1,5 @@
 import type { ProviderCategory } from './categories';
-import type { Provider } from './schema';
+import type { PanelProvider } from './schema';
 
 /** Prestataires affichés au plus par catégorie. */
 export const PANEL_PER_CATEGORY = 5;
@@ -8,10 +8,10 @@ export const DEFAULT_CITY = 'Libreville';
 
 export interface PanelGroup {
   category: ProviderCategory;
-  providers: readonly Provider[];
+  providers: readonly PanelProvider[];
 }
 
-const isVerified = (p: Provider) => !p.isExample && p.verifiedAt !== null;
+const isVerified = (p: PanelProvider) => !p.isExample && p.verifiedAt !== null;
 
 // WHY: la ville est saisie librement (« libreville », « Lambarene », « Port Gentil ») ; on
 // compare sans casse ni accents, en ramenant tirets et suites d'espaces à une seule espace, plutôt
@@ -39,7 +39,7 @@ export function panelCity(deathCity: string | null): string {
  * panelGroups(providers, ['tentsChairs', 'sound'], 'Libreville');
  */
 export function panelGroups(
-  providers: readonly Provider[],
+  providers: readonly PanelProvider[],
   categories: readonly ProviderCategory[],
   city: string,
   perCategory = PANEL_PER_CATEGORY,

@@ -2,6 +2,7 @@ import 'server-only';
 import { z } from 'zod';
 import { isPlatformAdmin } from '@/lib/auth/platform-admin';
 import { fieldErrors } from '@/modules/dossier/service';
+import { getProviderWithContact, listProvidersWithContact } from '@/server/privileged/providers';
 import type { ProviderCategory } from './categories';
 import { type PanelGroup, panelGroups } from './panel';
 import * as repo from './repo';
@@ -60,6 +61,7 @@ function verifiedAtFor(verified: boolean, previous: string | null): string | nul
 
 /**
  * Prestataires de l'écran admin, filtrés par ville et catégorie.
+ * WHY: lus par le chemin privilégié (numéro compris), seulement après `isPlatformAdmin()`.
  *
  * @example
  * const res = await listProviders({ city: 'Libreville' });
@@ -68,15 +70,15 @@ export async function listProviders(raw: unknown): Promise<ProvidersResult<Provi
   if (!(await isPlatformAdmin())) return FORBIDDEN;
   const filters = ProviderFiltersSchema.safeParse(raw);
   if (!filters.success) return invalid(filters.error);
-  const res = await repo.listProviders(filters.data);
+  const res = await listProvidersWithContact(filters.data);
   return res.error ? fromRepo(res.error, 'listProviders') : { ok: true, data: res.data };
 }
 
-/** Un prestataire pour l'écran de modification. */
+/** Un prestataire pour l'écran de modification, numéro compris. */
 export async function getProvider(id: string): Promise<ProvidersResult<Provider>> {
   if (!(await isPlatformAdmin())) return FORBIDDEN;
   if (!z.string().uuid().safeParse(id).success) return NOT_FOUND;
-  const res = await repo.getProvider(id);
+  const res = await getProviderWithContact(id);
   return res.error ? fromRepo(res.error, 'getProvider') : { ok: true, data: res.data };
 }
 
@@ -100,7 +102,7 @@ export async function updateProvider(raw: unknown): Promise<ProvidersResult<true
   const parsed = ProviderUpdateSchema.safeParse(raw);
   if (!parsed.success) return invalid(parsed.error);
   const { providerId, verified, ...fields } = parsed.data;
-  const current = await repo.getProvider(providerId);
+  const current = await getProviderWithContact(providerId);
   if (current.error) return fromRepo(current.error, 'updateProvider.read');
   const res = await repo.updateProvider(providerId, {
     ...fields,
