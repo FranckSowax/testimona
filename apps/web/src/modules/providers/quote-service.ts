@@ -4,12 +4,7 @@ import { listMembers } from '@/modules/dossier/repo';
 import { QUOTE_MESSAGE_MAX, quoteHref } from './quote-message';
 import { listQuoteRequests, QUOTE_STEPS, type QuoteStep, requestQuoteRpc } from './quotes/repo';
 
-export type QuoteError =
-  | 'validation'
-  | 'forbidden'
-  | 'unreachable'
-  | 'unauthenticated'
-  | 'unknown';
+export type QuoteError = 'validation' | 'forbidden' | 'unreachable' | 'unauthenticated' | 'unknown';
 
 export type QuoteResult<T> = { ok: true; data: T } | { ok: false; error: QuoteError };
 

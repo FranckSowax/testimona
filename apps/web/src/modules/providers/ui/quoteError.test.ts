@@ -15,7 +15,9 @@ const ERRORS: Record<QuoteError, true> = {
 };
 const CODES = Object.keys(ERRORS) as QuoteError[];
 const expected = (messages: typeof fr, error: QuoteError) =>
-  error === 'unreachable' ? messages.providers.quote.errors.unreachable : messages.dossier.errors[error];
+  error === 'unreachable'
+    ? messages.providers.quote.errors.unreachable
+    : messages.dossier.errors[error];
 
 const tFr = createTranslator({ locale: 'fr', messages: fr });
 const tEn = createTranslator({ locale: 'en', messages: en });

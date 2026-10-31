@@ -10,7 +10,12 @@ const { quotesForStep, requestQuote } = await import('./quote-service');
 
 const DOSSIER = '11111111-1111-4111-8111-111111111111';
 const PROVIDER = '22222222-2222-4222-8222-222222222222';
-const input = { dossierId: DOSSIER, providerId: PROVIDER, stepId: 'vigil-setup', message: 'Bonjour' };
+const input = {
+  dossierId: DOSSIER,
+  providerId: PROVIDER,
+  stepId: 'vigil-setup',
+  message: 'Bonjour',
+};
 
 beforeEach(() => vi.resetAllMocks());
 
