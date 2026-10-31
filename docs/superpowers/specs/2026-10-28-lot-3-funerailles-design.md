@@ -74,6 +74,13 @@ Lecture : tout utilisateur connecté voit les prestataires actifs qui sont véri
 prestataire non vérifié ou inactif n'est lisible que par `is_admin()`. Insertion et modification :
 `is_admin()`. Aucune suppression : on désactive.
 
+La colonne `whatsapp` n'est pas lisible par le rôle `authenticated`, administrateur compris
+(migration `20261029000200_provider_whatsapp_private.sql`) : la RLS filtre les lignes, pas les
+colonnes ; `select` est donc accordé colonne par colonne, sans `whatsapp`. Une famille n'obtient le
+numéro que par la RPC `request_quote` (voir « Demande de devis »). L'écran d'administration le lit
+côté serveur avec le client service-role, après `isPlatformAdmin()`
+(`apps/web/src/server/privileged/providers.ts`).
+
 La migration fixe `search_path = ''` sur `is_admin()` (alerte ancienne de l'advisor) sans changer
 sa logique : rôle lu dans `app_metadata` du JWT, que l'utilisateur ne peut pas modifier.
 
@@ -208,15 +215,18 @@ Le message est construit en code (`modules/providers/quote-message.ts`) : besoin
 sinon du décès, sinon Libreville), quantités calculées. Il ne contient pas le nom de la
 personne décédée. La famille le relit et peut le modifier, puis « Ouvrir WhatsApp » :
 
-1. une action serveur insère la ligne `quote_request` (TL010 si le prestataire n'est plus
-   contactable) ;
+1. une action serveur appelle la RPC `request_quote(p_dossier_id, p_provider_id, p_step_id,
+p_message)`, `security definer`. Elle exige un utilisateur (28000), vérifie le rôle (42501),
+   puis le prestataire (TL010),
+   insère la ligne `quote_request` et renvoie le numéro, dans la même transaction ;
 2. le client ouvre `https://wa.me/<numéro sans +>?text=<message encodé>`.
 
-L'interface ne transmet le numéro WhatsApp au navigateur qu'après l'insertion de la trace, dans le
-lien `wa.me`. La base, elle, laisse ce numéro lisible à tout utilisateur connecté pour les
-prestataires vérifiés (choix de la PR 1, voir la section provider) : la garantie porte sur
-l'interface, pas sur la base. Fermer cette lecture, par une RPC `security definer` et le retrait de
-la colonne du `select`, est un suivi prévu.
+La garantie porte sur la base : `provider.whatsapp` n'est pas lisible par `select` (voir la
+section provider), et la RPC est la seule sortie du numéro pour une famille. Une demande refusée
+ne donne aucun numéro ; une demande acceptée est toujours tracée. Le numéro n'atteint le navigateur
+que dans le lien `wa.me`. La lecture est donc tracée, pas confidentielle : un coordinateur peut
+obtenir le numéro de chaque prestataire vérifié, une demande tracée à la fois, sans limite de débit
+dans ce lot.
 Si WhatsApp ne s'ouvre pas, le lien reste affiché pour être copié. Après un succès, le formulaire
 propose « Renvoyer la demande », qui trace une nouvelle demande.
 

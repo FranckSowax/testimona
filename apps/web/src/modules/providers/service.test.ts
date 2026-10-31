@@ -12,6 +12,10 @@ const { repo, admin } = vi.hoisted(() => ({
 
 vi.mock('server-only', () => ({}));
 vi.mock('./repo', () => repo);
+vi.mock('@/server/privileged/providers', () => ({
+  listProvidersWithContact: repo.listProviders,
+  getProviderWithContact: repo.getProvider,
+}));
 vi.mock('@/lib/auth/platform-admin', () => admin);
 
 const { createProvider, getProvider, listProviders, updateProvider } = await import('./service');

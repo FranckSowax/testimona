@@ -24,31 +24,31 @@ function fail(error: { code?: string; message?: string }) {
 }
 
 /**
- * Trace une demande de devis. Auteur, date et nom du prestataire sont imposés par le trigger ;
- * TL010 si le prestataire n'est plus contactable, 42501 sous le rôle coordinateur.
+ * Trace une demande de devis et renvoie le numéro WhatsApp du prestataire, par la RPC
+ * `request_quote`. Auteur, date et nom du prestataire sont imposés par la base ; 42501 sous le
+ * rôle coordinateur, puis TL010 si le prestataire n'est plus contactable.
+ * WHY: le numéro n'est plus lisible par `select` (migration 20261029000200) ; il ne sort qu'avec
+ * la trace, dans la même transaction.
  *
  * @example
- * const res = await insertQuoteRequest({ dossierId, providerId, stepId: 'vigil-setup', message });
+ * const res = await requestQuoteRpc({ dossierId, providerId, stepId: 'vigil-setup', message });
  */
-export async function insertQuoteRequest(input: {
+export async function requestQuoteRpc(input: {
   dossierId: string;
   providerId: string;
   stepId: QuoteStep;
   message: string;
-}): Promise<RepoResult<{ id: string }>> {
+}): Promise<RepoResult<{ whatsapp: string }>> {
   const db = await getSupabaseServer();
-  const { data, error } = await db
-    .from('quote_request')
-    .insert({
-      dossier_id: input.dossierId,
-      provider_id: input.providerId,
-      step_id: input.stepId,
-      message: input.message,
-    })
-    .select('id')
-    .single();
+  const { data, error } = await db.rpc('request_quote', {
+    p_dossier_id: input.dossierId,
+    p_provider_id: input.providerId,
+    p_step_id: input.stepId,
+    p_message: input.message,
+  });
   if (error) return fail(error);
-  return { data: { id: (data as { id: string }).id }, error: null };
+  if (!data) return fail({ code: 'no_number', message: 'request_quote returned no number' });
+  return { data: { whatsapp: data }, error: null };
 }
 
 /**

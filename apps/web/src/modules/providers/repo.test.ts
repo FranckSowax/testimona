@@ -44,8 +44,7 @@ vi.mock('@/lib/supabase/server', () => {
   return { getSupabaseServer: async () => db };
 });
 
-const { getProvider, insertProvider, listPanelProviders, listProviders, updateProvider } =
-  await import('./repo');
+const { insertProvider, listPanelProviders, updateProvider } = await import('./repo');
 
 const ID = '66666666-6666-4666-8666-666666666666';
 const row = {
@@ -83,7 +82,9 @@ const write = {
   verifiedAt: '2026-10-01T09:00:00.000Z',
   active: true,
 };
-const dbRow = Object.fromEntries(Object.entries(row).filter(([key]) => key !== 'id'));
+const without = (key: string, o: object) =>
+  Object.fromEntries(Object.entries(o).filter(([k]) => k !== key));
+const dbRow = without('id', row);
 
 const callsOf = (method: string) => calls.filter((c) => c.method === method);
 
@@ -92,53 +93,11 @@ beforeEach(() => {
   calls.length = 0;
 });
 
-describe('listProviders', () => {
-  it('convertit les colonnes en prestataires et trie par ville puis nom', async () => {
-    results.push({ data: [row], error: null });
-    expect(await listProviders({})).toEqual({ data: [provider], error: null });
-    expect(callsOf('from')[0]?.args).toEqual(['provider']);
-    expect(callsOf('order').map((c) => c.args)).toEqual([['city'], ['name']]);
-    expect(callsOf('limit')[0]?.args).toEqual([200]);
-    expect(callsOf('eq')).toHaveLength(0);
-  });
-
-  it('applique les filtres ville et catégorie', async () => {
-    results.push({ data: [], error: null });
-    await listProviders({ city: 'Libreville', category: 'sound' });
-    expect(callsOf('eq').map((c) => c.args)).toEqual([
-      ['city', 'Libreville'],
-      ['category_key', 'sound'],
-    ]);
-  });
-
-  it('rend une erreur de la base et ne journalise que le code', async () => {
-    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
-    results.push({ data: null, error: { code: '42501', message: 'secret detail' } });
-    expect(await listProviders({})).toEqual({
-      data: null,
-      error: { code: '42501', message: 'secret detail' },
-    });
-    expect(log).toHaveBeenCalledWith('[providers] listProviders impossible', { code: '42501' });
-    log.mockRestore();
-  });
-
-  it('complète une erreur sans code ni message', async () => {
-    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
-    results.push({ data: null, error: {} });
-    expect(await listProviders({})).toEqual({
-      data: null,
-      error: { code: 'unknown', message: 'providers error' },
-    });
-    log.mockRestore();
-  });
-});
-
 describe('listPanelProviders', () => {
   it("lit les prestataires actifs, vérifiés ou d'exemple, des catégories demandées", async () => {
-    results.push({ data: [row], error: null });
+    results.push({ data: [without('whatsapp', row)], error: null });
     const res = await listPanelProviders(['tentsChairs', 'sound']);
-    expect(res.error).toBeNull();
-    expect(res.data?.[0]?.id).toBe(row.id);
+    expect(res).toEqual({ data: [without('whatsapp', provider)], error: null });
     expect(calls).toEqual(
       expect.arrayContaining([
         { method: 'from', args: ['provider'] },
@@ -150,36 +109,19 @@ describe('listPanelProviders', () => {
     );
   });
 
+  // WHY: le rôle `authenticated` ne peut plus lire `whatsapp` (migration 20261029000200).
+  it('ne sélectionne jamais le numéro', async () => {
+    results.push({ data: [], error: null });
+    await listPanelProviders(['sound']);
+    expect(String(callsOf('select')[0]?.args[0])).not.toContain('whatsapp');
+  });
+
   it('remonte une erreur de lecture', async () => {
     const log = vi.spyOn(console, 'error').mockImplementation(() => {});
     results.push({ data: null, error: { code: '42501', message: 'denied' } });
     const res = await listPanelProviders(['sound']);
     expect(res.error?.code).toBe('42501');
     log.mockRestore();
-  });
-});
-
-describe('getProvider', () => {
-  it('lit un prestataire par identifiant', async () => {
-    results.push({ data: row, error: null });
-    expect(await getProvider(ID)).toEqual({ data: provider, error: null });
-    expect(callsOf('eq')[0]?.args).toEqual(['id', ID]);
-  });
-
-  it('renvoie no_rows quand rien ne correspond', async () => {
-    results.push({ data: null, error: null });
-    expect(await getProvider(ID)).toEqual({
-      data: null,
-      error: { code: 'no_rows', message: 'no row matched' },
-    });
-  });
-
-  it('rend l’erreur de la base', async () => {
-    results.push({ data: null, error: { code: '42501', message: 'denied' } });
-    expect(await getProvider(ID)).toEqual({
-      data: null,
-      error: { code: '42501', message: 'denied' },
-    });
   });
 });
 

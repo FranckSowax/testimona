@@ -2,8 +2,7 @@ import 'server-only';
 import { z } from 'zod';
 import { listMembers } from '@/modules/dossier/repo';
 import { QUOTE_MESSAGE_MAX, quoteHref } from './quote-message';
-import { insertQuoteRequest, listQuoteRequests, QUOTE_STEPS, type QuoteStep } from './quotes/repo';
-import { getProvider } from './repo';
+import { listQuoteRequests, QUOTE_STEPS, type QuoteStep, requestQuoteRpc } from './quotes/repo';
 
 export type QuoteError = 'validation' | 'forbidden' | 'unreachable' | 'unauthenticated' | 'unknown';
 
@@ -40,9 +39,9 @@ function fromRepo(error: { code: string }, scope: string): { ok: false; error: Q
 }
 
 /**
- * Trace une demande de devis puis renvoie le lien `wa.me` vers le prestataire.
- * WHY: le numéro ne quitte le serveur qu'après la trace ; une demande refusée (rôle, prestataire
- * plus contactable) n'ouvre rien.
+ * Trace une demande de devis et renvoie le lien `wa.me` vers le prestataire.
+ * WHY: la RPC `request_quote` trace la demande et donne le numéro dans la même transaction ; une
+ * demande refusée (rôle, prestataire plus contactable) ne donne aucun numéro.
  *
  * @example
  * const res = await requestQuote({ dossierId, providerId, stepId: 'vigil-setup', message });
@@ -51,19 +50,9 @@ function fromRepo(error: { code: string }, scope: string): { ok: false; error: Q
 export async function requestQuote(raw: unknown): Promise<QuoteResult<{ href: string }>> {
   const parsed = RequestSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, error: 'validation' };
-  const inserted = await insertQuoteRequest(parsed.data);
-  if (inserted.error) return fromRepo(inserted.error, 'requestQuote');
-  const provider = await getProvider(parsed.data.providerId);
-  // WHY: le trigger vient de vérifier le prestataire ; s'il n'est plus lisible (désactivé dans
-  // l'intervalle), la demande reste tracée mais aucun numéro n'est donné.
-  if (provider.error) {
-    if (provider.error.code !== 'no_rows') {
-      console.error('[providers] requestQuote provider read failed', { code: provider.error.code });
-    }
-    return { ok: false, error: 'unreachable' };
-  }
-  if (!provider.data.whatsapp) return { ok: false, error: 'unreachable' };
-  return { ok: true, data: { href: quoteHref(provider.data.whatsapp, parsed.data.message) } };
+  const res = await requestQuoteRpc(parsed.data);
+  if (res.error) return fromRepo(res.error, 'requestQuote');
+  return { ok: true, data: { href: quoteHref(res.data.whatsapp, parsed.data.message) } };
 }
 
 /**

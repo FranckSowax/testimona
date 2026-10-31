@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { panelCity, panelGroups } from './panel';
-import type { Provider } from './schema';
+import type { PanelProvider } from './schema';
 
 let n = 0;
-function provider(fields: Partial<Provider>): Provider {
+function provider(fields: Partial<PanelProvider>): PanelProvider {
   n += 1;
   return {
     id: `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`,
@@ -11,7 +11,6 @@ function provider(fields: Partial<Provider>): Provider {
     name: `Prestataire ${n}`,
     city: 'Libreville',
     district: null,
-    whatsapp: null,
     priceNote: null,
     isExample: true,
     verifiedAt: null,
@@ -19,10 +18,9 @@ function provider(fields: Partial<Provider>): Provider {
     ...fields,
   };
 }
-const verified = (fields: Partial<Provider>) =>
+const verified = (fields: Partial<PanelProvider>) =>
   provider({
     isExample: false,
-    whatsapp: '+24177123456',
     verifiedAt: '2026-10-01T00:00:00Z',
     ...fields,
   });
