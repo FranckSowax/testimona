@@ -21,10 +21,10 @@ const requestQuote = (userId: string, providerId: string, stepId = 'vigil-setup'
 
 const quotesFor = (providerId: string) =>
   f.db
-    .query<{ created_by: string; provider_name: string }>(
-      'select created_by, provider_name from quote_request where provider_id = $1',
-      [providerId],
-    )
+    .query<{
+      created_by: string;
+      provider_name: string;
+    }>('select created_by, provider_name from quote_request where provider_id = $1', [providerId])
     .then(({ rows }) => rows);
 
 beforeAll(async () => {

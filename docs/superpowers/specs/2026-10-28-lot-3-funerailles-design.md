@@ -216,7 +216,7 @@ sinon du décès, sinon Libreville), quantités calculées. Il ne contient pas l
 personne décédée. La famille le relit et peut le modifier, puis « Ouvrir WhatsApp » :
 
 1. une action serveur appelle la RPC `request_quote(p_dossier_id, p_provider_id, p_step_id,
-   p_message)`, `security definer`. Elle exige un utilisateur (28000), vérifie le rôle (42501),
+p_message)`, `security definer`. Elle exige un utilisateur (28000), vérifie le rôle (42501),
    puis le prestataire (TL010),
    insère la ligne `quote_request` et renvoie le numéro, dans la même transaction ;
 2. le client ouvre `https://wa.me/<numéro sans +>?text=<message encodé>`.

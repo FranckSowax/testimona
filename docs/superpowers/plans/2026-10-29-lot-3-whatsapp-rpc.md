@@ -5,6 +5,7 @@
 **Goal:** Un utilisateur connecté ne peut plus lire `provider.whatsapp` par PostgREST. Le numéro ne sort de la base que par la RPC `request_quote`, qui trace la demande de devis et renvoie le numéro en un seul appel. Les administrateurs le lisent par le client service-role, après `isPlatformAdmin()`.
 
 **Architecture:**
+
 - Migration : `revoke select` sur `provider` pour `authenticated`, puis `grant select` de toutes les colonnes sauf `whatsapp` (même méthode que `20261027000100_shop_contribution_hide_personal_columns.sql`).
 - RPC `public.request_quote(p_dossier_id, p_provider_id, p_step_id, p_message) returns text`, `security definer`, `search_path = ''` :
   1. rôle coordinateur et plus, sinon `42501` ;
@@ -22,17 +23,17 @@
 
 ## Fichiers
 
-| Fichier | Rôle |
-| --- | --- |
-| `supabase/migrations/20261029000200_provider_whatsapp_private.sql` (créé) | Droits par colonne et RPC `request_quote` |
-| `supabase/tests/provider-whatsapp.test.ts` (créé) | Colonne illisible, RPC, contrôles 42501 puis TL010 |
-| `supabase/tests/providers.test.ts` (modifié si besoin) | Lectures de `whatsapp` |
-| `packages/shared/src/database.types.ts` (modifié) | Signature de `request_quote` |
-| `apps/web/src/server/privileged/providers.ts` (créé) | Lectures admin avec numéro |
+| Fichier                                                                                                      | Rôle                                                |
+| ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| `supabase/migrations/20261029000200_provider_whatsapp_private.sql` (créé)                                    | Droits par colonne et RPC `request_quote`           |
+| `supabase/tests/provider-whatsapp.test.ts` (créé)                                                            | Colonne illisible, RPC, contrôles 42501 puis TL010  |
+| `supabase/tests/providers.test.ts` (modifié si besoin)                                                       | Lectures de `whatsapp`                              |
+| `packages/shared/src/database.types.ts` (modifié)                                                            | Signature de `request_quote`                        |
+| `apps/web/src/server/privileged/providers.ts` (créé)                                                         | Lectures admin avec numéro                          |
 | `apps/web/src/modules/providers/repo.ts`, `service.ts`, `schema.ts`, `panel.ts`, `quote-panel.ts` (modifiés) | Encadré sans numéro, admin par le chemin privilégié |
-| `apps/web/src/modules/providers/quotes/repo.ts`, `quote-service.ts` (modifiés) | Appel de la RPC, sans relecture |
-| tests web associés (modifiés) | |
-| `docs/superpowers/specs/2026-10-28-lot-3-funerailles-design.md` (modifié) | Le suivi devient la règle |
+| `apps/web/src/modules/providers/quotes/repo.ts`, `quote-service.ts` (modifiés)                               | Appel de la RPC, sans relecture                     |
+| tests web associés (modifiés)                                                                                |                                                     |
+| `docs/superpowers/specs/2026-10-28-lot-3-funerailles-design.md` (modifié)                                    | Le suivi devient la règle                           |
 
 ## Tâches
 
@@ -45,4 +46,4 @@
 - [ ] **7. Production** — **seulement avec l'accord de l'utilisateur.** Le code de `main` sélectionne encore `whatsapp` (encadré et admin) : si la migration passe seule, l'encadré tombe pour toutes les familles (42501). Ordre sûr, au choix :
   - déployer le code puis appliquer la migration aussitôt (entre les deux, seule la demande de devis échoue : la RPC n'existe pas encore) ;
   - ou couper la migration en deux : RPC d'abord, déploiement du code, puis `revoke`/`grant`.
-  Écrire cette séquence dans la description de la PR.
+    Écrire cette séquence dans la description de la PR.

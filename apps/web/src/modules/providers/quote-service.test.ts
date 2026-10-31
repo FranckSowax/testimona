@@ -21,7 +21,10 @@ beforeEach(() => vi.resetAllMocks());
 
 describe('requestQuote', () => {
   it('trace la demande par la RPC puis renvoie le lien wa.me', async () => {
-    quoteRepo.requestQuoteRpc.mockResolvedValue({ data: { whatsapp: '+24177123456' }, error: null });
+    quoteRepo.requestQuoteRpc.mockResolvedValue({
+      data: { whatsapp: '+24177123456' },
+      error: null,
+    });
     const withSpecials = { ...input, message: 'Bonjour & merci' };
     const res = await requestQuote(withSpecials);
     expect(res).toEqual({
