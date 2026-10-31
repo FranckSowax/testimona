@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { asRole, asUser } from './helpers/db';
+import { applyMigrations, asAdmin, asRole, asUser, createTestDb, createUser } from './helpers/db';
 import { DENIED, createProviderFixture, type ProviderFixture } from './helpers/providers';
 
 let f: ProviderFixture;
@@ -111,5 +111,119 @@ describe('quote_request', () => {
     await expect(
       asUser(f.db, f.owner, () => f.db.query('delete from quote_request')),
     ).rejects.toMatchObject(DENIED);
+  });
+
+  it('fige le nom du prestataire, même falsifié', async () => {
+    const { rows } = await asUser(f.db, f.coordinator, () =>
+      f.db.query<{ provider_name: string }>(
+        `insert into quote_request (dossier_id, provider_id, step_id, message, provider_name)
+         values ($1, $2, 'vigil-setup', 'Bonjour.', 'Nom falsifié')
+         returning provider_name`,
+        [f.dossierId, verified],
+      ),
+    );
+    const { rows: names } = await f.db.query<{ name: string }>(
+      'select name from provider where id = $1',
+      [verified],
+    );
+    expect(rows[0]!.provider_name).toBe(names[0]!.name);
+  });
+
+  it('garde le nom lisible après la désactivation du prestataire', async () => {
+    const target = await f.insertProvider({
+      name: 'Sono à désactiver',
+      whatsapp: '+24177999999',
+      verified_at: new Date(),
+    });
+    await requestQuoteWithForgedAuthor(f.coordinator, target);
+    await f.db.query('update provider set active = false where id = $1', [target]);
+    const { rows } = await asUser(f.db, f.viewer, () =>
+      f.db.query<{ provider_name: string }>(
+        'select provider_name from quote_request where provider_id = $1',
+        [target],
+      ),
+    );
+    expect(rows.map((r) => r.provider_name)).toEqual(['Sono à désactiver']);
+  });
+
+  it('garde l’ancien nom après le renommage du prestataire', async () => {
+    const target = await f.insertProvider({
+      name: 'Ancien nom',
+      whatsapp: '+24177888888',
+      verified_at: new Date(),
+    });
+    await requestQuoteWithForgedAuthor(f.coordinator, target);
+    await asAdmin(f.db, f.admin, () =>
+      f.db.query(`update provider set name = 'Nouveau nom' where id = $1`, [target]),
+    );
+    const { rows } = await asUser(f.db, f.viewer, () =>
+      f.db.query<{ provider_name: string }>(
+        'select provider_name from quote_request where provider_id = $1',
+        [target],
+      ),
+    );
+    expect(rows.map((r) => r.provider_name)).toEqual(['Ancien nom']);
+  });
+});
+
+describe('quote_request.provider_name : backfill', () => {
+  it('remplit le nom des demandes existantes', async () => {
+    const stamp = '20261029000100';
+    const legacy = await createTestDb({ before: stamp });
+    try {
+      const user = await createUser(legacy, 'ancien@test.local');
+      const dossier = await legacy.query<{ id: string }>(
+        `insert into dossier (created_by, title, country_code, city, entry_point)
+         values ($1, 'Ancien dossier', 'GA', 'Libreville', 'death') returning id`,
+        [user],
+      );
+      const provider = await legacy.query<{ id: string }>(
+        `insert into provider (category_key, name, city) values ('tentsChairs', 'Tentes anciennes', 'Libreville')
+         returning id`,
+      );
+      // WHY: le trigger d'avant la migration exige un utilisateur connecté ; on simule une ligne
+      // créée avant la migration en le désactivant le temps de l'insertion.
+      await legacy.query('alter table quote_request disable trigger quote_request_before_insert');
+      await legacy.query(
+        `insert into quote_request (dossier_id, provider_id, step_id, message)
+         values ($1, $2, 'vigil-setup', 'Bonjour.')`,
+        [dossier.rows[0]!.id, provider.rows[0]!.id],
+      );
+      await legacy.query('alter table quote_request enable trigger quote_request_before_insert');
+      await applyMigrations(legacy, (file) => file >= stamp);
+      const { rows } = await legacy.query<{ provider_name: string }>(
+        'select provider_name from quote_request',
+      );
+      expect(rows.map((r) => r.provider_name)).toEqual(['Tentes anciennes']);
+    } finally {
+      await legacy.close();
+    }
+  });
+
+  it('refuse un nom vide quand le trigger est désactivé', async () => {
+    const db = await createTestDb();
+    try {
+      const user = await createUser(db, 'vide@test.local');
+      const dossier = await db.query<{ id: string }>(
+        `insert into dossier (created_by, title, country_code, city, entry_point)
+         values ($1, 'Dossier nom vide', 'GA', 'Libreville', 'death') returning id`,
+        [user],
+      );
+      const provider = await db.query<{ id: string }>(
+        `insert into provider (category_key, name, city) values ('tentsChairs', 'Tentes vides', 'Libreville')
+         returning id`,
+      );
+      // WHY: sans trigger, le défaut '' s'applique ; seule la contrainte peut alors refuser.
+      await db.query('alter table quote_request disable trigger quote_request_before_insert');
+      await expect(
+        db.query(
+          `insert into quote_request (dossier_id, provider_id, step_id, message)
+           values ($1, $2, 'vigil-setup', 'Bonjour.')`,
+          [dossier.rows[0]!.id, provider.rows[0]!.id],
+        ),
+      ).rejects.toThrow(/quote_request_provider_name_not_empty/);
+    } finally {
+      await db.close();
+    }
   });
 });

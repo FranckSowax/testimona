@@ -30,6 +30,7 @@ supabase/
 | `20261028000100_receipts.sql`                                | Lot 2 : reçus des dépenses, bucket privé `receipts`                                            |
 | `20261028000200_closing.sql`                                 | Lot 2 : clôture des cotisations, journal, écritures refusées une fois clôturé                  |
 | `20261028000300_providers.sql`                               | Lot 3 : prestataires, catégories, demandes de devis, `search_path` de `is_admin()`             |
+| `20261029000100_quote_request_provider_name.sql`             | Lot 3 : nom du prestataire figé dans chaque demande de devis                                   |
 
 Les horodatages des migrations historiques sont **synthétiques** : ils ne servent qu'à fixer l'ordre.
 
@@ -62,10 +63,10 @@ La production a reçu ces migrations à la main. Avant le premier `supabase db p
    `20260502000024`).
 4. Appliquer les nouvelles migrations : `supabase db push`.
 
-## État de la production (2026-10-28)
+## État de la production (2026-10-29)
 
 Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Historique vérifié le
-2026-10-28 avec `list_migrations` (MCP Supabase).
+2026-10-29 avec `list_migrations` (MCP Supabase).
 
 **Déjà en production :**
 
@@ -81,7 +82,8 @@ Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Histori
 - `budget_lines` (lot 2, PR 3), version enregistrée `20261028001104` ;
 - `receipts` (lot 2, PR 4), version enregistrée `20261028095748` ;
 - `closing` (lot 2, PR 5), version enregistrée `20261028101409` ;
-- `providers` (lot 3, PR 1), version enregistrée `20261028201418`.
+- `providers` (lot 3, PR 1), version enregistrée `20261028201418` ;
+- `quote_request_provider_name` (lot 3, PR 3), version enregistrée `20261029095426`.
 
 Toutes les migrations du dépôt sont donc en production. Après `ledger`, vérifié : RLS active sur
 `ledger_entry` et `dossier_finance`, aucun droit pour `anon`, `authenticated` limité à
@@ -112,6 +114,10 @@ avec leurs six policies ; aucun droit pour `anon` ; `authenticated` limité à `
 `provider_category`, `select`/`insert`/`update` sur `provider` et `select`/`insert` sur
 `quote_request` ; 7 catégories et 10 prestataires d'exemple sans numéro ni vérification ; trois
 triggers, fonctions de trigger non exécutables ; `is_admin()` a désormais `search_path = ''`.
+
+Après `quote_request_provider_name`, vérifié le 2026-10-29 : colonne `quote_request.provider_name`
+`not null`, défaut `''`, contrainte `quote_request_provider_name_not_empty` ; aucune demande
+existante à remplir ; `quote_request_before_insert` toujours non exécutable par `authenticated`.
 
 `get_advisors` (sécurité), revérifié le 2026-10-28 après `providers` : aucune alerte nouvelle sur
 les tables du lot 3 ; l'alerte `search_path` de `is_admin` a disparu. En performance, seuls les

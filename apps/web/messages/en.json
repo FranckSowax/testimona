@@ -1918,6 +1918,35 @@
       "verified": "Verified",
       "example": "Example",
       "exampleNotice": "Example provider, no contact available."
+    },
+    "quote": {
+      "message": {
+        "greeting": "Hello {name},",
+        "need": "We are organising a funeral and would like a quote for: {category}.",
+        "date": "Date: {date}",
+        "dateUnknown": "to be confirmed",
+        "place": "Place: {place}",
+        "quantities": "Estimated needs:",
+        "closing": "Could you send us a quote? Thank you."
+      },
+      "request": "Request a quote",
+      "messageLabel": "Message sent to {name}",
+      "messageHint": "Read and edit the message if needed. The prepared message does not contain the name of the deceased.",
+      "open": "Open WhatsApp",
+      "opening": "Saving…",
+      "resend": "Send the request again",
+      "cancel": "Cancel",
+      "opened": "Request saved. If WhatsApp did not open, use this link:",
+      "link": "Message {name} on WhatsApp",
+      "history": {
+        "title": "Quotes requested",
+        "item": "{provider}, on {date}",
+        "by": "by {author}",
+        "unknownAuthor": "by a member of the file"
+      },
+      "errors": {
+        "unreachable": "This provider can no longer be contacted. Please choose another one."
+      }
     }
   }
 }

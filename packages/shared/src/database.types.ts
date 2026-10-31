@@ -1,4 +1,4 @@
-// Généré depuis la base de production Supabase (projet « Testimona app ») le 2026-10-28.
+// Généré depuis la base de production Supabase (projet « Testimona app ») le 2026-10-29.
 // Ne pas modifier à la main : relancer `pnpm --filter @testimona/supabase db:types`
 // (ou l'outil generate_typescript_types du MCP Supabase) après chaque migration.
 export type Json =
@@ -1386,6 +1386,7 @@ export type Database = {
           id: string
           message: string
           provider_id: string
+          provider_name: string
           step_id: string
         }
         Insert: {
@@ -1395,6 +1396,7 @@ export type Database = {
           id?: string
           message: string
           provider_id: string
+          provider_name?: string
           step_id: string
         }
         Update: {
@@ -1404,6 +1406,7 @@ export type Database = {
           id?: string
           message?: string
           provider_id?: string
+          provider_name?: string
           step_id?: string
         }
         Relationships: [
