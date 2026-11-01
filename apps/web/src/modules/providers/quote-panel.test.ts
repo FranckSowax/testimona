@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { PanelGroup } from './panel';
 import { SKIPPED } from '@/journey/types';
+import type { PanelGroup } from './panel';
 import { quoteContext, quoteMessages, quotePlace } from './quote-panel';
 
 const provider = (over: Partial<PanelGroup['providers'][number]>) => ({
@@ -39,6 +39,33 @@ describe('quoteMessages', () => {
 
   it('ne renvoie rien sans prestataire contactable', () => {
     expect(quoteMessages([], { place: 'Libreville', date: null, quantities: [] }, t)).toEqual({});
+  });
+
+  it('ne fait sortir que la date des obsèques, ni le nom ni les lieux de la cérémonie', () => {
+    const groups: PanelGroup[] = [{ category: 'tentsChairs', providers: [provider({ id: 'ok' })] }];
+    const answers = {
+      'person.firstName': 'Marie-Thérèse',
+      'person.lastName': 'Nzé Obiang',
+      'ceremony.date': '2026-11-14',
+      'ceremony.liftPlace': 'Morgue de l’hôpital Jeanne Ebori',
+      'ceremony.servicePlace': 'https://maps.app.goo.gl/cathedrale',
+      'ceremony.burialPlace': 'Cimetière de Lalala',
+      'ceremony.program': [{ time: '10:00', moment: 'Office', place: 'Paroisse Saint-Michel' }],
+    };
+    const context = quoteContext({ answers, city: 'Libreville', locale: 'fr', quantities: [] });
+    const message = quoteMessages(groups, context, t).ok ?? '';
+    expect(message).toContain('samedi 14 novembre 2026');
+    for (const secret of [
+      'Marie-Thérèse',
+      'Nzé Obiang',
+      'Jeanne Ebori',
+      'cathedrale',
+      'Lalala',
+      'Saint-Michel',
+      'Office',
+    ]) {
+      expect(message).not.toContain(secret);
+    }
   });
 });
 
