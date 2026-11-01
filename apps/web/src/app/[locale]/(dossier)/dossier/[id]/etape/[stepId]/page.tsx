@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { z } from 'zod';
 import { prefillKeys, screenState } from '@/journey/prefill';
 import { getStep, isStepOpen, personStatus } from '@/journey/registry';
-import { ceremonyProgramFromAnswers } from '@/journey/templates/ceremony-program';
+import { starterFor } from '@/journey/templates/starters';
 import { QuestionScreen } from '@/journey/ui/QuestionScreen';
 import { listAnswers } from '@/modules/dossier/answers/repo';
 import { stepEndPath } from '@/modules/dossier/answers/redirect';
@@ -35,7 +35,7 @@ export default async function StepPage({
   const [person, role, answers] = await Promise.all([
     getPerson(id),
     getMyRole(id),
-    listAnswers(id, [...keys, ...prefillKeys(step)]),
+    listAnswers(id, [...new Set([...keys, ...prefillKeys(step)])]),
   ]);
   const { index, stored } = screenState(step, answers, q, canWrite(role));
   const question = step.questions[index];
@@ -49,10 +49,7 @@ export default async function StepPage({
   const countries = COUNTRY_CODES.map((code) => ({ code, label: names.of(code) ?? code }));
   const stepPath = `/dossier/${id}/etape/${step.id}`;
   // WHY: traduit côté serveur ; un lecteur ne voit jamais le bouton, inutile de le construire.
-  const starter =
-    canWrite(role) && question.kind === 'list' && question.starter === 'ceremonyProgram'
-      ? ceremonyProgramFromAnswers(answers, (moment) => t(`templates.ceremony.${moment}`))
-      : undefined;
+  const starter = starterFor(question, answers, canWrite(role), (path) => t(path));
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:py-12">

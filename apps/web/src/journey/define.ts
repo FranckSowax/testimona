@@ -1,5 +1,5 @@
 import { PROVIDER_CATEGORIES } from '@/modules/providers/categories';
-import { CEREMONY_TEMPLATE_SIZE } from './templates/ceremony-program';
+import { LIST_STARTERS } from './templates/starters';
 import {
   ANSWER_KEY_PATTERN,
   type ChoiceQuestion,
@@ -12,11 +12,6 @@ import {
 } from './types';
 
 const STEP_ID_PATTERN = /^[a-z][a-z0-9-]*$/;
-
-/** Nombre d'éléments de chaque modèle de liste. */
-const STARTER_SIZES: Record<ListStarter, number> = {
-  ceremonyProgram: CEREMONY_TEMPLATE_SIZE,
-};
 
 /** Fabriques de questions, pour des définitions d'étapes lisibles. */
 export const q = {
@@ -120,7 +115,7 @@ function checkQuestion(stepId: string, question: Question): void {
   }
   // WHY: le serveur refuserait une liste plus longue que maxItems ; le programme type doit
   // pouvoir être enregistré tel quel.
-  if (question.starter && STARTER_SIZES[question.starter] > question.maxItems) {
+  if (question.starter && LIST_STARTERS[question.starter].size > question.maxItems) {
     throw new Error(`Étape ${stepId} : programme type trop long pour « ${question.key} »`);
   }
   const names = new Set<string>();

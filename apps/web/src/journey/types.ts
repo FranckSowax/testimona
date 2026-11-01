@@ -60,7 +60,7 @@ export interface StepDraft {
 /**
  * Page qui conclut une étape sans brouillon :
  * - `budget` : page partagée `/dossier/<id>/budget` (B.1, B.2) ;
- * - `step` : synthèse propre à l'étape, `/dossier/<id>/etape/<stepId>/synthese` (3.1, 3.2).
+ * - `step` : synthèse propre à l'étape, `/dossier/<id>/etape/<stepId>/synthese` (3.1, 3.2, 3.4).
  */
 export type StepSummary = 'budget' | 'step';
 

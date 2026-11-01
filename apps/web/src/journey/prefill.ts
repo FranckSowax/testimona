@@ -1,11 +1,6 @@
 import { resolveQuestionIndex } from './progress';
-import { CEREMONY_TEMPLATE_KEYS } from './templates/ceremony-program';
-import type { ListStarter, Question, Step } from './types';
-
-/** Réponses lues par chaque modèle de liste. */
-const STARTER_KEYS: Record<ListStarter, readonly string[]> = {
-  ceremonyProgram: CEREMONY_TEMPLATE_KEYS,
-};
+import { LIST_STARTERS } from './templates/starters';
+import type { Question, Step } from './types';
 
 /**
  * Clés des réponses qui préremplissent des questions de l'étape (`prefillFrom`) ou nourrissent
@@ -17,7 +12,7 @@ const STARTER_KEYS: Record<ListStarter, readonly string[]> = {
 export function prefillKeys(step: Step): string[] {
   const keys = step.questions.flatMap((question) => {
     if (question.kind === 'choice' && question.prefillFrom) return [question.prefillFrom];
-    if (question.kind === 'list' && question.starter) return STARTER_KEYS[question.starter];
+    if (question.kind === 'list' && question.starter) return LIST_STARTERS[question.starter].keys;
     return [];
   });
   return [...new Set(keys)];
@@ -51,7 +46,8 @@ export interface ScreenState {
 
 /**
  * Question à afficher (`?q=` ou prochaine question de l'étape) et valeur de départ de sa saisie.
- * `answers` peut contenir les clés sources de `prefillFrom` (voir `prefillKeys`).
+ * `answers` peut contenir des clés hors de l'étape : sources de `prefillFrom` et réponses lues
+ * par les programmes types (voir `prefillKeys`) ; elles ne comptent pas dans la progression.
  *
  * @example
  * const { index, stored } = screenState(step, answers, searchParams.q, canWrite(role));
