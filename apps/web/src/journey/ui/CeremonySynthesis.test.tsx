@@ -82,7 +82,7 @@ describe('CeremonySynthesis', () => {
     const headers = within(table)
       .getAllByRole('columnheader')
       .map((cell) => cell.textContent);
-    expect(headers).toEqual(['Heure', 'Moment', 'Lieu', 'Animé par']);
+    expect(headers).toEqual(['Heure', 'Moment', 'Lieu', 'Conduit par']);
     const moments = within(table)
       .getAllByRole('rowheader')
       .map((cell) => cell.textContent);

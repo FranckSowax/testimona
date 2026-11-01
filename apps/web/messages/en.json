@@ -1217,7 +1217,7 @@
         "description": "What you serve each night and on the day of the funeral, with the quantities to plan."
       },
       "ceremony-program": {
-        "title": "The order of the ceremony",
+        "title": "The order of the funeral",
         "description": "The funeral date, the places, the tone and the programme hour by hour."
       }
     },
@@ -1427,8 +1427,8 @@
           "hint": "It will appear in the programme and in quote requests."
         },
         "liftPlace": {
-          "title": "Where does the funeral procession set off?",
-          "hint": "An address or a Google Maps link: relatives will get there in one tap."
+          "title": "Where will the removal of the body take place?",
+          "hint": "Often the mortuary or the family home. An address or a Google Maps link: relatives will get there in one tap."
         },
         "servicePlace": {
           "title": "Where will the ceremony be held?",
@@ -1439,8 +1439,8 @@
           "hint": "An address or a Google Maps link: relatives will get there in one tap."
         },
         "tone": {
-          "title": "Which tone for the ceremony?",
-          "hint": "Taken from the tone of the announcements; it shapes the template programme.",
+          "title": "Which tone would you like for the ceremony?",
+          "hint": "If you chose one for the announcements, it is already selected. It shapes the sample programme.",
           "options": {
             "believer": "With faith",
             "neutral": "Neutral"
@@ -1448,7 +1448,7 @@
         },
         "program": {
           "title": "What is the programme for the day?",
-          "hint": "Add each moment with its time; the place and the person leading it are optional.",
+          "hint": "Add each moment with its time; the place and the person leading it are optional. The times in the sample programme are only a guide.",
           "fields": {
             "time": {
               "label": "Time"
@@ -1468,8 +1468,8 @@
     },
     "templates": {
       "ceremony": {
-        "welcome": "Welcoming relatives",
-        "lift": "Collection of the body",
+        "welcome": "Welcoming family and friends",
+        "lift": "Removal of the body",
         "procession": "Funeral procession",
         "religiousService": "Religious service",
         "remembrance": "Remembrance ceremony",
@@ -1501,11 +1501,11 @@
       "chooseOption": "Choose…",
       "tooLarge": "Your answer is too long: please shorten it.",
       "invalidDate": "This date is not valid.",
-      "invalidTime": "This time is not valid: use the HH:MM format.",
+      "invalidTime": "This time is not valid: use the HH:MM format, for example 09:30.",
       "invalidCharacter": "Your answer contains an unsupported character.",
       "invalidNumber": "Enter a whole number, in digits.",
       "outOfRange": "Enter a number between {min, number} and {max, number}.",
-      "useStarter": "Start from a template programme"
+      "useStarter": "Start from a sample programme"
     },
     "dashboard": {
       "nextTitle": "Next question",
@@ -1546,7 +1546,7 @@
         "placesTitle": "Places",
         "noPlaces": "The places have not been given yet.",
         "places": {
-          "liftPlace": "Procession sets off",
+          "liftPlace": "Removal of the body",
           "servicePlace": "Ceremony",
           "burialPlace": "Burial"
         },

@@ -1218,7 +1218,7 @@
       },
       "ceremony-program": {
         "title": "Le déroulé de la cérémonie",
-        "description": "La date des obsèques, les lieux, le registre et le programme heure par heure."
+        "description": "La date des obsèques, les lieux, le ton et le programme heure par heure."
       }
     },
     "q": {
@@ -1428,7 +1428,7 @@
         },
         "liftPlace": {
           "title": "Où aura lieu la levée du corps ?",
-          "hint": "Une adresse ou un lien Google Maps : les proches pourront s'y rendre en un clic."
+          "hint": "Souvent la morgue ou le domicile familial. Une adresse ou un lien Google Maps : les proches pourront s'y rendre en un clic."
         },
         "servicePlace": {
           "title": "Où se tiendra la cérémonie ?",
@@ -1439,8 +1439,8 @@
           "hint": "Une adresse ou un lien Google Maps : les proches pourront s'y rendre en un clic."
         },
         "tone": {
-          "title": "Quel registre pour la cérémonie ?",
-          "hint": "Repris du ton des annonces ; il oriente le programme type.",
+          "title": "Quel ton souhaitez-vous pour la cérémonie ?",
+          "hint": "Si vous l'avez choisi pour les annonces, il est déjà sélectionné. Il oriente le programme type.",
           "options": {
             "believer": "Croyant",
             "neutral": "Neutre"
@@ -1448,7 +1448,7 @@
         },
         "program": {
           "title": "Quel est le programme de la journée ?",
-          "hint": "Ajoutez chaque moment avec son heure ; le lieu et la personne qui l'anime sont facultatifs.",
+          "hint": "Ajoutez chaque moment avec son heure ; le lieu et la personne qui le conduit sont facultatifs. Les heures du programme type sont indicatives.",
           "fields": {
             "time": {
               "label": "Heure"
@@ -1460,7 +1460,7 @@
               "label": "Lieu (facultatif)"
             },
             "lead": {
-              "label": "Animé par (facultatif)"
+              "label": "Conduit par (facultatif)"
             }
           }
         }
@@ -1501,7 +1501,7 @@
       "chooseOption": "Choisir…",
       "tooLarge": "Votre réponse est trop longue : raccourcissez-la.",
       "invalidDate": "Cette date n'est pas valide.",
-      "invalidTime": "Cette heure n'est pas valide : utilisez le format HH:MM.",
+      "invalidTime": "Cette heure n'est pas valide : indiquez-la au format HH:MM, par exemple 09:30.",
       "invalidCharacter": "Votre réponse contient un caractère non pris en charge.",
       "invalidNumber": "Entrez un nombre entier, en chiffres.",
       "outOfRange": "Entrez un nombre entre {min, number} et {max, number}.",
@@ -1557,7 +1557,7 @@
           "time": "Heure",
           "moment": "Moment",
           "place": "Lieu",
-          "lead": "Animé par"
+          "lead": "Conduit par"
         },
         "noProgram": "Le programme de la journée n'est pas encore écrit.",
         "writeProgram": "Écrire le programme"

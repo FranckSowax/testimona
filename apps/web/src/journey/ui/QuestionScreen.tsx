@@ -1,6 +1,7 @@
 'use client';
 
 import { startTransition, useActionState, useRef, useState, type FormEvent } from 'react';
+import { flushSync } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { saveAnswerAction, type AnswerState } from '@/modules/dossier/answers/actions';
@@ -13,6 +14,7 @@ import {
   isBlank,
   keptIndices,
   missingRequired,
+  listFieldId,
   toEditable,
   type EditableValue,
 } from './values';
@@ -72,6 +74,18 @@ export function QuestionScreen(props: Props) {
     starter.length > 0 &&
     isBlank(value);
 
+  const applyStarter = () => {
+    if (!starter || question.kind !== 'list') return;
+    // WHY: le bouton disparaît au rendu ; sans déplacer le focus, il tomberait sur <body>.
+    // flushSync rend la liste avant de chercher son premier champ.
+    flushSync(() => {
+      setValue(starter.map((item) => ({ ...item })));
+      clear();
+    });
+    const first = question.fields[0];
+    if (first) document.getElementById(listFieldId(fieldId, question, 0, first.name))?.focus();
+  };
+
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const submitter = (e.nativeEvent as SubmitEvent).submitter;
@@ -118,10 +132,7 @@ export function QuestionScreen(props: Props) {
       {showStarter && (
         <button
           type="button"
-          onClick={() => {
-            setValue(starter.map((item) => ({ ...item })));
-            clear();
-          }}
+          onClick={applyStarter}
           disabled={pending}
           className="self-start rounded-full border border-white/30 px-4 py-2 text-sm text-white/90 hover:bg-white/10 disabled:opacity-60"
         >

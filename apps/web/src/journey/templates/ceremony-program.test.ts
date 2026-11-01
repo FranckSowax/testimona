@@ -96,4 +96,15 @@ describe('ceremonyProgramFromAnswers', () => {
     );
     expect(neutral[3]?.moment).toBe('Cérémonie de recueillement');
   });
+
+  it('reprend le registre des annonces si celui de la cérémonie est passé ou invalide, sinon neutre', () => {
+    for (const own of [{ skipped: true }, 'joyful']) {
+      const believer = { 'ceremony.tone': own, 'announce.tone': 'believer' };
+      expect(ceremonyProgramFromAnswers(believer, translate)[3]?.moment).toBe('Office religieux');
+      const alone = { 'ceremony.tone': own };
+      expect(ceremonyProgramFromAnswers(alone, translate)[3]?.moment).toBe(
+        'Cérémonie de recueillement',
+      );
+    }
+  });
 });

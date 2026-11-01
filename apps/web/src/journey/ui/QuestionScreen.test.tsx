@@ -65,6 +65,25 @@ describe('QuestionScreen : programme type', () => {
     expect(screen.queryByRole('button', { name: USE_STARTER })).toBeNull();
   });
 
+  it('donne le focus au premier champ « Heure » après le clic', () => {
+    renderScreen({ starter: STARTER });
+    fireEvent.click(screen.getByRole('button', { name: USE_STARTER }));
+    expect(document.activeElement).toBe(screen.getAllByLabelText('Heure')[0]);
+  });
+
+  it('reste proposé quand la liste a été passée', () => {
+    renderScreen({ starter: STARTER, stored: { skipped: true } });
+    expect(screen.getByRole('button', { name: USE_STARTER })).toBeTruthy();
+  });
+
+  it('efface l’erreur affichée au clic', () => {
+    renderScreen({ starter: STARTER });
+    fireEvent.click(screen.getByRole('button', { name: 'Terminer' }));
+    expect(screen.getByRole('alert')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: USE_STARTER }));
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
   it('n’apparaît pas si un moment existe déjà', () => {
     renderScreen({ starter: STARTER, stored: [{ time: '09:00', moment: 'Messe' }] });
     expect(screen.queryByRole('button', { name: USE_STARTER })).toBeNull();
