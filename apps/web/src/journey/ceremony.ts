@@ -73,15 +73,54 @@ export function ceremonyDate(value: unknown, locale: string): string | null {
   return new Intl.DateTimeFormat(locale, { dateStyle: 'full', timeZone: 'UTC' }).format(date);
 }
 
+/** Liens Google Maps courts : repris tels quels. */
+const MAPS_SHORT_HOSTS: ReadonlySet<string> = new Set(['goo.gl', 'maps.app.goo.gl']);
+// WHY: domaines Google par pays (`google.fr`, `google.co.uk`, `google.com.br`…), ancrés pour
+// qu'un sous-domaine d'un autre site (`maps.google.com.evil.example`) ne passe pas.
+const GOOGLE_TLD = String.raw`(?:com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})`;
+const MAPS_HOST = new RegExp(`^maps\\.google\\.${GOOGLE_TLD}$`);
+const GOOGLE_HOST = new RegExp(`^(?:www\\.)?google\\.${GOOGLE_TLD}$`);
+
+/** Lien Google Maps collé, normalisé, ou null s'il mène ailleurs. */
+function googleMapsUrl(text: string): URL | null {
+  let url: URL;
+  try {
+    url = new URL(text);
+  } catch {
+    return null;
+  }
+  if (url.protocol !== 'https:' || url.username || url.password) return null;
+  const host = url.hostname;
+  if (MAPS_SHORT_HOSTS.has(host) || MAPS_HOST.test(host)) return url;
+  return GOOGLE_HOST.test(host) && url.pathname.startsWith('/maps') ? url : null;
+}
+
 /**
- * Itinéraire Google Maps vers une adresse ou un lien Maps collé ; null si le texte n'est pas
- * exploitable (un lien vers un autre site n'est jamais repris).
+ * Itinéraire Google Maps vers une adresse ou un lien Google Maps collé ; null si le texte n'est
+ * pas exploitable. Un lien http(s) n'est repris que s'il est en `https:`, sans identifiants, et
+ * sur un domaine Google Maps (`goo.gl`, `maps.app.goo.gl`, `maps.google.<tld>`, ou
+ * `google.<tld>/maps…`) : un lien vers un autre site donne null, même s'il cite `goo.gl`. Une
+ * adresse donne toujours un lien `https://www.google.com/maps/…`, jamais un autre schéma.
  *
  * @example
  * placeHref('Cathédrale Sainte-Marie, Libreville'); // 'https://www.google.com/maps/dir/?api=1&…'
+ * placeHref('https://evil.example/goo.gl'); // null
  */
 export function placeHref(text: string): string | null {
-  return parseLocation(text).valid ? mapsDirectionsHref(text) : null;
+  const input = text.trim();
+  // WHY: `parseLocation` (partagé avec la page publique du mémorial) juge un lien valide dès qu'il
+  // contient `goo.gl` n'importe où et renvoie alors le texte collé : sans cette liste fermée, le
+  // bouton « Itinéraire » deviendrait une redirection ouverte vers n'importe quel site.
+  if (/^https?:\/\//i.test(input)) {
+    const url = googleMapsUrl(input);
+    if (!url) return null;
+    const parsed = parseLocation(input);
+    if (!parsed.valid) return null;
+    // WHY: un lien court indéchiffrable est ouvert tel quel ; on rend sa forme normalisée, celle
+    // dont on vient de vérifier le domaine.
+    return parsed.kind === 'unknown' ? url.href : mapsDirectionsHref(input);
+  }
+  return parseLocation(input).valid ? mapsDirectionsHref(input) : null;
 }
 
 /**

@@ -71,6 +71,19 @@ describe('CeremonySynthesis', () => {
     expect(screen.queryByText('Inhumation', { selector: 'dt' })).toBeNull();
   });
 
+  it('n’affiche aucun lien pour un lieu en lien vers un autre site', () => {
+    const foreign = 'https://evil.example/goo.gl';
+    renderSynthesis({
+      answers: {
+        'ceremony.liftPlace': foreign,
+        'ceremony.program': [{ time: '08:00', moment: 'Accueil', place: foreign }],
+      },
+    });
+    expect(screen.getAllByText(foreign)).toHaveLength(2);
+    expect(screen.queryAllByRole('link', { name: /Itinéraire/ })).toEqual([]);
+    expect(document.querySelector('a[href*="evil.example"]')).toBeNull();
+  });
+
   it('dit que les lieux manquent sans réponse', () => {
     renderSynthesis({ answers: { 'ceremony.program': ANSWERS['ceremony.program'] } });
     expect(screen.getByText('Les lieux ne sont pas encore indiqués.')).toBeTruthy();

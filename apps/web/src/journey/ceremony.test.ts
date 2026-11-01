@@ -73,10 +73,37 @@ describe('placeHref', () => {
     expect(placeHref('https://maps.app.goo.gl/abc123')).toBe('https://maps.app.goo.gl/abc123');
   });
 
+  it('accepte les liens Google Maps des domaines connus', () => {
+    expect(placeHref('https://goo.gl/maps/abc')).toBe('https://goo.gl/maps/abc');
+    expect(placeHref('https://www.google.fr/maps/place/Libreville')).toBe(
+      'https://www.google.com/maps/dir/?api=1&destination=Libreville',
+    );
+    expect(placeHref('https://maps.google.com/?q=0.3901,9.4544')).toBe(
+      'https://www.google.com/maps/dir/?api=1&destination=0.3901%2C9.4544',
+    );
+  });
+
   it('renvoie null pour un texte inexploitable', () => {
     expect(placeHref('')).toBeNull();
     expect(placeHref('ici')).toBeNull();
     expect(placeHref('https://example.com/lieu')).toBeNull();
+  });
+
+  it('refuse un lien vers un autre site, même déguisé en lien Maps', () => {
+    expect(placeHref('https://evil.example/goo.gl')).toBeNull();
+    expect(placeHref('https://goo.gl.evil.example/x')).toBeNull();
+    expect(placeHref('https://phish.example/google.com/maps')).toBeNull();
+    expect(placeHref('https://user:pw@goo.gl/x')).toBeNull();
+    expect(placeHref('http://maps.app.goo.gl/abc123')).toBeNull();
+    expect(placeHref('https://www.google.com/search?q=Libreville')).toBeNull();
+    expect(placeHref('https://evil.example/@0.3901,9.4544')).toBeNull();
+  });
+
+  it('ne produit jamais un lien javascript: ou data:', () => {
+    for (const text of ['javascript:alert(1)', 'data:text/html,x']) {
+      const href = placeHref(text);
+      expect(href === null || href.startsWith('https://www.google.com/maps/')).toBe(true);
+    }
   });
 });
 
