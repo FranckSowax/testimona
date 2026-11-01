@@ -81,6 +81,17 @@ function ItemField({ id, questionKey, field, value, onChange, readOnly, invalid 
           className={FIELD_CLASS}
           {...a11y}
         />
+      ) : field.kind === 'time' ? (
+        <input
+          id={id}
+          type="time"
+          value={text}
+          onChange={(e) => onChange(e.target.value)}
+          readOnly={readOnly}
+          data-readonly={readOnly}
+          className={FIELD_CLASS}
+          {...a11y}
+        />
       ) : (
         <input
           id={id}

@@ -16,7 +16,9 @@ export const DRAFT_MAX = 12_000;
 export type ListField =
   | { name: string; kind: 'shortText' | 'longText'; required?: boolean }
   | { name: string; kind: 'choice'; options: readonly string[]; required?: boolean }
-  | { name: string; kind: 'boolean' };
+  | { name: string; kind: 'boolean' }
+  /** Heure `HH:MM` (00:00 à 23:59), saisie par `<input type="time">`. */
+  | { name: string; kind: 'time'; required?: boolean };
 
 export type ListQuestion = {
   kind: 'list';
@@ -149,6 +151,16 @@ const optionalChoice = (options: readonly string[]) =>
     .transform((v) => (v ? v : undefined))
     .pipe(oneOf(options).optional());
 
+const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+const requiredTime = z.string().trim().regex(TIME_PATTERN, 'invalid time');
+// WHY: une heure facultative vide vaut « absent », comme un texte facultatif vide.
+const optionalTime = z
+  .string()
+  .trim()
+  .optional()
+  .transform((v) => (v ? v : undefined))
+  .pipe(z.string().regex(TIME_PATTERN, 'invalid time').optional());
+
 function fieldSchema(field: ListField): z.ZodTypeAny {
   switch (field.kind) {
     case 'shortText':
@@ -159,6 +171,8 @@ function fieldSchema(field: ListField): z.ZodTypeAny {
       return field.required ? oneOf(field.options) : optionalChoice(field.options);
     case 'boolean':
       return z.boolean().default(false);
+    case 'time':
+      return field.required ? requiredTime : optionalTime;
   }
 }
 
