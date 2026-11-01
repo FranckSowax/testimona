@@ -4,6 +4,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { z } from 'zod';
 import { ESTIMATE_KEYS, estimateFor, hasEstimate } from '@/journey/quantities';
 import { getStep, isStepOpen } from '@/journey/registry';
+import { CEREMONY_STEP_ID } from '@/journey/steps/3-4-ceremony-program';
+import { CeremonySynthesis } from '@/journey/ui/CeremonySynthesis';
 import { StepSynthesis } from '@/journey/ui/StepSynthesis';
 import { getClosure } from '@/modules/budget/closing/repo';
 import { canManageLedger } from '@/modules/budget/ledger/contributions-view';
@@ -32,7 +34,10 @@ export default async function StepSynthesisPage({
   setRequestLocale(locale);
   const step = getStep(stepId);
   if (!IdSchema.safeParse(id).success || !step || step.summary !== 'step') notFound();
-  if (!hasEstimate(step.id)) notFound();
+  // WHY: une seule page pour les synthèses propres : 3.1 et 3.2 (estimation) et 3.4 (programme,
+  // sans quantité).
+  const isCeremony = step.id === CEREMONY_STEP_ID;
+  if (!hasEstimate(step.id) && !isCeremony) notFound();
 
   const dossier = await getDossier(id);
   if (!dossier || !isStepOpen(dossier.entryPoint, step.id)) notFound();
@@ -103,18 +108,30 @@ export default async function StepSynthesisPage({
     if (Object.keys(messages).length > 0) quote = { dossierId: id, stepId: quoteStep, messages };
   }
 
+  const panel = { city, groups, quote };
   return (
     <div className="px-4 py-8 sm:px-6 lg:py-12">
-      <StepSynthesis
-        dossierId={id}
-        locale={locale}
-        stepId={step.id}
-        estimate={estimate}
-        adjustments={adjustments}
-        canAnswer={canWrite(role)}
-        panel={{ city, groups, quote }}
-        quotes={quotes}
-      />
+      {isCeremony ? (
+        <CeremonySynthesis
+          dossierId={id}
+          locale={locale}
+          answers={answers.data}
+          canAnswer={canWrite(role)}
+          panel={panel}
+          quotes={quotes}
+        />
+      ) : (
+        <StepSynthesis
+          dossierId={id}
+          locale={locale}
+          stepId={step.id}
+          estimate={estimate}
+          adjustments={adjustments}
+          canAnswer={canWrite(role)}
+          panel={panel}
+          quotes={quotes}
+        />
+      )}
     </div>
   );
 }

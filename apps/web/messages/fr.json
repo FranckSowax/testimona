@@ -1540,6 +1540,28 @@
       "upToDate": "Le poste {line} correspond déjà à cette estimation.",
       "editAnswers": "Modifier les réponses",
       "backToDossier": "Retour au dossier",
+      "ceremony": {
+        "dateTitle": "Date des obsèques",
+        "dateUnknown": "Date à préciser",
+        "placesTitle": "Lieux",
+        "noPlaces": "Les lieux ne sont pas encore indiqués.",
+        "places": {
+          "liftPlace": "Levée du corps",
+          "servicePlace": "Cérémonie",
+          "burialPlace": "Inhumation"
+        },
+        "directions": "Itinéraire",
+        "directionsLabel": "Itinéraire : {target} (Google Maps, nouvel onglet)",
+        "programTitle": "Programme de la journée",
+        "columns": {
+          "time": "Heure",
+          "moment": "Moment",
+          "place": "Lieu",
+          "lead": "Animé par"
+        },
+        "noProgram": "Le programme de la journée n'est pas encore écrit.",
+        "writeProgram": "Écrire le programme"
+      },
       "quantity": {
         "tents": "{count, plural, =1 {1 tente de 5 × 10 m} other {# tentes de 5 × 10 m}}",
         "chairs": "{count, plural, =1 {1 chaise} other {# chaises}}",

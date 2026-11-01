@@ -1540,6 +1540,28 @@
       "upToDate": "The {line} item already matches this estimate.",
       "editAnswers": "Edit the answers",
       "backToDossier": "Back to the dossier",
+      "ceremony": {
+        "dateTitle": "Funeral date",
+        "dateUnknown": "Date to be confirmed",
+        "placesTitle": "Places",
+        "noPlaces": "The places have not been given yet.",
+        "places": {
+          "liftPlace": "Procession sets off",
+          "servicePlace": "Ceremony",
+          "burialPlace": "Burial"
+        },
+        "directions": "Directions",
+        "directionsLabel": "Directions: {target} (Google Maps, new tab)",
+        "programTitle": "Programme for the day",
+        "columns": {
+          "time": "Time",
+          "moment": "Moment",
+          "place": "Place",
+          "lead": "Led by"
+        },
+        "noProgram": "The programme for the day has not been written yet.",
+        "writeProgram": "Write the programme"
+      },
       "quantity": {
         "tents": "{count, plural, =1 {1 tent of 5 × 10 m} other {# tents of 5 × 10 m}}",
         "chairs": "{count, plural, =1 {1 chair} other {# chairs}}",
