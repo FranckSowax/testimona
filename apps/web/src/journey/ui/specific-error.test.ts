@@ -11,6 +11,11 @@ describe('specificMessage', () => {
     expect(specificMessage({ '': 'invalid character' })).toBe('ui.invalidCharacter');
   });
 
+  it('reconnaît une date ou une heure invalide', () => {
+    expect(specificMessage({ '': 'invalid date' })).toBe('ui.invalidDate');
+    expect(specificMessage({ '0.time': 'invalid time' })).toBe('ui.invalidTime');
+  });
+
   it('reconnaît un nombre invalide ou hors des bornes', () => {
     expect(specificMessage({ '': 'invalid number' })).toBe('ui.invalidNumber');
     expect(specificMessage({ '': 'out of range' })).toBe('ui.outOfRange');

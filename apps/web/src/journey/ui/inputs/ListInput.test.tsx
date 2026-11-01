@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ListQuestion } from '../../types';
@@ -35,14 +35,14 @@ const messages = {
   },
 };
 
-function renderList(readOnly: boolean) {
+function renderList(readOnly: boolean, onChange = vi.fn()) {
   return render(
     <NextIntlClientProvider locale="fr" messages={messages}>
       <ListInput
         id="question-input"
         question={question}
         value={[{ time: '08:30', moment: 'Accueil' }]}
-        onChange={vi.fn()}
+        onChange={onChange}
         readOnly={readOnly}
         invalid={false}
         labelledBy="question-title"
@@ -70,5 +70,12 @@ describe('ListInput : champ heure', () => {
     const input = screen.getByLabelText('Heure') as HTMLInputElement;
     expect(input.type).toBe('time');
     expect(input.readOnly).toBe(true);
+  });
+
+  it('transmet la nouvelle heure saisie', () => {
+    const onChange = vi.fn();
+    renderList(false, onChange);
+    fireEvent.change(screen.getByLabelText('Heure'), { target: { value: '09:15' } });
+    expect(onChange).toHaveBeenCalledWith([{ time: '09:15', moment: 'Accueil' }]);
   });
 });

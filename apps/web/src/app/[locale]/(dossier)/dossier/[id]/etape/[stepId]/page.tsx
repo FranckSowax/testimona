@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { z } from 'zod';
-import { initialStored, prefillKeys } from '@/journey/prefill';
-import { resolveQuestionIndex } from '@/journey/progress';
+import { prefillKeys, screenState } from '@/journey/prefill';
 import { getStep, isStepOpen, personStatus } from '@/journey/registry';
 import { QuestionScreen } from '@/journey/ui/QuestionScreen';
 import { listAnswers } from '@/modules/dossier/answers/repo';
@@ -37,12 +36,7 @@ export default async function StepPage({
     getMyRole(id),
     listAnswers(id, [...keys, ...prefillKeys(step)]),
   ]);
-  // WHY: une valeur préremplie ne compte pas comme répondue tant qu'elle n'est pas enregistrée ;
-  // la question courante se calcule sur les seules réponses de l'étape.
-  const stepAnswers = Object.fromEntries(
-    keys.flatMap((key) => (key in answers ? [[key, answers[key]]] : [])),
-  );
-  const index = resolveQuestionIndex(step, stepAnswers, q);
+  const { index, stored } = screenState(step, answers, q, canWrite(role));
   const question = step.questions[index];
   if (!question) notFound();
 
@@ -64,8 +58,7 @@ export default async function StepPage({
         total={step.questions.length}
         title={t(`q.${question.key}.title`, values)}
         hint={t(`q.${question.key}.hint`, values)}
-        // WHY: un lecteur ne répond pas ; une valeur préremplie lui ferait croire à une réponse.
-        stored={canWrite(role) ? initialStored(question, answers) : answers[question.key]}
+        stored={stored}
         readOnly={!canWrite(role)}
         countries={countries}
         backHref={index > 0 ? `${stepPath}?q=${index - 1}` : `/dossier/${id}`}

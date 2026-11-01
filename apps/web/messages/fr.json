@@ -1440,6 +1440,7 @@
       "chooseOption": "Choisir…",
       "tooLarge": "Votre réponse est trop longue : raccourcissez-la.",
       "invalidDate": "Cette date n'est pas valide.",
+      "invalidTime": "Cette heure n'est pas valide : utilisez le format HH:MM.",
       "invalidCharacter": "Votre réponse contient un caractère non pris en charge.",
       "invalidNumber": "Entrez un nombre entier, en chiffres.",
       "outOfRange": "Entrez un nombre entre {min, number} et {max, number}."

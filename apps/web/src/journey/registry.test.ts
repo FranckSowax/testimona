@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { answerSchema, type Step } from './types';
 import {
+  allSteps,
   assertUniqueSteps,
   findQuestion,
   getStep,
@@ -205,5 +206,29 @@ describe('taille de la liste de diffusion', () => {
       priority: true,
     }));
     expect(schema().safeParse(items).success).toBe(true);
+  });
+});
+
+describe('préremplissage du registre', () => {
+  // WHY: `defineStep` ne voit qu'une étape ; seule une vue du registre entier peut vérifier que la
+  // clé source existe et qu'elle peut fournir une option valide de la question préremplie.
+  const prefilled = allSteps().flatMap((step) =>
+    step.questions.flatMap((question) =>
+      question.kind === 'choice' && question.prefillFrom
+        ? [{ question, source: question.prefillFrom }]
+        : [],
+    ),
+  );
+
+  it('reprend une clé source qui est un choix partageant au moins une option', () => {
+    for (const { question, source } of prefilled) {
+      const found = findQuestion(source)?.question;
+      expect(found?.kind, `${question.key} ← ${source}`).toBe('choice');
+      const options = found?.kind === 'choice' ? found.options : [];
+      expect(
+        options.some((option) => question.options.includes(option)),
+        `${question.key} ← ${source}`,
+      ).toBe(true);
+    }
   });
 });

@@ -13,6 +13,16 @@ const traits: ListQuestion = {
   ],
 };
 const place: Question = { kind: 'place', key: 'biography.birthPlace' };
+const program: ListQuestion = {
+  kind: 'list',
+  key: 'ceremony.program',
+  maxItems: 40,
+  fields: [
+    { name: 'time', kind: 'time', required: true },
+    { name: 'moment', kind: 'shortText', required: true },
+    { name: 'end', kind: 'time' },
+  ],
+};
 
 describe('toEditable', () => {
   it('reprend la réponse enregistrée', () => {
@@ -86,6 +96,26 @@ describe('keptIndices et missingRequired', () => {
     const items = [{ trait: 'A' }, { trait: '' }, { trait: ' ', anecdote: 'souvenir' }];
     expect(keptIndices(items)).toEqual([0, 2]);
     expect(missingRequired(traits, items)).toEqual(['2.trait']);
+  });
+});
+
+describe('champ heure', () => {
+  it('signale une heure obligatoire vide, pas une heure facultative', () => {
+    const items = [
+      { time: '', moment: 'Accueil', end: '' },
+      { time: ' ', moment: 'Cortège', end: '' },
+      { time: '09:00', moment: 'Office', end: '' },
+    ];
+    expect(missingRequired(program, items)).toEqual(['0.time', '1.time']);
+  });
+
+  it('reprend une heure enregistrée et complète les champs absents', () => {
+    expect(toEditable(program, [{ time: '08:30', moment: 'Accueil' }], 'GA')).toEqual([
+      { time: '08:30', moment: 'Accueil', end: '' },
+    ]);
+    expect(toEditable(program, [{ time: 830, moment: 'Accueil' }], 'GA')).toEqual([
+      { time: '', moment: 'Accueil', end: '' },
+    ]);
   });
 });
 
