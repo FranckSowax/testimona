@@ -51,6 +51,8 @@ function toProgramItem(raw: unknown): ProgramItem | null {
  */
 export function sortedProgram(value: unknown): ProgramItem[] {
   if (!Array.isArray(value)) return [];
+  // WHY: le schéma d'un moment est strict ; un moment portant un champ inconnu (donnée stockée
+  // hors saisie) est écarté plutôt qu'affiché à moitié, comme la saisie le refuserait.
   const items = value.map(toProgramItem).filter((item): item is ProgramItem => item !== null);
   // WHY: `sort` est stable ; deux moments à la même heure gardent l'ordre saisi par la famille.
   // Le format `HH:MM` se compare correctement en ordre lexical.

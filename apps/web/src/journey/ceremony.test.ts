@@ -41,6 +41,15 @@ describe('sortedProgram', () => {
     expect(program).toEqual([{ time: '11:00', moment: 'Gardé' }]);
   });
 
+  it('écarte un moment portant un champ inconnu', () => {
+    expect(
+      sortedProgram([
+        { time: '08:00', moment: 'Accueil', note: 'champ inconnu' },
+        { time: '09:00', moment: 'Gardé' },
+      ]),
+    ).toEqual([{ time: '09:00', moment: 'Gardé' }]);
+  });
+
   it('rogne les textes et omet les champs facultatifs vides', () => {
     expect(
       sortedProgram([{ time: ' 08:00 ', moment: ' Accueil ', place: '  ', lead: ' Awa ' }]),
