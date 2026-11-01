@@ -1466,6 +1466,19 @@
         }
       }
     },
+    "templates": {
+      "ceremony": {
+        "welcome": "Welcoming relatives",
+        "lift": "Collection of the body",
+        "procession": "Funeral procession",
+        "religiousService": "Religious service",
+        "remembrance": "Remembrance ceremony",
+        "tributes": "Tributes and testimonies",
+        "departure": "Departure for the cemetery",
+        "burial": "Burial",
+        "reception": "Reception"
+      }
+    },
     "fields": {
       "city": "Town",
       "country": "Country"
@@ -1491,7 +1504,8 @@
       "invalidTime": "This time is not valid: use the HH:MM format.",
       "invalidCharacter": "Your answer contains an unsupported character.",
       "invalidNumber": "Enter a whole number, in digits.",
-      "outOfRange": "Enter a number between {min, number} and {max, number}."
+      "outOfRange": "Enter a number between {min, number} and {max, number}.",
+      "useStarter": "Start from a template programme"
     },
     "dashboard": {
       "nextTitle": "Next question",

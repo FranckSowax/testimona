@@ -1,15 +1,22 @@
 import { PROVIDER_CATEGORIES } from '@/modules/providers/categories';
+import { CEREMONY_TEMPLATE_SIZE } from './templates/ceremony-program';
 import {
   ANSWER_KEY_PATTERN,
   type ChoiceQuestion,
   type ListField,
   type ListQuestion,
+  type ListStarter,
   type NumberQuestion,
   type Question,
   type Step,
 } from './types';
 
 const STEP_ID_PATTERN = /^[a-z][a-z0-9-]*$/;
+
+/** Nombre d'éléments de chaque modèle de liste. */
+const STARTER_SIZES: Record<ListStarter, number> = {
+  ceremonyProgram: CEREMONY_TEMPLATE_SIZE,
+};
 
 /** Fabriques de questions, pour des définitions d'étapes lisibles. */
 export const q = {
@@ -33,11 +40,17 @@ export const q = {
     min: bounds.min ?? 0,
     max: bounds.max,
   }),
-  list: (key: string, fields: readonly ListField[], maxItems = 20): ListQuestion => ({
+  list: (
+    key: string,
+    fields: readonly ListField[],
+    maxItems = 20,
+    opts: { starter?: ListStarter } = {},
+  ): ListQuestion => ({
     kind: 'list',
     key,
     fields,
     maxItems,
+    ...(opts.starter !== undefined && { starter: opts.starter }),
   }),
 };
 
@@ -104,6 +117,11 @@ function checkQuestion(stepId: string, question: Question): void {
   if (question.kind !== 'list') return;
   if (!Number.isInteger(question.maxItems) || question.maxItems < 1) {
     throw new Error(`Étape ${stepId} : maxItems invalide pour « ${question.key} »`);
+  }
+  // WHY: le serveur refuserait une liste plus longue que maxItems ; le programme type doit
+  // pouvoir être enregistré tel quel.
+  if (question.starter && STARTER_SIZES[question.starter] > question.maxItems) {
+    throw new Error(`Étape ${stepId} : programme type trop long pour « ${question.key} »`);
   }
   const names = new Set<string>();
   for (const field of question.fields) {

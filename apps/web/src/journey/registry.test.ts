@@ -92,6 +92,7 @@ describe('registre du parcours', () => {
       kind: 'list',
       key: 'ceremony.program',
       maxItems: PROGRAM_MAX_ITEMS,
+      starter: 'ceremonyProgram',
       fields: [
         { name: 'time', kind: 'time', required: true },
         { name: 'moment', kind: 'shortText', required: true },

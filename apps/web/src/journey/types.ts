@@ -20,11 +20,16 @@ export type ListField =
   /** Heure `HH:MM` (00:00 à 23:59), saisie par `<input type="time">`. */
   | { name: string; kind: 'time'; required?: boolean };
 
+/** Modèles qui peuvent préremplir une liste vide (bouton « Partir d'un programme type »). */
+export type ListStarter = 'ceremonyProgram';
+
 export type ListQuestion = {
   kind: 'list';
   key: string;
   fields: readonly ListField[];
   maxItems: number;
+  /** Modèle proposé tant que la liste est vide ; ses éléments tiennent dans `maxItems`. */
+  starter?: ListStarter;
 };
 export type ChoiceQuestion = {
   kind: 'choice';

@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { z } from 'zod';
 import { prefillKeys, screenState } from '@/journey/prefill';
 import { getStep, isStepOpen, personStatus } from '@/journey/registry';
+import { ceremonyProgramFromAnswers } from '@/journey/templates/ceremony-program';
 import { QuestionScreen } from '@/journey/ui/QuestionScreen';
 import { listAnswers } from '@/modules/dossier/answers/repo';
 import { stepEndPath } from '@/modules/dossier/answers/redirect';
@@ -47,6 +48,11 @@ export default async function StepPage({
   const names = new Intl.DisplayNames([locale], { type: 'region' });
   const countries = COUNTRY_CODES.map((code) => ({ code, label: names.of(code) ?? code }));
   const stepPath = `/dossier/${id}/etape/${step.id}`;
+  // WHY: traduit côté serveur ; un lecteur ne voit jamais le bouton, inutile de le construire.
+  const starter =
+    canWrite(role) && question.kind === 'list' && question.starter === 'ceremonyProgram'
+      ? ceremonyProgramFromAnswers(answers, (moment) => t(`templates.ceremony.${moment}`))
+      : undefined;
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:py-12">
@@ -59,6 +65,7 @@ export default async function StepPage({
         title={t(`q.${question.key}.title`, values)}
         hint={t(`q.${question.key}.hint`, values)}
         stored={stored}
+        starter={starter}
         readOnly={!canWrite(role)}
         countries={countries}
         backHref={index > 0 ? `${stepPath}?q=${index - 1}` : `/dossier/${id}`}

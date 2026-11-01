@@ -49,6 +49,18 @@ describe('prefillKeys', () => {
     expect(prefillKeys(step)).toEqual(['announce.tone']);
   });
 
+  it('ajoute les réponses lues par un programme type', () => {
+    const step = defineStep({
+      id: 'demo',
+      questions: [
+        q.list('demo.items', [{ name: 'time', kind: 'time' }], 10, { starter: 'ceremonyProgram' }),
+      ],
+    });
+    expect(prefillKeys(step)).toEqual(
+      expect.arrayContaining(['ceremony.tone', 'announce.tone', 'ceremony.servicePlace']),
+    );
+  });
+
   it('renvoie une liste vide sans préremplissage', () => {
     expect(prefillKeys(defineStep({ id: 'demo', questions: [q.shortText('demo.a')] }))).toEqual([]);
   });

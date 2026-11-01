@@ -1466,6 +1466,19 @@
         }
       }
     },
+    "templates": {
+      "ceremony": {
+        "welcome": "Accueil des proches",
+        "lift": "Levée du corps",
+        "procession": "Cortège",
+        "religiousService": "Office religieux",
+        "remembrance": "Cérémonie de recueillement",
+        "tributes": "Hommages et témoignages",
+        "departure": "Départ vers le cimetière",
+        "burial": "Inhumation",
+        "reception": "Réception"
+      }
+    },
     "fields": {
       "city": "Ville",
       "country": "Pays"
@@ -1491,7 +1504,8 @@
       "invalidTime": "Cette heure n'est pas valide : utilisez le format HH:MM.",
       "invalidCharacter": "Votre réponse contient un caractère non pris en charge.",
       "invalidNumber": "Entrez un nombre entier, en chiffres.",
-      "outOfRange": "Entrez un nombre entre {min, number} et {max, number}."
+      "outOfRange": "Entrez un nombre entre {min, number} et {max, number}.",
+      "useStarter": "Partir d'un programme type"
     },
     "dashboard": {
       "nextTitle": "Prochaine question",

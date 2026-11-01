@@ -3,6 +3,7 @@ import en from '../../messages/en.json';
 import fr from '../../messages/fr.json';
 import type { QuantityKey } from './quantities';
 import { allSteps } from './registry';
+import type { CeremonyMoment } from './templates/ceremony-program';
 import type { Step } from './types';
 import { SPECIFIC_MESSAGES } from './ui/specific-error';
 
@@ -32,6 +33,19 @@ const QUANTITY_KEYS: Record<QuantityKey, true> = {
   iceKg: true,
 };
 
+// WHY: Record typé : ajouter un moment au programme type sans texte fait échouer la compilation.
+const CEREMONY_MOMENTS: Record<CeremonyMoment, true> = {
+  welcome: true,
+  lift: true,
+  procession: true,
+  religiousService: true,
+  remembrance: true,
+  tributes: true,
+  departure: true,
+  burial: true,
+  reception: true,
+};
+
 /** Clés fixes lues par l'interface (`ui/`) : `journey.ui.*` et `journey.dashboard.*`. */
 const UI_PATHS = [
   ...[
@@ -55,7 +69,9 @@ const UI_PATHS = [
     'invalidCharacter',
     'invalidNumber',
     'outOfRange',
+    'useStarter',
   ].map((key) => `journey.ui.${key}`),
+  ...Object.keys(CEREMONY_MOMENTS).map((moment) => `journey.templates.ceremony.${moment}`),
   ...[
     'nextTitle',
     'answer',

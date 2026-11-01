@@ -1,16 +1,25 @@
 import { resolveQuestionIndex } from './progress';
-import type { Question, Step } from './types';
+import { CEREMONY_TEMPLATE_KEYS } from './templates/ceremony-program';
+import type { ListStarter, Question, Step } from './types';
+
+/** Réponses lues par chaque modèle de liste. */
+const STARTER_KEYS: Record<ListStarter, readonly string[]> = {
+  ceremonyProgram: CEREMONY_TEMPLATE_KEYS,
+};
 
 /**
- * Clés des réponses qui préremplissent des questions de l'étape (`prefillFrom`), sans doublon.
+ * Clés des réponses qui préremplissent des questions de l'étape (`prefillFrom`) ou nourrissent
+ * leur programme type (`starter`), sans doublon.
  *
  * @example
  * listAnswers(dossierId, [...keys, ...prefillKeys(step)]);
  */
 export function prefillKeys(step: Step): string[] {
-  const keys = step.questions.flatMap((question) =>
-    question.kind === 'choice' && question.prefillFrom ? [question.prefillFrom] : [],
-  );
+  const keys = step.questions.flatMap((question) => {
+    if (question.kind === 'choice' && question.prefillFrom) return [question.prefillFrom];
+    if (question.kind === 'list' && question.starter) return STARTER_KEYS[question.starter];
+    return [];
+  });
   return [...new Set(keys)];
 }
 

@@ -4,7 +4,7 @@ import { startTransition, useActionState, useRef, useState, type FormEvent } fro
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { saveAnswerAction, type AnswerState } from '@/modules/dossier/answers/actions';
-import { isSkipped, type Question } from '../types';
+import { isSkipped, type ListItem, type Question } from '../types';
 import { AnswerInput } from './AnswerInput';
 import type { Country } from './inputs/PlaceInput';
 import { useAnswerError } from './useAnswerError';
@@ -29,6 +29,8 @@ interface Props {
   countries: Country[];
   backHref: string;
   nextHref: string | null;
+  /** Éléments du programme type, proposés tant que la liste est vide (hors lecture seule). */
+  starter?: ListItem[];
 }
 
 const SHELL =
@@ -61,6 +63,14 @@ export function QuestionScreen(props: Props) {
   const keptRef = useRef<number[]>([]);
   const { error, show, clear } = useAnswerError(state, question, fieldId, keptRef);
   const noAnswer = readOnly && (props.stored === undefined || isSkipped(props.stored));
+  const { starter } = props;
+  // WHY: le modèle ne remplace jamais une saisie ; il disparaît dès qu'un moment existe.
+  const showStarter =
+    !readOnly &&
+    question.kind === 'list' &&
+    starter !== undefined &&
+    starter.length > 0 &&
+    isBlank(value);
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -105,6 +115,19 @@ export function QuestionScreen(props: Props) {
         )}
       </div>
       {readOnly && <p className="text-sm text-white/70">{t('readOnly')}</p>}
+      {showStarter && (
+        <button
+          type="button"
+          onClick={() => {
+            setValue(starter.map((item) => ({ ...item })));
+            clear();
+          }}
+          disabled={pending}
+          className="self-start rounded-full border border-white/30 px-4 py-2 text-sm text-white/90 hover:bg-white/10 disabled:opacity-60"
+        >
+          {t('useStarter')}
+        </button>
+      )}
       {noAnswer ? (
         <p className="text-white/70">{t('noAnswer')}</p>
       ) : (

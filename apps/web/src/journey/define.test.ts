@@ -126,6 +126,30 @@ describe('q.choice : prefillFrom', () => {
   });
 });
 
+describe('q.list : starter', () => {
+  const fields = [
+    { name: 'time', kind: 'time', required: true },
+    { name: 'moment', kind: 'shortText', required: true },
+  ] as const;
+
+  it('garde le programme type, et n’ajoute rien sans option', () => {
+    expect(q.list('demo.items', fields, 10, { starter: 'ceremonyProgram' })).toMatchObject({
+      starter: 'ceremonyProgram',
+    });
+    expect(q.list('demo.items', fields, 10)).not.toHaveProperty('starter');
+  });
+
+  it('refuse un programme type plus long que maxItems', () => {
+    const step = (maxItems: number) =>
+      defineStep({
+        id: 'demo',
+        questions: [q.list('demo.items', fields, maxItems, { starter: 'ceremonyProgram' })],
+      });
+    expect(() => step(8)).not.toThrow();
+    expect(() => step(7)).toThrow(/programme type/);
+  });
+});
+
 describe('q.number', () => {
   it('crée une question nombre, bornée à partir de 0 par défaut', () => {
     expect(q.number('demo.count', { max: 10 })).toEqual({

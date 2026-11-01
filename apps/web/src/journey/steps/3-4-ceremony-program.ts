@@ -27,6 +27,7 @@ export const ceremonyProgramStep = defineStep({
         { name: 'lead', kind: 'shortText' },
       ],
       PROGRAM_MAX_ITEMS,
+      { starter: 'ceremonyProgram' },
     ),
   ],
   summary: 'step',
