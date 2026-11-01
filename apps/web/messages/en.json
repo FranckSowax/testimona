@@ -2008,7 +2008,7 @@
       "message": {
         "greeting": "Hello {name},",
         "need": "We are organising a funeral and would like a quote for: {category}.",
-        "date": "Date: {date}",
+        "date": "Funeral date: {date}",
         "dateUnknown": "to be confirmed",
         "place": "Place: {place}",
         "quantities": "Estimated needs:",

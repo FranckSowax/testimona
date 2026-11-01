@@ -2008,7 +2008,7 @@
       "message": {
         "greeting": "Bonjour {name},",
         "need": "Nous organisons des funérailles et souhaitons un devis pour : {category}.",
-        "date": "Date : {date}",
+        "date": "Date des obsèques : {date}",
         "dateUnknown": "à préciser",
         "place": "Lieu : {place}",
         "quantities": "Besoins estimés :",
