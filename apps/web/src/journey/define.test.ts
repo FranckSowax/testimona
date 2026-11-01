@@ -102,6 +102,30 @@ describe('defineStep', () => {
   });
 });
 
+describe('q.choice : prefillFrom', () => {
+  it('garde la clé de préremplissage, et n’ajoute rien sans option', () => {
+    expect(q.choice('a.b', ['x', 'y'], { prefillFrom: 'c.d' })).toEqual({
+      kind: 'choice',
+      key: 'a.b',
+      options: ['x', 'y'],
+      prefillFrom: 'c.d',
+    });
+    expect(q.choice('a.b', ['x'])).not.toHaveProperty('prefillFrom');
+  });
+
+  it('accepte un prefillFrom valide', () => {
+    const question = q.choice('demo.tone', ['x'], { prefillFrom: 'other.tone' });
+    expect(() => defineStep({ id: 'demo', questions: [question] })).not.toThrow();
+  });
+
+  it('refuse un prefillFrom au mauvais format ou égal à la clé de la question', () => {
+    const step = (prefillFrom: string) =>
+      defineStep({ id: 'demo', questions: [q.choice('demo.tone', ['x'], { prefillFrom })] });
+    expect(() => step('Bad')).toThrow(/préremplissage/);
+    expect(() => step('demo.tone')).toThrow(/préremplissage/);
+  });
+});
+
 describe('q.number', () => {
   it('crée une question nombre, bornée à partir de 0 par défaut', () => {
     expect(q.number('demo.count', { max: 10 })).toEqual({

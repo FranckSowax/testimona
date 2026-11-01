@@ -17,10 +17,15 @@ export const q = {
   longText: (key: string): Question => ({ kind: 'longText', key }),
   date: (key: string): Question => ({ kind: 'date', key }),
   place: (key: string): Question => ({ kind: 'place', key }),
-  choice: (key: string, options: readonly string[]): ChoiceQuestion => ({
+  choice: (
+    key: string,
+    options: readonly string[],
+    opts: { prefillFrom?: string } = {},
+  ): ChoiceQuestion => ({
     kind: 'choice',
     key,
     options,
+    ...(opts.prefillFrom !== undefined && { prefillFrom: opts.prefillFrom }),
   }),
   number: (key: string, bounds: { min?: number; max: number }): NumberQuestion => ({
     kind: 'number',
@@ -87,6 +92,14 @@ function checkQuestion(stepId: string, question: Question): void {
   }
   if (question.kind === 'choice' && question.options.length === 0) {
     throw new Error(`Étape ${stepId} : options vides pour « ${question.key} »`);
+  }
+  if (question.kind === 'choice' && question.prefillFrom !== undefined) {
+    const { prefillFrom } = question;
+    if (!ANSWER_KEY_PATTERN.test(prefillFrom) || prefillFrom === question.key) {
+      throw new Error(
+        `Étape ${stepId} : clé de préremplissage invalide « ${prefillFrom} » pour « ${question.key} »`,
+      );
+    }
   }
   if (question.kind !== 'list') return;
   if (!Number.isInteger(question.maxItems) || question.maxItems < 1) {

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { z } from 'zod';
+import { initialStored, prefillKeys } from '@/journey/prefill';
 import { resolveQuestionIndex } from '@/journey/progress';
 import { getStep, isStepOpen, personStatus } from '@/journey/registry';
 import { QuestionScreen } from '@/journey/ui/QuestionScreen';
@@ -34,9 +35,14 @@ export default async function StepPage({
   const [person, role, answers] = await Promise.all([
     getPerson(id),
     getMyRole(id),
-    listAnswers(id, keys),
+    listAnswers(id, [...keys, ...prefillKeys(step)]),
   ]);
-  const index = resolveQuestionIndex(step, answers, q);
+  // WHY: une valeur préremplie ne compte pas comme répondue tant qu'elle n'est pas enregistrée ;
+  // la question courante se calcule sur les seules réponses de l'étape.
+  const stepAnswers = Object.fromEntries(
+    keys.flatMap((key) => (key in answers ? [[key, answers[key]]] : [])),
+  );
+  const index = resolveQuestionIndex(step, stepAnswers, q);
   const question = step.questions[index];
   if (!question) notFound();
 
@@ -58,7 +64,7 @@ export default async function StepPage({
         total={step.questions.length}
         title={t(`q.${question.key}.title`, values)}
         hint={t(`q.${question.key}.hint`, values)}
-        stored={answers[question.key]}
+        stored={initialStored(question, answers)}
         readOnly={!canWrite(role)}
         countries={countries}
         backHref={index > 0 ? `${stepPath}?q=${index - 1}` : `/dossier/${id}`}

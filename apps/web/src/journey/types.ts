@@ -26,7 +26,16 @@ export type ListQuestion = {
   fields: readonly ListField[];
   maxItems: number;
 };
-export type ChoiceQuestion = { kind: 'choice'; key: string; options: readonly string[] };
+export type ChoiceQuestion = {
+  kind: 'choice';
+  key: string;
+  options: readonly string[];
+  /**
+   * Clé d'une autre réponse qui sert de valeur de départ tant que la question n'a pas de
+   * réponse (ex. le registre de la cérémonie repris de l'annonce).
+   */
+  prefillFrom?: string;
+};
 /** Nombre entier borné (affluence, nuits…), saisi en chiffres. */
 export type NumberQuestion = { kind: 'number'; key: string; min: number; max: number };
 export type Question =
