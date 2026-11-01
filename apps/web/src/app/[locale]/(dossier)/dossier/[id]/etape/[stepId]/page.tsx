@@ -64,7 +64,8 @@ export default async function StepPage({
         total={step.questions.length}
         title={t(`q.${question.key}.title`, values)}
         hint={t(`q.${question.key}.hint`, values)}
-        stored={initialStored(question, answers)}
+        // WHY: un lecteur ne répond pas ; une valeur préremplie lui ferait croire à une réponse.
+        stored={canWrite(role) ? initialStored(question, answers) : answers[question.key]}
         readOnly={!canWrite(role)}
         countries={countries}
         backHref={index > 0 ? `${stepPath}?q=${index - 1}` : `/dossier/${id}`}
