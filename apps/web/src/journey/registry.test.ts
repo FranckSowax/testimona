@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { PROGRAM_MAX_ITEMS } from './steps/3-4-ceremony-program';
 import { answerSchema, type Step } from './types';
 import {
   allSteps,
@@ -20,6 +21,7 @@ describe('registre du parcours', () => {
       'budget',
       'vigil-setup',
       'vigil-catering',
+      'ceremony-program',
       'biography',
     ]);
     expect(stepsFor('prepare').map((s) => s.id)).toEqual(['biography']);
@@ -64,6 +66,38 @@ describe('registre du parcours', () => {
     expect(getStep('vigil-catering')).toMatchObject({
       summary: 'step',
       providers: ['catering', 'drinks'],
+    });
+  });
+
+  it('pose les questions de l’étape 3.4 avec son prestataire', () => {
+    expect(getStep('ceremony-program')?.questions.map((q) => [q.key, q.kind])).toEqual([
+      ['ceremony.date', 'date'],
+      ['ceremony.liftPlace', 'shortText'],
+      ['ceremony.servicePlace', 'shortText'],
+      ['ceremony.burialPlace', 'shortText'],
+      ['ceremony.tone', 'choice'],
+      ['ceremony.program', 'list'],
+    ]);
+    expect(getStep('ceremony-program')).toMatchObject({
+      summary: 'step',
+      providers: ['funeralHome'],
+    });
+    expect(findQuestion('ceremony.tone')?.question).toEqual({
+      kind: 'choice',
+      key: 'ceremony.tone',
+      options: ['believer', 'neutral'],
+      prefillFrom: 'announce.tone',
+    });
+    expect(findQuestion('ceremony.program')?.question).toEqual({
+      kind: 'list',
+      key: 'ceremony.program',
+      maxItems: PROGRAM_MAX_ITEMS,
+      fields: [
+        { name: 'time', kind: 'time', required: true },
+        { name: 'moment', kind: 'shortText', required: true },
+        { name: 'place', kind: 'shortText' },
+        { name: 'lead', kind: 'shortText' },
+      ],
     });
   });
 
@@ -221,6 +255,7 @@ describe('préremplissage du registre', () => {
   );
 
   it('reprend une clé source qui est un choix partageant au moins une option', () => {
+    expect(prefilled.map(({ question }) => question.key)).toContain('ceremony.tone');
     for (const { question, source } of prefilled) {
       const found = findQuestion(source)?.question;
       expect(found?.kind, `${question.key} ← ${source}`).toBe('choice');
@@ -230,5 +265,32 @@ describe('préremplissage du registre', () => {
         `${question.key} ← ${source}`,
       ).toBe(true);
     }
+  });
+});
+
+describe('taille du programme de la cérémonie', () => {
+  const schema = () => {
+    const question = findQuestion('ceremony.program')?.question;
+    if (!question) throw new Error('question absente');
+    return answerSchema(question);
+  };
+  // WHY: texte accentué (2 octets par lettre en UTF-8) au maximum de SHORT_TEXT_MAX, le pire cas
+  // réaliste pour la limite de 60 000 octets.
+  const long = 'é'.repeat(200);
+  const items = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({
+      time: `${String(6 + Math.floor(i / 3)).padStart(2, '0')}:${['00', '20', '40'][i % 3]}`,
+      moment: long,
+      place: long,
+      lead: long,
+    }));
+
+  it('accepte 40 moments accentués à 200 caractères', () => {
+    expect(PROGRAM_MAX_ITEMS).toBe(40);
+    expect(schema().safeParse(items(PROGRAM_MAX_ITEMS)).success).toBe(true);
+  });
+
+  it('refuse un 41e moment', () => {
+    expect(schema().safeParse(items(PROGRAM_MAX_ITEMS + 1)).success).toBe(false);
   });
 });

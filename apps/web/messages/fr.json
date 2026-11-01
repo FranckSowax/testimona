@@ -1215,6 +1215,10 @@
       "vigil-catering": {
         "title": "La restauration de la veillée",
         "description": "Ce que vous servez chaque soir et le jour des obsèques, avec les quantités à prévoir."
+      },
+      "ceremony-program": {
+        "title": "Le déroulé de la cérémonie",
+        "description": "La date des obsèques, les lieux, le registre et le programme heure par heure."
       }
     },
     "q": {
@@ -1415,6 +1419,50 @@
           "title": "Un repas est-il servi le jour des obsèques ?",
           "hint": "Pour toutes les personnes attendues ce jour-là.",
           "options": { "yes": "Oui", "no": "Non" }
+        }
+      },
+      "ceremony": {
+        "date": {
+          "title": "Quelle est la date des obsèques de {name} ?",
+          "hint": "Elle figurera dans le programme et dans les demandes de devis."
+        },
+        "liftPlace": {
+          "title": "Où aura lieu la levée du corps ?",
+          "hint": "Une adresse ou un lien Google Maps : les proches pourront s'y rendre en un clic."
+        },
+        "servicePlace": {
+          "title": "Où se tiendra la cérémonie ?",
+          "hint": "Une adresse ou un lien Google Maps : les proches pourront s'y rendre en un clic."
+        },
+        "burialPlace": {
+          "title": "Où aura lieu l'inhumation ?",
+          "hint": "Une adresse ou un lien Google Maps : les proches pourront s'y rendre en un clic."
+        },
+        "tone": {
+          "title": "Quel registre pour la cérémonie ?",
+          "hint": "Repris du ton des annonces ; il oriente le programme type.",
+          "options": {
+            "believer": "Croyant",
+            "neutral": "Neutre"
+          }
+        },
+        "program": {
+          "title": "Quel est le programme de la journée ?",
+          "hint": "Ajoutez chaque moment avec son heure ; le lieu et la personne qui l'anime sont facultatifs.",
+          "fields": {
+            "time": {
+              "label": "Heure"
+            },
+            "moment": {
+              "label": "Moment"
+            },
+            "place": {
+              "label": "Lieu (facultatif)"
+            },
+            "lead": {
+              "label": "Animé par (facultatif)"
+            }
+          }
         }
       }
     },
