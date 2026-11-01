@@ -169,8 +169,10 @@ export function CeremonySynthesis(props: Props) {
                               <DirectionsLink
                                 href={href}
                                 text={t('synthesis.ceremony.directions')}
+                                // WHY: plusieurs moments peuvent porter le même intitulé ;
+                                // l'heure distingue leurs liens pour un lecteur d'écran.
                                 label={t('synthesis.ceremony.directionsLabel', {
-                                  target: item.moment,
+                                  target: `${item.time} ${item.moment}`,
                                 })}
                               />
                             )}

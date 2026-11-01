@@ -71,6 +71,25 @@ describe('CeremonySynthesis', () => {
     expect(screen.queryByText('Inhumation', { selector: 'dt' })).toBeNull();
   });
 
+  it('distingue par l’heure les liens de deux moments au même intitulé', () => {
+    const place = 'Cathédrale Sainte-Marie';
+    renderSynthesis({
+      answers: {
+        'ceremony.program': [
+          { time: '15:00', moment: 'Prière', place },
+          { time: '09:00', moment: 'Prière', place },
+        ],
+      },
+    });
+    const names = screen
+      .getAllByRole('link', { name: /Itinéraire/ })
+      .map((link) => link.getAttribute('aria-label'));
+    expect(names).toEqual([
+      'Itinéraire : 09:00 Prière (Google Maps, nouvel onglet)',
+      'Itinéraire : 15:00 Prière (Google Maps, nouvel onglet)',
+    ]);
+  });
+
   it('n’affiche aucun lien pour un lieu en lien vers un autre site', () => {
     const foreign = 'https://evil.example/goo.gl';
     renderSynthesis({
@@ -108,7 +127,7 @@ describe('CeremonySynthesis', () => {
   it('met un lien Maps sur le lieu d’un moment seulement s’il est exploitable', () => {
     renderSynthesis();
     const office = screen.getByRole('link', {
-      name: 'Itinéraire : Office religieux (Google Maps, nouvel onglet)',
+      name: 'Itinéraire : 10:00 Office religieux (Google Maps, nouvel onglet)',
     });
     expect(office.getAttribute('href')).toContain('destination=Cath%C3%A9drale');
     expect(office.getAttribute('rel')).toBe('noopener noreferrer');
