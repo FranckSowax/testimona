@@ -15,7 +15,7 @@ import { listAnswersResult } from '@/modules/dossier/answers/repo';
 import { getDeathCity, getDossier, getMyRole } from '@/modules/dossier/repo';
 import { canWrite, hasRole } from '@/modules/dossier/roles';
 import { panelCity, type PanelGroup } from '@/modules/providers/panel';
-import { quoteMessages, quotePlace } from '@/modules/providers/quote-panel';
+import { quoteContext, quoteMessages } from '@/modules/providers/quote-panel';
 import { type QuoteHistoryItem, quotesForStep } from '@/modules/providers/quote-service';
 import { QUOTE_STEPS, type QuoteStep } from '@/modules/providers/quotes/repo';
 import { providersForPanel } from '@/modules/providers/service';
@@ -42,12 +42,14 @@ export default async function StepSynthesisPage({
   const dossier = await getDossier(id);
   if (!dossier || !isStepOpen(dossier.entryPoint, step.id)) notFound();
 
-  // WHY: `vigil.place` (3.1) donne la ville des messages de devis, en 3.2 aussi.
+  // WHY: `vigil.place` (3.1) donne la ville des messages de devis et `ceremony.date` (3.4) leur
+  // date, pour chacune des étapes 3.1, 3.2 et 3.4.
   const keys = [
     ...new Set([
       ...step.questions.map((question) => question.key),
       ...ESTIMATE_KEYS,
       'vigil.place',
+      'ceremony.date',
     ]),
   ];
   const [role, answers, deathCity] = await Promise.all([
@@ -87,19 +89,20 @@ export default async function StepSynthesisPage({
   const quotes: QuoteHistoryItem[] = quotesRes?.ok ? quotesRes.data : [];
 
   // WHY: le bouton n'est proposé qu'à un coordinateur, comme la RLS ; les messages ne sont donc
-  // construits que pour lui. Ils suivent la langue de l'interface. La date de la cérémonie
-  // viendra avec l'étape 3.4 (PR 4) : « à préciser ». Le numéro reste côté serveur : seuls les
-  // messages (sans numéro ni nom du défunt) partent vers le formulaire client.
+  // construits que pour lui. Ils suivent la langue de l'interface, date des obsèques comprise
+  // (« à préciser » sans réponse à 3.4). Le numéro reste côté serveur : seuls les messages (sans
+  // numéro ni nom du défunt) partent vers le formulaire client.
   let quote: PanelQuote | null = null;
   if (quoteStep && hasRole(role, 'coordinator') && groups.length > 0) {
     const t = await getTranslations();
     const messages = quoteMessages(
       groups,
-      {
-        place: quotePlace(answers.data['vigil.place'], city),
-        date: null,
+      quoteContext({
+        answers: answers.data,
+        city,
+        locale,
         quantities: estimate?.quantities ?? [],
-      },
+      }),
       // WHY: `quoteMessage` construit ses clés dynamiquement (`providers.category.${…}`,
       // `journey.synthesis.quantity.${…}`) ; le `t` typé de next-intl n'accepte que des clés
       // littérales. Les clés et leurs paramètres ICU sont vérifiés par `messages.test.ts`.
