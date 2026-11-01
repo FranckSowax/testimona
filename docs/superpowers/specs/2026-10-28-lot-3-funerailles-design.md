@@ -183,17 +183,44 @@ clôturées.
 
 ### 3.4 Déroulé de la cérémonie (`ceremony-program`)
 
-Questions : date des obsèques ; lieux de la levée du corps, de la cérémonie et de l'inhumation
-(`place`) ; registre (croyant, neutre ; repris de `announce.tone` s'il est déjà répondu) ;
-programme, une liste d'au plus 40 moments (heure, moment, lieu, responsable).
+Questions, dans cet ordre :
 
-« Partir d'un programme type » préremplit environ 8 moments selon le registre (levée du corps,
-cortège, office ou recueillement, hommages, inhumation, réception), sans IA, dans
-`journey/templates/`. La famille les modifie ensuite librement ; le bouton est masqué dès que le
-programme a un moment.
+- `ceremony.date` : date des obsèques (mêmes bornes d'année que les autres dates) ;
+- `ceremony.liftPlace`, `ceremony.servicePlace`, `ceremony.burialPlace` : lieux de la levée du
+  corps, de la cérémonie et de l'inhumation, en texte court (adresse ou lien Google Maps collé).
+  Ce ne sont pas des `place` (ville + pays) : un lien Maps vers une ville seule ne guide personne
+  jusqu'au lieu ;
+- `ceremony.tone` : registre (croyant, neutre). Une clé ne peut appartenir qu'à une étape
+  (`assertUniqueSteps`) : le registre a donc sa propre clé, préremplie depuis `announce.tone`
+  (`prefillFrom`) tant qu'il n'a pas de réponse. La valeur préremplie ne compte pas comme répondue
+  tant qu'elle n'est pas enregistrée, et un lecteur voit toujours la réponse enregistrée, jamais
+  la valeur préremplie ;
+- `ceremony.program` : liste d'au plus 40 moments. Champs : heure (champ de liste `time`, `HH:MM`,
+  requis), moment (requis), lieu, responsable.
 
-Synthèse : programme trié par heure, lien Maps par lieu (`lib/geo/maps`), prestataires
-`funeralHome`.
+« Partir d'un programme type » (`starter: 'ceremonyProgram'`) remplit la liste de 8 moments, sans
+IA (`journey/templates/ceremony-program.ts`) : accueil 08:00, levée du corps 08:30, cortège 09:00,
+office religieux (croyant) ou cérémonie de recueillement (neutre, aussi par défaut) 10:00,
+hommages 11:30, départ 12:30, inhumation 13:30, réception 15:00. Le registre est lu de
+`ceremony.tone`, sinon de `announce.tone` ; les trois lieux répondus remplissent le lieu des
+moments correspondants. Les programmes types sont déclarés dans un registre unique,
+`journey/templates/starters.ts` (taille contrôlée contre `maxItems`, clés lues, construction
+traduite). Le bouton n'apparaît qu'à qui peut répondre, tant que la liste enregistrée est vide ;
+la famille modifie ensuite librement les moments.
+
+Synthèse (`CeremonySynthesis`) : date des obsèques en toutes lettres (« Date à préciser » sans
+réponse valide) ; lieux répondus, avec un lien « Itinéraire » quand le texte est exploitable ;
+programme trié par heure (ordre saisi conservé à heure égale ; un moment invalide ou portant un
+champ inconnu est écarté) dans un tableau, avec « Écrire le programme » s'il est vide ; puis
+prestataires `funeralHome` et « Devis demandés ».
+
+Liens Maps : une adresse donne un itinéraire `https://www.google.com/maps/dir/…`. Un lien collé
+n'est repris que s'il est en `https:`, sans identifiants, sur un domaine Google Maps (`goo.gl`,
+`maps.app.goo.gl`, `maps.google.<tld>`, ou `google.<tld>` avec un chemin `/maps…`) ; sinon le lieu
+s'affiche sans lien. Le contrôle est fait dans `journey/ceremony.ts` (`placeHref`) ;
+`lib/geo/maps.ts`, partagé avec la page publique du mémorial, n'est pas modifié. Les liens
+s'ouvrent dans un nouvel onglet (`noopener noreferrer`) ; leur nom accessible cite le lieu, ou
+l'heure et le moment pour une ligne du programme.
 
 ## 3. Prestataires et demandes de devis
 
@@ -211,9 +238,12 @@ Bouton « Demander un devis » pour un coordinateur et plus, seulement pour un p
 avec un numéro. Un prestataire d'exemple affiche « Prestataire d'exemple, contact indisponible ».
 
 Le message est construit en code (`modules/providers/quote-message.ts`) : besoin de l'étape, date
-(3.4, sinon « à préciser » ; toujours « à préciser » avant la PR 4), lieu (ville de la veillée,
-sinon du décès, sinon Libreville), quantités calculées. Il ne contient pas le nom de la
-personne décédée. La famille le relit et peut le modifier, puis « Ouvrir WhatsApp » :
+des obsèques, lieu (ville de la veillée, sinon du décès, sinon Libreville), quantités calculées.
+La date vient de la réponse `ceremony.date` (3.4), formatée dans la langue de l'interface, pour
+les devis de 3.1, 3.2 et 3.4. Le libellé dit « Date des obsèques : … » (« Funeral date: … ») :
+dans un devis de veillée, le prestataire ne doit pas la prendre pour la date de la veillée. Sans
+réponse valide (absente, « passée », impossible ou hors bornes), le message dit « à préciser ».
+Il ne contient ni le nom de la personne décédée ni les lieux de 3.4. La famille le relit et peut le modifier, puis « Ouvrir WhatsApp » :
 
 1. une action serveur appelle la RPC `request_quote(p_dossier_id, p_provider_id, p_step_id,
 p_message)`, `security definer`. Elle exige un utilisateur (28000), vérifie le rôle (42501),
@@ -292,7 +322,9 @@ Cinq PR, chacune déployable seule, migration appliquée en production avant la 
 2. **Veillée** : `quantities.ts`, étapes 3.1 et 3.2, capacité `providers` du moteur, encadré,
    ajustement des postes.
 3. **Devis** : migration `provider_name`, message, action et trace, historique « Devis demandés ».
-4. **Cérémonie** : étape 3.4, programme type, liens Maps.
+4. **Cérémonie** : étape 3.4, programme type, liens Maps, date des obsèques dans les devis. Sans
+   migration : `quote_request.step_id` accepte déjà `ceremony-program` et les réponses vivent
+   dans `journey_answer`.
 5. **Livret et affiche** : migration photo, étape 3.5, PDF et PNG.
 
 ## Hors périmètre
