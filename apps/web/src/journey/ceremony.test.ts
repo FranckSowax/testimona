@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ceremonyDate, ceremonyPlaces, placeHref, sortedProgram } from './ceremony';
-import { SKIPPED } from './types';
+import { MIN_YEAR, SKIPPED } from './types';
 
 describe('sortedProgram', () => {
   it('trie les moments par heure, de façon stable', () => {
@@ -62,6 +62,15 @@ describe('ceremonyDate', () => {
     expect(ceremonyDate('14/11/2026', 'fr')).toBeNull();
     expect(ceremonyDate('2026-02-31', 'fr')).toBeNull();
     expect(ceremonyDate(20261114, 'fr')).toBeNull();
+  });
+
+  it('refuse une année hors des bornes de la saisie', () => {
+    const nextYear = new Date().getUTCFullYear() + 1;
+    expect(ceremonyDate('0000-01-01', 'fr')).toBeNull();
+    expect(ceremonyDate(`${MIN_YEAR - 1}-12-31`, 'fr')).toBeNull();
+    expect(ceremonyDate(`${nextYear + 1}-01-01`, 'fr')).toBeNull();
+    expect(ceremonyDate(`${MIN_YEAR}-01-01`, 'fr')).not.toBeNull();
+    expect(ceremonyDate(`${nextYear}-12-31`, 'fr')).not.toBeNull();
   });
 });
 

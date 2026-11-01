@@ -1,7 +1,7 @@
 import { mapsDirectionsHref, parseLocation } from '@/lib/geo/maps';
 import type { Answers } from './progress';
 import { ceremonyProgramStep } from './steps/3-4-ceremony-program';
-import { answerSchema, type ListQuestion } from './types';
+import { answerSchema, type ListQuestion, MIN_YEAR } from './types';
 
 /** Un moment du programme de la cérémonie, textes rognés, champs facultatifs omis si vides. */
 export interface ProgramItem {
@@ -59,7 +59,7 @@ export function sortedProgram(value: unknown): ProgramItem[] {
 
 /**
  * Date des obsèques en toutes lettres dans la langue demandée, sinon null (absente, « passée »,
- * mal formée ou impossible).
+ * mal formée, impossible, ou d'une année hors `MIN_YEAR` … année courante + 1).
  *
  * @example
  * ceremonyDate('2026-11-14', 'fr'); // 'samedi 14 novembre 2026'
@@ -69,6 +69,10 @@ export function ceremonyDate(value: unknown, locale: string): string | null {
   const date = new Date(`${value}T00:00:00Z`);
   // WHY: une date impossible (2026-02-31) serait réinterprétée par Date ; on la refuse.
   if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) return null;
+  // WHY: mêmes bornes que la saisie (`answerSchema`) ; une valeur stockée hors bornes
+  // (`0000-01-01`) ne doit pas partir dans un message de devis.
+  const year = date.getUTCFullYear();
+  if (year < MIN_YEAR || year > new Date().getUTCFullYear() + 1) return null;
   // WHY: la date est un jour civil sans fuseau ; UTC évite un décalage d'un jour.
   return new Intl.DateTimeFormat(locale, { dateStyle: 'full', timeZone: 'UTC' }).format(date);
 }
