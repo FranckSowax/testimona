@@ -197,14 +197,18 @@ export async function FuneralSection({
                           </dt>
                           <dd className="text-foreground">
                             {event.address}
-                            <a
-                              href={mapsDirectionsHref(event.address)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-display text-primary ml-2 inline-block text-xs font-bold hover:underline"
-                            >
-                              {t('directions')}
-                            </a>
+                            {/* WHY: une adresse collée qui n'est pas un lien Google Maps sûr
+                                reste affichée, sans lien. */}
+                            {mapsDirectionsHref(event.address) && (
+                              <a
+                                href={mapsDirectionsHref(event.address)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-display text-primary ml-2 inline-block text-xs font-bold hover:underline"
+                              >
+                                {t('directions')}
+                              </a>
+                            )}
                           </dd>
                         </div>
                       )}
