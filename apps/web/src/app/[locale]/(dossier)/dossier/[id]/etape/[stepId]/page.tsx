@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { z } from 'zod';
-import { resolveQuestionIndex } from '@/journey/progress';
+import { prefillKeys, screenState } from '@/journey/prefill';
 import { getStep, isStepOpen, personStatus } from '@/journey/registry';
+import { starterFor } from '@/journey/templates/starters';
 import { QuestionScreen } from '@/journey/ui/QuestionScreen';
 import { listAnswers } from '@/modules/dossier/answers/repo';
 import { stepEndPath } from '@/modules/dossier/answers/redirect';
@@ -34,9 +35,9 @@ export default async function StepPage({
   const [person, role, answers] = await Promise.all([
     getPerson(id),
     getMyRole(id),
-    listAnswers(id, keys),
+    listAnswers(id, [...new Set([...keys, ...prefillKeys(step)])]),
   ]);
-  const index = resolveQuestionIndex(step, answers, q);
+  const { index, stored } = screenState(step, answers, q, canWrite(role));
   const question = step.questions[index];
   if (!question) notFound();
 
@@ -47,6 +48,8 @@ export default async function StepPage({
   const names = new Intl.DisplayNames([locale], { type: 'region' });
   const countries = COUNTRY_CODES.map((code) => ({ code, label: names.of(code) ?? code }));
   const stepPath = `/dossier/${id}/etape/${step.id}`;
+  // WHY: traduit côté serveur ; un lecteur ne voit jamais le bouton, inutile de le construire.
+  const starter = starterFor(question, answers, canWrite(role), (path) => t(path));
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:py-12">
@@ -58,7 +61,8 @@ export default async function StepPage({
         total={step.questions.length}
         title={t(`q.${question.key}.title`, values)}
         hint={t(`q.${question.key}.hint`, values)}
-        stored={answers[question.key]}
+        stored={stored}
+        starter={starter}
         readOnly={!canWrite(role)}
         countries={countries}
         backHref={index > 0 ? `${stepPath}?q=${index - 1}` : `/dossier/${id}`}

@@ -16,15 +16,31 @@ export const DRAFT_MAX = 12_000;
 export type ListField =
   | { name: string; kind: 'shortText' | 'longText'; required?: boolean }
   | { name: string; kind: 'choice'; options: readonly string[]; required?: boolean }
-  | { name: string; kind: 'boolean' };
+  | { name: string; kind: 'boolean' }
+  /** Heure `HH:MM` (00:00 à 23:59), saisie par `<input type="time">`. */
+  | { name: string; kind: 'time'; required?: boolean };
+
+/** Modèles qui peuvent préremplir une liste vide (bouton « Partir d'un programme type »). */
+export type ListStarter = 'ceremonyProgram';
 
 export type ListQuestion = {
   kind: 'list';
   key: string;
   fields: readonly ListField[];
   maxItems: number;
+  /** Modèle proposé tant que la liste est vide ; ses éléments tiennent dans `maxItems`. */
+  starter?: ListStarter;
 };
-export type ChoiceQuestion = { kind: 'choice'; key: string; options: readonly string[] };
+export type ChoiceQuestion = {
+  kind: 'choice';
+  key: string;
+  options: readonly string[];
+  /**
+   * Clé d'une autre réponse qui sert de valeur de départ tant que la question n'a pas de
+   * réponse (ex. le registre de la cérémonie repris de l'annonce).
+   */
+  prefillFrom?: string;
+};
 /** Nombre entier borné (affluence, nuits…), saisi en chiffres. */
 export type NumberQuestion = { kind: 'number'; key: string; min: number; max: number };
 export type Question =
@@ -44,7 +60,7 @@ export interface StepDraft {
 /**
  * Page qui conclut une étape sans brouillon :
  * - `budget` : page partagée `/dossier/<id>/budget` (B.1, B.2) ;
- * - `step` : synthèse propre à l'étape, `/dossier/<id>/etape/<stepId>/synthese` (3.1, 3.2).
+ * - `step` : synthèse propre à l'étape, `/dossier/<id>/etape/<stepId>/synthese` (3.1, 3.2, 3.4).
  */
 export type StepSummary = 'budget' | 'step';
 
@@ -149,6 +165,16 @@ const optionalChoice = (options: readonly string[]) =>
     .transform((v) => (v ? v : undefined))
     .pipe(oneOf(options).optional());
 
+const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+const requiredTime = z.string().trim().regex(TIME_PATTERN, 'invalid time');
+// WHY: une heure facultative vide vaut « absent », comme un texte facultatif vide.
+const optionalTime = z
+  .string()
+  .trim()
+  .optional()
+  .transform((v) => (v ? v : undefined))
+  .pipe(z.string().regex(TIME_PATTERN, 'invalid time').optional());
+
 function fieldSchema(field: ListField): z.ZodTypeAny {
   switch (field.kind) {
     case 'shortText':
@@ -159,6 +185,8 @@ function fieldSchema(field: ListField): z.ZodTypeAny {
       return field.required ? oneOf(field.options) : optionalChoice(field.options);
     case 'boolean':
       return z.boolean().default(false);
+    case 'time':
+      return field.required ? requiredTime : optionalTime;
   }
 }
 

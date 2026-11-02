@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { SKIPPED } from '@/journey/types';
 import type { PanelGroup } from './panel';
-import { quoteMessages, quotePlace } from './quote-panel';
+import { quoteContext, quoteMessages, quotePlace } from './quote-panel';
 
 const provider = (over: Partial<PanelGroup['providers'][number]>) => ({
   id: 'p',
@@ -38,6 +39,68 @@ describe('quoteMessages', () => {
 
   it('ne renvoie rien sans prestataire contactable', () => {
     expect(quoteMessages([], { place: 'Libreville', date: null, quantities: [] }, t)).toEqual({});
+  });
+
+  it('ne fait sortir que la date des obsèques, ni le nom ni les lieux de la cérémonie', () => {
+    const groups: PanelGroup[] = [{ category: 'tentsChairs', providers: [provider({ id: 'ok' })] }];
+    const answers = {
+      'person.firstName': 'Marie-Thérèse',
+      'person.lastName': 'Nzé Obiang',
+      'ceremony.date': '2026-11-14',
+      'ceremony.liftPlace': 'Morgue de l’hôpital Jeanne Ebori',
+      'ceremony.servicePlace': 'https://maps.app.goo.gl/cathedrale',
+      'ceremony.burialPlace': 'Cimetière de Lalala',
+      'ceremony.program': [{ time: '10:00', moment: 'Office', place: 'Paroisse Saint-Michel' }],
+    };
+    const context = quoteContext({ answers, city: 'Libreville', locale: 'fr', quantities: [] });
+    const message = quoteMessages(groups, context, t).ok ?? '';
+    expect(message).toContain('samedi 14 novembre 2026');
+    for (const secret of [
+      'Marie-Thérèse',
+      'Nzé Obiang',
+      'Jeanne Ebori',
+      'cathedrale',
+      'Lalala',
+      'Saint-Michel',
+      'Office',
+    ]) {
+      expect(message).not.toContain(secret);
+    }
+  });
+});
+
+describe('quoteContext', () => {
+  const quantities = [{ key: 'chairs' as const, count: 120 }];
+
+  it('prend la date des obsèques, formatée dans la langue de l’interface', () => {
+    const answers = {
+      'vigil.place': { city: 'Franceville', countryCode: 'GA' },
+      'ceremony.date': '2026-11-14',
+    };
+    expect(quoteContext({ answers, city: 'Libreville', locale: 'fr', quantities })).toEqual({
+      place: 'Franceville',
+      date: 'samedi 14 novembre 2026',
+      quantities,
+    });
+    expect(quoteContext({ answers, city: 'Libreville', locale: 'en', quantities }).date).toBe(
+      'Saturday, November 14, 2026',
+    );
+  });
+
+  it('laisse la date à préciser sans réponse, passée ou invalide', () => {
+    const context = (date: unknown) =>
+      quoteContext({
+        answers: { 'ceremony.date': date },
+        city: 'Libreville',
+        locale: 'fr',
+        quantities: [],
+      });
+    expect(quoteContext({ answers: {}, city: 'Libreville', locale: 'fr', quantities: [] })).toEqual(
+      { place: 'Libreville', date: null, quantities: [] },
+    );
+    expect(context(SKIPPED).date).toBeNull();
+    expect(context('2026-02-31').date).toBeNull();
+    expect(context('14/11/2026').date).toBeNull();
   });
 });
 

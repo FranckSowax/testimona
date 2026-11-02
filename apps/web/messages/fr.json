@@ -1215,6 +1215,10 @@
       "vigil-catering": {
         "title": "La restauration de la veillée",
         "description": "Ce que vous servez chaque soir et le jour des obsèques, avec les quantités à prévoir."
+      },
+      "ceremony-program": {
+        "title": "Le déroulé de la cérémonie",
+        "description": "La date des obsèques, les lieux, le ton et le programme heure par heure."
       }
     },
     "q": {
@@ -1416,6 +1420,63 @@
           "hint": "Pour toutes les personnes attendues ce jour-là.",
           "options": { "yes": "Oui", "no": "Non" }
         }
+      },
+      "ceremony": {
+        "date": {
+          "title": "Quelle est la date des obsèques de {name} ?",
+          "hint": "Elle figurera dans le programme et dans les demandes de devis."
+        },
+        "liftPlace": {
+          "title": "Où aura lieu la levée du corps ?",
+          "hint": "Souvent la morgue ou le domicile familial. Une adresse ou un lien Google Maps : les proches pourront s'y rendre en un clic."
+        },
+        "servicePlace": {
+          "title": "Où se tiendra la cérémonie ?",
+          "hint": "Une adresse ou un lien Google Maps : les proches pourront s'y rendre en un clic."
+        },
+        "burialPlace": {
+          "title": "Où aura lieu l'inhumation ?",
+          "hint": "Une adresse ou un lien Google Maps : les proches pourront s'y rendre en un clic."
+        },
+        "tone": {
+          "title": "Quel ton souhaitez-vous pour la cérémonie ?",
+          "hint": "Si vous l'avez choisi pour les annonces, il est déjà sélectionné. Il oriente le programme type.",
+          "options": {
+            "believer": "Croyant",
+            "neutral": "Neutre"
+          }
+        },
+        "program": {
+          "title": "Quel est le programme de la journée ?",
+          "hint": "Ajoutez chaque moment avec son heure ; le lieu et la personne qui le conduit sont facultatifs. Les heures du programme type sont indicatives.",
+          "fields": {
+            "time": {
+              "label": "Heure"
+            },
+            "moment": {
+              "label": "Moment"
+            },
+            "place": {
+              "label": "Lieu (facultatif)"
+            },
+            "lead": {
+              "label": "Conduit par (facultatif)"
+            }
+          }
+        }
+      }
+    },
+    "templates": {
+      "ceremony": {
+        "welcome": "Accueil des proches",
+        "lift": "Levée du corps",
+        "procession": "Cortège",
+        "religiousService": "Office religieux",
+        "remembrance": "Cérémonie de recueillement",
+        "tributes": "Hommages et témoignages",
+        "departure": "Départ vers le cimetière",
+        "burial": "Inhumation",
+        "reception": "Réception"
       }
     },
     "fields": {
@@ -1440,9 +1501,11 @@
       "chooseOption": "Choisir…",
       "tooLarge": "Votre réponse est trop longue : raccourcissez-la.",
       "invalidDate": "Cette date n'est pas valide.",
+      "invalidTime": "Cette heure n'est pas valide : indiquez-la au format HH:MM, par exemple 09:30.",
       "invalidCharacter": "Votre réponse contient un caractère non pris en charge.",
       "invalidNumber": "Entrez un nombre entier, en chiffres.",
-      "outOfRange": "Entrez un nombre entre {min, number} et {max, number}."
+      "outOfRange": "Entrez un nombre entre {min, number} et {max, number}.",
+      "useStarter": "Partir d'un programme type"
     },
     "dashboard": {
       "nextTitle": "Prochaine question",
@@ -1477,6 +1540,28 @@
       "upToDate": "Le poste {line} correspond déjà à cette estimation.",
       "editAnswers": "Modifier les réponses",
       "backToDossier": "Retour au dossier",
+      "ceremony": {
+        "dateTitle": "Date des obsèques",
+        "dateUnknown": "Date à préciser",
+        "placesTitle": "Lieux",
+        "noPlaces": "Les lieux ne sont pas encore indiqués.",
+        "places": {
+          "liftPlace": "Levée du corps",
+          "servicePlace": "Cérémonie",
+          "burialPlace": "Inhumation"
+        },
+        "directions": "Itinéraire",
+        "directionsLabel": "Itinéraire : {target} (Google Maps, nouvel onglet)",
+        "programTitle": "Programme de la journée",
+        "columns": {
+          "time": "Heure",
+          "moment": "Moment",
+          "place": "Lieu",
+          "lead": "Conduit par"
+        },
+        "noProgram": "Le programme de la journée n'est pas encore écrit.",
+        "writeProgram": "Écrire le programme"
+      },
       "quantity": {
         "tents": "{count, plural, =1 {1 tente de 5 × 10 m} other {# tentes de 5 × 10 m}}",
         "chairs": "{count, plural, =1 {1 chaise} other {# chaises}}",
@@ -1923,7 +2008,7 @@
       "message": {
         "greeting": "Bonjour {name},",
         "need": "Nous organisons des funérailles et souhaitons un devis pour : {category}.",
-        "date": "Date : {date}",
+        "date": "Date des obsèques : {date}",
         "dateUnknown": "à préciser",
         "place": "Lieu : {place}",
         "quantities": "Besoins estimés :",

@@ -1,9 +1,11 @@
 import { PROVIDER_CATEGORIES } from '@/modules/providers/categories';
+import { LIST_STARTERS } from './templates/starters';
 import {
   ANSWER_KEY_PATTERN,
   type ChoiceQuestion,
   type ListField,
   type ListQuestion,
+  type ListStarter,
   type NumberQuestion,
   type Question,
   type Step,
@@ -17,10 +19,15 @@ export const q = {
   longText: (key: string): Question => ({ kind: 'longText', key }),
   date: (key: string): Question => ({ kind: 'date', key }),
   place: (key: string): Question => ({ kind: 'place', key }),
-  choice: (key: string, options: readonly string[]): ChoiceQuestion => ({
+  choice: (
+    key: string,
+    options: readonly string[],
+    opts: { prefillFrom?: string } = {},
+  ): ChoiceQuestion => ({
     kind: 'choice',
     key,
     options,
+    ...(opts.prefillFrom !== undefined && { prefillFrom: opts.prefillFrom }),
   }),
   number: (key: string, bounds: { min?: number; max: number }): NumberQuestion => ({
     kind: 'number',
@@ -28,11 +35,17 @@ export const q = {
     min: bounds.min ?? 0,
     max: bounds.max,
   }),
-  list: (key: string, fields: readonly ListField[], maxItems = 20): ListQuestion => ({
+  list: (
+    key: string,
+    fields: readonly ListField[],
+    maxItems = 20,
+    opts: { starter?: ListStarter } = {},
+  ): ListQuestion => ({
     kind: 'list',
     key,
     fields,
     maxItems,
+    ...(opts.starter !== undefined && { starter: opts.starter }),
   }),
 };
 
@@ -88,9 +101,22 @@ function checkQuestion(stepId: string, question: Question): void {
   if (question.kind === 'choice' && question.options.length === 0) {
     throw new Error(`Étape ${stepId} : options vides pour « ${question.key} »`);
   }
+  if (question.kind === 'choice' && question.prefillFrom !== undefined) {
+    const { prefillFrom } = question;
+    if (!ANSWER_KEY_PATTERN.test(prefillFrom) || prefillFrom === question.key) {
+      throw new Error(
+        `Étape ${stepId} : clé de préremplissage invalide « ${prefillFrom} » pour « ${question.key} »`,
+      );
+    }
+  }
   if (question.kind !== 'list') return;
   if (!Number.isInteger(question.maxItems) || question.maxItems < 1) {
     throw new Error(`Étape ${stepId} : maxItems invalide pour « ${question.key} »`);
+  }
+  // WHY: le serveur refuserait une liste plus longue que maxItems ; le programme type doit
+  // pouvoir être enregistré tel quel.
+  if (question.starter && LIST_STARTERS[question.starter].size > question.maxItems) {
+    throw new Error(`Étape ${stepId} : programme type trop long pour « ${question.key} »`);
   }
   const names = new Set<string>();
   for (const field of question.fields) {

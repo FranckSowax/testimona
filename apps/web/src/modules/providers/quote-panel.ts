@@ -1,3 +1,5 @@
+import { ceremonyDate } from '@/journey/ceremony';
+import type { Answers } from '@/journey/progress';
 import type { Quantity } from '@/journey/quantities';
 import type { PanelGroup } from './panel';
 import { quoteMessage } from './quote-message';
@@ -21,6 +23,36 @@ export function quotePlace(placeAnswer: unknown, panelCity: string): string {
   return city || panelCity;
 }
 
+/** Ce que disent les messages de devis, en plus du prestataire et de sa catégorie. */
+export interface QuoteContext {
+  place: string;
+  /** Date des obsèques en toutes lettres ; null : « à préciser ». */
+  date: string | null;
+  quantities: readonly Quantity[];
+}
+
+/**
+ * Contexte des messages de devis d'une synthèse (3.1, 3.2, 3.4) : ville de la veillée (sinon
+ * celle de l'encadré) et date des obsèques (3.4) dans la langue de l'interface.
+ * WHY: seules ces réponses sortent du dossier ; le nom du défunt n'en fait jamais partie.
+ *
+ * @example
+ * quoteContext({ answers, city: 'Libreville', locale: 'fr', quantities: [] });
+ * // { place: 'Libreville', date: 'samedi 14 novembre 2026', quantities: [] }
+ */
+export function quoteContext(input: {
+  answers: Answers;
+  city: string;
+  locale: string;
+  quantities: readonly Quantity[];
+}): QuoteContext {
+  return {
+    place: quotePlace(input.answers['vigil.place'], input.city),
+    date: ceremonyDate(input.answers['ceremony.date'], input.locale),
+    quantities: input.quantities,
+  };
+}
+
 /**
  * Messages de devis par prestataire contactable de l'encadré (vérifié, non exemple), indexés
  * par identifiant. Le numéro n'entre jamais dans le message.
@@ -30,7 +62,7 @@ export function quotePlace(placeAnswer: unknown, panelCity: string): string {
  */
 export function quoteMessages(
   groups: readonly PanelGroup[],
-  context: { place: string; date: string | null; quantities: readonly Quantity[] },
+  context: QuoteContext,
   t: Translate,
 ): Record<string, string> {
   const messages: Record<string, string> = {};

@@ -1,10 +1,11 @@
 'use client';
 
 import { startTransition, useActionState, useRef, useState, type FormEvent } from 'react';
+import { flushSync } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { saveAnswerAction, type AnswerState } from '@/modules/dossier/answers/actions';
-import { isSkipped, type Question } from '../types';
+import { isSkipped, type ListItem, type Question } from '../types';
 import { AnswerInput } from './AnswerInput';
 import type { Country } from './inputs/PlaceInput';
 import { useAnswerError } from './useAnswerError';
@@ -13,6 +14,7 @@ import {
   isBlank,
   keptIndices,
   missingRequired,
+  listFieldId,
   toEditable,
   type EditableValue,
 } from './values';
@@ -29,6 +31,8 @@ interface Props {
   countries: Country[];
   backHref: string;
   nextHref: string | null;
+  /** Éléments du programme type, proposés tant que la liste est vide (hors lecture seule). */
+  starter?: ListItem[];
 }
 
 const SHELL =
@@ -61,6 +65,26 @@ export function QuestionScreen(props: Props) {
   const keptRef = useRef<number[]>([]);
   const { error, show, clear } = useAnswerError(state, question, fieldId, keptRef);
   const noAnswer = readOnly && (props.stored === undefined || isSkipped(props.stored));
+  const { starter } = props;
+  // WHY: le modèle ne remplace jamais une saisie ; il disparaît dès qu'un moment existe.
+  const showStarter =
+    !readOnly &&
+    question.kind === 'list' &&
+    starter !== undefined &&
+    starter.length > 0 &&
+    isBlank(value);
+
+  const applyStarter = () => {
+    if (!starter || question.kind !== 'list') return;
+    // WHY: le bouton disparaît au rendu ; sans déplacer le focus, il tomberait sur <body>.
+    // flushSync rend la liste avant de chercher son premier champ.
+    flushSync(() => {
+      setValue(starter.map((item) => ({ ...item })));
+      clear();
+    });
+    const first = question.fields[0];
+    if (first) document.getElementById(listFieldId(fieldId, question, 0, first.name))?.focus();
+  };
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -105,6 +129,16 @@ export function QuestionScreen(props: Props) {
         )}
       </div>
       {readOnly && <p className="text-sm text-white/70">{t('readOnly')}</p>}
+      {showStarter && (
+        <button
+          type="button"
+          onClick={applyStarter}
+          disabled={pending}
+          className="self-start rounded-full border border-white/30 px-4 py-2 text-sm text-white/90 hover:bg-white/10 disabled:opacity-60"
+        >
+          {t('useStarter')}
+        </button>
+      )}
       {noAnswer ? (
         <p className="text-white/70">{t('noAnswer')}</p>
       ) : (

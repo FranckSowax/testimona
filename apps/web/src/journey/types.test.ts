@@ -81,6 +81,69 @@ describe('answerSchema', () => {
   });
 });
 
+describe('answerSchema : heure dans une liste', () => {
+  const program = (required: boolean): Question => ({
+    kind: 'list',
+    key: 'ceremony.program',
+    maxItems: 5,
+    fields: [
+      { name: 'moment', kind: 'shortText', required: true },
+      { name: 'time', kind: 'time', required },
+    ],
+  });
+
+  it('accepte une heure HH:MM valide, rognée', () => {
+    const s = answerSchema(program(true));
+    expect(s.parse([{ moment: 'Accueil', time: '08:00' }])).toEqual([
+      { moment: 'Accueil', time: '08:00' },
+    ]);
+    expect(s.parse([{ moment: 'Accueil', time: '23:59' }])[0].time).toBe('23:59');
+    expect(s.parse([{ moment: 'Accueil', time: ' 09:30 ' }])[0].time).toBe('09:30');
+  });
+
+  it('refuse une heure mal formée ou hors bornes', () => {
+    const s = answerSchema(program(true));
+    for (const time of ['24:00', '8:00', '08:60', '', 'midi']) {
+      expect(s.safeParse([{ moment: 'Accueil', time }]).success).toBe(false);
+    }
+  });
+
+  it('omet une heure facultative laissée vide', () => {
+    const s = answerSchema(program(false));
+    const parsed = s.parse([{ moment: 'Accueil', time: '' }]);
+    expect(JSON.parse(JSON.stringify(parsed))).toStrictEqual([{ moment: 'Accueil' }]);
+    expect(s.safeParse([{ moment: 'Accueil', time: '25:00' }]).success).toBe(false);
+  });
+
+  it('accepte une heure facultative absente', () => {
+    const parsed = answerSchema(program(false)).parse([{ moment: 'Accueil' }]);
+    expect(JSON.parse(JSON.stringify(parsed))).toStrictEqual([{ moment: 'Accueil' }]);
+    expect(answerSchema(program(true)).safeParse([{ moment: 'Accueil' }]).success).toBe(false);
+  });
+
+  it('refuse une heure non textuelle, obligatoire ou facultative', () => {
+    for (const required of [true, false]) {
+      const s = answerSchema(program(required));
+      for (const time of [830, true, null, { h: 8 }]) {
+        expect(s.safeParse([{ moment: 'Accueil', time }]).success).toBe(false);
+      }
+    }
+  });
+
+  it('refuse une heure obligatoire faite d’espaces', () => {
+    const result = answerSchema(program(true)).safeParse([{ moment: 'Accueil', time: '   ' }]);
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBe('invalid time');
+  });
+
+  it('refuse les secondes', () => {
+    for (const required of [true, false]) {
+      const s = answerSchema(program(required));
+      expect(s.safeParse([{ moment: 'Accueil', time: '08:30:00' }]).success).toBe(false);
+    }
+  });
+});
+
 describe('isSkipped', () => {
   it('reconnaît exactement la réponse « passée »', () => {
     expect(isSkipped(SKIPPED)).toBe(true);

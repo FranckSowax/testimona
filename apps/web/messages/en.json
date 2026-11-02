@@ -1215,6 +1215,10 @@
       "vigil-catering": {
         "title": "Food and drinks for the wake",
         "description": "What you serve each night and on the day of the funeral, with the quantities to plan."
+      },
+      "ceremony-program": {
+        "title": "The order of the funeral",
+        "description": "The funeral date, the places, the tone and the programme hour by hour."
       }
     },
     "q": {
@@ -1416,6 +1420,63 @@
           "hint": "For everyone expected that day.",
           "options": { "yes": "Yes", "no": "No" }
         }
+      },
+      "ceremony": {
+        "date": {
+          "title": "When is {name}'s funeral?",
+          "hint": "It will appear in the programme and in quote requests."
+        },
+        "liftPlace": {
+          "title": "Where will the removal of the body take place?",
+          "hint": "Often the mortuary or the family home. An address or a Google Maps link: relatives will get there in one tap."
+        },
+        "servicePlace": {
+          "title": "Where will the ceremony be held?",
+          "hint": "An address or a Google Maps link: relatives will get there in one tap."
+        },
+        "burialPlace": {
+          "title": "Where will the burial take place?",
+          "hint": "An address or a Google Maps link: relatives will get there in one tap."
+        },
+        "tone": {
+          "title": "Which tone would you like for the ceremony?",
+          "hint": "If you chose one for the announcements, it is already selected. It shapes the sample programme.",
+          "options": {
+            "believer": "With faith",
+            "neutral": "Neutral"
+          }
+        },
+        "program": {
+          "title": "What is the programme for the day?",
+          "hint": "Add each moment with its time; the place and the person leading it are optional. The times in the sample programme are only a guide.",
+          "fields": {
+            "time": {
+              "label": "Time"
+            },
+            "moment": {
+              "label": "Moment"
+            },
+            "place": {
+              "label": "Place (optional)"
+            },
+            "lead": {
+              "label": "Led by (optional)"
+            }
+          }
+        }
+      }
+    },
+    "templates": {
+      "ceremony": {
+        "welcome": "Welcoming family and friends",
+        "lift": "Removal of the body",
+        "procession": "Funeral procession",
+        "religiousService": "Religious service",
+        "remembrance": "Remembrance ceremony",
+        "tributes": "Tributes and testimonies",
+        "departure": "Departure for the cemetery",
+        "burial": "Burial",
+        "reception": "Reception"
       }
     },
     "fields": {
@@ -1440,9 +1501,11 @@
       "chooseOption": "Choose…",
       "tooLarge": "Your answer is too long: please shorten it.",
       "invalidDate": "This date is not valid.",
+      "invalidTime": "This time is not valid: use the HH:MM format, for example 09:30.",
       "invalidCharacter": "Your answer contains an unsupported character.",
       "invalidNumber": "Enter a whole number, in digits.",
-      "outOfRange": "Enter a number between {min, number} and {max, number}."
+      "outOfRange": "Enter a number between {min, number} and {max, number}.",
+      "useStarter": "Start from a sample programme"
     },
     "dashboard": {
       "nextTitle": "Next question",
@@ -1477,6 +1540,28 @@
       "upToDate": "The {line} item already matches this estimate.",
       "editAnswers": "Edit the answers",
       "backToDossier": "Back to the dossier",
+      "ceremony": {
+        "dateTitle": "Funeral date",
+        "dateUnknown": "Date to be confirmed",
+        "placesTitle": "Places",
+        "noPlaces": "The places have not been given yet.",
+        "places": {
+          "liftPlace": "Removal of the body",
+          "servicePlace": "Ceremony",
+          "burialPlace": "Burial"
+        },
+        "directions": "Directions",
+        "directionsLabel": "Directions: {target} (Google Maps, new tab)",
+        "programTitle": "Programme for the day",
+        "columns": {
+          "time": "Time",
+          "moment": "Moment",
+          "place": "Place",
+          "lead": "Led by"
+        },
+        "noProgram": "The programme for the day has not been written yet.",
+        "writeProgram": "Write the programme"
+      },
       "quantity": {
         "tents": "{count, plural, =1 {1 tent of 5 × 10 m} other {# tents of 5 × 10 m}}",
         "chairs": "{count, plural, =1 {1 chair} other {# chairs}}",
@@ -1923,7 +2008,7 @@
       "message": {
         "greeting": "Hello {name},",
         "need": "We are organising a funeral and would like a quote for: {category}.",
-        "date": "Date: {date}",
+        "date": "Funeral date: {date}",
         "dateUnknown": "to be confirmed",
         "place": "Place: {place}",
         "quantities": "Estimated needs:",

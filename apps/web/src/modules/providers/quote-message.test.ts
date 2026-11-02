@@ -40,7 +40,7 @@ describe('quoteMessage', () => {
       [
         'Bonjour Tentes Owendo,',
         'Nous organisons des funérailles et souhaitons un devis pour : Tentes et chaises.',
-        'Date : à préciser',
+        'Date des obsèques : à préciser',
         'Lieu : Libreville',
         'Besoins estimés :',
         `- ${t('journey.synthesis.quantity.tents', { count: 2 })}`,
@@ -57,13 +57,19 @@ describe('quoteMessage', () => {
 
   it('donne la date quand elle est connue', () => {
     expect(quoteMessage({ ...base, date: '14 novembre 2026' }, t)).toContain(
-      'Date : 14 novembre 2026',
+      'Date des obsèques : 14 novembre 2026',
     );
   });
 
   it('se traduit en anglais', () => {
-    const message = quoteMessage(base, (key, values) => tEn(key as never, values as never));
+    const tr = (key: string, values?: Record<string, string | number>) =>
+      tEn(key as never, values as never);
+    const message = quoteMessage(base, tr);
     expect(message.startsWith('Hello Tentes Owendo,')).toBe(true);
+    expect(message).toContain('Funeral date: to be confirmed');
+    expect(quoteMessage({ ...base, date: 'November 14, 2026' }, tr)).toContain(
+      'Funeral date: November 14, 2026',
+    );
   });
 
   it('reste sous la limite de la base', () => {

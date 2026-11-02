@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { AMOUNT_MAX } from '@/modules/budget/scenarios';
 import { estimateFor, ESTIMATE_KEYS, hasEstimate, wakeGuestsOf } from './quantities';
 import { allSteps } from './registry';
+import { CEREMONY_STEP_ID } from './steps/3-4-ceremony-program';
 
 const ATTENDANCE = {
   'attendance.close': 40,
@@ -220,8 +221,10 @@ describe('wakeGuestsOf', () => {
 });
 
 describe('registre', () => {
-  it('donne une estimation à chaque étape à synthèse propre', () => {
+  it('donne une estimation à chaque étape à synthèse propre, sauf la cérémonie', () => {
+    // WHY: la synthèse de 3.4 (programme, lieux, devis) ne calcule aucune quantité.
     const missing = allSteps()
+      .filter((step) => step.id !== CEREMONY_STEP_ID)
       .filter((step) => step.summary === 'step' && !hasEstimate(step.id))
       .map((step) => step.id);
     expect(missing).toEqual([]);
