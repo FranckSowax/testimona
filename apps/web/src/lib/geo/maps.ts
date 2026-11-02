@@ -68,8 +68,33 @@ export function parseLocation(raw: string): ParsedLocation {
   }
 
   // A maps short-link we can't decode client-side — still usable as a link,
-  // but not embeddable. Keep the raw URL so the directions button works.
-  return { query: input, kind: 'unknown', valid: /goo\.gl|google\.[a-z.]+\/maps/i.test(input) };
+  // but not embeddable. Keep the URL so the directions button works.
+  return { query: input, kind: 'unknown', valid: isGoogleMapsUrl(input) };
+}
+
+// WHY: une URL non décodée est reprise comme lien « Itinéraire », y compris sur la page publique
+// du mémorial. On n'accepte donc qu'un hôte Google Maps exact, en https et sans identifiants :
+// une expression cherchée n'importe où dans l'URL laissait passer `https://evil.example/goo.gl`
+// ou `https://goo.gl.evil.example/x` (redirection ouverte).
+const GOOGLE_TLD = String.raw`(?:com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})`;
+const SHORT_LINK_HOST = /^(?:maps\.app\.)?goo\.gl$/;
+const MAPS_HOST = new RegExp(`^maps\\.google\\.${GOOGLE_TLD}$`);
+const GOOGLE_HOST = new RegExp(`^(?:www\\.)?google\\.${GOOGLE_TLD}$`);
+
+function isGoogleMapsUrl(raw: string): boolean {
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    return false;
+  }
+  if (url.protocol !== 'https:' || url.username || url.password) return false;
+  const host = url.hostname.toLowerCase();
+  return (
+    SHORT_LINK_HOST.test(host) ||
+    MAPS_HOST.test(host) ||
+    (GOOGLE_HOST.test(host) && /^\/maps(?:\/|$)/.test(url.pathname))
+  );
 }
 
 /** Google Maps embed URL for a parsed/raw location (empty string when unusable). */
@@ -79,9 +104,14 @@ export function mapsEmbedSrc(raw: string): string {
   return `https://maps.google.com/maps?q=${encodeURIComponent(query)}&output=embed`;
 }
 
-/** Google Maps directions URL (falls back to opening the pasted link). */
+/**
+ * Google Maps directions URL (falls back to opening a pasted Google Maps short link).
+ * Empty string when there is nothing safe to link to: render no link then.
+ */
 export function mapsDirectionsHref(raw: string): string {
-  const { query, kind } = parseLocation(raw);
-  if (kind === 'unknown') return raw.trim();
+  const { query, kind, valid } = parseLocation(raw);
+  if (kind === 'empty') return '';
+  // WHY: on renvoie l'URL normalisée par `URL`, jamais le texte collé tel quel.
+  if (kind === 'unknown') return valid ? new URL(query).href : '';
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}`;
 }
