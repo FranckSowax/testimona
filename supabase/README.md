@@ -31,6 +31,7 @@ supabase/
 | `20261028000200_closing.sql`                                 | Lot 2 : clôture des cotisations, journal, écritures refusées une fois clôturé                  |
 | `20261028000300_providers.sql`                               | Lot 3 : prestataires, catégories, demandes de devis, `search_path` de `is_admin()`             |
 | `20261029000100_quote_request_provider_name.sql`             | Lot 3 : nom du prestataire figé dans chaque demande de devis                                   |
+| `20261029000200_provider_whatsapp_private.sql`               | Lot 3 : numéro WhatsApp du prestataire illisible par l'API                                     |
 | `20261101000100_dossier_photos.sql`                          | Lot 3 : photo du dossier, RPC `set_dossier_photo`, bucket privé `dossier-photos`               |
 
 Les horodatages des migrations historiques sont **synthétiques** : ils ne servent qu'à fixer l'ordre.
@@ -64,10 +65,10 @@ La production a reçu ces migrations à la main. Avant le premier `supabase db p
    `20260502000024`).
 4. Appliquer les nouvelles migrations : `supabase db push`.
 
-## État de la production (2026-10-29)
+## État de la production (2026-11-03)
 
 Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Historique vérifié le
-2026-10-29 avec `list_migrations` (MCP Supabase).
+2026-11-03 avec `list_migrations` (MCP Supabase).
 
 **Déjà en production :**
 
@@ -84,7 +85,14 @@ Projet Supabase « Testimona app » (`ryfbfpgwuqyfymxcxmny`, eu-west-1). Histori
 - `receipts` (lot 2, PR 4), version enregistrée `20261028095748` ;
 - `closing` (lot 2, PR 5), version enregistrée `20261028101409` ;
 - `providers` (lot 3, PR 1), version enregistrée `20261028201418` ;
-- `quote_request_provider_name` (lot 3, PR 3), version enregistrée `20261029095426`.
+- `quote_request_provider_name` (lot 3, PR 3), version enregistrée `20261029095426` ;
+- `provider_whatsapp_private`, version enregistrée `20261031115137` ;
+- `dossier_photos` (lot 3, PR 5), appliquée à la main le 2026-11-03 depuis l'éditeur SQL : **aucune
+  entrée dans l'historique**. Vérifié par requête : table `dossier_photo` avec RLS et ses deux
+  policies, trigger d'insertion, RPC `set_dossier_photo`, index `dossier_photo_current_idx`, bucket
+  privé `dossier-photos` (5 Mo, `image/jpeg`) et ses deux policies de stockage. Les types générés
+  depuis la production sont identiques à ceux écrits à la main dans la PR. À marquer comme appliquée
+  (`supabase migration repair --status applied 20261101000100`) avant le premier `supabase db push`.
 
 Toutes les migrations du dépôt sont donc en production. Après `ledger`, vérifié : RLS active sur
 `ledger_entry` et `dossier_finance`, aucun droit pour `anon`, `authenticated` limité à
