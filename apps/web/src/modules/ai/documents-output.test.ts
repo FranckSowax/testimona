@@ -43,6 +43,11 @@ describe('hasTime', () => {
       '1 Corinthiens 13:4-7',
       'Psaume 23:1',
       'John 14:1-3',
+      'Éphésiens 2:10',
+      'Ésaïe 40:31',
+      'Psaumes 121:1-2',
+      '2 Timothée 4:7',
+      'Ps. 23:4',
     ]) {
       expect(hasTime(`« Je suis la résurrection et la vie. » ${verse}`)).toBe(false);
     }
@@ -62,6 +67,15 @@ describe('hasTime', () => {
       'Vers 9:15, accueil.',
       'Le 14:30 précisément.',
       'At 9:15 we gather.',
+      'Inhumation 16:00.',
+      'Messe 10:30.',
+      'Cérémonie 15:00.',
+      'Accueil 9:00.',
+      'Dès 14:30, accueil.',
+      'Rendez-vous à 15 heures.',
+      'Accueil vers 10 heures.',
+      '(à 9 heures) au domicile.',
+      'Join us at 3 heures.',
     ]) {
       expect(hasTime(text)).toBe(true);
     }
@@ -89,6 +103,9 @@ describe('hasTime', () => {
       'Il veillait jusqu’à minuit.',
       'Il aimait les heures calmes du matin.',
       'He loved his 3 grandchildren.',
+      '2 heures de route le séparaient de son village.',
+      'Il marchait 2 heures par jour.',
+      'Il était disponible 24 heures sur 24.',
     ]) {
       expect(hasTime(text)).toBe(false);
     }

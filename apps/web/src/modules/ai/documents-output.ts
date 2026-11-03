@@ -14,42 +14,217 @@ const TextsSchema = z
   })
   .strict();
 
-// WHY: une heure (« 9:30 », « 14h05 », « 10 h 30 », « 15h », « 9 heures », « 3 pm ») vient du
+// WHY: une heure (« 9:30 », « 14h05 », « 10 h 30 », « 15h », « à 9 heures », « 3 pm ») vient du
 // programme de la cérémonie, jamais de l'IA : un texte qui en contient une est refusé plutôt que
-// corrigé. « midi » et « minuit » sont laissés de côté (trop de faux positifs).
+// corrigé. Les formes compactes sont toujours des heures ; « N heures » seul est souvent une durée
+// (« 2 heures de route », « 24 heures sur 24 ») : il n'est refusé qu'après un mot d'introduction.
+// « midi » et « minuit » sont laissés de côté (trop de faux positifs).
 const TIMES = [
   /\b([01]?\d|2[0-3])\s?[:hH]\s?[0-5]\d\b/,
   /\b([01]?\d|2[0-3])\s?h\b/i,
-  /\b\d{1,2}\s?heures?\b/i,
+  // WHY: `\b` ne connaît que l'ASCII : il ne voit pas de frontière devant « à ».
+  /(?:^|[\s(«"'])(?:à|a|vers|dès|des|jusqu['’]à|at|by|from|until)\s+\d{1,2}\s?heures?(?![\p{L}\d])/iu,
   /\b\d{1,2}\s?(am|pm|o['’]clock)\b/i,
 ];
 
-// WHY: le ton croyant peut citer un verset (« Jean 11:25 », « 1 Corinthiens 13:4-7 ») : sa
-// référence ressemble à une heure. On la retire avant de chercher une heure.
-const VERSE = /(?:\b[1-3]\s?)?\b(\p{Lu}\p{L}+)\.?\s+\d{1,3}:\d{1,3}(?:-\d{1,3})?\b/gu;
+/**
+ * Livres de la Bible (français et anglais, accents et abréviations courantes) reconnus dans une
+ * référence de verset ; un numéro 1, 2 ou 3 peut les précéder.
+ */
+const BIBLE_BOOKS = [
+  // Ancien Testament, français.
+  'Genèse',
+  'Exode',
+  'Lévitique',
+  'Nombres',
+  'Deutéronome',
+  'Josué',
+  'Juges',
+  'Ruth',
+  'Samuel',
+  'Rois',
+  'Chroniques',
+  'Esdras',
+  'Néhémie',
+  'Esther',
+  'Job',
+  'Psaume',
+  'Psaumes',
+  'Proverbes',
+  'Ecclésiaste',
+  'Qohélet',
+  'Cantique des Cantiques',
+  'Ésaïe',
+  'Esaïe',
+  'Isaïe',
+  'Jérémie',
+  'Lamentations',
+  'Ézéchiel',
+  'Ezéchiel',
+  'Daniel',
+  'Osée',
+  'Joël',
+  'Amos',
+  'Abdias',
+  'Jonas',
+  'Michée',
+  'Nahum',
+  'Habacuc',
+  'Sophonie',
+  'Aggée',
+  'Zacharie',
+  'Malachie',
+  'Tobie',
+  'Judith',
+  'Maccabées',
+  'Sagesse',
+  'Siracide',
+  'Ecclésiastique',
+  'Baruch',
+  // Nouveau Testament, français.
+  'Matthieu',
+  'Marc',
+  'Luc',
+  'Jean',
+  'Actes',
+  'Romains',
+  'Corinthiens',
+  'Galates',
+  'Éphésiens',
+  'Ephésiens',
+  'Philippiens',
+  'Colossiens',
+  'Thessaloniciens',
+  'Timothée',
+  'Tite',
+  'Philémon',
+  'Hébreux',
+  'Jacques',
+  'Pierre',
+  'Jude',
+  'Apocalypse',
+  // Old Testament, English.
+  'Genesis',
+  'Exodus',
+  'Leviticus',
+  'Numbers',
+  'Deuteronomy',
+  'Joshua',
+  'Judges',
+  'Kings',
+  'Chronicles',
+  'Ezra',
+  'Nehemiah',
+  'Psalm',
+  'Psalms',
+  'Proverbs',
+  'Ecclesiastes',
+  'Song of Songs',
+  'Song of Solomon',
+  'Isaiah',
+  'Jeremiah',
+  'Ezekiel',
+  'Hosea',
+  'Joel',
+  'Obadiah',
+  'Jonah',
+  'Micah',
+  'Habakkuk',
+  'Zephaniah',
+  'Haggai',
+  'Zechariah',
+  'Malachi',
+  'Tobit',
+  'Maccabees',
+  'Wisdom',
+  'Sirach',
+  // New Testament, English.
+  'Matthew',
+  'Mark',
+  'Luke',
+  'John',
+  'Acts',
+  'Romans',
+  'Corinthians',
+  'Galatians',
+  'Ephesians',
+  'Philippians',
+  'Colossians',
+  'Thessalonians',
+  'Timothy',
+  'Titus',
+  'Philemon',
+  'Hebrews',
+  'James',
+  'Peter',
+  'Revelation',
+  // Abréviations courantes.
+  'Gn',
+  'Gen',
+  'Ex',
+  'Exod',
+  'Lv',
+  'Lev',
+  'Nb',
+  'Num',
+  'Dt',
+  'Deut',
+  'Jos',
+  'Ps',
+  'Pr',
+  'Prov',
+  'Qo',
+  'Eccl',
+  'Is',
+  'Isa',
+  'Jr',
+  'Jer',
+  'Ez',
+  'Ezek',
+  'Dn',
+  'Dan',
+  'Mt',
+  'Matt',
+  'Mc',
+  'Mk',
+  'Lc',
+  'Lk',
+  'Jn',
+  'Ac',
+  'Rm',
+  'Rom',
+  'Co',
+  'Cor',
+  'Ga',
+  'Gal',
+  'Ep',
+  'Eph',
+  'Ph',
+  'Phil',
+  'Col',
+  'Th',
+  'Thess',
+  'Tm',
+  'Tim',
+  'He',
+  'Heb',
+  'Hb',
+  'Jc',
+  'Jas',
+  'Ap',
+  'Rev',
+] as const;
 
-// WHY: « Dimanche 14:30 » ou « Vers 9:15 » ont la forme d'un verset mais annoncent une heure :
-// un jour de la semaine ou un mot d'introduction n'est jamais un livre de la Bible.
-const NOT_A_BOOK = new Set([
-  'lundi',
-  'mardi',
-  'mercredi',
-  'jeudi',
-  'vendredi',
-  'samedi',
-  'dimanche',
-  'monday',
-  'tuesday',
-  'wednesday',
-  'thursday',
-  'friday',
-  'saturday',
-  'sunday',
-  'le',
-  'vers',
-  'à',
-  'at',
-]);
+// WHY: le ton croyant peut citer un verset (« Jean 11:25 », « 1 Corinthiens 13:4-7 ») : sa
+// référence ressemble à une heure. On ne retire, avant de chercher une heure, que les références
+// dont le livre est connu : « Messe 10:30 » ou « Dimanche 14:30 » restent des heures. `\b` étant
+// ASCII, la frontière devant le livre est Unicode (« Éphésiens », « Ésaïe »).
+const VERSE = new RegExp(
+  `(?<![\\p{L}\\d])(?:[1-3]\\s?)?(?:${[...BIBLE_BOOKS]
+    .sort((x, y) => y.length - x.length)
+    .join('|')})\\.?\\s+\\d{1,3}:\\d{1,3}(?:-\\d{1,3})?(?!\\d)`,
+  'gu',
+);
 
 const MONTHS_FR =
   'janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre';
@@ -59,6 +234,8 @@ const MONTHS_EN =
 // WHY: les faits ne portent aucune date structurée ; une année ou un jour et un mois dans un
 // texte viennent donc soit de la biographie écrite par la famille (permis), soit de l'IA
 // (inventés, refusés). On cherche chaque date trouvée dans le JSON des faits envoyés.
+// La comparaison est exacte exprès (casse et espaces mis à part) : « 1 mai » ne valide pas
+// « 1er mai », pour ne jamais laisser passer une date que la famille n'a pas écrite.
 const DATES = [
   /\b(?:18|19|20)\d{2}\b/g,
   new RegExp(`\\b\\d{1,2}(?:er)?\\s+(?:${MONTHS_FR})(?![\\p{L}])`, 'giu'),
@@ -71,9 +248,7 @@ const normalize = (text: string) => text.toLowerCase().replace(/\s+/g, ' ');
 
 /** Vrai quand le texte contient une heure (hors référence de verset). */
 export function hasTime(text: string): boolean {
-  const withoutVerses = text.replace(VERSE, (match, book: string) =>
-    NOT_A_BOOK.has(book.toLowerCase()) ? match : ' ',
-  );
+  const withoutVerses = text.replace(VERSE, ' ');
   return TIMES.some((time) => time.test(withoutVerses));
 }
 
