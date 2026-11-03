@@ -1966,6 +1966,16 @@
         "photo_already_used": "Cette photo est déjà enregistrée. Rechargez la page pour la voir.",
         "upload_failed": "L'envoi de la photo a échoué. Vérifiez votre connexion et réessayez."
       }
+    },
+    "starter": {
+      "cover": {
+        "neutral": "Son souvenir restera à jamais dans nos cœurs.",
+        "believer": "Que Dieu l’accueille dans sa paix et sa lumière."
+      },
+      "thanks": {
+        "neutral": "La famille remercie du fond du cœur toutes celles et tous ceux qui l’ont entourée de leur présence, de leurs messages et de leur soutien en ces moments douloureux.",
+        "believer": "La famille remercie du fond du cœur toutes celles et tous ceux qui l’ont entourée de leur présence, de leurs prières et de leur soutien en ces moments douloureux. Que Dieu vous le rende."
+      }
     }
   },
   "providers": {

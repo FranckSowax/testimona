@@ -1966,6 +1966,16 @@
         "photo_already_used": "This photo is already saved. Reload the page to see it.",
         "upload_failed": "Sending the photo failed. Check your connection and try again."
       }
+    },
+    "starter": {
+      "cover": {
+        "neutral": "Their memory will live on in our hearts forever.",
+        "believer": "May God welcome them into His peace and light."
+      },
+      "thanks": {
+        "neutral": "The family thanks with all their hearts everyone who stood by them with their presence, their messages and their support during this painful time.",
+        "believer": "The family thanks with all their hearts everyone who stood by them with their presence, their prayers and their support during this painful time. May God bless you."
+      }
     }
   },
   "providers": {
