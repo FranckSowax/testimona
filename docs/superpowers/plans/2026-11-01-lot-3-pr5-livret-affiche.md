@@ -441,18 +441,26 @@ export const funeralDocumentsStep = defineStep({
 
 ---
 
-## Points à valider (avant ou pendant l'implémentation)
+## Décisions validées par l'utilisateur (2026-11-03)
 
-1. **Photo courante en deux temps** (`activated_at` et RPC `set_dossier_photo`), au lieu de « fichier avant la ligne ». Option proposée : celle du plan, calquée sur les reçus. Autre option : un chemin d'envoi libre sous `<dossier_id>/`, contrôlé par `storage.foldername`, puis une ligne qui exige l'objet. Le stockage accepterait alors des fichiers orphelins sans ligne.
-2. **JPEG seul** dans le bucket (la spec dit JPEG, PNG ou WebP). Proposé : JPEG seul.
-3. **Faits envoyés à l'IA.** La spec dit que l'IA rédige « à partir de la fiche, de la biographie 1.6, du programme 3.4 et du registre ». Le plan n'envoie que le prénom, le surnom, le registre et les réponses de la biographie, sans nom de famille, dates, lieux ni programme, pour que l'IA ne puisse ni reformuler ni inventer un fait. À confirmer, ou à élargir (ajout du nom de famille ?).
-4. **Un appel d'IA pour les trois textes** (un seul décompte du quota de 20 par jour), au lieu d'un appel par texte. Il n'y a pas de bouton « Améliorer » par texte dans cette PR.
-5. **Textes de départ sans IA** (couverture et remerciement), quand l'IA est absente ou épuisée : ajout par rapport à la spec. Les formulations FR/EN sont à relire par le produit, en particulier le verset proposé pour le registre croyant.
-6. **Limite d'envoi de photos** : 20 préparations par dossier et par 24 heures (TL011), et nouveau code TL012 (photo déjà désignée ou absente). Valeurs et codes à confirmer.
-7. **Contenu de l'affiche** : les 5 premiers moments du programme par heure. Il n'y a pas de choix des moments principaux par la famille dans cette PR.
-8. **Documents exigeant la date des obsèques et au moins un moment** (sinon 409 et liste des manques), y compris pour l'affiche. Autre option : afficher « Date à préciser » sur l'affiche.
-9. **Retrait de la photo** sans remplacement : non prévu (seul le remplacement archive l'ancienne). À ajouter (RPC d'archivage) si le produit le juge nécessaire.
-10. **Police** : PT Sans (OFL, déjà celle de l'interface), téléchargée depuis `google/fonts`. Le téléchargement demande l'accord de l'utilisateur. Une autre police OFL est possible pour le titre, par exemple Montserrat, déjà utilisée.
+**Ces décisions priment sur le texte des tâches ci-dessus quand ils divergent.**
+
+1. **Photo courante en deux temps** (`activated_at` et RPC `set_dossier_photo`) : validé.
+2. **JPEG seul dans le bucket** : validé.
+3. **Faits envoyés à l'IA** : validé.
+   - Envoyés : le prénom, le surnom, le registre et les réponses de la biographie.
+   - Jamais envoyés : le nom de famille, les dates, les lieux, le programme.
+4. **Un seul appel d'IA pour les trois textes**, sans bouton « Améliorer » par texte : validé.
+5. **Textes de départ sans IA** (couverture et remerciement) : validé. Leurs formulations, dont le verset du registre croyant, restent à relire par le produit.
+6. **Aucune limite d'envoi de photos**, par cohérence avec la décision « pas de limite » prise pour les devis.
+   - Pas de code TL011, pas de comptage dans le trigger, pas de code `too_many_photos`.
+   - TL012 est conservé pour une photo inexistante, déjà désignée ou archivée.
+7. **Affiche** : les 5 premiers moments du programme, par heure. Validé.
+8. **Contenu minimal d'un document** :
+   - au moins un moment au programme est exigé ; sinon, réponse 409 avec la liste des manques ;
+   - la date des obsèques est facultative. Sans date, le livret et l'affiche indiquent « Date à préciser » (FR) ou « Date to be confirmed » (EN), et `documentReadiness` ne la compte pas comme un manque.
+9. **Retrait de la photo sans remplacement** : non prévu. Validé.
+10. **Police PT Sans (OFL)**, depuis `google/fonts` : téléchargement accepté par l'utilisateur. L'orchestrateur l'a fait avant la tâche 2 ; les fichiers sont déjà dans `apps/web/assets/fonts/`.
 
 ## Risques
 
