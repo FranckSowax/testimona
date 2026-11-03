@@ -1952,6 +1952,22 @@
       "too_large": "Le registre est trop volumineux pour être exporté en une seule fois."
     }
   },
+  "documents": {
+    "photo": {
+      "label": "Photo pour le livret et l'affiche",
+      "hint": "Facultatif. Les documents fonctionnent sans photo.",
+      "uploading": "Envoi de la photo…",
+      "saved": "Photo enregistrée.",
+      "errors": {
+        "unreadable": "Photo illisible. Choisissez une autre photo.",
+        "photo_type": "Ce format de photo n'est pas accepté. Choisissez une autre photo.",
+        "photo_size": "Cette photo est trop lourde (5 Mo maximum). Choisissez une autre photo.",
+        "photo_missing": "La photo n'est pas encore arrivée. Réessayez dans un instant.",
+        "photo_already_used": "Cette photo est déjà enregistrée. Rechargez la page pour la voir.",
+        "upload_failed": "L'envoi de la photo a échoué. Vérifiez votre connexion et réessayez."
+      }
+    }
+  },
   "providers": {
     "category": {
       "funeralHome": "Pompes funèbres",

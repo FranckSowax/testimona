@@ -1952,6 +1952,22 @@
       "too_large": "The ledger is too large to export in one go."
     }
   },
+  "documents": {
+    "photo": {
+      "label": "Photo for the booklet and the poster",
+      "hint": "Optional. The documents work without a photo.",
+      "uploading": "Sending the photo…",
+      "saved": "Photo saved.",
+      "errors": {
+        "unreadable": "This photo cannot be read. Please choose another one.",
+        "photo_type": "This photo format is not accepted. Please choose another photo.",
+        "photo_size": "This photo is too large (5 MB maximum). Please choose another one.",
+        "photo_missing": "The photo has not arrived yet. Please try again in a moment.",
+        "photo_already_used": "This photo is already saved. Reload the page to see it.",
+        "upload_failed": "Sending the photo failed. Check your connection and try again."
+      }
+    }
+  },
   "providers": {
     "category": {
       "funeralHome": "Funeral home",
