@@ -65,12 +65,16 @@ cette PR)
 
 ## Tests effectués
 
-- `pnpm format:check`, `pnpm lint`, `pnpm typecheck` : verts.
-- `pnpm --filter @testimona/web test` : vert.
-- `pnpm --filter @testimona/supabase test` (PGlite) : vert, dont `dossier-photos.test.ts` et
-  `dossier-photos-storage.test.ts`.
-- `pnpm --filter @testimona/web build` : vert ; les routes des documents et de la photo sont des
-  fonctions Node dynamiques ; `@react-pdf/renderer` n'apparaît dans aucun fichier client.
+- `pnpm format:check` : vert.
+- `pnpm lint` : 0 erreur (13 avertissements, tous dans des fichiers que cette PR ne touche pas).
+- `pnpm typecheck` : vert (3 paquets sur 3).
+- `pnpm --filter @testimona/web test` : 149 fichiers, 1 426 tests, tous verts.
+- `pnpm --filter @testimona/supabase test` (PGlite) : 17 fichiers, 251 tests, tous verts, dont
+  `dossier-photos.test.ts` et `dossier-photos-storage.test.ts`.
+- `pnpm --filter @testimona/web build` : vert. Les routes `/api/dossiers/[dossierId]/documents/[doc]`
+  et `/api/dossiers/[dossierId]/photo` sont des fonctions Node dynamiques (`ƒ`, aucune en Edge) ;
+  `@react-pdf/renderer` (et Yoga) n'apparaît dans aucun fichier de `.next/static` : il reste un
+  paquet serveur externe.
 
 **Vérification manuelle en local non faite** : aucune base où la migration est appliquée n'était
 disponible. À vérifier à la main, sur une base migrée :
@@ -82,17 +86,29 @@ disponible. À vérifier à la main, sur une base migrée :
 - [ ] ouvrir le PNG dans WhatsApp Web (aperçu et lisibilité sur téléphone) ;
 - [ ] vérifier le 409 lisible quand le programme est vide, et « Date à préciser » sans date.
 
-## Risques
+## Risques et limites connues
 
 - **Ordre de déploiement** : fusionner avant d'appliquer la migration casse l'envoi de photo.
-- **Relecture produit** :
+- **À valider par le produit** :
   - textes de départ du registre croyant, qui citent « Dieu » (« Que Dieu l’accueille dans sa paix
     et sa lumière. », « Que Dieu vous le rende. ») ;
   - la biographie, texte libre, part à l'IA telle quelle et peut contenir des noms de proches
-    (même exposition que les annonces, `data_collection: 'deny'`).
+    (même exposition que les annonces, `data_collection: 'deny'`) ;
+  - dans le parcours « décès », l'étape 3.5 vient avant la biographie (1.6) : quand la famille
+    arrive pour la première fois à 3.5, l'IA a souvent peu de matière. Envisager de placer 3.5
+    après 1.6, ou d'inviter la famille à remplir d'abord la biographie.
 - **Coût de rendu** : chaque téléchargement produit le document à la demande (1 à 3 s avec
   photo), sans cache ni limite de débit. À surveiller sur Railway.
 - **Branche** : rebaser sur `main` si `main` a bougé sur `ceremony.ts` ou la page de synthèse.
+- **Vignette sans nettoyage** : la vignette de la synthèse sert le fichier stocké tel quel. Un JPEG
+  envoyé par un coordinateur en contournant l'interface (sans le réencodage de `shrinkImage`)
+  garde ses métadonnées EXIF quand les membres l'affichent ; seuls les documents (PDF, PNG) sont
+  nettoyés côté serveur.
+- **Garde de l'étape 3.5 côté application** : l'envoi de photo n'est réservé à l'étape 3.5 que par
+  l'application, pas par le trigger ni par la RPC. Sans conséquence : la photo ne s'affiche nulle
+  part en dehors de 3.5.
+- **Journaux avant la migration** : tant que la migration n'est pas appliquée, chaque affichage de
+  la synthèse et chaque téléchargement journalise une erreur `getCurrentPhoto`.
 
 Suites prévues (hors de cette PR) :
 

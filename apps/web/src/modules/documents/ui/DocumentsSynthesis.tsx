@@ -82,7 +82,8 @@ function FixLink({
  * encadré par format avec ce qui manque ou le lien de téléchargement.
  *
  * @example
- * <DocumentsSynthesis {...(await loadDocumentsSynthesis({ dossierId, dossierTitle, locale }))} />
+ * const props = await loadDocumentsSynthesis({ dossierId, dossierTitle, entryPoint, locale });
+ * <DocumentsSynthesis {...props} />
  */
 export function DocumentsSynthesis(props: DocumentsSynthesisProps) {
   const { dossierId, locale, style, photoId, canEdit, readiness } = props;

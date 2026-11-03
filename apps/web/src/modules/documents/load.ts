@@ -26,7 +26,12 @@ import type { DocumentsSynthesisProps } from './ui/DocumentsSynthesis';
  * simplement masquée, car elle est facultative.
  *
  * @example
- * const props = await loadDocumentsSynthesis({ dossierId: id, dossierTitle: dossier.title, locale });
+ * const props = await loadDocumentsSynthesis({
+ *   dossierId: id,
+ *   dossierTitle: dossier.title,
+ *   entryPoint: dossier.entryPoint,
+ *   locale,
+ * });
  */
 export async function loadDocumentsSynthesis(params: {
   dossierId: string;
