@@ -6,6 +6,7 @@ vi.mock('server-only', () => ({}));
 
 import type { BookletData, DocumentLabels, PosterData } from './model';
 import { Booklet } from './pdf/Booklet';
+import { programTablePresence } from './pdf/ProgramTable';
 import { PosterPdf } from './pdf/PosterPdf';
 import { PosterImage } from './png/PosterImage';
 import { renderBooklet, renderPosterPdf, renderPosterPng } from './render';
@@ -57,6 +58,7 @@ const program = [
 ];
 
 const booklet: BookletData = {
+  locale: 'fr',
   style: 'sober',
   photo: null,
   fullName: 'Marie-Thérèse Ndong Mba',
@@ -75,6 +77,7 @@ const booklet: BookletData = {
 };
 
 const poster: PosterData = {
+  locale: 'fr',
   style: 'sober',
   photo: null,
   fullName: booklet.fullName,
@@ -96,8 +99,18 @@ const longProgram = Array.from({ length: 40 }, (_, i) => ({
 }));
 
 const ascii = (bytes: Uint8Array) => Buffer.from(bytes).toString('latin1');
-/** Pages d'un PDF : objets `/Type /Page` (et non `/Pages`, l'arbre des pages). */
+/**
+ * Pages d'un PDF : objets `/Type /Page` (et non `/Pages`, l'arbre des pages).
+ * WHY: react-pdf (pdfkit) écrit les dictionnaires d'objets en clair et ne compresse que les flux
+ * de contenu ; un PDF à flux d'objets compressés (PDF 1.5+) demanderait un vrai analyseur.
+ */
 const pageCount = (pdf: Uint8Array) => ascii(pdf).match(/\/Type\s*\/Page(?!s)/g)?.length ?? 0;
+/** Boîtes de page, telles que react-pdf les écrit (points, six décimales). */
+const mediaBoxes = (pdf: Uint8Array) =>
+  [...ascii(pdf).matchAll(/\/MediaBox\s*\[([^\]]+)\]/g)].map((m) => m[1]?.trim());
+const A4 = '0 0 595.280029 841.890015';
+const A5 = '0 0 419.529999 595.280029';
+const language = (pdf: Uint8Array) => ascii(pdf).match(/\/Lang\s*\((\w+)\)/)?.[1];
 const view = (png: Uint8Array) => new DataView(png.buffer, png.byteOffset, png.byteLength);
 
 /**
@@ -123,8 +136,33 @@ describe('renderBooklet', () => {
         expect(pdf).toBeInstanceOf(Uint8Array);
         expect(ascii(pdf.subarray(0, 5))).toBe('%PDF-');
         expect(pageCount(pdf)).toBe(4);
+        expect(mediaBoxes(pdf)).toEqual([A5, A5, A5, A5]);
       }
     }
+  });
+
+  it('déclare la langue du document', async () => {
+    expect(language(await renderBooklet(booklet))).toBe('fr');
+    expect(language(await renderBooklet({ ...booklet, locale: 'en' }))).toBe('en');
+  });
+
+  it('poursuit sans erreur un hommage fait de nombreux retours à la ligne', async () => {
+    const pdf = await renderBooklet({ ...booklet, tribute: 'Merci.\n'.repeat(200) });
+    expect(pageCount(pdf)).toBeGreaterThanOrEqual(4);
+    expect(new Set(mediaBoxes(pdf))).toEqual(new Set([A5]));
+  });
+
+  it('renvoie le tableau à la page suivante s’il n’y tient pas avec sa première ligne', async () => {
+    const short = programTablePresence([{ time: '08:00', moment: 'Messe' }]);
+    expect(programTablePresence([])).toBeLessThan(short);
+    expect(programTablePresence(longProgram)).toBeGreaterThan(short);
+    // Lieux nombreux : l'en-tête du programme tombe en bas de la première page du programme.
+    const places = Array.from({ length: 14 }, (_, i) => ({
+      label: `Lieu ${i}`,
+      text: accented(60),
+    }));
+    const pdf = await renderBooklet({ ...booklet, places, program: longProgram });
+    expect(pageCount(pdf)).toBeGreaterThan(4);
   });
 
   it('tient les textes à leur longueur maximale sur quatre pages', async () => {
@@ -159,18 +197,25 @@ describe('renderPosterPdf', () => {
         const pdf = await renderPosterPdf({ ...poster, style, photo });
         expect(ascii(pdf.subarray(0, 5))).toBe('%PDF-');
         expect(pageCount(pdf)).toBe(1);
+        expect(mediaBoxes(pdf)).toEqual([A4]);
       }
     }
   });
 
-  it('reste sur une page avec des textes accentués de 200 caractères', async () => {
+  it('reste une page A4 avec des textes accentués à leur longueur maximale', async () => {
     const pdf = await renderPosterPdf({
       ...poster,
       photo: grayJpeg(64),
+      fullName: accented(200),
+      lifeDates: accented(120),
       cover: accented(200),
+      ceremonyDate: accented(120),
       moments: longProgram.slice(0, 5),
+      locale: 'en',
     });
     expect(pageCount(pdf)).toBe(1);
+    expect(mediaBoxes(pdf)).toEqual([A4]);
+    expect(language(pdf)).toBe('en');
   });
 
   it('imprime « Date à préciser » sans date et omet la phrase absente', () => {

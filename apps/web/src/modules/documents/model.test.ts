@@ -98,6 +98,15 @@ describe('documentInputs', () => {
     ).toBeNull();
   });
 
+  it('ramène la langue des documents au français ou à l’anglais', () => {
+    expect(documentInputs(base).locale).toBe('fr');
+    expect(documentInputs({ ...base, locale: 'en' }).locale).toBe('en');
+    expect(documentInputs({ ...base, locale: 'de' }).locale).toBe('fr');
+    const en = documentInputs({ ...base, locale: 'en' });
+    expect(bookletData(en, labels, null).locale).toBe('en');
+    expect(posterData('poster.png', en, labels, null).locale).toBe('en');
+  });
+
   it('retombe sur le style sobre pour une valeur inconnue', () => {
     expect(documentInputs(base).style).toBe('sober');
     const color = { ...base, answers: { ...base.answers, 'documents.style': 'color' } };
@@ -182,6 +191,7 @@ describe('bookletData et posterData', () => {
     const answers = { ...base.answers, 'ceremony.liftPlace': 'Morgue de Libreville' };
     const data = bookletData(documentInputs({ ...base, answers }), labels, photo);
     expect(data).toEqual({
+      locale: 'fr',
       style: 'sober',
       photo,
       fullName: 'Marie Ndong',
@@ -205,6 +215,7 @@ describe('bookletData et posterData', () => {
     const inputs = documentInputs({ ...base, answers: { 'ceremony.program': program } });
     const data = posterData('poster.pdf', inputs, labels, null);
     expect(data).toMatchObject({
+      locale: 'fr',
       style: 'sober',
       photo: null,
       fullName: 'Marie Ndong',

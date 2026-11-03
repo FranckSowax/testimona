@@ -3,7 +3,7 @@ import { FONT_FAMILY } from '../fonts';
 import type { BookletData } from '../model';
 import { DOCUMENT_THEMES, type DocumentTheme } from '../theme';
 import { PdfPhoto } from './PdfPhoto';
-import { ProgramTable } from './ProgramTable';
+import { ProgramTable, programTablePresence } from './ProgramTable';
 
 interface BookletProps {
   data: BookletData;
@@ -47,7 +47,7 @@ function Heading({ title, theme }: { title: string; theme: DocumentTheme }) {
 function Cover({ data, theme }: SectionProps) {
   return (
     <View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
-      {data.photo && <PdfPhoto photo={data.photo} {...PHOTO} borderColor={theme.rule} />}
+      {data.photo && <PdfPhoto photo={data.photo} {...PHOTO} borderColor={theme.frame} />}
       <Text
         style={{
           marginTop: data.photo ? 26 : 0,
@@ -93,6 +93,9 @@ function Program({ data, theme }: SectionProps) {
           ))}
         </View>
       )}
+      {/* WHY: nœud vide qui renvoie le tableau à la page suivante s'il n'y tient pas avec sa
+          première ligne (cf. `programTablePresence`). */}
+      <View minPresenceAhead={programTablePresence(data.program)} />
       <View style={{ marginTop: 18 }}>
         <ProgramTable program={data.program} labels={labels} theme={theme} />
       </View>
@@ -118,9 +121,10 @@ function Thanks({ data, theme }: SectionProps) {
 /**
  * Livret des obsèques, A5 : couverture, hommage, programme, remerciements.
  * Appeler `registerPdfFonts()` avant le rendu (fait par `renderBooklet`).
- * WHY: les pages gardent le découpage automatique de react-pdf : les longueurs maximales des
- * textes (`DOCUMENT_TEXT_MAX`) tiennent sur une page, et un programme de 40 moments se poursuit
- * sur les pages suivantes au lieu d'être tronqué.
+ * WHY: les pages gardent le découpage automatique de react-pdf pour ne jamais tronquer un texte.
+ * Une prose ordinaire à la longueur maximale (`DOCUMENT_TEXT_MAX`) tient sur sa page ; un texte
+ * fait de nombreux retours à la ligne, ou un programme de 40 moments, se poursuit sur les pages
+ * suivantes, ce que la spécification accepte.
  *
  * @example
  * await renderToBuffer(<Booklet data={bookletData(inputs, labels, photo)} />);
@@ -129,7 +133,7 @@ export function Booklet({ data }: BookletProps) {
   const theme = DOCUMENT_THEMES[data.style];
   const page = _pageStyle(theme);
   return (
-    <Document title={data.fullName}>
+    <Document title={data.fullName} language={data.locale}>
       <Page size="A5" style={page}>
         <Cover data={data} theme={theme} />
       </Page>

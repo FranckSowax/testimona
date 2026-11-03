@@ -19,6 +19,38 @@ const COLUMNS = {
 
 const CELL_GAP = 8;
 
+/** Hauteur de l'en-tête et d'une ligne de texte (10,5 pt × 1,5), en points. */
+const HEADER_HEIGHT = 24;
+const LINE_HEIGHT = 15.75;
+const ROW_PADDING = 10;
+/**
+ * Caractères par ligne de chaque colonne, comptés bas pour que l'estimation reste prudente.
+ * WHY: une estimation trop haute ne coûte qu'un saut de page anticipé ; trop basse, elle
+ * laisserait l'en-tête seul en bas de page.
+ */
+const CHARS_PER_LINE = { moment: 20, place: 16, lead: 13 } as const;
+
+/**
+ * Place à garder sous le début du tableau pour y loger l'en-tête et la première ligne :
+ * sinon le tableau commence à la page suivante.
+ * WHY: l'en-tête est `fixed`, et react-pdf ne déplace jamais un élément `fixed` ; la première
+ * ligne, insécable, partirait seule à la page suivante en laissant l'en-tête orphelin.
+ *
+ * @example
+ * <View minPresenceAhead={programTablePresence(data.program)} />
+ */
+export function programTablePresence(program: readonly ProgramItem[]): number {
+  const first = program[0];
+  if (!first) return HEADER_HEIGHT;
+  const lines = Math.max(
+    1,
+    ...(['moment', 'place', 'lead'] as const).map((column) =>
+      Math.ceil((first[column]?.length ?? 0) / CHARS_PER_LINE[column]),
+    ),
+  );
+  return HEADER_HEIGHT + lines * LINE_HEIGHT + ROW_PADDING;
+}
+
 /**
  * Tableau du programme du livret : heure, moment, lieu, responsable.
  * WHY: l'en-tête est `fixed` pour être répété en haut de chaque page quand un long programme
@@ -62,7 +94,7 @@ export function ProgramTable({ program, labels, theme }: ProgramTableProps) {
             gap: CELL_GAP,
             paddingVertical: 5,
             borderBottomWidth: 0.5,
-            borderBottomColor: theme.muted,
+            borderBottomColor: theme.frame,
           }}
         >
           <Text style={[COLUMNS.time, { fontWeight: 'bold' }]}>{item.time}</Text>

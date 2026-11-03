@@ -16,6 +16,9 @@ export type { DocumentStyle };
 /** Documents de l'étape 3.5 : livret A5, affiche A4, affiche carrée pour WhatsApp. */
 export const DOCUMENT_KINDS = ['booklet.pdf', 'poster.pdf', 'poster.png'] as const;
 export type DocumentKind = (typeof DOCUMENT_KINDS)[number];
+/** Langue des documents imprimés (dates, intitulés, langue déclarée du PDF). */
+export type DocumentLocale = 'fr' | 'en';
+
 /** Formats de l'affiche : PDF A4 ou PNG carré. */
 export type PosterKind = Exclude<DocumentKind, 'booklet.pdf'>;
 
@@ -43,6 +46,7 @@ export interface DocumentLabels {
 
 /** Faits lus du dossier et des réponses, avant mise en forme d'un document. */
 export interface DocumentInputs {
+  locale: DocumentLocale;
   style: DocumentStyle;
   /** Nom imprimé : prénom et nom de la fiche, sinon titre du dossier ; null si rien. */
   fullName: string | null;
@@ -58,6 +62,7 @@ export interface DocumentInputs {
 
 /** Données du gabarit du livret. */
 export interface BookletData {
+  locale: DocumentLocale;
   style: DocumentStyle;
   photo: Uint8Array | null;
   fullName: string;
@@ -74,6 +79,7 @@ export interface BookletData {
 
 /** Données des gabarits de l'affiche (PDF A4 et PNG carré). */
 export interface PosterData {
+  locale: DocumentLocale;
   style: DocumentStyle;
   photo: Uint8Array | null;
   fullName: string;
@@ -104,6 +110,10 @@ const POSTER_MAX_MOMENTS = 5;
  */
 function _intlLocale(locale: string): string {
   return locale === 'en' ? 'en-GB' : 'fr-FR';
+}
+/** Langue du document : l'anglais si demandé, sinon le français (langue par défaut). */
+function _documentLocale(locale: string): DocumentLocale {
+  return locale === 'en' ? 'en' : 'fr';
 }
 /** Date `AAAA-MM-JJ` écrite « 3 mars 1950 », ou null si absente ou invalide. */
 function _lifeDate(value: unknown, locale: string): string | null {
@@ -156,6 +166,7 @@ export function documentInputs({
     (d): d is string => d !== null,
   );
   return {
+    locale: _documentLocale(locale),
     style: _style(answers['documents.style']),
     fullName: _fullName(person, dossierTitle),
     nickname: person?.nickname?.trim() || null,
@@ -212,6 +223,7 @@ export function bookletData(
   _assertReady('booklet.pdf', inputs);
   const { cover, tribute, thanks } = inputs.texts as Record<DocumentTextKind, string>;
   return {
+    locale: inputs.locale,
     style: inputs.style,
     photo,
     fullName: inputs.fullName as string,
@@ -242,6 +254,7 @@ export function posterData(
 ): PosterData {
   _assertReady(kind, inputs);
   return {
+    locale: inputs.locale,
     style: inputs.style,
     photo,
     fullName: inputs.fullName as string,

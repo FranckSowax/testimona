@@ -65,7 +65,7 @@ export function PosterImage({ data }: PosterImageProps) {
             style={{
               ...PHOTO,
               objectFit: 'cover',
-              border: `3px solid ${theme.rule}`,
+              border: `3px solid ${theme.frame}`,
               padding: 8,
               marginRight: 52,
             }}
@@ -76,7 +76,9 @@ export function PosterImage({ data }: PosterImageProps) {
             {data.fullName}
           </div>
           {data.lifeDates && (
-            <div style={{ marginTop: 14, fontSize: 30, color: theme.muted }}>{data.lifeDates}</div>
+            <div style={{ ..._clamp(1), marginTop: 14, fontSize: 30, color: theme.muted }}>
+              {data.lifeDates}
+            </div>
           )}
           {data.cover && (
             <div style={{ ..._clamp(4), marginTop: 24, fontSize: 28, lineHeight: 1.35 }}>
@@ -86,7 +88,7 @@ export function PosterImage({ data }: PosterImageProps) {
         </div>
       </div>
       <div style={{ width: 96, height: 3, backgroundColor: theme.rule, margin: '40px 0 28px' }} />
-      <div style={{ fontSize: 38, fontWeight: 700, color: theme.accent }}>
+      <div style={{ ..._clamp(1), fontSize: 38, fontWeight: 700, color: theme.accent }}>
         {data.ceremonyDate ?? data.labels.dateToBeConfirmed}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
