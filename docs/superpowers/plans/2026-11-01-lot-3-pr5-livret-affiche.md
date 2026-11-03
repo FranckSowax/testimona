@@ -127,7 +127,8 @@
   - **`set_dossier_photo(p_photo_id)`** :
     - sans utilisateur : 28000 ;
     - rôle insuffisant, ou photo d'un autre dossier vue par un non-membre : 42501 ;
-    - photo inexistante, déjà désignée ou archivée : TL012 (refus définitif) ;
+    - photo inexistante : 42501, pour tout appelant (rien n'est révélé) ;
+    - photo déjà désignée ou archivée : TL012 (refus définitif) ;
     - fichier absent du stockage, ou seulement en version archivée : TL006 (retentable, comme pour les reçus) ;
     - succès : `activated_at` est posé, la photo courante précédente reçoit `archived_at`, et il reste exactement une photo courante (index unique) ;
   - **lecture** :
@@ -249,7 +250,7 @@ export const funeralDocumentsStep = defineStep({
 - [ ] `service.ts` :
   - `preparePhotoUpload(raw)` et `setDossierPhoto(raw)` : rôle coordinateur et plus contrôlé par `getMyRole` + `hasRole` avant l'écriture. La RLS reste la règle de référence ;
   - `currentPhotoBytes(dossierId)` : `{ ok: true; data: Uint8Array | null }`. Il renvoie `null` sans photo, et aussi quand la signature n'est pas JPEG (avec une trace sans contenu). Une erreur de lecture est journalisée et vaut « sans photo » : un document sans photo vaut mieux qu'un échec ;
-  - table `CODES` : 42501 → `forbidden`, 28000 et PGRST301 → `unauthenticated`, TL006 → `photo_missing`, TL011 → `too_many_photos`, TL012 → `not_found`.
+  - table `CODES` : 42501 → `forbidden`, 28000 et PGRST301 → `unauthenticated`, TL006 → `photo_missing`, TL012 → `photo_already_used` (décision 6 : pas de TL011).
 - [ ] `actions.ts` : `preparePhotoAction` et `setDossierPhotoAction`, qui appelle `revalidatePath` de la synthèse.
 - [ ] `http.ts` + route `photo/route.ts` (`runtime = 'nodejs'`, `dynamic = 'force-dynamic'`) : redirection 303 vers un lien signé de 5 minutes, comme `receiptRedirect`. Elle sert la miniature de la synthèse : 401 sans session, 404 sans photo ou sans droit, `no-store`, `nosniff`, `Referrer-Policy: no-referrer`.
 - [ ] `PhotoCapture` (client), sur le modèle de `ReceiptCapture` :
@@ -429,7 +430,7 @@ export const funeralDocumentsStep = defineStep({
 ### Task 10: Documentation et vérifications finales
 
 - [ ] Spec du lot 3 :
-  - section 1 : colonnes et RPC de `dossier_photo`, JPEG seul, TL011, TL012, TL006 réutilisé ;
+  - section 1 : colonnes et RPC de `dossier_photo`, JPEG seul, TL012, TL006 réutilisé, TL011 volontairement inutilisé ;
   - section 4 : étape `funeral-documents`, clés des textes, un appel d'IA, liste blanche des faits, textes de départ, 409 quand un document n'est pas prêt ;
   - section 5 : tests ajoutés ;
   - section 6 : ordre de déploiement ;
@@ -454,7 +455,7 @@ export const funeralDocumentsStep = defineStep({
 5. **Textes de départ sans IA** (couverture et remerciement) : validé. Leurs formulations, dont le verset du registre croyant, restent à relire par le produit.
 6. **Aucune limite d'envoi de photos**, par cohérence avec la décision « pas de limite » prise pour les devis.
    - Pas de code TL011, pas de comptage dans le trigger, pas de code `too_many_photos`.
-   - TL012 est conservé pour une photo inexistante, déjà désignée ou archivée.
+   - TL012 est conservé pour une photo déjà désignée ou archivée. Une photo inexistante donne 42501 à tout appelant, pour ne rien révéler (correction après la revue de la tâche 1).
 7. **Affiche** : les 5 premiers moments du programme, par heure. Validé.
 8. **Contenu minimal d'un document** :
    - au moins un moment au programme est exigé ; sinon, réponse 409 avec la liste des manques ;
