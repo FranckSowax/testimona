@@ -12,6 +12,7 @@ vi.mock('../actions', () => ({ saveDocumentTextAction: save }));
 
 const DOSSIER = '11111111-1111-4111-8111-111111111111';
 const text = messages.documents.synthesis;
+const FACTS_HREF = `/dossier/${DOSSIER}/etape/biography`;
 const TEXTS = {
   cover: { saved: null, starter: 'Couverture de départ' },
   tribute: { saved: null, starter: '' },
@@ -21,7 +22,14 @@ const TEXTS = {
 function renderTexts(props: Partial<ComponentProps<typeof DocumentTexts>> = {}) {
   render(
     <NextIntlClientProvider locale="fr" messages={messages}>
-      <DocumentTexts dossierId={DOSSIER} texts={TEXTS} canEdit aiEnabled {...props} />
+      <DocumentTexts
+        dossierId={DOSSIER}
+        texts={TEXTS}
+        canEdit
+        aiEnabled
+        factsHref={FACTS_HREF}
+        {...props}
+      />
     </NextIntlClientProvider>,
   );
 }
@@ -59,9 +67,15 @@ describe('DocumentTexts', () => {
     expect(screen.queryByRole('button')).toBeNull();
     expect(screen.getByText(text.readOnly)).toBeTruthy();
     expect(field(text.text.thanks).hasAttribute('readonly')).toBe(true);
-    expect(field(text.text.cover).value).toBe('');
+    // Un texte jamais écrit : « Pas encore écrit », sans champ vide ni compteur « 0 / 200 ».
+    expect(screen.queryByLabelText(text.text.cover)).toBeNull();
+    expect(screen.getAllByText(text.notWritten)).toHaveLength(2);
+    expect(screen.queryByText('0 / 200 caractères')).toBeNull();
   });
 
+  // WHY: filet de sécurité. Pendant l'appel, les champs sont en lecture seule et un utilisateur
+  // ne peut pas les modifier ; `fireEvent.change` contourne ce verrou pour vérifier que, si un
+  // texte changeait malgré tout (autre chemin de saisie), la proposition ne l'écraserait pas.
   it('remplace les textes proposés sauf celui modifié pendant l’appel, sans enregistrer', async () => {
     let resolve: (value: unknown) => void = () => {};
     generate.mockReturnValue(new Promise((r) => (resolve = r)));
@@ -88,8 +102,8 @@ describe('DocumentTexts', () => {
     generate.mockResolvedValue({ ok: false, error: 'quota' });
     renderTexts();
     fireEvent.click(aiButton());
-    expect(await screen.findByText(messages.journey.draft.ai.quota)).toBeTruthy();
-    expect(screen.getByRole('alert').textContent).toBe(messages.journey.draft.ai.quota);
+    const alert = await screen.findByText(text.ai.quota);
+    expect(alert.getAttribute('role')).toBe('alert');
     expect(field(text.text.cover).value).toBe('Couverture de départ');
   });
 
@@ -97,7 +111,39 @@ describe('DocumentTexts', () => {
     generate.mockRejectedValue(new Error('network'));
     renderTexts();
     fireEvent.click(aiButton());
-    expect(await screen.findByText(messages.journey.draft.ai.failed)).toBeTruthy();
+    expect(await screen.findByText(text.ai.failed)).toBeTruthy();
+  });
+
+  it('demande le prénom ou la biographie quand l’IA manque de faits, avec un lien', async () => {
+    generate.mockResolvedValue({ ok: false, error: 'validation' });
+    renderTexts();
+    fireEvent.click(aiButton());
+    expect(await screen.findByText(text.ai.missingFacts)).toBeTruthy();
+    expect(
+      screen.getByRole('link', { name: text.ai.missingFactsLink }).getAttribute('href'),
+    ).toContain(FACTS_HREF);
+  });
+
+  it('explique un refus de rôle', async () => {
+    generate.mockResolvedValue({ ok: false, error: 'forbidden' });
+    renderTexts();
+    fireEvent.click(aiButton());
+    expect(await screen.findByText(text.ai.forbidden)).toBeTruthy();
+    expect(screen.queryByRole('link', { name: text.ai.missingFactsLink })).toBeNull();
+  });
+
+  it('un double clic ne lance qu’un appel, et l’enregistrement est bloqué pendant l’appel', async () => {
+    let resolve: (value: unknown) => void = () => {};
+    generate.mockReturnValue(new Promise((r) => (resolve = r)));
+    renderTexts();
+    fireEvent.click(aiButton());
+    fireEvent.click(screen.getByRole('button', { name: text.generating }));
+    expect(generate).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(saveButton(text.text.cover).disabled).toBe(true));
+    fireEvent.click(saveButton(text.text.cover));
+    expect(save).not.toHaveBeenCalled();
+    await act(async () => resolve({ ok: false, error: 'failed' }));
+    await waitFor(() => expect(saveButton(text.text.cover).disabled).toBe(false));
   });
 
   it('enregistre un texte, nettoyé, et l’annonce', async () => {
@@ -105,7 +151,8 @@ describe('DocumentTexts', () => {
     renderTexts();
     fireEvent.change(field(text.text.tribute), { target: { value: '  Une vie de partage.  ' } });
     fireEvent.click(saveButton(text.text.tribute));
-    expect(await screen.findByText(text.saved)).toBeTruthy();
+    const status = await screen.findByText(text.saved);
+    expect(status.getAttribute('role')).toBe('status');
     expect(save).toHaveBeenCalledWith({
       dossierId: DOSSIER,
       kind: 'tribute',
@@ -119,7 +166,7 @@ describe('DocumentTexts', () => {
     save.mockResolvedValue({ ok: false, error: 'validation', fieldErrors: { '': 'too long' } });
     renderTexts();
     fireEvent.click(saveButton(text.text.cover));
-    expect(await screen.findByRole('alert')).toBeTruthy();
-    expect(screen.getByRole('alert').textContent).toBe(messages.journey.ui.tooLarge);
+    const alert = await screen.findByText(messages.journey.ui.tooLarge);
+    expect(alert.getAttribute('role')).toBe('alert');
   });
 });

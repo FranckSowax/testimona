@@ -2025,6 +2025,15 @@
       "generate": "Proposer les textes avec l'IA",
       "generating": "Préparation des textes…",
       "generated": "Textes proposés : relisez-les, puis enregistrez ceux qui vous conviennent.",
+      "ai": {
+        "unavailable": "La proposition de textes par l'IA n'est pas disponible pour le moment. Vous pouvez écrire les textes vous-même.",
+        "quota": "Limite de propositions par l'IA atteinte pour aujourd'hui sur ce dossier. Vos textes sont conservés.",
+        "failed": "La proposition n'a pas abouti. Vos textes sont conservés ; réessayez dans un instant.",
+        "missingFacts": "Ajoutez le prénom ou la biographie dans le dossier pour que l'IA puisse proposer des textes.",
+        "missingFactsLink": "Compléter la biographie",
+        "forbidden": "Seuls les contributeurs peuvent demander une proposition de textes."
+      },
+      "notWritten": "Pas encore écrit",
       "keptEdited": "Les textes modifiés pendant la préparation ont été gardés tels quels.",
       "formatsTitle": "Télécharger les documents",
       "format": {
@@ -2039,7 +2048,8 @@
         "program": "Écrire le programme",
         "cover": "Écrire ce texte",
         "tribute": "Écrire ce texte",
-        "thanks": "Écrire ce texte"
+        "thanks": "Écrire ce texte",
+        "review": "Relire et enregistrer ce texte"
       }
     }
   },

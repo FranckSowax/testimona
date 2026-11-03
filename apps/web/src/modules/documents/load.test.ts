@@ -22,7 +22,12 @@ vi.mock('@/modules/ai/config', () => ({ isAiEnabled: m.isAiEnabled }));
 const { loadDocumentsSynthesis } = await import('./load');
 
 const DOSSIER = '11111111-1111-4111-8111-111111111111';
-const PARAMS = { dossierId: DOSSIER, dossierTitle: 'Famille Mba', locale: 'fr' };
+const PARAMS = {
+  dossierId: DOSSIER,
+  dossierTitle: 'Famille Mba',
+  entryPoint: 'death' as const,
+  locale: 'fr',
+};
 const PERSON = {
   firstName: 'Jean',
   lastName: 'Mba',
@@ -63,6 +68,7 @@ describe('loadDocumentsSynthesis', () => {
       canEdit: true,
       canEditPhoto: false,
       aiEnabled: true,
+      factsHref: `/dossier/${DOSSIER}/etape/biography`,
       texts: {
         cover: { saved: 'Couverture', starter: 'C0' },
         tribute: { saved: null, starter: '' },
@@ -85,10 +91,14 @@ describe('loadDocumentsSynthesis', () => {
     });
     m.getCurrentPhoto.mockResolvedValue({ data: null, error: { code: 'x' } });
     m.getMyRole.mockResolvedValue('viewer');
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
     const props = await loadDocumentsSynthesis({ ...PARAMS, locale: 'en' });
     expect(m.documentStarterTexts).toHaveBeenCalledWith('neutral', 'en');
     expect(props.photoId).toBeNull();
     expect(props.canEdit).toBe(false);
+    // Le code seul est journalisé, sans identifiant ni donnée personnelle.
+    expect(log).toHaveBeenCalledWith('[documents] getCurrentPhoto failed', { code: 'x' });
+    log.mockRestore();
   });
 
   it('lève quand les réponses sont illisibles', async () => {

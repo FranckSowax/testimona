@@ -2025,6 +2025,15 @@
       "generate": "Suggest the texts with AI",
       "generating": "Preparing the texts…",
       "generated": "Texts suggested: read them over, then save the ones you like.",
+      "ai": {
+        "unavailable": "AI text suggestions are not available right now. You can write the texts yourself.",
+        "quota": "Today's AI suggestion limit for this dossier has been reached. Your texts are kept.",
+        "failed": "The suggestion did not work. Your texts are kept; please try again in a moment.",
+        "missingFacts": "Add the first name or the biography to the dossier so the AI can suggest texts.",
+        "missingFactsLink": "Complete the biography",
+        "forbidden": "Only contributors can ask for suggested texts."
+      },
+      "notWritten": "Not written yet",
       "keptEdited": "Texts you changed while they were being prepared were kept as they were.",
       "formatsTitle": "Download the documents",
       "format": {
@@ -2039,7 +2048,8 @@
         "program": "Write the programme",
         "cover": "Write this text",
         "tribute": "Write this text",
-        "thanks": "Write this text"
+        "thanks": "Write this text",
+        "review": "Review and save this text"
       }
     }
   },

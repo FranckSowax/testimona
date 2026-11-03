@@ -23,6 +23,8 @@ export interface DocumentsSynthesisProps {
   /** Coordinateur et plus : choisir la photo. */
   canEditPhoto: boolean;
   aiEnabled: boolean;
+  /** Où compléter le prénom ou la biographie quand l'IA manque de faits. */
+  factsHref: string;
   /** Texte enregistré (ou null) et texte de départ de chaque type. */
   texts: Record<DocumentTextKind, { saved: string | null; starter: string }>;
   /** Éléments manquants par format ; liste vide quand le document est prêt. */
@@ -40,6 +42,8 @@ const FORMAT_KEYS = {
 const PROGRAM_INDEX = ceremonyProgramStep.questions.findIndex(
   (question) => question.key === 'ceremony.program',
 );
+// WHY: un index -1 donnerait un lien `?q=-1` silencieusement faux ; on échoue au chargement.
+if (PROGRAM_INDEX < 0) throw new Error('ceremony.program question not found in step 3.4');
 
 const H2 = 'font-display text-foreground text-lg font-semibold';
 const LINK = 'text-primary text-sm font-semibold hover:underline';
@@ -86,6 +90,12 @@ export function DocumentsSynthesis(props: DocumentsSynthesisProps) {
   const tMissing = useTranslations('documents.missing');
   const tJourney = useTranslations('journey');
   const stepHref = `/dossier/${dossierId}/etape/${DOCUMENTS_STEP_ID}`;
+  // WHY: un texte manquant déjà prérempli (texte de départ) n'est pas à écrire mais à relire et
+  // enregistrer.
+  const fixText = (item: DocumentMissing) =>
+    (item === 'cover' || item === 'thanks') && props.texts[item].starter !== ''
+      ? t('fix.review')
+      : t(`fix.${item}`);
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
@@ -129,6 +139,7 @@ export function DocumentsSynthesis(props: DocumentsSynthesisProps) {
         texts={props.texts}
         canEdit={canEdit}
         aiEnabled={props.aiEnabled}
+        factsHref={props.factsHref}
       />
 
       <section aria-labelledby="documents-formats-title" className="space-y-4">
@@ -165,7 +176,7 @@ export function DocumentsSynthesis(props: DocumentsSynthesisProps) {
                       <li key={item} className="text-foreground flex flex-wrap gap-x-3">
                         <span>{tMissing(item)}</span>
                         {canEdit && (
-                          <FixLink dossierId={dossierId} item={item} text={t(`fix.${item}`)} />
+                          <FixLink dossierId={dossierId} item={item} text={fixText(item)} />
                         )}
                       </li>
                     ))}

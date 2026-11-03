@@ -3,6 +3,7 @@ import { cleanup, render, screen, within } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import type { ComponentProps } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import enMessages from '../../../../messages/en.json';
 import messages from '../../../../messages/fr.json';
 import { DocumentsSynthesis } from './DocumentsSynthesis';
 
@@ -31,6 +32,7 @@ function renderSynthesis(props: Partial<ComponentProps<typeof DocumentsSynthesis
         canEdit
         canEditPhoto
         aiEnabled
+        factsHref={`/dossier/${DOSSIER}`}
         texts={{
           cover: { saved: 'Couverture', starter: 'Départ' },
           tribute: { saved: null, starter: '' },
@@ -96,6 +98,51 @@ describe('DocumentsSynthesis', () => {
       expect(link.hasAttribute('download')).toBe(true);
     }
     expect(screen.queryByText(messages.documents.missing.intro)).toBeNull();
+  });
+
+  it('invite à relire un texte manquant déjà prérempli', () => {
+    renderSynthesis({
+      texts: {
+        cover: { saved: null, starter: 'Départ' },
+        tribute: { saved: null, starter: '' },
+        thanks: { saved: 'Merci', starter: 'Départ' },
+      },
+      readiness: { ...READY, 'booklet.pdf': ['cover', 'tribute'] },
+    });
+    const booklet = format(text.format.booklet);
+    expect(within(booklet).getByRole('link', { name: text.fix.review }).getAttribute('href')).toBe(
+      '#documents-text-cover',
+    );
+    expect(within(booklet).getByRole('link', { name: text.fix.tribute })).toBeTruthy();
+  });
+
+  it('demande les documents en anglais quand l’interface est en anglais', () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={enMessages}>
+        <DocumentsSynthesis
+          dossierId={DOSSIER}
+          locale="en"
+          style="sober"
+          photoId={null}
+          canEdit
+          canEditPhoto
+          aiEnabled
+          factsHref={`/dossier/${DOSSIER}`}
+          texts={{
+            cover: { saved: 'Cover', starter: '' },
+            tribute: { saved: 'Tribute', starter: '' },
+            thanks: { saved: 'Thanks', starter: '' },
+          }}
+          readiness={READY}
+        />
+      </NextIntlClientProvider>,
+    );
+    const link = screen.getByRole('link', {
+      name: `Download: ${enMessages.documents.synthesis.format.booklet}`,
+    });
+    expect(link.getAttribute('href')).toBe(
+      `/api/dossiers/${DOSSIER}/documents/booklet.pdf?lang=en`,
+    );
   });
 
   it('affiche la vignette de la photo courante, ou « Pas de photo »', () => {

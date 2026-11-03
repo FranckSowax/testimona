@@ -1,5 +1,7 @@
 import 'server-only';
 import { TONES } from '@/journey/options';
+import { isStepOpen } from '@/journey/registry';
+import { biographyStep } from '@/journey/steps/1-6-biography';
 import { isAiEnabled } from '@/modules/ai/config';
 import { listAnswersResult } from '@/modules/dossier/answers/repo';
 import { getMyRole, getPersonResult } from '@/modules/dossier/repo';
@@ -29,9 +31,11 @@ import type { DocumentsSynthesisProps } from './ui/DocumentsSynthesis';
 export async function loadDocumentsSynthesis(params: {
   dossierId: string;
   dossierTitle: string;
+  /** Point d'entrée du dossier : dit si l'étape biographie est ouverte. */
+  entryPoint: Parameters<typeof isStepOpen>[0];
   locale: string;
 }): Promise<DocumentsSynthesisProps> {
-  const { dossierId, dossierTitle } = params;
+  const { dossierId, dossierTitle, entryPoint } = params;
   const locale = params.locale === 'en' ? 'en' : 'fr';
   const [role, person, answers, photo] = await Promise.all([
     getMyRole(dossierId),
@@ -40,6 +44,9 @@ export async function loadDocumentsSynthesis(params: {
     getCurrentPhoto(dossierId),
   ]);
   if (person.error || answers.error) throw new Error('documents summary unreadable');
+  // WHY: la photo est facultative et simplement masquée ; on journalise le code seul (aucune
+  // donnée personnelle) pour ne pas perdre la trace de l'échec.
+  if (photo.error) console.error('[documents] getCurrentPhoto failed', { code: photo.error.code });
 
   const inputs = documentInputs({
     person: person.data,
@@ -74,6 +81,11 @@ export async function loadDocumentsSynthesis(params: {
     canEdit: canWrite(role),
     canEditPhoto: hasRole(role, 'coordinator'),
     aiEnabled: isAiEnabled(),
+    // WHY: sans prénom ni biographie, l'IA refuse ; on envoie vers la biographie si l'étape est
+    // ouverte pour ce dossier, sinon vers le dossier.
+    factsHref: isStepOpen(entryPoint, biographyStep.id)
+      ? `/dossier/${dossierId}/etape/${biographyStep.id}`
+      : `/dossier/${dossierId}`,
     texts,
     readiness,
   };

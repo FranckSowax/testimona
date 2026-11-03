@@ -52,6 +52,7 @@ export default async function StepSynthesisPage({
     const props = await loadDocumentsSynthesis({
       dossierId: id,
       dossierTitle: dossier.title,
+      entryPoint: dossier.entryPoint,
       locale,
     });
     return (
