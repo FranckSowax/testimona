@@ -1219,6 +1219,10 @@
       "ceremony-program": {
         "title": "The order of the funeral",
         "description": "The funeral date, the places, the tone and the programme hour by hour."
+      },
+      "funeral-documents": {
+        "title": "Booklet and poster",
+        "description": "A photo, a few words reviewed together, then the funeral booklet and the poster to print or share."
       }
     },
     "q": {
@@ -1419,6 +1423,13 @@
           "title": "Is a meal served on the day of the funeral?",
           "hint": "For everyone expected that day.",
           "options": { "yes": "Yes", "no": "No" }
+        }
+      },
+      "documents": {
+        "style": {
+          "title": "Which look would you prefer?",
+          "hint": "The same look for the booklet and the poster. You can change your mind before downloading.",
+          "options": { "sober": "Simple", "color": "Colour" }
         }
       },
       "ceremony": {

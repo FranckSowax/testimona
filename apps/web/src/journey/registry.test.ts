@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { DOCUMENT_TEXTS } from '@/modules/documents/texts';
 import { PROGRAM_MAX_ITEMS } from './steps/3-4-ceremony-program';
 import { answerSchema, type Step } from './types';
 import {
@@ -22,6 +23,7 @@ describe('registre du parcours', () => {
       'vigil-setup',
       'vigil-catering',
       'ceremony-program',
+      'funeral-documents',
       'biography',
     ]);
     expect(stepsFor('prepare').map((s) => s.id)).toEqual(['biography']);
@@ -100,6 +102,26 @@ describe('registre du parcours', () => {
         { name: 'lead', kind: 'shortText' },
       ],
     });
+  });
+
+  it('pose le choix de la variante à l’étape 3.5, sans prestataire', () => {
+    expect(getStep('funeral-documents')?.questions).toEqual([
+      { kind: 'choice', key: 'documents.style', options: ['sober', 'color'] },
+    ]);
+    expect(getStep('funeral-documents')?.summary).toBe('step');
+    expect(getStep('funeral-documents')?.providers).toBeUndefined();
+    expect(isStepOpen('prepare', 'funeral-documents')).toBe(false);
+  });
+
+  it('ne pose aucune question sur une clé des textes du livret', () => {
+    // WHY: ces clés appartiennent au module documents, pas au moteur ; une question qui en
+    // reprendrait une contournerait la garantie d'unicité de `assertUniqueSteps`.
+    const textKeys = new Set<string>(Object.values(DOCUMENT_TEXTS));
+    const clashes = allSteps().flatMap((step) => [
+      ...step.questions.map((q) => q.key),
+      ...(step.draft ? [step.draft.key] : []),
+    ]);
+    expect(clashes.filter((key) => textKeys.has(key))).toEqual([]);
   });
 
   it('associe un brouillon WhatsApp à 2.2 et un brouillon e-mail à 2.3', () => {

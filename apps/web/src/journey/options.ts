@@ -40,3 +40,7 @@ export const SERVINGS = ['nothing', 'snack', 'meal'] as const;
 export const COOKS = ['family', 'caterer'] as const;
 /** Étape 3.2 : boissons servies. */
 export const DRINKS = ['soft', 'alcohol'] as const;
+
+/** Étape 3.5 : variante du livret et de l'affiche. */
+export const DOCUMENT_STYLES = ['sober', 'color'] as const;
+export type DocumentStyle = (typeof DOCUMENT_STYLES)[number];

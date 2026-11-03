@@ -1219,6 +1219,10 @@
       "ceremony-program": {
         "title": "Le déroulé de la cérémonie",
         "description": "La date des obsèques, les lieux, le ton et le programme heure par heure."
+      },
+      "funeral-documents": {
+        "title": "Livret et affiche",
+        "description": "Une photo, quelques mots relus ensemble, puis le livret de la cérémonie et l'affiche à imprimer ou partager."
       }
     },
     "q": {
@@ -1419,6 +1423,13 @@
           "title": "Un repas est-il servi le jour des obsèques ?",
           "hint": "Pour toutes les personnes attendues ce jour-là.",
           "options": { "yes": "Oui", "no": "Non" }
+        }
+      },
+      "documents": {
+        "style": {
+          "title": "Quelle présentation préférez-vous ?",
+          "hint": "La même présentation pour le livret et l'affiche. Vous pourrez changer d'avis avant de télécharger.",
+          "options": { "sober": "Sobre", "color": "Couleur" }
         }
       },
       "ceremony": {
