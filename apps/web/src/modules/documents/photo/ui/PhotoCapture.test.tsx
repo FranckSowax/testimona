@@ -13,7 +13,8 @@ const { prepare, setPhoto, upload, from, shrink } = vi.hoisted(() => {
     setPhoto: vi.fn(),
     upload,
     from: vi.fn(() => ({ uploadToSignedUrl: upload })),
-    shrink: vi.fn(async (file: File) => file),
+    // WHY: par défaut, un réencodage réussi : un nouveau fichier JPEG, distinct de l'original.
+    shrink: vi.fn(async (file: File) => new File([file], 'p.jpg', { type: 'image/jpeg' })),
   };
 });
 vi.mock('../actions', () => ({ preparePhotoAction: prepare, setDossierPhotoAction: setPhoto }));
@@ -72,8 +73,18 @@ describe('PhotoCapture', () => {
   });
 
   it('refuse une photo qui n’a pas pu être réencodée en JPEG, sans rien envoyer', async () => {
+    shrink.mockImplementationOnce(async (file: File) => file);
     renderCapture();
     choose(new File([new Uint8Array(20)], 'p.png', { type: 'image/png' }));
+    expect((await screen.findByRole('alert')).textContent).toBe(text.errors.unreadable);
+    expect(prepare).not.toHaveBeenCalled();
+    expect(upload).not.toHaveBeenCalled();
+  });
+
+  it('refuse un JPEG original non réencodé, qui garderait ses métadonnées', async () => {
+    shrink.mockImplementationOnce(async (file: File) => file);
+    renderCapture();
+    choose(jpeg());
     expect((await screen.findByRole('alert')).textContent).toBe(text.errors.unreadable);
     expect(prepare).not.toHaveBeenCalled();
     expect(upload).not.toHaveBeenCalled();
@@ -83,7 +94,8 @@ describe('PhotoCapture', () => {
     renderCapture();
     const big = jpeg();
     Object.defineProperty(big, 'size', { value: PHOTO_MAX_BYTES + 1 });
-    choose(big);
+    shrink.mockResolvedValueOnce(big);
+    choose(jpeg());
     expect((await screen.findByRole('alert')).textContent).toBe(text.errors.photo_size);
     expect(prepare).not.toHaveBeenCalled();
   });

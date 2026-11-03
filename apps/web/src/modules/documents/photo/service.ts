@@ -1,6 +1,8 @@
 import 'server-only';
 import { z } from 'zod';
-import { getMyRole } from '@/modules/dossier/repo';
+import { isStepOpen } from '@/journey/registry';
+import { DOCUMENTS_STEP_ID } from '@/journey/steps/3-5-funeral-documents';
+import { getDossier, getMyRole } from '@/modules/dossier/repo';
 import { hasRole } from '@/modules/dossier/roles';
 import * as repo from './repo';
 import { isJpeg, PhotoRefSchema, PreparePhotoSchema } from './schema';
@@ -50,11 +52,15 @@ function fromRepo(error: { code: string }, scope: string): { ok: false; error: P
 }
 
 /**
- * Coordinateur et plus, vérifié avant toute écriture.
+ * Porte des écritures : dossier visible, étape 3.5 ouverte pour son point d'entrée (même règle
+ * que `saveDocumentText`), puis coordinateur et plus.
  * WHY: refuser tôt évite une ligne ou un appel inutile et donne un message clair ; la RLS et la
- * RPC restent la règle de référence.
+ * RPC restent la règle de référence. La lecture (documents, vignette) n'est pas filtrée ici.
  */
-async function coordinatorGate(dossierId: string): Promise<PhotoError | null> {
+async function writeGate(dossierId: string): Promise<PhotoError | null> {
+  const dossier = await getDossier(dossierId);
+  if (!dossier) return 'not_found';
+  if (!isStepOpen(dossier.entryPoint, DOCUMENTS_STEP_ID)) return 'validation';
   return hasRole(await getMyRole(dossierId), 'coordinator') ? null : 'forbidden';
 }
 
@@ -73,7 +79,7 @@ export async function preparePhotoUpload(raw: unknown): Promise<PhotoResult<Prep
     return { ok: false, error };
   }
   const { dossierId } = input.data;
-  const blocked = await coordinatorGate(dossierId);
+  const blocked = await writeGate(dossierId);
   if (blocked) return { ok: false, error: blocked };
   const photo = await repo.insertPhoto(dossierId);
   if (photo.error) return fromRepo(photo.error, 'insertPhoto');
@@ -95,7 +101,7 @@ export async function preparePhotoUpload(raw: unknown): Promise<PhotoResult<Prep
 export async function setDossierPhoto(raw: unknown): Promise<PhotoResult<true>> {
   const input = PhotoRefSchema.safeParse(raw);
   if (!input.success) return { ok: false, error: 'validation' };
-  const blocked = await coordinatorGate(input.data.dossierId);
+  const blocked = await writeGate(input.data.dossierId);
   if (blocked) return { ok: false, error: blocked };
   const res = await repo.setCurrentPhoto(input.data.photoId);
   if (res.error) return fromRepo(res.error, 'setCurrentPhoto');

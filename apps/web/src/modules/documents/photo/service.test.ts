@@ -9,12 +9,13 @@ const { repo, dossierRepo } = vi.hoisted(() => ({
     downloadPhoto: vi.fn(),
     createPhotoReadUrl: vi.fn(),
   },
-  dossierRepo: { getMyRole: vi.fn() },
+  dossierRepo: { getMyRole: vi.fn(), getDossier: vi.fn() },
 }));
 
 vi.mock('server-only', () => ({}));
 vi.mock('./repo', () => repo);
 vi.mock('@/modules/dossier/repo', () => dossierRepo);
+vi.mock('@/lib/email/resend', () => ({ sendEmail: vi.fn(), dossierInviteEmail: vi.fn() }));
 
 const { currentPhotoBytes, openCurrentPhoto, preparePhotoUpload, setDossierPhoto } =
   await import('./service');
@@ -27,11 +28,20 @@ const prepare = { dossierId: DOSSIER, mimeType: 'image/jpeg', sizeBytes: 120_000
 const ref = { dossierId: DOSSIER, photoId: PHOTO };
 const JPEG = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 1, 2]);
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const dossier = (entryPoint: 'death' | 'prepare' | 'after') => ({
+  id: DOSSIER,
+  title: 'Jean Ndong',
+  city: 'Libreville',
+  countryCode: 'GA',
+  entryPoint,
+  createdAt: '2026-10-27T00:00:00Z',
+});
 const repoError = (code: string) => ({ data: null, error: { code, message: code } });
 
 beforeEach(() => {
   vi.clearAllMocks();
   dossierRepo.getMyRole.mockResolvedValue('coordinator');
+  dossierRepo.getDossier.mockResolvedValue(dossier('death'));
   repo.insertPhoto.mockResolvedValue({ data: photo, error: null });
   repo.createPhotoUploadUrl.mockResolvedValue({ data: { path: PATH, token: 'tok' }, error: null });
   repo.setCurrentPhoto.mockResolvedValue({ data: true, error: null });
@@ -141,6 +151,37 @@ describe('setDossierPhoto', () => {
     expect(spy).toHaveBeenCalledWith('[documents/photo] setCurrentPhoto failed', {
       code: 'XX000',
     });
+  });
+});
+
+describe('porte de l’étape 3.5', () => {
+  const writes = [
+    ['preparePhotoUpload', () => preparePhotoUpload(prepare)],
+    ['setDossierPhoto', () => setDossierPhoto(ref)],
+  ] as const;
+
+  it.each(writes)('%s renvoie « not_found » pour un dossier inaccessible', async (_name, run) => {
+    dossierRepo.getDossier.mockResolvedValueOnce(null);
+    expect(await run()).toEqual({ ok: false, error: 'not_found' });
+    expect(dossierRepo.getMyRole).not.toHaveBeenCalled();
+    expect(repo.insertPhoto).not.toHaveBeenCalled();
+    expect(repo.setCurrentPhoto).not.toHaveBeenCalled();
+  });
+
+  it.each(writes)('%s refuse un dossier où l’étape 3.5 est fermée', async (_name, run) => {
+    for (const entryPoint of ['prepare', 'after'] as const) {
+      dossierRepo.getDossier.mockResolvedValueOnce(dossier(entryPoint));
+      expect(await run()).toEqual({ ok: false, error: 'validation' });
+    }
+    expect(repo.insertPhoto).not.toHaveBeenCalled();
+    expect(repo.setCurrentPhoto).not.toHaveBeenCalled();
+  });
+
+  it('ne filtre pas la lecture de la photo', async () => {
+    dossierRepo.getDossier.mockResolvedValue(dossier('after'));
+    expect(await openCurrentPhoto(DOSSIER)).toEqual({ ok: true, data: 'https://signed' });
+    expect(await currentPhotoBytes(DOSSIER)).toEqual({ ok: true, data: JPEG });
+    expect(dossierRepo.getDossier).not.toHaveBeenCalled();
   });
 });
 

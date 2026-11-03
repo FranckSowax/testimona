@@ -73,8 +73,12 @@ export function PhotoCapture({ dossierId, canEdit, retryDelayMs = PHOTO_RETRY_DE
     setStatus({ kind: 'busy', text: t('uploading') });
     const photo = await shrinkImage(file);
     if (!alive.current) return;
-    // WHY: `shrinkImage` rend l'original quand le réencodage échoue ; seul un JPEG part.
-    if (photo.type !== PHOTO_TYPE || photo.size < 1) return fail('unreadable');
+    // WHY: `shrinkImage` rend l'original quand le réencodage échoue. Pour un reçu (privé, vu des
+    // seuls membres), envoyer l'original reste acceptable ; ici non : la photo est intégrée telle
+    // quelle (octets JPEG) dans les PDF et le PNG que les familles partagent largement, et
+    // l'original garde ses métadonnées (EXIF, dont la position GPS). Seul un JPEG réencodé, donc
+    // sans métadonnées, part.
+    if (photo === file || photo.type !== PHOTO_TYPE || photo.size < 1) return fail('unreadable');
     if (photo.size > PHOTO_MAX_BYTES) return fail('photo_size');
     const prepared = await preparePhotoAction({
       dossierId,
