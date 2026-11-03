@@ -1998,6 +1998,49 @@
     "files": {
       "booklet": "livret-obseques",
       "poster": "affiche-obseques"
+    },
+    "synthesis": {
+      "intro": "Choisissez une photo, relisez les trois textes, puis téléchargez le livret et l'affiche.",
+      "style": "Présentation : {style}",
+      "edit": "Modifier",
+      "editStyle": "Modifier la présentation",
+      "photoTitle": "Photo",
+      "photoAlt": "Photo choisie pour le livret et l'affiche",
+      "noPhoto": "Pas de photo",
+      "textsTitle": "Les textes du livret",
+      "textsIntro": "Relisez chaque texte, modifiez-le si besoin, puis enregistrez-le. L'affiche reprend la phrase de couverture.",
+      "readOnly": "Vous pouvez lire ces textes ; seuls les contributeurs peuvent les modifier.",
+      "text": {
+        "cover": "Phrase de couverture",
+        "tribute": "Hommage",
+        "thanks": "Remerciements"
+      },
+      "tributeHint": "Quelques phrases sur sa vie, environ 150 mots. Il n'y a pas de texte de départ : écrivez-le vous-même ou demandez une proposition à l'IA.",
+      "counter": "{count} / {max} caractères",
+      "save": "Enregistrer",
+      "saveLabel": "Enregistrer : {text}",
+      "saving": "Enregistrement…",
+      "saved": "Texte enregistré.",
+      "unsaved": "Pas encore enregistré.",
+      "generate": "Proposer les textes avec l'IA",
+      "generating": "Préparation des textes…",
+      "generated": "Textes proposés : relisez-les, puis enregistrez ceux qui vous conviennent.",
+      "keptEdited": "Les textes modifiés pendant la préparation ont été gardés tels quels.",
+      "formatsTitle": "Télécharger les documents",
+      "format": {
+        "booklet": "Livret de la cérémonie (PDF A5)",
+        "posterPdf": "Affiche à imprimer (PDF A4)",
+        "posterPng": "Affiche pour WhatsApp (image carrée)"
+      },
+      "download": "Télécharger",
+      "downloadLabel": "Télécharger : {format}",
+      "fix": {
+        "name": "Compléter le dossier",
+        "program": "Écrire le programme",
+        "cover": "Écrire ce texte",
+        "tribute": "Écrire ce texte",
+        "thanks": "Écrire ce texte"
+      }
     }
   },
   "providers": {

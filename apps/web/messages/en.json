@@ -1998,6 +1998,49 @@
     "files": {
       "booklet": "funeral-booklet",
       "poster": "funeral-poster"
+    },
+    "synthesis": {
+      "intro": "Choose a photo, read over the three texts, then download the booklet and the poster.",
+      "style": "Layout: {style}",
+      "edit": "Change",
+      "editStyle": "Change the layout",
+      "photoTitle": "Photo",
+      "photoAlt": "Photo chosen for the booklet and the poster",
+      "noPhoto": "No photo",
+      "textsTitle": "The booklet texts",
+      "textsIntro": "Read each text, change it if needed, then save it. The poster uses the cover line.",
+      "readOnly": "You can read these texts; only contributors can change them.",
+      "text": {
+        "cover": "Cover line",
+        "tribute": "Tribute",
+        "thanks": "Acknowledgements"
+      },
+      "tributeHint": "A few sentences about their life, around 150 words. There is no starting text: write it yourself or ask the AI for a suggestion.",
+      "counter": "{count} / {max} characters",
+      "save": "Save",
+      "saveLabel": "Save: {text}",
+      "saving": "Saving…",
+      "saved": "Text saved.",
+      "unsaved": "Not saved yet.",
+      "generate": "Suggest the texts with AI",
+      "generating": "Preparing the texts…",
+      "generated": "Texts suggested: read them over, then save the ones you like.",
+      "keptEdited": "Texts you changed while they were being prepared were kept as they were.",
+      "formatsTitle": "Download the documents",
+      "format": {
+        "booklet": "Ceremony booklet (A5 PDF)",
+        "posterPdf": "Poster to print (A4 PDF)",
+        "posterPng": "Poster for WhatsApp (square image)"
+      },
+      "download": "Download",
+      "downloadLabel": "Download: {format}",
+      "fix": {
+        "name": "Complete the dossier",
+        "program": "Write the programme",
+        "cover": "Write this text",
+        "tribute": "Write this text",
+        "thanks": "Write this text"
+      }
     }
   },
   "providers": {
