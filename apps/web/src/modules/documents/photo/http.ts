@@ -22,12 +22,13 @@ export async function photoRedirect(dossierId: string): Promise<Response> {
   if (!(await getCurrentUser())) return new Response(null, { status: 401, headers: HEADERS });
   const res = await openCurrentPhoto(dossierId);
   if (!res.ok) {
+    // WHY: les autres erreurs (validation, inconnue, stockage) sont internes : 500.
     const status =
       res.error === 'unauthenticated'
         ? 401
         : res.error === 'not_found' || res.error === 'forbidden'
           ? 404
-          : 502;
+          : 500;
     return new Response(null, { status, headers: HEADERS });
   }
   return new Response(null, { status: 303, headers: { Location: res.data, ...HEADERS } });

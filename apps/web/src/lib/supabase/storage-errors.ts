@@ -1,3 +1,5 @@
+import 'server-only';
+
 /**
  * Erreurs du stockage Supabase, partagées par les dépôts qui lisent ou écrivent des fichiers
  * (reçus, photo du dossier).

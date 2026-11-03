@@ -46,7 +46,8 @@ describe('photoRedirect', () => {
     ['not_found', 404],
     ['forbidden', 404],
     ['unauthenticated', 401],
-    ['unknown', 502],
+    ['validation', 500],
+    ['unknown', 500],
   ])('répond à %s par %i, sans rien révéler', async (error, status) => {
     service.openCurrentPhoto.mockResolvedValueOnce({ ok: false, error });
     const res = await photoRedirect(DOSSIER);

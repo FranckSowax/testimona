@@ -79,6 +79,21 @@ export async function setCurrentPhoto(photoId: string): Promise<RepoResult<true>
   return { data: true, error: null };
 }
 
+/**
+ * Dossier d'une photo visible de l'utilisateur (RLS : le coordinateur et plus voient les photos
+ * préparées), ou null.
+ */
+export async function getPhotoDossierId(photoId: string): Promise<RepoResult<string | null>> {
+  const db = await getSupabaseServer();
+  const { data, error } = await db
+    .from('dossier_photo')
+    .select('dossier_id')
+    .eq('id', photoId)
+    .maybeSingle<{ dossier_id: string }>();
+  if (error) return fail(error);
+  return { data: data?.dossier_id ?? null, error: null };
+}
+
 /** Photo courante du dossier visible de l'utilisateur (RLS), ou null. */
 export async function getCurrentPhoto(dossierId: string): Promise<RepoResult<DossierPhoto | null>> {
   const db = await getSupabaseServer();

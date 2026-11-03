@@ -37,6 +37,7 @@ const {
   createPhotoUploadUrl,
   downloadPhoto,
   getCurrentPhoto,
+  getPhotoDossierId,
   insertPhoto,
   setCurrentPhoto,
 } = await import('./repo');
@@ -71,9 +72,8 @@ describe('dépôt de la photo du dossier', () => {
       error: null,
     });
     expect(argsOf('storage.from')).toEqual([['dossier-photos']]);
-    const args = argsOf('createSignedUploadUrl');
-    expect(args).toEqual([[PATH]]);
-    expect(JSON.stringify(args)).not.toContain('upsert');
+    // WHY: aucun second argument, donc jamais `upsert: true`.
+    expect(argsOf('createSignedUploadUrl')).toEqual([[PATH]]);
     results.push({ data: null, error: { message: 'denied' } });
     expect((await createPhotoUploadUrl(PATH)).error?.code).toBe('storage');
   });
@@ -84,6 +84,17 @@ describe('dépôt de la photo du dossier', () => {
     expect(argsOf('rpc')).toEqual([['set_dossier_photo', { p_photo_id: PHOTO }]]);
     results.push({ data: null, error: { code: 'TL012', message: 'photo already used' } });
     expect((await setCurrentPhoto(PHOTO)).error?.code).toBe('TL012');
+  });
+
+  it('lit le dossier d’une photo visible', async () => {
+    results.push({ data: { dossier_id: DOSSIER }, error: null });
+    expect(await getPhotoDossierId(PHOTO)).toEqual({ data: DOSSIER, error: null });
+    expect(argsOf('select')).toEqual([['dossier_id']]);
+    expect(argsOf('eq')).toEqual([['id', PHOTO]]);
+    results.push({ data: null, error: null });
+    expect(await getPhotoDossierId(PHOTO)).toEqual({ data: null, error: null });
+    results.push({ data: null, error: { code: '22P02', message: 'bad uuid' } });
+    expect((await getPhotoDossierId(PHOTO)).error?.code).toBe('22P02');
   });
 
   it('lit la photo courante : activée et non archivée', async () => {

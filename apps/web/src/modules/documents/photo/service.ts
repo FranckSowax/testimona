@@ -6,6 +6,7 @@ import { getDossier, getMyRole } from '@/modules/dossier/repo';
 import { hasRole } from '@/modules/dossier/roles';
 import * as repo from './repo';
 import { isJpeg, PhotoRefSchema, PreparePhotoSchema } from './schema';
+import { stripJpegMetadata } from './stripJpegMetadata';
 
 export type PhotoError =
   | 'validation'
@@ -101,9 +102,17 @@ export async function preparePhotoUpload(raw: unknown): Promise<PhotoResult<Prep
 export async function setDossierPhoto(raw: unknown): Promise<PhotoResult<true>> {
   const input = PhotoRefSchema.safeParse(raw);
   if (!input.success) return { ok: false, error: 'validation' };
-  const blocked = await writeGate(input.data.dossierId);
+  const { dossierId, photoId } = input.data;
+  const blocked = await writeGate(dossierId);
   if (blocked) return { ok: false, error: blocked };
-  const res = await repo.setCurrentPhoto(input.data.photoId);
+  // WHY: la RPC agit sur le dossier de la photo, pas sur celui annoncé par le navigateur. Sans ce
+  // contrôle, un coordinateur de deux dossiers contournerait la porte de l'étape 3.5 de l'un en
+  // annonçant l'autre (et la mauvaise page serait rafraîchie). Une photo invisible ou d'un autre
+  // dossier reçoit `forbidden`, comme un identifiant inconnu pour la RPC.
+  const owner = await repo.getPhotoDossierId(photoId);
+  if (owner.error) return fromRepo(owner.error, 'getPhotoDossierId');
+  if (owner.data !== dossierId) return { ok: false, error: 'forbidden' };
+  const res = await repo.setCurrentPhoto(photoId);
   if (res.error) return fromRepo(res.error, 'setCurrentPhoto');
   return { ok: true, data: true };
 }
@@ -158,5 +167,16 @@ export async function currentPhotoBytes(
     });
     return { ok: true, data: null };
   }
-  return { ok: true, data: file.data };
+  // WHY: un JPEG envoyé hors de l'interface n'a pas été réencodé ; on retire ses métadonnées
+  // (EXIF, GPS, IPTC) avant qu'il n'entre dans des documents largement partagés. Un JPEG
+  // illisible est écarté : un document sans photo vaut mieux qu'une fuite de métadonnées.
+  const stripped = stripJpegMetadata(file.data);
+  if (!stripped.ok) {
+    console.warn('[documents/photo] currentPhotoBytes ignored an unreadable JPEG', {
+      photoId: photo.data.id,
+      sizeBytes: file.data.length,
+    });
+    return { ok: true, data: null };
+  }
+  return { ok: true, data: stripped.bytes };
 }
