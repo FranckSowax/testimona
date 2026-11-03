@@ -34,7 +34,8 @@ Aucun argent ne transite par Testimona dans ce lot, et aucun paiement à un pres
 
 Nouvelles tables avec RLS activée. Le code y accède avec le client utilisateur ; aucun client
 service-role. Les fonctions `security definer` gardent `search_path = ''` et vérifient le rôle en
-premier. Codes d'erreur : TL010 est nouveau (prestataire non contactable).
+premier. Codes d'erreur : TL010 est nouveau (prestataire non contactable), TL012 aussi (photo déjà
+désignée ou archivée, PR 5). TL011 est volontairement inutilisé (voir `dossier_photo`).
 
 ### `provider_category`
 
@@ -110,25 +111,67 @@ Le trigger fige aussi `provider_name` ; un prestataire désactivé reste ainsi n
 
 ### `dossier_photo` et bucket `dossier-photos`
 
-Photo de la personne, une version courante par dossier, sur le modèle du bucket `receipts` du lot 2.
+Photo de la personne, une version courante par dossier, sur le modèle du bucket `receipts` du lot 2
+(migration `20261101000100_dossier_photos.sql`).
 
-| Colonne       | Type                                   |
-| ------------- | -------------------------------------- |
-| `id`          | uuid, clé primaire                     |
-| `dossier_id`  | uuid, FK `dossier` (cascade)           |
-| `path`        | text, imposé (`<dossier_id>/<id>.jpg`) |
-| `created_by`  | uuid, imposé                           |
-| `created_at`  | timestamptz, imposé                    |
-| `archived_at` | timestamptz nullable                   |
+| Colonne        | Type                                                                 |
+| -------------- | -------------------------------------------------------------------- |
+| `id`           | uuid, clé primaire                                                   |
+| `dossier_id`   | uuid, FK `dossier` (cascade)                                         |
+| `path`         | text unique, imposé (`<dossier_id>/<id>.jpg`, contrainte `check`)    |
+| `created_by`   | uuid nullable, FK `auth.users` (`on delete set null`), imposé        |
+| `created_at`   | timestamptz, imposé                                                  |
+| `activated_at` | timestamptz nullable, posé par `set_dossier_photo` (photo désignée)  |
+| `archived_at`  | timestamptz nullable, posé par `set_dossier_photo` (photo remplacée) |
 
-Index unique sur `dossier_id where archived_at is null`. Une nouvelle photo archive la précédente.
-Bucket privé, 5 Mo, JPEG, PNG ou WebP. Envoi : coordinateur et plus. Lecture : membres du dossier.
-Le fichier doit exister dans le bucket avant l'insertion de la ligne (même contrôle que les reçus).
+Contrainte `check (archived_at is null or activated_at is not null)`. Index unique de la photo
+courante : `dossier_id where activated_at is not null and archived_at is null`.
+
+La photo courante s'établit en deux temps (écart assumé, voir plus bas) :
+
+1. **Préparation** : un coordinateur et plus insère une ligne. Le trigger `dossier_photo_before_insert`
+   vérifie d'abord le rôle (42501), puis impose le chemin, l'auteur, la date de création, et remet
+   `activated_at` et `archived_at` à `null`.
+2. **Envoi** : le navigateur envoie le JPEG par un lien signé, sur le chemin de la ligne préparée.
+3. **Désignation** : la RPC `set_dossier_photo(p_photo_id)`, `security definer`,
+   `search_path = ''`. Elle exige un utilisateur (28000). Un identifiant inexistant et un rôle
+   insuffisant donnent le même 42501, pour ne rien révéler de l'existence d'une photo, même à un
+   coordinateur d'un autre dossier. Elle verrouille la ligne du dossier (`for no key update`) puis
+   celle de la photo, dans l'ordre de la suppression en cascade et des autres fonctions du dossier
+   (reçus, clôture), pour éviter tout interblocage ; le verrou sur le dossier sérialise deux
+   désignations concurrentes. Une photo déjà désignée ou archivée donne TL012 (définitif). Un
+   fichier absent du stockage (version courante, non archivée) donne TL006 (retentable, comme les
+   reçus). Sinon, elle archive la photo courante et active la nouvelle, à la même heure
+   (`clock_timestamp()`, prise après le verrou).
+
+Aucune modification ni suppression par l'API : `update` et `delete` sont retirés à
+`authenticated`, seule la RPC pose `activated_at` et `archived_at`. Lecture : tout membre voit la
+photo courante ; une photo préparée ou archivée n'est lue que par le coordinateur et plus.
+Insertion : coordinateur et plus (RLS et trigger).
+
+Bucket privé `dossier-photos`, 5 Mo, **JPEG seul** (`image/jpeg`). Policies sur `storage.objects` :
+l'envoi n'est permis que sur le chemin d'une photo préparée, ni activée ni archivée, par un
+coordinateur du dossier (aucun chemin libre, aucun remplacement de fichier) ; la lecture d'un
+objet suit la RLS de `dossier_photo` (le fichier se lit exactement quand la ligne se lit).
+
+Aucune limite du nombre de photos préparées (décision produit, comme les devis). Le code TL011,
+prévu pour cette limite, reste volontairement inutilisé : il ne doit pas être réattribué.
+
+Le navigateur réduit la photo avant l'envoi (`shrinkImage` du lot 2 : JPEG 1600 px, EXIF retiré).
+Un JPEG envoyé hors de l'interface ne passe pas par ce réencodage : le serveur retire donc, avant
+de l'intégrer aux documents, les segments de métadonnées placés avant l'image (APP1 : EXIF et XMP,
+dont la position GPS ; APP13 : IPTC ; COM), sans toucher aux données d'image
+(`modules/documents/photo/stripJpegMetadata.ts`). Un JPEG illisible est écarté : le document est
+produit sans photo. La vignette de la synthèse passe par `GET /api/dossiers/[dossierId]/photo`,
+redirection 303 vers un lien signé de 5 minutes créé à la demande (`no-store`, `nosniff`,
+`Referrer-Policy: no-referrer`), 404 sans photo ou sans droit.
 
 ### Ce qui reste dans `journey_answer`
 
-Réponses de 3.1, 3.2 et 3.4, programme compris, et brouillons des textes de 3.5
-(`documents.booklet.*`, `documents.poster.*`), dans la limite de 64 Kio par réponse.
+Réponses de 3.1, 3.2 et 3.4, programme compris, variante de 3.5 (`documents.style`) et textes du
+livret (`documents.booklet.cover`, `.tribute`, `.thanks`), dans la limite de 64 Kio par réponse
+en base (60 000 octets côté application, `ANSWER_MAX_BYTES`). Il n'y a pas de clé `documents.poster.*` : l'affiche reprend la phrase de
+couverture du livret.
 
 ### Clôture des cotisations
 
@@ -279,31 +322,117 @@ aux lots précédents.
 
 ### Étape `funeral-documents`
 
-1. **Photo** : envoi facultatif de la photo de la personne (`dossier_photo`), réduite par
-   `shrinkImage` du lot 2 (JPEG 1600 px, métadonnées EXIF supprimées). Les modèles fonctionnent
-   sans photo.
-2. **Textes** : l'IA rédige, à partir de la fiche, de la biographie 1.6, du programme 3.4 et du
-   registre, une phrase ou un verset de couverture, un hommage d'environ 150 mots et un mot de
-   remerciement. Brouillons dans `journey_answer`, modifiables, consommant le quota d'IA du dossier.
+Étape 3.5 du moteur, placée juste après 3.4 dans le registre
+(`journey/steps/3-5-funeral-documents.ts`, `summary: 'step'`). Une seule question :
+`documents.style`, variante « sobre » (`sober`) ou « couleur » (`color`) (`DOCUMENT_STYLES`). Sans
+réponse, les modèles prennent la variante sobre. Le reste vit dans la synthèse propre à l'étape,
+`DocumentsSynthesis`, choisie par la page de synthèse comme `CeremonySynthesis` :
+
+1. **Photo** : envoi facultatif de la photo de la personne (`dossier_photo`, voir section 1) par un
+   coordinateur et plus, réduite par `shrinkImage` du lot 2. Une photo que le navigateur ne sait
+   pas réencoder en JPEG est refusée avec un message. Les modèles fonctionnent sans photo.
+2. **Textes** : trois textes enregistrés dans `journey_answer`, modifiables par un contributeur et
+   plus (RLS de `journey_answer`), chacun enregistré séparément après relecture :
+
+   | Clé                         | Texte                             | Limite           |
+   | --------------------------- | --------------------------------- | ---------------- |
+   | `documents.booklet.cover`   | phrase (ou verset) de couverture  | 200 caractères   |
+   | `documents.booklet.tribute` | hommage d'environ 150 mots        | 1 500 caractères |
+   | `documents.booklet.thanks`  | mot de remerciement de la famille | 600 caractères   |
+
+   Même nettoyage que les brouillons (CRLF en LF, espaces de bord retirés, pas de NUL, non vide)
+   (`modules/documents/texts.ts`). Les limites viennent des gabarits fixes : l'hommage tient sur
+   une page A5. Enregistrement refusé si l'étape 3.5 est fermée.
+
 3. **Faits** : noms, dates, heures et lieux sont lus directement de la fiche et de 3.4 ; ils ne
    passent jamais par l'IA.
 
+### Textes par l'IA
+
+« Proposer les textes avec l'IA » (contributeur et plus, IA active) : **un seul appel** produit les
+trois textes en JSON strict (`modules/ai/documents.ts`). Il réutilise `completeChat`, `takeAiQuota`
+et `isAiEnabled`, et compte pour un appel du quota du jour du dossier. Il n'y a pas de bouton
+« Améliorer » par texte. Les textes proposés remplissent l'éditeur sans être enregistrés ; un texte
+modifié pendant l'appel n'est pas écrasé.
+
+Faits envoyés, par liste blanche (`modules/ai/documents-facts.ts`, `DOCUMENT_AI_KEYS`) : le prénom,
+le surnom, le registre (`ceremony.tone`, sinon `announce.tone`) et les réponses de la biographie
+1.6 (parents, carrière, traits et anecdotes, passions, devise). **Jamais envoyés** : le nom de
+famille, les dates, les lieux (lieu de naissance compris), le programme 3.4, la liste de diffusion.
+Sans fiche, aucun repli sur le titre du dossier (il porte le nom de famille). Sans prénom, surnom
+ni biographie, la demande est refusée avant de consommer le quota. La fiche et les réponses sont
+lues avant de consommer le quota.
+
+Le prompt (`documents-prompt.ts`) balise les faits comme des données, pas des instructions, et
+interdit d'inventer un fait ou d'écrire une date, une heure, un lieu ou un nom absents des faits.
+Le registre croyant permet une courte référence religieuse ; le registre neutre, ou l'absence de
+registre, n'en permet aucune.
+
+Contrôles de la réponse (`documents-output.ts`), avant tout affichage : JSON exact à trois clés
+(un bloc ` ```json ` est toléré), limites de chaque texte, **aucune heure** (« 9:30 »,
+« 14h05 », « 15h », « à 9 heures », « 3 pm » ; « N heures » seul, souvent une durée, n'est refusé
+qu'après un mot d'introduction), **aucune date absente des faits** (une année, un jour et un mois
+qui ne figurent pas tels quels dans les faits envoyés). Une référence de verset dont le livre est
+connu (« Jean 11:25 », « 1 Corinthiens 13:4-7 ») est permise et n'est pas lue comme une heure.
+Une réponse refusée donne « La proposition n'a pas abouti » ; l'appel est consommé, les textes de
+l'éditeur sont conservés, et seule la nature du refus est journalisée (jamais la réponse).
+
+### Textes de départ
+
+Sans IA, ou quand elle est absente, épuisée ou en échec, la phrase de couverture et le
+remerciement ont un texte de départ fixe selon le registre (croyant ou neutre, neutre par défaut),
+dans la langue de l'interface (`modules/documents/templates.ts`, textes `documents.starter.*`). Ils
+préremplissent l'éditeur de qui peut écrire, sans être enregistrés : la famille les relit et les
+enregistre. L'hommage n'a pas de texte de départ : il se nourrit de la biographie, la famille
+l'écrit ou le demande à l'IA.
+
 ### Modèles et formats
 
-- **Livret** : PDF A5, environ 4 pages (couverture avec photo, nom et dates ; hommage ; programme ;
-  remerciements).
-- **Affiche** : PDF A4 à imprimer, et image PNG carrée de 1080 px pour WhatsApp (photo, nom, dates,
-  moments principaux avec heure et lieu).
-- Couleurs Testimona, variante « sobre » ou « couleur » ; pas d'éditeur libre.
-- `@react-pdf/renderer` (MIT) pour les PDF, `next/og` (fourni avec Next) pour le PNG ; une police
-  avec accents embarquée.
+- **Livret** : PDF A5 de 4 pages (couverture avec photo, nom, surnom, dates et phrase ; hommage ;
+  programme avec date et lieux ; remerciements). Un long programme (jusqu'à 40 moments) se
+  poursuit sur les pages suivantes, sans en-tête de tableau laissé seul en bas de page.
+- **Affiche** : PDF A4 à imprimer, et image PNG carrée de 1 080 × 1 080 px pour WhatsApp (photo,
+  nom, dates, phrase de couverture, date des obsèques et les 5 premiers moments du programme par
+  heure, avec leur lieu).
+- Couleurs Testimona, variante « sobre » ou « couleur » (`modules/documents/theme.ts`, couleurs
+  du texte assombries pour un contraste suffisant) ; pas d'éditeur libre.
+- `@react-pdf/renderer` 4 (MIT) pour les PDF, `next/og` (fourni avec Next) pour le PNG ; police PT
+  Sans (OFL) embarquée, avec accents (`apps/web/assets/fonts/`).
+- Les noms, dates, heures et lieux imprimés viennent de la fiche (la réponse `death.date` prime
+  sur la date de décès de la fiche) et de 3.4.
+
+### Document prêt
+
+`documentReadiness` (`modules/documents/model.ts`) liste ce qui manque :
+
+- le nom (fiche, sinon titre du dossier) et **au moins un moment** au programme 3.4, pour les trois
+  formats ;
+- pour le livret, les trois textes enregistrés et valides ; l'affiche n'exige que la fiche et le
+  programme (sans phrase de couverture, elle s'en passe).
+
+La date des obsèques est facultative : sans réponse valide, le livret et l'affiche impriment
+« Date à préciser » (« Date to be confirmed »). La synthèse affiche l'état de chaque format et un
+lien pour compléter ce qui manque.
 
 ### Téléchargement
 
-Route `/api/dossiers/[dossierId]/documents/[doc]` (`booklet.pdf`, `poster.pdf`, `poster.png`) pour
-tout membre du dossier, réponse `no-store` et `nosniff` comme l'export CSV. La photo est lue côté
-serveur avec le client utilisateur. Si la fiche, le programme ou les textes manquent, l'étape
-l'indique au lieu de produire un document vide.
+Route `GET /api/dossiers/[dossierId]/documents/[doc]` (`booklet.pdf`, `poster.pdf`, `poster.png`,
+`?lang=fr|en`), `runtime = 'nodejs'`, `dynamic = 'force-dynamic'`, pour tout membre du dossier,
+lecteur compris. Le document est produit à chaque demande avec le client utilisateur et la RLS,
+jamais service-role, jamais mis en cache.
+
+| Statut | Cas                                                                                        |
+| ------ | ------------------------------------------------------------------------------------------ |
+| 401    | pas de session (sans corps)                                                                |
+| 404    | identifiant ou format invalide, dossier absent, non-membre, étape fermée (sans corps)      |
+| 409    | document pas prêt : texte traduit listant ce qui manque                                    |
+| 502    | lecture de la fiche ou des réponses en échec (texte traduit)                               |
+| 500    | toute autre erreur, rendu compris (texte traduit ; seul le nom de l'erreur est journalisé) |
+
+Toutes les réponses portent `Cache-Control: no-store` et `X-Content-Type-Options: nosniff`, comme
+l'export CSV ; un succès est un `attachment` au nom traduit (`livret-obseques.pdf`,
+`affiche-obseques.pdf` ou `.png` en français). La photo est lue côté serveur avec le client utilisateur, seulement quand le document
+est produit ; son absence ou une erreur de lecture donne un document sans photo.
 
 ## 5. Tests
 
@@ -312,6 +441,28 @@ l'indique au lieu de produire un document vide.
 - Vitest : quantités, message de devis, programme type, contenu des documents vérifié sur les
   données passées aux modèles (pas au pixel), textes FR/EN typés.
 - Tests e2e : limités aux pages publiques, comme aujourd'hui.
+
+Tests ajoutés par la PR 5 (livret et affiche) :
+
+- SQL sur PGlite : `supabase/tests/dossier-photos.test.ts` (trigger, chemin et auteur imposés,
+  `set_dossier_photo` avec 28000, 42501, TL012 et TL006, archivage de la photo précédente, RLS) et
+  `supabase/tests/dossier-photos-storage.test.ts` (bucket privé, 5 Mo, JPEG seul, envoi seulement
+  sur le chemin d'une photo préparée, ni remplacement ni suppression, lecture qui suit la RLS),
+  avec le banc `supabase/tests/helpers/dossier-photos.ts`.
+- Vitest, module `documents` (`apps/web/src/modules/documents/`) : `texts.test.ts`,
+  `texts-service.test.ts`, `actions.test.ts`, `templates.test.ts`, `model.test.ts`,
+  `load.test.ts`, `theme.test.ts`, `fonts.test.ts`, `http.test.ts`, `http-sources.test.ts`,
+  `render.test.tsx` (données passées aux gabarits, textes accentués à leur longueur maximale,
+  programme de 40 moments, format réel du PDF et du PNG), `render-smoke.test.tsx`, `ui/DocumentTexts.test.tsx`, `ui/DocumentsSynthesis.test.tsx` ;
+  photo : `photo/schema.test.ts`, `photo/repo.test.ts`, `photo/service.test.ts`,
+  `photo/actions.test.ts`, `photo/http.test.ts`, `photo/stripJpegMetadata.test.ts`,
+  `photo/ui/PhotoCapture.test.tsx`, `photo/ui/photoError.test.ts`.
+- Vitest, IA (`apps/web/src/modules/ai/`) : `documents-facts.test.ts` (liste blanche),
+  `documents-prompt.test.ts`, `documents-output.test.ts` (heures, dates inventées, versets),
+  `documents.test.ts` (quota, lecture avant quota, refus), `actions.test.ts` (complété).
+- Vitest, parcours : `journey/registry.test.ts` (étape 3.5 après 3.4, aucune question sur les
+  clés des textes) et
+  `journey/quantities.test.ts` (ajusté).
 
 ## 6. Livraison
 
@@ -326,6 +477,44 @@ Cinq PR, chacune déployable seule, migration appliquée en production avant la 
    migration : `quote_request.step_id` accepte déjà `ceremony-program` et les réponses vivent
    dans `journey_answer`.
 5. **Livret et affiche** : migration photo, étape 3.5, PDF et PNG.
+
+Ordre de déploiement de la PR 5 :
+
+1. appliquer la migration `20261101000100_dossier_photos.sql` en production **avant** la fusion
+   (table `dossier_photo`, RPC `set_dossier_photo`, bucket `dossier-photos` et ses policies). Sans
+   elle, l'envoi de photo échoue ; la synthèse et les documents restent utilisables sans photo ;
+2. régénérer les types (`pnpm --filter @testimona/supabase db:types`), complétés à la main dans la
+   PR, et les enregistrer dans un commit `chore(db): …`, comme `e70e222` ;
+3. fusionner.
+
+## Écarts assumés et décisions de la PR 5
+
+Écarts avec la première version de cette spec, validés par l'utilisateur le 2026-11-03 :
+
+- **Photo courante en deux temps** : la ligne est préparée avant l'envoi, puis désignée par
+  `set_dossier_photo`, qui exige le fichier au stockage. La première version disait « le fichier
+  doit exister avant l'insertion de la ligne », ce qui est impossible avec une policy de stockage
+  qui n'autorise que le chemin d'une ligne préparée. Le contrôle reste celui des reçus : il porte
+  sur le rattachement, pas sur l'insertion. D'où la colonne `activated_at` et l'index unique sur
+  `activated_at is not null and archived_at is null`.
+- **JPEG seul** : le chemin est `<dossier_id>/<id>.jpg`, `shrinkImage` produit toujours du JPEG et
+  `@react-pdf/renderer` ne lit pas le WebP. Le bucket n'accepte que `image/jpeg`.
+- **Pas de clé `documents.poster.*`** : l'affiche reprend la phrase de couverture du livret.
+- **Textes de départ sans IA** pour la couverture et le remerciement, selon le registre ; leurs
+  formulations, dont celles du registre croyant qui citent « Dieu », restent à relire par le
+  produit.
+
+Décisions prises sur les points ouverts :
+
+| Sujet            | Décision                                                                                                                                                |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Faits pour l'IA  | Prénom, surnom, registre et biographie 1.6 ; jamais le nom de famille, les dates, les lieux ni le programme.                                            |
+| Appel d'IA       | Un seul appel pour les trois textes, sans bouton « Améliorer » par texte.                                                                               |
+| Envois de photos | Aucune limite, comme pour les devis : pas de TL011, pas de comptage. TL012 pour une photo déjà désignée ou archivée ; 42501 pour une photo inexistante. |
+| Affiche          | Les 5 premiers moments du programme, par heure.                                                                                                         |
+| Contenu minimal  | Au moins un moment au programme (sinon 409 avec la liste des manques) ; date des obsèques facultative, « Date à préciser » à la place.                  |
+| Retrait de photo | Pas de retrait sans remplacement.                                                                                                                       |
+| Police           | PT Sans (OFL), depuis `google/fonts`, embarquée dans `apps/web/assets/fonts/`.                                                                          |
 
 ## Hors périmètre
 

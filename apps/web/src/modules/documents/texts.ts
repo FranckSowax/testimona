@@ -42,6 +42,7 @@ const noNul = (s: string) => !s.includes('\u0000');
  * documentTextSchema('cover').parse('  Merci pour tout  '); // 'Merci pour tout'
  */
 export function documentTextSchema(kind: DocumentTextKind) {
+  // WHY: pas de `fitsAnswerSize` : 1 500 caractères restent très loin des 60 ko d'une réponse.
   return (
     z
       .string()
