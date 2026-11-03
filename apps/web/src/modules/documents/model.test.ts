@@ -70,6 +70,16 @@ describe('documentInputs', () => {
     expect(inputs.lifeDates).toBe('3 mars 1950 – 20 octobre 2026');
   });
 
+  it('retombe sur la date de la fiche quand la date répondue est invalide', () => {
+    for (const answered of ['n/a', '2026-02-31', '  ']) {
+      const inputs = documentInputs({
+        ...base,
+        answers: { ...base.answers, 'death.date': answered },
+      });
+      expect(inputs.lifeDates).toBe('3 mars 1950 – 12 octobre 2026');
+    }
+  });
+
   it('écrit les dates en français et en anglais', () => {
     expect(documentInputs(base).lifeDates).toBe('3 mars 1950 – 12 octobre 2026');
     expect(documentInputs(base).ceremonyDate).toBe('samedi 14 novembre 2026');
@@ -193,7 +203,7 @@ describe('bookletData et posterData', () => {
 
   it('assemble l’affiche, sans texte si besoin', () => {
     const inputs = documentInputs({ ...base, answers: { 'ceremony.program': program } });
-    const data = posterData(inputs, labels, null);
+    const data = posterData('poster.pdf', inputs, labels, null);
     expect(data).toMatchObject({
       style: 'sober',
       photo: null,
@@ -209,6 +219,20 @@ describe('bookletData et posterData', () => {
   it('refuse d’assembler un document incomplet', () => {
     const inputs = documentInputs({ ...base, answers: { 'ceremony.program': program } });
     expect(() => bookletData(inputs, labels, null)).toThrow('cover');
+  });
+
+  it('vérifie l’affiche dans le format demandé', () => {
+    const ready = documentInputs(base);
+    expect(posterData('poster.png', ready, labels, null)).toEqual(
+      posterData('poster.pdf', ready, labels, null),
+    );
+    const empty = documentInputs({ ...base, answers: {} });
+    expect(() => posterData('poster.png', empty, labels, null)).toThrow(
+      'poster.png not ready: program',
+    );
+    expect(() => posterData('poster.pdf', empty, labels, null)).toThrow(
+      'poster.pdf not ready: program',
+    );
   });
 
   it('ne laisse aucun texte remplacer un fait', () => {
@@ -227,8 +251,8 @@ describe('bookletData et posterData', () => {
     expect(b.lifeDates).toBe(a.lifeDates);
     expect(b.ceremonyDate).toBe(a.ceremonyDate);
     expect(b.program).toEqual(a.program);
-    expect(posterData(tricky, labels, null).moments).toEqual(
-      posterData(plain, labels, null).moments,
+    expect(posterData('poster.png', tricky, labels, null).moments).toEqual(
+      posterData('poster.png', plain, labels, null).moments,
     );
   });
 });

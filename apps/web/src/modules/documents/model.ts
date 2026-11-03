@@ -16,6 +16,8 @@ export type { DocumentStyle };
 /** Documents de l'étape 3.5 : livret A5, affiche A4, affiche carrée pour WhatsApp. */
 export const DOCUMENT_KINDS = ['booklet.pdf', 'poster.pdf', 'poster.png'] as const;
 export type DocumentKind = (typeof DOCUMENT_KINDS)[number];
+/** Formats de l'affiche : PDF A4 ou PNG carré. */
+export type PosterKind = Exclude<DocumentKind, 'booklet.pdf'>;
 
 /** Élément manquant empêchant de produire un document. */
 export type DocumentMissing = 'name' | 'program' | DocumentTextKind;
@@ -137,7 +139,7 @@ function _assertReady(kind: DocumentKind, inputs: DocumentInputs): void {
 /**
  * Faits imprimés sur le livret et l'affiche, lus directement de la fiche et des réponses ;
  * jamais d'un texte produit par l'IA. La date de décès répondue (`death.date`) prime sur celle
- * de la fiche, comme dans `aiFacts`.
+ * de la fiche quand elle est valide, comme dans `aiFacts`.
  *
  * @example
  * const inputs = documentInputs({ person, dossierTitle: dossier.title, answers, locale: 'fr' });
@@ -148,12 +150,9 @@ export function documentInputs({
   answers,
   locale,
 }: DocumentInputsParams): DocumentInputs {
-  const answeredDeath = answers['death.date'];
-  const death =
-    typeof answeredDeath === 'string' && answeredDeath.trim() !== ''
-      ? answeredDeath
-      : (person?.deathDate ?? null);
-  const dates = [_lifeDate(person?.birthDate, locale), _lifeDate(death, locale)].filter(
+  // WHY: une réponse non vide mais invalide ne doit pas masquer une date valide de la fiche.
+  const death = _lifeDate(answers['death.date'], locale) ?? _lifeDate(person?.deathDate, locale);
+  const dates = [_lifeDate(person?.birthDate, locale), death].filter(
     (d): d is string => d !== null,
   );
   return {
@@ -229,17 +228,19 @@ export function bookletData(
 }
 
 /**
- * Données de l'affiche (PDF A4 ou PNG carré). Lève si l'affiche n'est pas prête.
+ * Données de l'affiche (PDF A4 ou PNG carré). Lève si l'affiche n'est pas prête dans le format
+ * demandé.
  *
  * @example
- * posterData(inputs, labels, null);
+ * posterData('poster.png', inputs, labels, null);
  */
 export function posterData(
+  kind: PosterKind,
   inputs: DocumentInputs,
   labels: DocumentLabels,
   photo: Uint8Array | null,
 ): PosterData {
-  _assertReady('poster.pdf', inputs);
+  _assertReady(kind, inputs);
   return {
     style: inputs.style,
     photo,
