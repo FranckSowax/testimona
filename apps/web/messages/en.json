@@ -1976,6 +1976,28 @@
         "neutral": "The family thanks with all their hearts everyone who stood by them with their presence, their messages and their support during this painful time.",
         "believer": "The family thanks with all their hearts everyone who stood by them with their presence, their prayers and their support during this painful time. May God bless you."
       }
+    },
+    "labels": {
+      "tribute": "Tribute",
+      "program": "Programme",
+      "thanks": "Acknowledgements",
+      "time": "Time",
+      "moment": "Moment",
+      "place": "Place",
+      "lead": "Led by",
+      "dateToBeConfirmed": "Date to be confirmed"
+    },
+    "missing": {
+      "intro": "This document cannot be created yet. Still missing:",
+      "name": "the name of the deceased",
+      "program": "the programme for the day",
+      "cover": "the cover line",
+      "tribute": "the tribute",
+      "thanks": "the acknowledgements"
+    },
+    "files": {
+      "booklet": "funeral-booklet",
+      "poster": "funeral-poster"
     }
   },
   "providers": {
