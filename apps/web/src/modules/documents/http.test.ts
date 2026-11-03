@@ -114,32 +114,21 @@ describe('documentResponse', () => {
     expect(dossierRepo.getDossier).not.toHaveBeenCalled();
   });
 
-  it('répond 404 sans corps pour un dossier absent', async () => {
-    dossierRepo.getDossier.mockResolvedValueOnce(null);
-    const res = await documentResponse(DOSSIER, 'booklet.pdf', 'fr');
-    expect(res.status).toBe(404);
-    expectSafeHeaders(res);
-    expect(await res.text()).toBe('');
-    expect(answersRepo.listAnswersResult).not.toHaveBeenCalled();
-  });
-
-  it('répond 404 sans corps à un non-membre', async () => {
-    dossierRepo.getMyRole.mockResolvedValueOnce(null);
+  it.each([
+    ['un dossier absent', () => dossierRepo.getDossier.mockResolvedValueOnce(null)],
+    ['un non-membre', () => dossierRepo.getMyRole.mockResolvedValueOnce(null)],
+    [
+      'une étape 3.5 fermée',
+      () => dossierRepo.getDossier.mockResolvedValueOnce(dossier({ entryPoint: 'prepare' })),
+    ],
+  ])('répond 404 sans corps pour %s', async (_case, arrange) => {
+    arrange();
     const res = await documentResponse(DOSSIER, 'poster.png', 'fr');
     expect(res.status).toBe(404);
     expectSafeHeaders(res);
     expect(await res.text()).toBe('');
     expect(answersRepo.listAnswersResult).not.toHaveBeenCalled();
     expect(render.renderPosterPng).not.toHaveBeenCalled();
-  });
-
-  it('répond 404 sans corps quand l’étape 3.5 est fermée', async () => {
-    dossierRepo.getDossier.mockResolvedValueOnce(dossier({ entryPoint: 'prepare' }));
-    const res = await documentResponse(DOSSIER, 'booklet.pdf', 'fr');
-    expect(res.status).toBe(404);
-    expectSafeHeaders(res);
-    expect(await res.text()).toBe('');
-    expect(answersRepo.listAnswersResult).not.toHaveBeenCalled();
   });
 
   it('autorise un lecteur (viewer)', async () => {
@@ -169,16 +158,26 @@ describe('documentResponse', () => {
     expect(render.renderBooklet).not.toHaveBeenCalled();
   });
 
+  // WHY: décision produit : la date des obsèques est facultative ; « Date à préciser » est imprimé.
+  it.each([
+    ['booklet.pdf', 'renderBooklet'],
+    ['poster.pdf', 'renderPosterPdf'],
+  ] as const)('produit %s sans date des obsèques', async (doc, fn) => {
+    const withoutDate: Record<string, unknown> = { ...READY_ANSWERS };
+    delete withoutDate['ceremony.date'];
+    answersRepo.listAnswersResult.mockResolvedValueOnce({ data: withoutDate, error: null });
+    const res = await documentResponse(DOSSIER, doc, 'fr');
+    expect(res.status).toBe(200);
+    const data = render[fn].mock.calls[0]?.[0];
+    expect(data.ceremonyDate).toBeNull();
+    expect(data.labels.dateToBeConfirmed).toBe('Date à préciser');
+  });
+
   it('produit le document sans photo quand il n’y en a pas', async () => {
     photo.currentPhotoBytes.mockResolvedValueOnce({ ok: true, data: null });
     const res = await documentResponse(DOSSIER, 'poster.pdf', 'fr');
     expect(res.status).toBe(200);
-    expect(model.posterData).toHaveBeenCalledWith(
-      'poster.pdf',
-      expect.anything(),
-      expect.anything(),
-      null,
-    );
+    expect(vi.mocked(model.posterData).mock.calls[0]?.[3]).toBeNull();
   });
 
   it('répond 409 en listant en français ce qui manque, sans document', async () => {

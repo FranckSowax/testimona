@@ -126,6 +126,7 @@ async function _documentResponse(dossierId: string, doc: string, lang: Lang): Pr
   ]);
   const bytes = await _render(kind.data, inputs, labels, photo.data);
   const file = FILES[kind.data];
+  // WHY: depuis TS 5.7, Uint8Array<ArrayBufferLike> n'est plus assignable à BodyInit (SharedArrayBuffer possible) ; les octets rendus sont un ArrayBuffer ordinaire.
   return new Response(bytes as BodyInit, {
     status: 200,
     headers: {
