@@ -143,7 +143,17 @@ describe('set_dossier_photo : désignation de la photo courante', () => {
     await expect(f.setCurrent(f.coordinator, photo.id)).rejects.toMatchObject({ code: 'TL006' });
   });
 
-  it('garantit une seule photo courante par dossier et l’ordre activation puis archive', async () => {
+  it('refuse quand le fichier de même nom n’existe que dans un autre bucket (TL006)', async () => {
+    const photo = await f.prepare(f.coordinator);
+    // WHY: superutilisateur du banc ; un objet au même chemin dans le bucket receipts ne doit pas
+    // compter : le filtre bucket_id de la RPC est nécessaire.
+    await f.db.query(`insert into storage.objects (bucket_id, name) values ('receipts', $1)`, [
+      photo.path,
+    ]);
+    await expect(f.setCurrent(f.coordinator, photo.id)).rejects.toMatchObject({ code: 'TL006' });
+  });
+
+  it('garantit une seule photo courante par dossier et refuse un archivage sans activation', async () => {
     const dossier = await freshDossier();
     const first = await f.prepareWithPhoto(f.coordinator, dossier);
     await f.setCurrent(f.coordinator, first.id);

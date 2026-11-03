@@ -23,7 +23,8 @@
 --    coordinateur) ; TL012 pour une photo existante, visible du coordinateur, mais
 --    déjà activée ou archivée (définitif) ; TL006 tant que le fichier n'est pas au
 --    stockage (retentable, comme pour les reçus) ;
---  - pas de limite du nombre de photos préparées (décision produit) ;
+--  - pas de limite du nombre de photos préparées (décision produit) ; le code TL011,
+--    prévu pour cette limite, reste volontairement inutilisé : ne pas le réattribuer ;
 --  - aucune écriture par service-role : tout passe par le client utilisateur et la
 --    RLS, comme pour les reçus.
 -- ============================================================================
@@ -87,19 +88,39 @@ security definer
 set search_path = ''
 as $$
 declare
+  v_dossier_id uuid;
   v_photo public.dossier_photo%rowtype;
+  v_now timestamptz;
 begin
   if auth.uid() is null then
     raise exception 'not authenticated' using errcode = '28000';
   end if;
 
-  select * into v_photo from public.dossier_photo p where p.id = p_photo_id for update;
+  -- WHY: lecture sans verrou du seul dossier_id (jamais modifié : aucun droit d'update) ; la
+  -- ligne de la photo n'est verrouillée qu'après le dossier, dans l'ordre de « delete from
+  -- dossier » (dossier puis cascade sur dossier_photo) et des autres fonctions du dossier
+  -- (reçus, clôture) : l'ordre inverse pourrait provoquer un interblocage (40P01).
+  select p.dossier_id into v_dossier_id from public.dossier_photo p where p.id = p_photo_id;
   -- WHY: un identifiant inexistant reçoit le même 42501 qu'un rôle insuffisant, pour ne rien
   -- révéler de l'existence d'une photo, même à un coordinateur d'un autre dossier.
-  if not found then
+  if v_dossier_id is null then
     raise exception 'not allowed' using errcode = '42501';
   end if;
-  if not public.is_dossier_member(v_photo.dossier_id, 'coordinator') then
+  if not public.is_dossier_member(v_dossier_id, 'coordinator') then
+    raise exception 'not allowed' using errcode = '42501';
+  end if;
+
+  -- WHY: deux désignations concurrentes de photos différentes archiveraient chacune la même
+  -- ancienne photo puis buteraient sur l'index unique ; le verrou sur la ligne du dossier les
+  -- sérialise. « for no key update » ne bloque pas les clés étrangères, mais il entre en conflit
+  -- avec le « for share » de ledger_assert_open : une désignation attend brièvement la fin des
+  -- écritures du registre en cours, et inversement (comme la clôture).
+  perform 1 from public.dossier d where d.id = v_dossier_id for no key update;
+
+  select * into v_photo from public.dossier_photo p where p.id = p_photo_id for update;
+  -- WHY: photo disparue pendant l'attente du verrou (suppression du dossier en cascade) : même
+  -- réponse qu'un identifiant inexistant.
+  if not found then
     raise exception 'not allowed' using errcode = '42501';
   end if;
 
@@ -118,18 +139,19 @@ begin
     raise exception 'dossier photo missing' using errcode = 'TL006';
   end if;
 
-  -- WHY: deux désignations concurrentes de photos différentes archiveraient chacune la même
-  -- ancienne photo puis buteraient sur l'index unique ; le verrou sur la ligne du dossier les
-  -- sérialise (« for no key update » ne bloque pas les clés étrangères).
-  perform 1 from public.dossier d where d.id = v_photo.dossier_id for no key update;
+  -- WHY: clock_timestamp() plutôt que now() : now() est l'heure du début de la transaction,
+  -- antérieure à l'attente du verrou ; une désignation qui a attendu archiverait la photo
+  -- précédente avec une heure antérieure à son activation. L'heure prise après le verrou suit
+  -- toute désignation déjà validée.
+  v_now := clock_timestamp();
 
   update public.dossier_photo p
-     set archived_at = now()
-   where p.dossier_id = v_photo.dossier_id
+     set archived_at = v_now
+   where p.dossier_id = v_dossier_id
      and p.activated_at is not null
      and p.archived_at is null;
 
-  update public.dossier_photo p set activated_at = now() where p.id = v_photo.id;
+  update public.dossier_photo p set activated_at = v_now where p.id = v_photo.id;
 end;
 $$;
 
