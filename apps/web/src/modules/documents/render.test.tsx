@@ -152,17 +152,31 @@ describe('renderBooklet', () => {
     expect(new Set(mediaBoxes(pdf))).toEqual(new Set([A5]));
   });
 
-  it('renvoie le tableau à la page suivante s’il n’y tient pas avec sa première ligne', async () => {
-    const short = programTablePresence([{ time: '08:00', moment: 'Messe' }]);
-    expect(programTablePresence([])).toBeLessThan(short);
-    expect(programTablePresence(longProgram)).toBeGreaterThan(short);
-    // Lieux nombreux : l'en-tête du programme tombe en bas de la première page du programme.
-    const places = Array.from({ length: 14 }, (_, i) => ({
+  it('réserve la marge, l’en-tête et la première ligne avant de commencer le tableau', () => {
+    // Besoin réel pour une première ligne d'une ligne de texte : marge 18 pt, en-tête 17 pt
+    // (8 pt × 1,5 + 4 pt + filet 1 pt), ligne 15,75 pt (10,5 pt × 1,5) + 10 pt + filet 0,5 pt.
+    const need = 18 + 17 + 15.75 + 10.5;
+    const oneLine = programTablePresence([{ time: '08:00', moment: 'Levée du corps' }]);
+    expect(oneLine).toBeGreaterThanOrEqual(need);
+    expect(programTablePresence([])).toBeGreaterThanOrEqual(18 + 17);
+    expect(programTablePresence(longProgram)).toBeGreaterThan(oneLine);
+  });
+
+  it('rend le cas limite où l’en-tête tombait seul en bas de page', async () => {
+    // WHY: 21 lieux d'une ligne laissaient juste la place de l'en-tête en bas de la page du
+    // programme ; vérifié visuellement (en-tête et lignes en haut de la page suivante). Le flux
+    // de contenu compressé ne permet pas de situer l'en-tête sans extracteur PDF.
+    const places = Array.from({ length: 21 }, (_, i) => ({
       label: `Lieu ${i}`,
-      text: accented(60),
+      text: 'Morgue de Libreville',
     }));
-    const pdf = await renderBooklet({ ...booklet, places, program: longProgram });
-    expect(pageCount(pdf)).toBeGreaterThan(4);
+    const program = [
+      { time: '08:00', moment: 'Levée du corps', place: 'Morgue' },
+      { time: '10:00', moment: 'Messe' },
+    ];
+    const pdf = await renderBooklet({ ...booklet, places, program });
+    expect(pageCount(pdf)).toBe(5);
+    expect(new Set(mediaBoxes(pdf))).toEqual(new Set([A5]));
   });
 
   it('tient les textes à leur longueur maximale sur quatre pages', async () => {

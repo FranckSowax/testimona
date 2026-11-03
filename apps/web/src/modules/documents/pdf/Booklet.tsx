@@ -3,7 +3,7 @@ import { FONT_FAMILY } from '../fonts';
 import type { BookletData } from '../model';
 import { DOCUMENT_THEMES, type DocumentTheme } from '../theme';
 import { PdfPhoto } from './PdfPhoto';
-import { ProgramTable, programTablePresence } from './ProgramTable';
+import { PROGRAM_TABLE_MARGIN, ProgramTable, programTablePresence } from './ProgramTable';
 
 interface BookletProps {
   data: BookletData;
@@ -94,9 +94,10 @@ function Program({ data, theme }: SectionProps) {
         </View>
       )}
       {/* WHY: nœud vide qui renvoie le tableau à la page suivante s'il n'y tient pas avec sa
-          première ligne (cf. `programTablePresence`). */}
+          première ligne (cf. `programTablePresence`). Il reste hors de l'enveloppe : react-pdf ne
+          fait sauter de page qu'un élément précédé d'autres dans son parent. */}
       <View minPresenceAhead={programTablePresence(data.program)} />
-      <View style={{ marginTop: 18 }}>
+      <View style={{ marginTop: PROGRAM_TABLE_MARGIN }}>
         <ProgramTable program={data.program} labels={labels} theme={theme} />
       </View>
     </View>
