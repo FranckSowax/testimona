@@ -2,8 +2,9 @@
 
 import { getLocale } from 'next-intl/server';
 import { getCurrentUser } from '@/lib/supabase/server';
+import { generateDocumentTexts } from './documents';
 import { improveDraft } from './service';
-import type { AiResult } from './types';
+import type { AiResult, DocumentTextsResult } from './types';
 
 /**
  * Améliore le brouillon affiché ; le résultat n'est pas enregistré (l'utilisateur relit d'abord).
@@ -20,4 +21,20 @@ export async function improveDraftAction(input: {
   // second argument : le fournisseur injectable sert aux tests et ne doit jamais venir du client.
   const fields = typeof input === 'object' && input !== null ? input : {};
   return improveDraft({ ...fields, locale: locale === 'en' ? 'en' : 'fr' });
+}
+
+/**
+ * Propose les trois textes du livret (couverture, hommage, remerciements) en un seul appel à
+ * l'IA ; rien n'est enregistré : la famille relit, puis enregistre avec `saveDocumentTextAction`.
+ * La langue est lue côté serveur ; l'entrée vient du navigateur et le service la valide.
+ */
+export async function generateDocumentTextsAction(input: {
+  dossierId: string;
+}): Promise<DocumentTextsResult> {
+  if (!(await getCurrentUser())) return { ok: false, error: 'unauthenticated' };
+  const locale = await getLocale();
+  // WHY: comme `improveDraftAction` : on n'étale qu'un objet, et aucun second argument (le
+  // fournisseur injectable sert aux tests et ne doit jamais venir du client).
+  const fields = typeof input === 'object' && input !== null ? input : {};
+  return generateDocumentTexts({ ...fields, locale: locale === 'en' ? 'en' : 'fr' });
 }

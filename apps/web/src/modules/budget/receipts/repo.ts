@@ -1,5 +1,6 @@
 import 'server-only';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { isMissingObject, storageFail } from '@/lib/supabase/storage-errors';
 import type { RepoResult } from '@/modules/dossier/repo';
 import { RECEIPT_BUCKET, RECEIPT_MAX_BYTES, type ReceiptType } from './schema';
 
@@ -41,25 +42,6 @@ function fail(error: { code?: string; message?: string }) {
     data: null,
     error: { code: error.code || 'unknown', message: error.message || 'receipts error' },
   };
-}
-
-// WHY: les erreurs du stockage n'ont pas de code Postgres ; « storage » les distingue.
-const storageFail = (error: { message?: string }) => ({
-  data: null,
-  error: { code: 'storage', message: error.message || 'storage error' },
-});
-
-/**
- * Vrai quand le stockage signale un objet absent (reçu préparé dont la photo n'a jamais été
- * envoyée). WHY: l'API répond 400 avec `statusCode` « 404 » (ou un code « not found »).
- */
-function isMissingObject(error: { status?: number; statusCode?: string }): boolean {
-  return (
-    error.status === 404 ||
-    error.statusCode === '404' ||
-    error.statusCode === 'not_found' ||
-    error.statusCode === 'NoSuchKey'
-  );
 }
 
 const NO_ROWS = { data: null, error: { code: 'no_rows', message: 'no row matched' } };

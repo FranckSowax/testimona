@@ -462,6 +462,44 @@ export type Database = {
           },
         ]
       }
+      dossier_photo: {
+        Row: {
+          activated_at: string | null
+          archived_at: string | null
+          created_at: string
+          created_by: string | null
+          dossier_id: string
+          id: string
+          path: string
+        }
+        Insert: {
+          activated_at?: string | null
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          dossier_id: string
+          id?: string
+          path: string
+        }
+        Update: {
+          activated_at?: string | null
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          dossier_id?: string
+          id?: string
+          path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dossier_photo_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "dossier"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Funeral: {
         Row: {
           createdAt: string
@@ -1814,6 +1852,7 @@ export type Database = {
         Args: { p_dossier_id: string; p_scenario: string }
         Returns: undefined
       }
+      set_dossier_photo: { Args: { p_photo_id: string }; Returns: undefined }
     }
     Enums: {
       dossier_role:

@@ -1219,6 +1219,10 @@
       "ceremony-program": {
         "title": "The order of the funeral",
         "description": "The funeral date, the places, the tone and the programme hour by hour."
+      },
+      "funeral-documents": {
+        "title": "Booklet and poster",
+        "description": "A photo, a few words reviewed together, then the funeral booklet and the poster to print or share."
       }
     },
     "q": {
@@ -1419,6 +1423,13 @@
           "title": "Is a meal served on the day of the funeral?",
           "hint": "For everyone expected that day.",
           "options": { "yes": "Yes", "no": "No" }
+        }
+      },
+      "documents": {
+        "style": {
+          "title": "Which look would you prefer?",
+          "hint": "The same look for the booklet and the poster. You can change your mind before downloading.",
+          "options": { "sober": "Simple", "color": "Colour" }
         }
       },
       "ceremony": {
@@ -1939,6 +1950,107 @@
     },
     "errors": {
       "too_large": "The ledger is too large to export in one go."
+    }
+  },
+  "documents": {
+    "photo": {
+      "label": "Photo for the booklet and the poster",
+      "hint": "Optional. The documents work without a photo.",
+      "uploading": "Sending the photo…",
+      "saved": "Photo saved.",
+      "errors": {
+        "unreadable": "This photo cannot be read. Please choose another one.",
+        "photo_type": "This photo format is not accepted. Please choose another photo.",
+        "photo_size": "This photo is too large (5 MB maximum). Please choose another one.",
+        "photo_missing": "The photo has not arrived yet. Please try again in a moment.",
+        "photo_already_used": "This photo is already saved. Reload the page to see it.",
+        "upload_failed": "Sending the photo failed. Check your connection and try again."
+      }
+    },
+    "starter": {
+      "cover": {
+        "neutral": "Their memory will live on in our hearts forever.",
+        "believer": "May God welcome them into His peace and light."
+      },
+      "thanks": {
+        "neutral": "The family thanks with all their hearts everyone who stood by them with their presence, their messages and their support during this painful time.",
+        "believer": "The family thanks with all their hearts everyone who stood by them with their presence, their prayers and their support during this painful time. May God bless you."
+      }
+    },
+    "labels": {
+      "tribute": "Tribute",
+      "program": "Programme",
+      "thanks": "Acknowledgements",
+      "time": "Time",
+      "moment": "Moment",
+      "place": "Place",
+      "lead": "Led by",
+      "dateToBeConfirmed": "Date to be confirmed"
+    },
+    "missing": {
+      "intro": "This document cannot be created yet. Still missing:",
+      "name": "the name of the deceased",
+      "program": "the programme for the day",
+      "cover": "the cover line",
+      "tribute": "the tribute",
+      "thanks": "the acknowledgements"
+    },
+    "files": {
+      "booklet": "funeral-booklet",
+      "poster": "funeral-poster"
+    },
+    "synthesis": {
+      "intro": "Choose a photo, read over the three texts, then download the booklet and the poster.",
+      "style": "Layout: {style}",
+      "edit": "Change",
+      "editStyle": "Change the layout",
+      "photoTitle": "Photo",
+      "photoAlt": "Photo chosen for the booklet and the poster",
+      "noPhoto": "No photo",
+      "textsTitle": "The booklet texts",
+      "textsIntro": "Read each text, change it if needed, then save it. The poster uses the cover line.",
+      "readOnly": "You can read these texts; only contributors can change them.",
+      "text": {
+        "cover": "Cover line",
+        "tribute": "Tribute",
+        "thanks": "Acknowledgements"
+      },
+      "tributeHint": "A few sentences about their life, around 150 words. There is no starting text: write it yourself or ask the AI for a suggestion.",
+      "counter": "{count} / {max} characters",
+      "save": "Save",
+      "saveLabel": "Save: {text}",
+      "saving": "Saving…",
+      "saved": "Text saved.",
+      "unsaved": "Not saved yet.",
+      "generate": "Suggest the texts with AI",
+      "generating": "Preparing the texts…",
+      "generated": "Texts suggested: read them over, then save the ones you like.",
+      "ai": {
+        "unavailable": "AI text suggestions are not available right now. You can write the texts yourself.",
+        "quota": "Today's AI suggestion limit for this dossier has been reached. Your texts are kept.",
+        "failed": "The suggestion did not work. Your texts are kept; please try again in a moment.",
+        "missingFacts": "Add the first name or the biography to the dossier so the AI can suggest texts.",
+        "missingFactsLink": "Complete the biography",
+        "forbidden": "Only contributors can ask for suggested texts."
+      },
+      "notWritten": "Not written yet",
+      "keptEdited": "Texts you changed while they were being prepared were kept as they were.",
+      "formatsTitle": "Download the documents",
+      "format": {
+        "booklet": "Ceremony booklet (A5 PDF)",
+        "posterPdf": "Poster to print (A4 PDF)",
+        "posterPng": "Poster for WhatsApp (square image)"
+      },
+      "download": "Download",
+      "downloadLabel": "Download: {format}",
+      "fix": {
+        "name": "Complete the dossier",
+        "program": "Write the programme",
+        "cover": "Write this text",
+        "tribute": "Write this text",
+        "thanks": "Write this text",
+        "review": "Review and save this text"
+      }
     }
   },
   "providers": {

@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { ESTIMATE_KEYS, estimateFor, hasEstimate } from '@/journey/quantities';
 import { getStep, isStepOpen } from '@/journey/registry';
 import { CEREMONY_STEP_ID } from '@/journey/steps/3-4-ceremony-program';
+import { DOCUMENTS_STEP_ID } from '@/journey/steps/3-5-funeral-documents';
 import { CeremonySynthesis } from '@/journey/ui/CeremonySynthesis';
 import { StepSynthesis } from '@/journey/ui/StepSynthesis';
 import { getClosure } from '@/modules/budget/closing/repo';
@@ -13,6 +14,8 @@ import { type LineAdjustment, lineAdjustments } from '@/modules/budget/lines/mod
 import { listLines } from '@/modules/budget/lines/repo';
 import { listAnswersResult } from '@/modules/dossier/answers/repo';
 import { getDeathCity, getDossier, getMyRole } from '@/modules/dossier/repo';
+import { loadDocumentsSynthesis } from '@/modules/documents/load';
+import { DocumentsSynthesis } from '@/modules/documents/ui/DocumentsSynthesis';
 import { canWrite, hasRole } from '@/modules/dossier/roles';
 import { panelCity, type PanelGroup } from '@/modules/providers/panel';
 import { quoteContext, quoteMessages } from '@/modules/providers/quote-panel';
@@ -34,13 +37,30 @@ export default async function StepSynthesisPage({
   setRequestLocale(locale);
   const step = getStep(stepId);
   if (!IdSchema.safeParse(id).success || !step || step.summary !== 'step') notFound();
-  // WHY: une seule page pour les synthèses propres : 3.1 et 3.2 (estimation) et 3.4 (programme,
-  // sans quantité).
+  // WHY: une seule page pour les synthèses propres : 3.1 et 3.2 (estimation), 3.4 (programme,
+  // sans quantité) et 3.5 (livret et affiche).
   const isCeremony = step.id === CEREMONY_STEP_ID;
-  if (!hasEstimate(step.id) && !isCeremony) notFound();
+  const isDocuments = step.id === DOCUMENTS_STEP_ID;
+  if (!hasEstimate(step.id) && !isCeremony && !isDocuments) notFound();
 
   const dossier = await getDossier(id);
   if (!dossier || !isStepOpen(dossier.entryPoint, step.id)) notFound();
+
+  // WHY: l'étape 3.5 n'a ni estimation, ni prestataires, ni devis : elle est rendue avant tout
+  // ce calcul.
+  if (isDocuments) {
+    const props = await loadDocumentsSynthesis({
+      dossierId: id,
+      dossierTitle: dossier.title,
+      entryPoint: dossier.entryPoint,
+      locale,
+    });
+    return (
+      <div className="px-4 py-8 sm:px-6 lg:py-12">
+        <DocumentsSynthesis {...props} />
+      </div>
+    );
+  }
 
   // WHY: `vigil.place` (3.1) donne la ville des messages de devis et `ceremony.date` (3.4) leur
   // date, pour chacune des étapes 3.1, 3.2 et 3.4.
