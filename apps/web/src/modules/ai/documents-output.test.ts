@@ -55,6 +55,13 @@ describe('hasTime', () => {
       'Rendez-vous à 10 h 30.',
       'Jean 11:25. Rendez-vous à 14:30.',
       'Jean 3:16, puis 14h30.',
+      'Dimanche 14:30, nous nous recueillerons.',
+      'dimanche 14:30',
+      'Sunday 9:15 at the church.',
+      'SUNDAY 9:15',
+      'Vers 9:15, accueil.',
+      'Le 14:30 précisément.',
+      'At 9:15 we gather.',
     ]) {
       expect(hasTime(text)).toBe(true);
     }

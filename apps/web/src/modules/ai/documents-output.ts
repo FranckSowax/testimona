@@ -26,7 +26,30 @@ const TIMES = [
 
 // WHY: le ton croyant peut citer un verset (« Jean 11:25 », « 1 Corinthiens 13:4-7 ») : sa
 // référence ressemble à une heure. On la retire avant de chercher une heure.
-const VERSE = /(?:\b[1-3]\s?)?\b\p{Lu}\p{L}+\.?\s+\d{1,3}:\d{1,3}(?:-\d{1,3})?\b/gu;
+const VERSE = /(?:\b[1-3]\s?)?\b(\p{Lu}\p{L}+)\.?\s+\d{1,3}:\d{1,3}(?:-\d{1,3})?\b/gu;
+
+// WHY: « Dimanche 14:30 » ou « Vers 9:15 » ont la forme d'un verset mais annoncent une heure :
+// un jour de la semaine ou un mot d'introduction n'est jamais un livre de la Bible.
+const NOT_A_BOOK = new Set([
+  'lundi',
+  'mardi',
+  'mercredi',
+  'jeudi',
+  'vendredi',
+  'samedi',
+  'dimanche',
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+  'sunday',
+  'le',
+  'vers',
+  'à',
+  'at',
+]);
 
 const MONTHS_FR =
   'janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre';
@@ -48,7 +71,9 @@ const normalize = (text: string) => text.toLowerCase().replace(/\s+/g, ' ');
 
 /** Vrai quand le texte contient une heure (hors référence de verset). */
 export function hasTime(text: string): boolean {
-  const withoutVerses = text.replace(VERSE, ' ');
+  const withoutVerses = text.replace(VERSE, (match, book: string) =>
+    NOT_A_BOOK.has(book.toLowerCase()) ? match : ' ',
+  );
   return TIMES.some((time) => time.test(withoutVerses));
 }
 
