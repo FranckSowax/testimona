@@ -12,7 +12,8 @@ vi.mock('./repo', () => aiRepo);
 vi.mock('@/modules/dossier/answers/repo', () => answersRepo);
 vi.mock('@/modules/dossier/repo', () => dossierRepo);
 
-const { generateDocumentTexts, openRouterDocumentsProvider } = await import('./documents');
+const { DOCUMENT_TEXTS_MAX_TOKENS, generateDocumentTexts, openRouterDocumentsProvider } =
+  await import('./documents');
 const { AiProviderError } = await import('./provider');
 const { DOCUMENT_AI_KEYS } = await import('./documents-facts');
 
@@ -201,6 +202,52 @@ describe('generateDocumentTexts', () => {
     expect((await generateDocumentTexts(input(), provider)).ok).toBe(true);
   });
 
+  const withThanks = (thanks: string) => JSON.stringify({ ...TEXTS, thanks });
+
+  it('accepte un verset cité, refuse une heure ou une date absente des faits', async () => {
+    answersRepo.listAnswersResult.mockResolvedValue({
+      data: { 'biography.career': 'Instituteur de 1975 à 2010.' },
+      error: null,
+    });
+    for (const [thanks, ok] of [
+      ['« Je suis la résurrection et la vie. » Jean 11:25', true],
+      ['Instituteur de 1975 à 2010, il a tant donné.', true],
+      ['Jean 11:25. Rendez-vous à 14:30.', false],
+      ['Rendez-vous à 15h.', false],
+      ['Né en 1950, il a tant donné.', false],
+      ['Le 12 octobre restera gravé.', false],
+    ] as const) {
+      provider.mockResolvedValueOnce(withThanks(thanks));
+      expect((await generateDocumentTexts(input(), provider)).ok).toBe(ok);
+    }
+    expect(aiRepo.consumeAiQuota).toHaveBeenCalledTimes(6);
+  });
+
+  it('refuse avant le quota un dossier sans prénom, surnom ni biographie', async () => {
+    dossierRepo.getPersonResult.mockResolvedValue({ data: null, error: null });
+    answersRepo.listAnswersResult.mockResolvedValue({
+      data: { 'ceremony.tone': 'neutral', 'biography.birthPlace': 'Oyem' },
+      error: null,
+    });
+    expect(await generateDocumentTexts(input(), provider)).toEqual({
+      ok: false,
+      error: 'validation',
+    });
+    expect(aiRepo.consumeAiQuota).not.toHaveBeenCalled();
+    expect(provider).not.toHaveBeenCalled();
+    dossierRepo.getPersonResult.mockResolvedValue({
+      data: {
+        firstName: '',
+        lastName: 'Ndong',
+        nickname: 'Papa Jo',
+        birthDate: null,
+        deathDate: null,
+      },
+      error: null,
+    });
+    expect((await generateDocumentTexts(input(), provider)).ok).toBe(true);
+  });
+
   it('renvoie failed si l’IA échoue, sans journaliser les faits', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     provider.mockRejectedValueOnce(new AiProviderError('refusal'));
@@ -238,7 +285,8 @@ describe('openRouterDocumentsProvider', () => {
     await openRouterDocumentsProvider('key', { fetchImpl })({ system: 'S', user: 'U' });
     const body = JSON.parse(fetchImpl.mock.calls[0]![1].body as string);
     expect(body.reasoning).toEqual({ effort: 'low', exclude: true });
-    expect(body.max_tokens).toBeLessThanOrEqual(8_000);
+    expect(body.max_tokens).toBe(DOCUMENT_TEXTS_MAX_TOKENS);
+    expect(DOCUMENT_TEXTS_MAX_TOKENS).toBe(6_000);
     expect(body.provider).toEqual({ data_collection: 'deny' });
     expect(body.messages).toEqual([
       { role: 'system', content: 'S' },

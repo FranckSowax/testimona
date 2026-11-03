@@ -7,7 +7,7 @@ const LANGUAGE: Record<TemplateLocale, string> = { fr: 'French', en: 'English' }
 
 function toneRule(tone: DocumentFacts['tone']): string {
   if (tone === 'believer')
-    return 'The family chose a believer tone: a short religious reference is welcome, and the cover may be a short verse or prayer line instead of a sentence.';
+    return 'The family chose a believer tone: a short religious reference is welcome, and the cover may be a short verse or prayer line instead of a sentence; a verse reference such as "John 11:25" is allowed.';
   if (tone === 'neutral') return 'The family chose a neutral tone: use no religious reference.';
   return 'No tone was chosen: stay sober and use no religious reference.';
 }

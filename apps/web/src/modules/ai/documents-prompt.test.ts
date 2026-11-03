@@ -43,6 +43,7 @@ describe('buildDocumentTextsPrompt', () => {
     const believer = buildDocumentTextsPrompt({ locale: 'fr', facts: facts({ tone: 'believer' }) });
     expect(believer.system).toContain('believer tone');
     expect(believer.system).toContain('verse');
+    expect(believer.system).toContain('verse reference');
     const neutral = buildDocumentTextsPrompt({ locale: 'fr', facts: facts({ tone: 'neutral' }) });
     expect(neutral.system).toContain('use no religious reference');
     expect(neutral.system).not.toContain('verse');
