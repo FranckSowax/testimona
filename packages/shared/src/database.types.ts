@@ -1,4 +1,4 @@
-// Généré depuis la base de production Supabase (projet « Testimona app ») le 2026-10-29.
+// Généré depuis la base de production Supabase (projet « Testimona app ») le 2026-11-03.
 // Ne pas modifier à la main : relancer `pnpm --filter @testimona/supabase db:types`
 // (ou l'outil generate_typescript_types du MCP Supabase) après chaque migration.
 export type Json =
